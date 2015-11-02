@@ -41,31 +41,20 @@
 /*                                                                           */
 /*****************************************************************************/
 
-/*****************************************************************************/
-#include <gtk/gtk.h>
+#ifndef COMMON_H
+#define COMMON_H
 
-#include "version.h"
-#include "pub.h"
+extern const char STR_NAME_PROGRAMM[];
+extern const char STR_COPYRIGHT[];
+extern const char STR_COMMENT[];
+extern const char STR_LICENSE[];
+extern const char STR_EMAIL[];
+extern const char STR_EMAIL_LABEL[];
+extern const char * STR_AUTHORS[];
 
-/*****************************************************************************/
+extern GString * pub;
 
-/*****************************************************************************/
+int init_common(void);
+int deinit_common(void);
+#endif
 
-GtkWidget * create_main_block(void)
-{
-
-}
-/*****************************************************************************/
-int main(int argc,char * argv[])
-{
-	gtk_init(&argc,&argv);
-
-	init_common();
-
-	create_main_block();
-
-	gtk_main();
-
-	return SUCCESS;
-}
-/*****************************************************************************/
