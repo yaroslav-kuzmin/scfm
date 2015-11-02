@@ -47,5 +47,8 @@
 #define SUCCESS           0
 #define FAILURE          -1
 
+#define OK                0
+#define NOT_OK           -1
+
 #endif
 

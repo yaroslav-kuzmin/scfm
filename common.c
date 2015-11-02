@@ -77,6 +77,18 @@ const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
 const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
 
 GString * pub = NULL;
+
+GKeyFile * system_config = NULL;
+
+char STR_GROUP_GLOBAL[] = "global";
+
+#ifdef G_OS_WIN32
+static char STR_HOME_PATH[] = "HOMEPATH";
+#endif
+#ifdef G_OS_UNIX
+static char STR_HOME_PATH[] = "HOME";
+#endif
+
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -86,27 +98,148 @@ GString * pub = NULL;
 /*****************************************************************************/
 /*  конфиурирование системы                                                  */
 /*****************************************************************************/
-static char STR_CONFIG_FILE[] = G_DIR_SEPARATOR_S ".config" G_DIR_SEPARATOR_S "scfm" G_DIR_SEPARATOR_S "ini";
-#ifdef G_OS_WIN32
-static char STR_HOME_PATH[] = "HOMEPATH";
-#endif
-#ifdef G_OS_UNIX
-static char STR_HOME_PATH[] = "HOME";
-#endif
+
+static int flag_save_config = NOT_OK;
+int set_flag_save_config(void)
+{
+	flag_save_config = OK;
+	return flag_save_config;
+}
+
+static int default_config(void)
+{
+	system_config = g_key_file_new();
+	return SUCCESS;
+}
+
+static int save_config(GString * name)
+{
+	int rc;
+	GError * err;
+
+	if(flag_save_config != OK){
+		return FAILURE;
+	}
+
+	if(system_config != NULL){
+		rc = g_key_file_save_to_file(system_config,name->str,&err);
+		if(rc == FALSE ){
+			GtkWidget * md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK
+		                                           ,"Нет файла конфигурации %s \n %s",STR_KEY_FILE_NAME,err->message);
+			gtk_dialog_run(GTK_DIALOG(md_err));
+			gtk_widget_destroy (md_err);
+			return FAILURE;
+		}
+	}
+	return SUCCESS;
+}
+
+static int read_config(GString * name)
+{
+	int rc;
+	GError * err = NULL;
+
+	if(name == NULL){
+		return FAILURE;
+	}
+
+	system_config = g_key_file_new();
+	rc = g_key_file_load_from_file(system_config,name->str,G_KEY_FILE_NONE,&err);
+	if(rc == FALSE){
+		g_key_file_free(system_config);
+		system_config = NULL;
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
+/*****************************************************************************/
+
+static char STR_CONFIG_DIR[] = G_DIR_SEPARATOR_S".config"G_DIR_SEPARATOR_S"scfm";
+static char STR_FILE_CONFIG[] = G_DIR_SEPARATOR_S"ini";
+static GString * config_name = NULL;
 
 static int init_config(void)
 {
-	
+	int rc;
+	char * str = getenv(STR_HOME_PATH);
+	if(str != NULL){
+		config_name = g_string_new(str);
+		g_string_append(config_name,STR_CONFIG_DIR);
+		g_string_append(config_name,STR_FILE_CONFIG);
+	}
+
+	rc = read_config(config_name);
+	if(rc != SUCCESS){
+		default_config();
+	}
+
 	return SUCCESS;
 }
+
 static int deinit_config(void)
 {
-
+	save_config(config_name);
+	if(system_config != NULL){
+		g_key_file_free(system_config);
+		system_config = NULL;
+	}
+	if(config_name != NULL){
+		g_string_free(config_name,TRUE);
+		config_name = NULL;
+	}
+	return SUCCESS;
 }
+
 /*****************************************************************************/
 /* система логирования                                                       */
 /*****************************************************************************/
+static int open_logging(GString * name)
+{
 
+}
+
+static char STR_CACHE_DIR[] = G_DIR_SEPARATOR_S".cache"G_DIR_SEPARATOR_S"scfm";
+static char STR_FILE_LOGGING[] = G_DIR_SEPARATOR_S"log";
+static GString * logging_name = NULL;
+static char STR_KEY_LOGGING[] = "log_file";
+
+static int init_logging(void)
+{
+	GError * err = NULL;
+	char * str;
+	int rc;
+
+	str = g_key_file_get_string(system_config,STR_GROUP_GLOBAL,STR_KEY_LOGGING);
+	if(str != NULL){
+		logging_name = g_string_new(str);
+		g_free(str);
+	}
+	else{
+		str = getenv(STR_HOME_PATH);
+		if(str != NULL){
+			logging_name = g_string_new(str);
+			g_string_append(logging_name,STR_CACHE_DIR);
+			g_string_append(logging_name,STR_FILE_LOGGING);
+
+		}
+	}
+	rc = open_logging(logging_name);
+	if(rc == SUCCESS){
+
+	}
+
+	return SUCCESS;
+}
+
+static int deinit_logging(void)
+{
+	if(logging_name != NULL){
+		g_string_free(logging_name,TRUE);
+		logging_name = NULL;
+	}
+	return SUCCESS;
+}
 /*****************************************************************************/
 /*                                                                           */
 /*****************************************************************************/

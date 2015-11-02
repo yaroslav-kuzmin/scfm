@@ -53,8 +53,13 @@ extern const char STR_EMAIL_LABEL[];
 extern const char * STR_AUTHORS[];
 
 extern GString * pub;
+extern GKeyFile * system_config;
+
+extern char STR_GROUP_GLOBAL[];
+
 
 int init_common(void);
 int deinit_common(void);
+
 #endif
 
