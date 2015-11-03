@@ -84,16 +84,50 @@ char STR_GROUP_GLOBAL[] = "global";
 
 #ifdef G_OS_WIN32
 static char STR_HOME_PATH[] = "HOMEPATH";
+/*static char STR_HOME_PATH[] = "APPDATA";*/
 #endif
 #ifdef G_OS_UNIX
 static char STR_HOME_PATH[] = "HOME";
 #endif
 
+static char STR_CONFIG_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"config"G_DIR_SEPARATOR_S;
+static char STR_CACHE_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"cache"G_DIR_SEPARATOR_S;
+static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"logs"G_DIR_SEPARATOR_S;
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 /*****************************************************************************/
+int dialog_error(char * message)
+{
+	GtkWidget * md_err =
+	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,message);
+	gtk_dialog_run(GTK_DIALOG(md_err));
+	gtk_widget_destroy(md_err);
+	return FAILURE;
+}
+
+int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
+{
+	gtk_widget_set_halign(w,ha);
+	gtk_widget_set_valign(w,va);
+	gtk_widget_set_hexpand(w,he);
+	gtk_widget_set_vexpand(w,ve);
+	return SUCCESS;
+}
+
+int set_size_font(GtkWidget * w,int size)
+{
+	PangoContext * pancon_info;
+	PangoFontDescription * panfondes_info;
+
+	pancon_info = gtk_widget_get_pango_context(w);
+	panfondes_info = pango_context_get_font_description(pancon_info);
+	pango_font_description_set_size(panfondes_info,size);
+	gtk_widget_override_font(w,panfondes_info);
+
+	return SUCCESS;
+}
 
 /*****************************************************************************/
 /*  конфиурирование системы                                                  */
@@ -124,11 +158,8 @@ static int save_config(GString * name)
 	if(system_config != NULL){
 		rc = g_key_file_save_to_file(system_config,name->str,&err);
 		if(rc == FALSE ){
-			GtkWidget * md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK
-		                                           ,"Нет файла конфигурации %s \n %s",STR_KEY_FILE_NAME,err->message);
-			gtk_dialog_run(GTK_DIALOG(md_err));
-			gtk_widget_destroy (md_err);
-			return FAILURE;
+			g_string_printf(pub,"Нет файла конфигурации %s \n %s",name->str,err->message);
+			return dialog_error(pub->str);
 		}
 	}
 	return SUCCESS;
@@ -155,8 +186,7 @@ static int read_config(GString * name)
 
 /*****************************************************************************/
 
-static char STR_CONFIG_DIR[] = G_DIR_SEPARATOR_S".config"G_DIR_SEPARATOR_S"scfm";
-static char STR_FILE_CONFIG[] = G_DIR_SEPARATOR_S"ini";
+static char STR_CONFIG_FILE[] = "ini";
 static GString * config_name = NULL;
 
 static int init_config(void)
@@ -166,7 +196,7 @@ static int init_config(void)
 	if(str != NULL){
 		config_name = g_string_new(str);
 		g_string_append(config_name,STR_CONFIG_DIR);
-		g_string_append(config_name,STR_FILE_CONFIG);
+		g_string_append(config_name,STR_CONFIG_FILE);
 	}
 
 	rc = read_config(config_name);
@@ -199,31 +229,29 @@ static int open_logging(GString * name)
 
 }
 
-static char STR_CACHE_DIR[] = G_DIR_SEPARATOR_S".cache"G_DIR_SEPARATOR_S"scfm";
-static char STR_FILE_LOGGING[] = G_DIR_SEPARATOR_S"log";
 static GString * logging_name = NULL;
-static char STR_KEY_LOGGING[] = "log_file";
 
 static int init_logging(void)
 {
 	GError * err = NULL;
 	char * str;
 	int rc;
+	GTimeVal current_time;
+	GDateTime * p_dt;
 
-	str = g_key_file_get_string(system_config,STR_GROUP_GLOBAL,STR_KEY_LOGGING);
+
+	str = getenv(STR_HOME_PATH);
 	if(str != NULL){
 		logging_name = g_string_new(str);
-		g_free(str);
+		g_string_append(logging_name,STR_LOG_DIR);
+		g_get_current_time (&current_time);
+		p_dt = g_date_time_new_from_timeval_local(&current_time);
+		g_string_append_printf(logging_name,"%04d%02d%02d"
+			               ,g_date_time_get_year(p_dt)
+			               ,g_date_time_get_month(p_dt)
+			               ,g_date_time_get_day_of_month(p_dt)
 	}
-	else{
-		str = getenv(STR_HOME_PATH);
-		if(str != NULL){
-			logging_name = g_string_new(str);
-			g_string_append(logging_name,STR_CACHE_DIR);
-			g_string_append(logging_name,STR_FILE_LOGGING);
 
-		}
-	}
 	rc = open_logging(logging_name);
 	if(rc == SUCCESS){
 
@@ -236,9 +264,9 @@ static int deinit_logging(void)
 {
 	if(logging_name != NULL){
 		g_string_free(logging_name,TRUE);
-		logging_name = NULL;
+	 	logging_name = NULL;
 	}
-	return SUCCESS;
+	 return SUCCESS;
 }
 /*****************************************************************************/
 /*                                                                           */
@@ -247,14 +275,16 @@ static int deinit_logging(void)
 int init_common(void)
 {
 	pub = g_string_new(NULL);
-
+	
 	init_config();
+	init_logging();
 	return SUCCESS;
 }
 
 int deinit_common(void)
 {
-	g_string_free(pub,TRUE);
+ 	g_string_free(pub,TRUE);
+	deinit_logging();
 	deinit_config();
 
 	return SUCCESS;
