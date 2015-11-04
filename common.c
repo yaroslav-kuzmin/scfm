@@ -90,9 +90,9 @@ static char STR_HOME_PATH[] = "HOMEPATH";
 static char STR_HOME_PATH[] = "HOME";
 #endif
 
-static char STR_CONFIG_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"config"G_DIR_SEPARATOR_S;
-static char STR_CACHE_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"cache"G_DIR_SEPARATOR_S;
-static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S"logs"G_DIR_SEPARATOR_S;
+static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"
+static GString * work_catalog = NULL;
+static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -186,24 +186,37 @@ static int read_config(GString * name)
 
 /*****************************************************************************/
 
-static char STR_CONFIG_FILE[] = "ini";
+static char STR_CONFIG_FILE[] = G_DIR_SEPARATOR_S"config";
 static GString * config_name = NULL;
+
+static int create_default_config(GString * name)
+{
+
+	return SUCCESS;
+}
+
+static int check_config(GString * catalog)
+{
+	int rc;
+	config_name = g_string_new(catalog->str);
+	g_string_append(config_name,STR_CONFIG_FILE);
+	rc = g_file_test(config_name->str,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		rc = create_default_config(config_name);
+		if(rc == FAILURE){
+			return rc;
+		}
+	}
+	return SUCCESS;
+}
 
 static int init_config(void)
 {
 	int rc;
-	char * str = getenv(STR_HOME_PATH);
-	if(str != NULL){
-		config_name = g_string_new(str);
-		g_string_append(config_name,STR_CONFIG_DIR);
-		g_string_append(config_name,STR_CONFIG_FILE);
-	}
 
-	rc = read_config(config_name);
-	if(rc != SUCCESS){
-		default_config();
+	if(system_config != NULL){
+		rc = read_config(config_name);
 	}
-
 	return SUCCESS;
 }
 
@@ -271,22 +284,67 @@ static int deinit_logging(void)
 /*****************************************************************************/
 /*                                                                           */
 /*****************************************************************************/
-
-int init_common(void)
+#define MODE_WORK_CATALOG             0755
+static int create_default_system(GString * catalog)
 {
-	pub = g_string_new(NULL);
-	
-	init_config();
-	init_logging();
+	int rc;
+	rc = create_default_config(catalog);
+	if(rc == FAILURE){
+		return FAILURE;
+	}
+
 	return SUCCESS;
 }
 
-int deinit_common(void)
+static int check_catalog(void)
 {
- 	g_string_free(pub,TRUE);
+	int rc;
+	char * str = g_getenv(STR_HOME_PATH);/*g_get_home_dir();*/
+
+	work_catalog = g_string_new(str);
+	g_string_append(work_catalog,STR_WORK_CATALOG);
+
+	rc = g_file_test(work_catalog->str,G_FILE_TEST_IS_DIR);
+	if(rc == FALSE){
+		rc = g_mkdir_with_parents(work_catalog->str,MODE_WORK_CATALOG);
+		if(rc == -1){
+			g_string_printf(pub,"Несмог создать рабочий каталог : %s",work_catalog->str);
+			dialog_error(pub->str);
+			exit(0);
+		}
+		rc = create_default_system(work_catalog);
+		if(rc == FAILURE){
+			exit(0)
+		}
+	}
+	else{
+		rc = check_config(work_catalog);
+		if(rc == FAILURE){
+			exit(0);
+		}
+	}
+	return SUCCESS;
+}
+
+int init_system(void)
+{
+	int rc;
+
+	pub = g_string_new(NULL);
+
+	check_catalog();
+
+	init_config();
+	init_logging();
+
+	return SUCCESS;
+}
+
+int deinit_system(void)
+{
 	deinit_logging();
 	deinit_config();
-
+ 	g_string_free(pub,TRUE);
 	return SUCCESS;
 }
 /*****************************************************************************/

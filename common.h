@@ -58,8 +58,8 @@ extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];
 
 
-int init_common(void);
-int deinit_common(void);
+int init_system(void);
+int deinit_system(void);
 
 #endif
 
