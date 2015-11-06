@@ -53,74 +53,9 @@
 /*****************************************************************************/
 
 char STR_NAME_PROGRAMM[] = "Система Управления Лафетными Стволами";
-static const char STR_COPYRIGHT[] = "(C) <2015> <Кузьмин Ярослав>";
-static const char STR_COMMENT[] =
-"Программа позволяет управлять большой группой\n"
-" лафетных стволов, задвижками, видеокамерами."
-static const char STR_LICENSE[] =
-"  Эта программа является свободным программным обеспечением:           \n"
-"  вы можете распространять и/или изменять это в соответствии с         \n"
-"  условиями в GNU General Public License, опубликованной               \n"
-"  Фондом свободного программного обеспечения, как версии 3 лицензии,   \n"
-"  или (по вашему выбору) любой более поздней версии.                   \n"
-"                                                                       \n"
-"  Эта программа распространяется в надежде, что она будет полезной,    \n"
-"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии        \n"
-"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License  \n"
-"  для более подробной информации.                                      \n"
-"                                                                       \n"
-"  Вы должны были получить копию GNU General Public License             \n"
-"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>\n"
-"                                                                         ";
-static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
-static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
-static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
-
-static const char STR_LICENSE_FULL[] =
-"##############################################################################\n"
-"                                                                             #\n"
-" сулс - система управления лафетными стволами                                #\n"
-"  Авторское Право (C) <2015> <Кузьмин Ярослав>                               #\n"
-"                                                                             #\n"
-"  Эта программа является свободным программным обеспечением:                 #\n"
-"  вы можете распространять и/или изменять это в соответствии с               #\n"
-"  условиями в GNU General Public License, опубликованной                     #\n"
-"  Фондом свободного программного обеспечения, как версии 3 лицензии,         #\n"
-"  или (по вашему выбору) любой более поздней версии.                         #\n"
-"                                                                             #\n"
-"  Эта программа распространяется в надежде, что она будет полезной,          #\n"
-"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии              #\n"
-"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License        #\n"
-"  для более подробной информации.                                            #\n"
-"                                                                             #\n"
-"  Вы должны были получить копию GNU General Public License                   #\n"
-"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>      #\n"
-"                                                                             #\n"
-"  Адрес для контактов: kuzmin.yaroslav@gmail.com                             #\n"
-"                                                                             #\n"
-"##############################################################################\n"
-"                                                                             #\n"
-" scfm - system control fire monitors                                         #\n"
-"  Copyright (C) <2015> <Kuzmin Yaroslav>                                     #\n"
-"                                                                             #\n"
-"  This program is free software: you can redistribute it and/or modify       #\n"
-"  it under the terms of the GNU General Public License as published by       #\n"
-"  the Free Software Foundation, either version 3 of the License, or          #\n"
-"  (at your option) any later version.                                        #\n"
-"                                                                             #\n"
-"  This program is distributed in the hope that it will be useful,            #\n"
-"  but WITHOUT ANY WARRANTY; without even the implied warranty of             #\n"
-"  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              #\n"
-"  GNU General Public License for more details.                               #\n"
-"                                                                             #\n"
-"  You should have received a copy of the GNU General Public License          #\n"
-"  along with this program.  If not, see <http://www.gnu.org/licenses/>.      #\n"
-"                                                                             #\n"
-"  Email contact: kuzmin.yaroslav@gmail.com                                   #\n"
-"                                                                             #\n"
-"##############################################################################\n";
 
 GString * pub = NULL;
+
 GKeyFile * system_config = NULL;
 char STR_GROUP_GLOBAL[] = "global";
 
@@ -130,6 +65,7 @@ char STR_GROUP_GLOBAL[] = "global";
 /*    Общие функции                                                          */
 /*****************************************************************************/
 /*****************************************************************************/
+
 int dialog_error(char * message)
 {
 	GtkWidget * md_err;
@@ -227,6 +163,50 @@ static int read_config(GString * name)
 	return SUCCESS;
 }
 
+static const char STR_LICENSE_CONFIG[] =
+	"##############################################################################\n"
+	"                                                                             #\n"
+	" сулс - система управления лафетными стволами                                #\n"
+	"  Авторское Право (C) <2015> <Кузьмин Ярослав>                               #\n"
+	"                                                                             #\n"
+	"  Эта программа является свободным программным обеспечением:                 #\n"
+	"  вы можете распространять и/или изменять это в соответствии с               #\n"
+	"  условиями в GNU General Public License, опубликованной                     #\n"
+	"  Фондом свободного программного обеспечения, как версии 3 лицензии,         #\n"
+	"  или (по вашему выбору) любой более поздней версии.                         #\n"
+	"                                                                             #\n"
+	"  Эта программа распространяется в надежде, что она будет полезной,          #\n"
+	"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии              #\n"
+	"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License        #\n"
+	"  для более подробной информации.                                            #\n"
+	"                                                                             #\n"
+	"  Вы должны были получить копию GNU General Public License                   #\n"
+	"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>      #\n"
+	"                                                                             #\n"
+	"  Адрес для контактов: kuzmin.yaroslav@gmail.com                             #\n"
+	"                                                                             #\n"
+	"##############################################################################\n"
+	"                                                                             #\n"
+	" scfm - system control fire monitors                                         #\n"
+	"  Copyright (C) <2015> <Kuzmin Yaroslav>                                     #\n"
+	"                                                                             #\n"
+	"  This program is free software: you can redistribute it and/or modify       #\n"
+	"  it under the terms of the GNU General Public License as published by       #\n"
+	"  the Free Software Foundation, either version 3 of the License, or          #\n"
+	"  (at your option) any later version.                                        #\n"
+	"                                                                             #\n"
+	"  This program is distributed in the hope that it will be useful,            #\n"
+	"  but WITHOUT ANY WARRANTY; without even the implied warranty of             #\n"
+	"  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              #\n"
+	"  GNU General Public License for more details.                               #\n"
+	"                                                                             #\n"
+	"  You should have received a copy of the GNU General Public License          #\n"
+	"  along with this program.  If not, see <http://www.gnu.org/licenses/>.      #\n"
+	"                                                                             #\n"
+	"  Email contact: kuzmin.yaroslav@gmail.com                                   #\n"
+	"                                                                             #\n"
+	"##############################################################################\n";
+
 static int create_default_config(GString * name)
 {
 	int rc;
@@ -240,7 +220,7 @@ static int create_default_config(GString * name)
 	}
 	system_config = g_key_file_new();
 
-	rc = g_key_file_set_comment(system_config,NULL,NULL,STR_LICENSE_FULL,&err);
+	rc = g_key_file_set_comment(system_config,NULL,NULL,STR_LICENSE_CONFIG,&err);
 	if(rc == FALSE){
 		g_string_printf(pub,"Несмог создать файл конфигурации %s!\n%s",name->str,err->message);
 		dialog_error(pub->str);
@@ -550,8 +530,9 @@ static int deinit_logging(void)
 /*****************************************************************************/
 
 #ifdef G_OS_WIN32
-static const char STR_HOME_PATH[] = "HOMEPATH";
+static const char STR_HOME_PATH[] = "HOME";
 /*static char STR_HOME_PATH[] = "APPDATA";*/
+/*static char STR_HOME_PATH[] = "USERPROFILE";*/
 #endif
 #ifdef G_OS_UNIX
 static const char STR_HOME_PATH[] = "HOME";
@@ -609,8 +590,8 @@ int init_system(void)
 
 int deinit_system(void)
 {
-	g_message("Останов системы.");
-	g_info("Останов системы.");
+	g_message("Останов системы.\n");
+	g_info("Останов системы.\n");
 	deinit_logging();
 	deinit_config();
  	g_string_free(pub,TRUE);
@@ -621,6 +602,28 @@ int deinit_system(void)
 /*  О Программе                                                              */
 /*****************************************************************************/
 
+static const char STR_COPYRIGHT[] = "(C) <2015> <Кузьмин Ярослав>";
+static const char STR_COMMENT[] =
+"Программа позволяет управлять большой группой\n"
+" лафетных стволов, задвижками, видеокамерами.";
+static const char STR_LICENSE[] =
+"  Эта программа является свободным программным обеспечением:           \n"
+"  вы можете распространять и/или изменять это в соответствии с         \n"
+"  условиями в GNU General Public License, опубликованной               \n"
+"  Фондом свободного программного обеспечения, как версии 3 лицензии,   \n"
+"  или (по вашему выбору) любой более поздней версии.                   \n"
+"                                                                       \n"
+"  Эта программа распространяется в надежде, что она будет полезной,    \n"
+"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии        \n"
+"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License  \n"
+"  для более подробной информации.                                      \n"
+"                                                                       \n"
+"  Вы должны были получить копию GNU General Public License             \n"
+"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>\n"
+"                                                                        ";
+static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
+static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
+static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
 
 int about_programm(void)
 {
