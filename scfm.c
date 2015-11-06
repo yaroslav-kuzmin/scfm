@@ -44,16 +44,54 @@
 /*****************************************************************************/
 #include <gtk/gtk.h>
 
-#include "version.h"
 #include "pub.h"
+#include "common.h"
 
 /*****************************************************************************/
 
 /*****************************************************************************/
+static void destroy_window_main(GtkWidget * w,gpointer ud)
+{
+	deinit_system();
+	gtk_main_quit();
+}
+
+static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpointer ud)
+{
+	GdkEventType type = event->type;
+	gint state;
+
+	if(type == GDK_KEY_PRESS){
+		GdkEventKey * event_key = (GdkEventKey*)event;
+		state = event_key->state;
+		if( (state & GDK_SHIFT_MASK) && (state & GDK_CONTROL_MASK)){
+			if( event_key->keyval == GDK_KEY_A){
+				about_programm();
+			}
+		}
+	}
+	return FALSE;
+}
+
+#define MAIN_SPACING       3
 
 GtkWidget * create_main_block(void)
 {
+	GtkWidget * win_main;
 
+	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_container_set_border_width(GTK_CONTAINER(win_main),MAIN_SPACING);
+	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
+	gtk_window_set_resizable(GTK_WINDOW(win_main),TRUE);
+	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
+
+	gtk_window_set_default_size(GTK_WINDOW(win_main),300,300);
+	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
+	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
+
+	gtk_widget_show_all(win_main);
+
+	return win_main;
 }
 /*****************************************************************************/
 int main(int argc,char * argv[])

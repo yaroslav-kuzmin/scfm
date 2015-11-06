@@ -44,7 +44,7 @@
 OBJ_CATALOG=.obj/
 DEPEND_CATALOG=.depend/
 
-#MODBUS_CATALOG=libmodbus/
+MODBUS_CATALOG=libmodbus/
 #LIB_MODBUS=$(MODBUS_CATALOG)libmodbus.a
 #LIB_MODBUS_OPTION=-lmodbus
 
@@ -53,8 +53,7 @@ SOURCE=$(wildcard *.c)
 OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
 DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 
-CXX=gcc
-CFLAGS=-g2 -Wall -I. -I$(MODBUS_CATALOG) `pkg-config --cflags gtk+-3.0`
+CFLAGS=-g2 -Wall -I. -I$(MODBUS_CATALOG) -DG_LOG_DOMAIN=\"scfm\" `pkg-config --cflags gtk+-3.0`
 LDFLAGS=-g2 -L$(MODBUS_CATALOG) 
 LIB=`pkg-config --libs gtk+-3.0` -lavformat -lavcodec -lswscale -lavutil -lsqlite3 
 

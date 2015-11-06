@@ -44,6 +44,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+extern char STR_NAME_PROGRAMM[];
+
 extern GString * pub;
 
 extern GKeyFile * system_config;
@@ -59,5 +61,7 @@ int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
 int set_size_font(GtkWidget * w,int size);
 
 GDateTime * current_date_time(void);
+
+int about_programm(void);
 #endif
 
