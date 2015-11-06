@@ -50,14 +50,14 @@
 /*    Общие переменые                                                        */
 /*****************************************************************************/
 
-const char STR_NAME_PROGRAMM[] = "Система Управления Лафетными Стволами";
-const char STR_COPYRIGHT[] = "(C) <2015> <Кузьмин Ярослав>";
-const char STR_COMMENT[] =
+static const char STR_NAME_PROGRAMM[] = "Система Управления Лафетными Стволами";
+static const char STR_COPYRIGHT[] = "(C) <2015> <Кузьмин Ярослав>";
+static const char STR_COMMENT[] =
 "Программа позволяет управлять большой группой\n"
 " лафетных стволов управляемых контролером <X>\n"
 " подключеных по протоколу modbus\n"
 " Может выступать в роли сервера или клиента.";
-const char STR_LICENSE[] =
+static const char STR_LICENSE[] =
 "  Эта программа является свободным программным обеспечением:           \n"
 "  вы можете распространять и/или изменять это в соответствии с         \n"
 "  условиями в GNU General Public License, опубликованной               \n"
@@ -72,27 +72,58 @@ const char STR_LICENSE[] =
 "  Вы должны были получить копию GNU General Public License             \n"
 "  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>\n"
 "                                                                         ";
-const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
-const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
-const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
+static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
+static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
+static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
+
+static const char * STR_LICENSE_FULL[] =
+"##############################################################################\n"
+"                                                                             #\n"
+" сулс - система управления лафетными стволами                                #\n"
+"  Авторское Право (C) <2015> <Кузьмин Ярослав>                               #\n"
+"                                                                             #\n"
+"  Эта программа является свободным программным обеспечением:                 #\n"
+"  вы можете распространять и/или изменять это в соответствии с               #\n"
+"  условиями в GNU General Public License, опубликованной                     #\n"
+"  Фондом свободного программного обеспечения, как версии 3 лицензии,         #\n"
+"  или (по вашему выбору) любой более поздней версии.                         #\n"
+"                                                                             #\n"
+"  Эта программа распространяется в надежде, что она будет полезной,          #\n"
+"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии              #\n"
+"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License        #\n"
+"  для более подробной информации.                                            #\n"
+"                                                                             #\n"
+"  Вы должны были получить копию GNU General Public License                   #\n"
+"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>      #\n"
+"                                                                             #\n"
+"  Адрес для контактов: kuzmin.yaroslav@gmail.com                             #\n"
+"                                                                             #\n"
+"##############################################################################\n"
+"                                                                             #\n"
+" scfm - system control fire monitors                                         #\n"
+"  Copyright (C) <2015> <Kuzmin Yaroslav>                                     #\n"
+"                                                                             #\n"
+"  This program is free software: you can redistribute it and/or modify       #\n"
+"  it under the terms of the GNU General Public License as published by       #\n"
+"  the Free Software Foundation, either version 3 of the License, or          #\n"
+"  (at your option) any later version.                                        #\n"
+"                                                                             #\n"
+"  This program is distributed in the hope that it will be useful,            #\n"
+"  but WITHOUT ANY WARRANTY; without even the implied warranty of             #\n"
+"  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              #\n"
+"  GNU General Public License for more details.                               #\n"
+"                                                                             #\n"
+"  You should have received a copy of the GNU General Public License          #\n"
+"  along with this program.  If not, see <http://www.gnu.org/licenses/>.      #\n"
+"                                                                             #\n"
+"  Email contact: kuzmin.yaroslav@gmail.com                                   #\n"
+"                                                                             #\n"
+"##############################################################################\n";
 
 GString * pub = NULL;
-
 GKeyFile * system_config = NULL;
-
 char STR_GROUP_GLOBAL[] = "global";
 
-#ifdef G_OS_WIN32
-static char STR_HOME_PATH[] = "HOMEPATH";
-/*static char STR_HOME_PATH[] = "APPDATA";*/
-#endif
-#ifdef G_OS_UNIX
-static char STR_HOME_PATH[] = "HOME";
-#endif
-
-static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"
-static GString * work_catalog = NULL;
-static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -100,7 +131,7 @@ static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
 /*****************************************************************************/
 int dialog_error(char * message)
 {
-	GtkWidget * md_err =
+	GtkWidget * md_err;
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,message);
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
@@ -129,6 +160,14 @@ int set_size_font(GtkWidget * w,int size)
 	return SUCCESS;
 }
 
+static GTimeVal current_time;
+GDateTime * current_date_time(void)
+{
+	g_get_current_time (&current_time);
+	return g_date_time_new_from_timeval_local(&current_time);
+}
+
+GDateTime
 /*****************************************************************************/
 /*  конфиурирование системы                                                  */
 /*****************************************************************************/
@@ -140,12 +179,6 @@ int set_flag_save_config(void)
 	return flag_save_config;
 }
 
-static int default_config(void)
-{
-	system_config = g_key_file_new();
-	return SUCCESS;
-}
-
 static int save_config(GString * name)
 {
 	int rc;
@@ -154,12 +187,17 @@ static int save_config(GString * name)
 	if(flag_save_config != OK){
 		return FAILURE;
 	}
+	if(name == NULL){
+		return FAILURE;
+	}
 
 	if(system_config != NULL){
 		rc = g_key_file_save_to_file(system_config,name->str,&err);
 		if(rc == FALSE ){
-			g_string_printf(pub,"Нет файла конфигурации %s \n %s",name->str,err->message);
-			return dialog_error(pub->str);
+			g_string_printf(pub,"Несмог сохранить файл конфигурации %s \n %s",name->str,err->message);
+			dialog_error(pub->str);
+			g_error_free(err);
+			return FAILURE;
 		}
 	}
 	return SUCCESS;
@@ -173,27 +211,50 @@ static int read_config(GString * name)
 	if(name == NULL){
 		return FAILURE;
 	}
-
+	if(system_config != NULL){
+		return SUCCESS;
+	}
 	system_config = g_key_file_new();
 	rc = g_key_file_load_from_file(system_config,name->str,G_KEY_FILE_NONE,&err);
 	if(rc == FALSE){
 		g_key_file_free(system_config);
 		system_config = NULL;
+		g_string_printf(pub,"Несмог считать файл конфигурации %s : %s",name->str,err->message);
+		dialog_error(pub->str);
+		g_error_free(err);
 		return FAILURE;
 	}
 	return SUCCESS;
 }
 
-/*****************************************************************************/
+static int create_default_config(GString * name)
+{
+	int rc;
+	GError * err = NULL;
+
+	if(name == NULL){
+		return FAILURE;
+	}
+	if(system_config != NULL){
+		return SUCCESS;
+	}
+	system_config = g_key_file_new();
+
+	rc = g_key_file_set_comment(system_config,NULL,NULL,STR_LICENSE_FULL,&err);
+	if(err != NULL){
+		g_string_printf(pub,"Несмог создать файл конфигурации %s : %s",name->str,err->message);
+		dialog_error(pub->str);
+		g_error_free(err);
+		return FAILURE;
+	}
+	/*TODO вызывать функции для значений по умолчанию из блоков*/
+
+	set_flag_save_config()	;
+	return save_config(name);
+}
 
 static char STR_CONFIG_FILE[] = G_DIR_SEPARATOR_S"config";
 static GString * config_name = NULL;
-
-static int create_default_config(GString * name)
-{
-
-	return SUCCESS;
-}
 
 static int check_config(GString * catalog)
 {
@@ -202,22 +263,19 @@ static int check_config(GString * catalog)
 	g_string_append(config_name,STR_CONFIG_FILE);
 	rc = g_file_test(config_name->str,G_FILE_TEST_IS_REGULAR);
 	if(rc == FALSE){
-		rc = create_default_config(config_name);
-		if(rc == FAILURE){
-			return rc;
-		}
+		return create_default_config(config_name);
 	}
 	return SUCCESS;
 }
 
 static int init_config(void)
 {
-	int rc;
+	int rc = SUCCESS;
 
 	if(system_config != NULL){
 		rc = read_config(config_name);
 	}
-	return SUCCESS;
+	return rc;
 }
 
 static int deinit_config(void)
@@ -237,38 +295,74 @@ static int deinit_config(void)
 /*****************************************************************************/
 /* система логирования                                                       */
 /*****************************************************************************/
-static int open_logging(GString * name)
-{
 
+static GIOChannel * open_channel_append(GString * name)
+{
+	int rc;
+	GIOChannel * channel;
+	GError * err = NULL;
+	if(name == NULL){
+		return NULL;
+	}
+	channel = g_io_channel_new_file(name->str,"a",&err);
+	if(channel == NULL){
+		g_string_printf(pub,"Несмог открыть файл %s : %s",name->str,err->message);
+		dialog_error(pub->str);
+		g_error_free(err);
+		return NULL;
+	}
+
+	return channel;
 }
 
-static GString * logging_name = NULL;
+static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
+static char STR_ERROR_FILE[] = G_DIR_SEPARATOR_S"error";
+static GString * error_name = NULL;
+static GIOChannel * error_channel = NULL;
+static GString * info_name = NULL;
+static GIOChannel * info_channel = NULL;
+
+static int check_logging(GString * catalog)
+{
+	int rc;
+	GDateTime * cdt;
+
+	error_name = g_string_new(catalog->str);
+	g_string_append(error_name,STR_ERROR_FILE);
+	rc = g_file_test(error_name->str,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		error_channel = open_channel_append(error_name);
+		if(error_channel == NULL){
+			return FAILURE;
+		}
+	}
+
+	info_name = g_string_new(catalog->str);
+	g_string_append(info_name,STR_LOG_DIR);
+	cdt = current_date_time();
+	g_string_append(info_name,G_DIR_SEPARATOR_S);
+	g_string_append_printf(info_name,"%04d%02d%o2d.log"
+	                      ,g_date_time_get_year(cdt)
+	                      ,g_date_time_get_month(cdt)
+	                      ,g_date_time_get_day_of_month(cdt));
+	rc = g_file_test(info_name,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		info_channel = open_channel_append(info_name);
+		if(info_channel == NULL){
+			return FAILURE;
+		}
+	}
+
+	return SUCCESS;
+}
+
 
 static int init_logging(void)
 {
 	GError * err = NULL;
-	char * str;
 	int rc;
-	GTimeVal current_time;
-	GDateTime * p_dt;
 
 
-	str = getenv(STR_HOME_PATH);
-	if(str != NULL){
-		logging_name = g_string_new(str);
-		g_string_append(logging_name,STR_LOG_DIR);
-		g_get_current_time (&current_time);
-		p_dt = g_date_time_new_from_timeval_local(&current_time);
-		g_string_append_printf(logging_name,"%04d%02d%02d"
-			               ,g_date_time_get_year(p_dt)
-			               ,g_date_time_get_month(p_dt)
-			               ,g_date_time_get_day_of_month(p_dt)
-	}
-
-	rc = open_logging(logging_name);
-	if(rc == SUCCESS){
-
-	}
 
 	return SUCCESS;
 }
@@ -285,18 +379,19 @@ static int deinit_logging(void)
 /*                                                                           */
 /*****************************************************************************/
 #define MODE_WORK_CATALOG             0755
-static int create_default_system(GString * catalog)
-{
-	int rc;
-	rc = create_default_config(catalog);
-	if(rc == FAILURE){
-		return FAILURE;
-	}
 
-	return SUCCESS;
-}
+#ifdef G_OS_WIN32
+static char STR_HOME_PATH[] = "HOMEPATH";
+/*static char STR_HOME_PATH[] = "APPDATA";*/
+#endif
+#ifdef G_OS_UNIX
+static char STR_HOME_PATH[] = "HOME";
+#endif
 
-static int check_catalog(void)
+static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"
+static GString * work_catalog = NULL;
+
+static int check_system(void)
 {
 	int rc;
 	char * str = g_getenv(STR_HOME_PATH);/*g_get_home_dir();*/
@@ -310,19 +405,14 @@ static int check_catalog(void)
 		if(rc == -1){
 			g_string_printf(pub,"Несмог создать рабочий каталог : %s",work_catalog->str);
 			dialog_error(pub->str);
-			exit(0);
-		}
-		rc = create_default_system(work_catalog);
-		if(rc == FAILURE){
-			exit(0)
+			return FAILURE;
 		}
 	}
-	else{
-		rc = check_config(work_catalog);
-		if(rc == FAILURE){
-			exit(0);
-		}
+	rc = check_config(work_catalog);
+	if(rc == FAILURE){
+		return rc;
 	}
+	rc = check_logging(work_catalog);
 	return SUCCESS;
 }
 
@@ -330,12 +420,24 @@ int init_system(void)
 {
 	int rc;
 
+	/*создание постояных блоков*/
 	pub = g_string_new(NULL);
 
-	check_catalog();
+	/*проверка системных файлов*/
+	rc = check_system();
+	if(rc != SUCCESS){
+		exit(0);
+	}
 
-	init_config();
-	init_logging();
+	rc = init_config();
+	if(rc != SUCCESS){
+		exit(0);
+	}
+
+	rc = init_logging();
+	if(rc != SUCCESS){
+		exit(0);
+	}
 
 	return SUCCESS;
 }

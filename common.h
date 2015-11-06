@@ -44,22 +44,20 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-extern const char STR_NAME_PROGRAMM[];
-extern const char STR_COPYRIGHT[];
-extern const char STR_COMMENT[];
-extern const char STR_LICENSE[];
-extern const char STR_EMAIL[];
-extern const char STR_EMAIL_LABEL[];
-extern const char * STR_AUTHORS[];
-
 extern GString * pub;
+
 extern GKeyFile * system_config;
-
 extern char STR_GROUP_GLOBAL[];
-
+int set_flag_save_config(void);
 
 int init_system(void);
 int deinit_system(void);
 
+int dialog_error(char * message);
+
+int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve);
+int set_size_font(GtkWidget * w,int size);
+
+GDateTime * current_date_time(void);
 #endif
 

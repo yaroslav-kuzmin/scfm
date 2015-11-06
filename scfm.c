@@ -58,7 +58,6 @@ GtkWidget * create_main_block(void)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
-
 	gtk_init(&argc,&argv);
 
 	init_system();
