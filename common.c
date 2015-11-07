@@ -59,7 +59,6 @@ GString * pub = NULL;
 GKeyFile * system_config = NULL;
 char STR_GROUP_GLOBAL[] = "global";
 
-#define MODE_WORK_CATALOG             0755
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -414,6 +413,8 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 	}
 	g_printf("%s",buf->str);
 }
+
+#define MODE_WORK_CATALOG             0755
 
 static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
 static char STR_ERROR_FILE[] = G_DIR_SEPARATOR_S"error";
