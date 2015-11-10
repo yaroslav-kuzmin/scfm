@@ -50,6 +50,13 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
+static GtkWidget * create_block_job(void)
+{
+	GtkWidget * box;
+
+	return box;
+}
+
 static void destroy_window_main(GtkWidget * w,gpointer ud)
 {
 	deinit_system();
@@ -78,6 +85,9 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 GtkWidget * create_main_block(void)
 {
 	GtkWidget * win_main;
+	GtkWidget * box;
+	GtkWidget * block_menu;
+	GtkWidget * block_job;
 
 	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),MAIN_BLOCK_SPACING);
@@ -87,6 +97,17 @@ GtkWidget * create_main_block(void)
 	gtk_window_set_default_size(GTK_WINDOW(win_main),300,300);
 	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
 	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,MAIN_SPACING);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),MAIN_BLOCK_SPACING);
+
+	block_menu = creat_block_menu();
+	block_job = create_block_job();
+
+	gtk_box_pack_start(GTK_BOX(box),block_menu,TRUE,TRUE,MAIN_BLOCK_SPACING);
+	gtk_box_pack_start(GTK_BOX(box),block_job,TRUE,TRUE,MAIN_BLOCK_SPACING);
+	gtk_container_add(GTK_CONTAINER(win_main),box);
+
 	gtk_widget_show_all(win_main);
 
 	return win_main;
