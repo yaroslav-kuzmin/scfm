@@ -52,7 +52,7 @@ extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];
 int set_flag_save_config(void);
 
-int init_system(void);
+generic_s * init_system(void);
 int deinit_system(void);
 
 int dialog_error(char * message);
@@ -62,6 +62,5 @@ int set_size_font(GtkWidget * w,int size);
 
 GDateTime * current_date_time(void);
 
-int about_programm(void);
 #endif
 

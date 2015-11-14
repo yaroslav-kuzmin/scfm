@@ -41,24 +41,13 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef PUB_H
-#define PUB_H
+#ifndef LOG_H
+#define LOG_H
 
-#define SUCCESS           0
-#define FAILURE          -1
+int check_logging(GString * catalog);
+int init_logging(void);
+int deinit_logging(void);
 
-#define OK                0
-#define NOT_OK           -1
-
-#define MODE_WORK_CATALOG             0755
-
-struct _generic_s
-{
-	GString * pub;
-	GdkPixbuf * default_icon;
-};
-
-typedef struct _generic_s generic_s;
-
+GtkWidget * create_block_log(void);
 #endif
 

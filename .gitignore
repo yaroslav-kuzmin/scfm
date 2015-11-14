@@ -8,3 +8,5 @@
 *.db
 tags
 version.h
+resource/scfm.c
+resource/scfm.h

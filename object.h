@@ -41,24 +41,10 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef PUB_H
-#define PUB_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
-#define SUCCESS           0
-#define FAILURE          -1
-
-#define OK                0
-#define NOT_OK           -1
-
-#define MODE_WORK_CATALOG             0755
-
-struct _generic_s
-{
-	GString * pub;
-	GdkPixbuf * default_icon;
-};
-
-typedef struct _generic_s generic_s;
+GtkWidget * create_block_object(void);
 
 #endif
 

@@ -41,24 +41,92 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef PUB_H
-#define PUB_H
+/*****************************************************************************/
+#include <gtk/gtk.h>
 
-#define SUCCESS           0
-#define FAILURE          -1
+#include "pub.h"
+#include "common.h"
 
-#define OK                0
-#define NOT_OK           -1
+/*****************************************************************************/
+/*    Общие переменые                                                        */
+/*****************************************************************************/
 
-#define MODE_WORK_CATALOG             0755
 
-struct _generic_s
+/*****************************************************************************/
+/* локальные функции                                                         */
+/*****************************************************************************/
+static void activate_menu_job_control(GtkMenuItem * b,gpointer d)
 {
-	GString * pub;
-	GdkPixbuf * default_icon;
-};
+	g_debug("activate_menu_job_control");
+}
+static void activate_menu_job_config(GtkMenuItem * b,gpointer d)
+{
+	g_debug("activate_menu_job_control");
+}
+static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)
+{
+	GtkWidget * w = (GtkWidget *)ud;
+	gtk_widget_destroy(w);
+}
+/*****************************************************************************/
+/*    Общие функции                                                          */
+/*****************************************************************************/
 
-typedef struct _generic_s generic_s;
+static char STR_MENU_JOB[] = "Работа";
+static char STR_MENU_JOB_CONTROL[] = "Управление";
+static char STR_MENU_JOB_CONFIG[] = "Конфигурирование";
+static char STR_MENU_JOB_EXIT[] = "Выход";
 
-#endif
+static GtkWidget * create_menu_job(GtkWidget * main_win,GtkAccelGroup * main_accgro)
+{
+	GtkWidget * menite_job;
+	GtkWidget * men_job;
+	GtkWidget * menite_control;
+	GtkWidget * menite_config;
+	GtkWidget * menite_s0;
+	GtkWidget * menite_exit;
 
+	menite_job = gtk_menu_item_new_with_label(STR_MENU_JOB);
+
+	men_job = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menite_job),men_job);
+
+	menite_control = gtk_menu_item_new_with_label(STR_MENU_JOB_CONTROL);
+	g_signal_connect(menite_control,"activate",G_CALLBACK(activate_menu_job_control),NULL);
+	gtk_widget_add_accelerator(menite_control,"activate",main_accgro
+	                          ,GDK_KEY_E,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_control);
+
+	menite_config = gtk_menu_item_new_with_label(STR_MENU_JOB_CONFIG);
+	g_signal_connect(menite_config,"activate",G_CALLBACK(activate_menu_job_config),NULL);
+	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
+	                          ,GDK_KEY_C,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_config);
+
+	menite_s0 = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_s0);
+
+	menite_exit = gtk_menu_item_new_with_label(STR_MENU_JOB_EXIT);
+	g_signal_connect(menite_exit,"activate",G_CALLBACK(activate_menu_job_exit),main_win);
+	gtk_widget_add_accelerator(menite_exit,"activate",main_accgro
+	                          ,GDK_KEY_Q,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_exit);
+
+	return menite_job;
+}
+
+GtkWidget * create_block_menu(GtkWidget * main_win,GtkAccelGroup * main_accgro)
+{
+	GtkWidget * menbar_main;
+	GtkWidget * menite_job;
+
+	menbar_main = gtk_menu_bar_new();
+	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
+
+	menite_job = create_menu_job(main_win,main_accgro);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
+
+	return menbar_main;
+}
+
+/*****************************************************************************/

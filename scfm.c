@@ -46,13 +46,82 @@
 
 #include "pub.h"
 #include "common.h"
+#include "log.h"
+#include "menu.h"
+#include "tree.h"
+#include "object.h"
 
 /*****************************************************************************/
+/*  О Программе                                                              */
+/*****************************************************************************/
+
+#include "version.h"
+
+static const char STR_COPYRIGHT[] = "(C) <2015> <Кузьмин Ярослав>";
+static const char STR_COMMENT[] =
+"Программа позволяет управлять большой группой\n"
+" лафетных стволов, задвижками, видеокамерами.";
+static const char STR_LICENSE[] =
+"  Эта программа является свободным программным обеспечением:           \n"
+"  вы можете распространять и/или изменять это в соответствии с         \n"
+"  условиями в GNU General Public License, опубликованной               \n"
+"  Фондом свободного программного обеспечения, как версии 3 лицензии,   \n"
+"  или (по вашему выбору) любой более поздней версии.                   \n"
+"                                                                       \n"
+"  Эта программа распространяется в надежде, что она будет полезной,    \n"
+"  но БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ; даже без подразумеваемой гарантии        \n"
+"  Или ПРИГОДНОСТИ ДЛЯ КОНКРЕТНЫХ ЦЕЛЕЙ. См GNU General Public License  \n"
+"  для более подробной информации.                                      \n"
+"                                                                       \n"
+"  Вы должны были получить копию GNU General Public License             \n"
+"  вместе с этой программой. Если нет, см <http://www.gnu.org/licenses/>\n"
+"                                                                        ";
+static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
+static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
+static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
+
+int about_programm(GdkPixbuf * icon)
+{
+	GtkWidget * dialog = gtk_about_dialog_new();
+
+	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog),STR_NAME_PROGRAMM);
+	g_string_printf(pub,"%d.%03d - %x",VERSION_MAJOR,VERSION_MINOR,VERSION_GIT);
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog),pub->str);
+	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),STR_COPYRIGHT);
+	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),STR_COMMENT);
+	gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog),STR_LICENSE);
+	gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_CUSTOM);
+	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),NULL);
+	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog),STR_EMAIL_LABEL);
+	gtk_about_dialog_set_authors(GTK_ABOUT_DIALOG(dialog),STR_AUTHORS);
+	gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(dialog),STR_AUTHORS);
+	gtk_about_dialog_set_documenters(GTK_ABOUT_DIALOG(dialog),NULL);
+	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),NULL);
+	if(icon != NULL){
+		gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog),icon);
+	}
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	return SUCCESS;
+}
 
 /*****************************************************************************/
 static GtkWidget * create_block_job(void)
 {
 	GtkWidget * box;
+	GtkWidget * block_tree;
+	GtkWidget * block_object;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_tree = create_block_tree();
+
+	block_object = create_block_object();
+
+	gtk_box_pack_start(GTK_BOX(box),block_tree,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_object,TRUE,TRUE,0);
 
 	return box;
 }
@@ -65,6 +134,7 @@ static void destroy_window_main(GtkWidget * w,gpointer ud)
 
 static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpointer ud)
 {
+	generic_s * g = (generic_s*)ud;
 	GdkEventType type = event->type;
 	gint state;
 
@@ -73,7 +143,7 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 		state = event_key->state;
 		if( (state & GDK_SHIFT_MASK) && (state & GDK_CONTROL_MASK)){
 			if( event_key->keyval == GDK_KEY_A){
-				about_programm();
+				about_programm(g->default_icon);
 			}
 		}
 	}
@@ -82,12 +152,14 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 
 #define MAIN_BLOCK_SPACING       3
 
-GtkWidget * create_main_block(void)
+GtkWidget * create_main_block(generic_s * g)
 {
 	GtkWidget * win_main;
+	GtkAccelGroup * accgro_main;
 	GtkWidget * box;
 	GtkWidget * block_menu;
 	GtkWidget * block_job;
+	GtkWidget * block_log;
 
 	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),MAIN_BLOCK_SPACING);
@@ -96,17 +168,24 @@ GtkWidget * create_main_block(void)
 	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(win_main),300,300);
 	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
-	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
+	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),g);
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,MAIN_SPACING);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox),MAIN_BLOCK_SPACING);
+	accgro_main = gtk_accel_group_new();
 
-	block_menu = creat_block_menu();
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_container_set_border_width(GTK_CONTAINER(box),0);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
+
+	block_menu = create_block_menu(win_main,accgro_main);
 	block_job = create_block_job();
+	block_log = create_block_log();
 
-	gtk_box_pack_start(GTK_BOX(box),block_menu,TRUE,TRUE,MAIN_BLOCK_SPACING);
-	gtk_box_pack_start(GTK_BOX(box),block_job,TRUE,TRUE,MAIN_BLOCK_SPACING);
+	gtk_box_pack_start(GTK_BOX(box),block_menu,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_job,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_log,FALSE,TRUE,0);
+
 	gtk_container_add(GTK_CONTAINER(win_main),box);
+	gtk_window_add_accel_group(GTK_WINDOW(win_main),accgro_main);
 
 	gtk_widget_show_all(win_main);
 
@@ -116,11 +195,12 @@ GtkWidget * create_main_block(void)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
+	generic_s * g;
+
 	gtk_init(&argc,&argv);
 
-	init_system();
-
-	create_main_block();
+	g = init_system();
+	create_main_block(g);
 
 	gtk_main();
 
