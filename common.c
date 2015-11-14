@@ -46,6 +46,7 @@
 
 #include "pub.h"
 #include "log.h"
+#include "database.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -71,6 +72,7 @@ int dialog_error(char * message)
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
+	g_critical("%s",message);
 	return FAILURE;
 }
 
@@ -132,7 +134,6 @@ static int save_config(GString * name)
 			g_string_printf(pub,"Несмог сохранить файл конфигурации %s!\n%s",name->str,err->message);
 			dialog_error(pub->str);
 			g_error("%s",pub->str);
-			g_error_free(err);
 		}
 	}
 	return SUCCESS;
@@ -150,14 +151,13 @@ static int read_config(GString * name)
 		return SUCCESS;
 	}
 	system_config = g_key_file_new();
-	rc = g_key_file_load_from_file(system_config,name->str,G_KEY_FILE_NONE,&err);
+	rc = g_key_file_load_from_file(system_config,name->str,G_KEY_FILE_KEEP_COMMENTS,&err);
 	if(rc == FALSE){
 		g_key_file_free(system_config);
 		system_config = NULL;
 		g_string_printf(pub,"Несмог считать файл конфигурации %s!\n%s",name->str,err->message);
 		dialog_error(pub->str);
 		g_error("%s",pub->str);
-		g_error_free(err);
 	}
 	return SUCCESS;
 }
@@ -227,12 +227,13 @@ static int create_default_config(GString * name)
 		g_error_free(err);
 	}
 	/*TODO вызывать функции для значений по умолчанию из блоков*/
+	default_database_config();
 
 	set_flag_save_config()	;
 	return save_config(name);
 }
 
-static char STR_CONFIG_FILE[] = G_DIR_SEPARATOR_S"config";
+static char STR_CONFIG_FILE[] = "config";
 static GString * config_name = NULL;
 
 static int check_config(GString * catalog)
@@ -251,7 +252,7 @@ static int init_config(void)
 {
 	int rc = SUCCESS;
 
-	if(system_config != NULL){
+	if(system_config == NULL){
 		rc = read_config(config_name);
 	}
 	return rc;
@@ -284,7 +285,7 @@ static const char STR_HOME_PATH[] = "HOME";
 static const char STR_HOME_PATH[] = "HOME";
 #endif
 
-static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm";
+static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S;
 static GString * work_catalog = NULL;
 
 static int check_system(void)
@@ -307,6 +308,7 @@ static int check_system(void)
 
 	check_config(work_catalog);
 	check_logging(work_catalog);
+
 	return SUCCESS;
 }
 
@@ -332,12 +334,14 @@ generic_s * init_system(void)
 	init_logging();
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
+	init_database(work_catalog);
 
 	return &generic;
 }
 
 int deinit_system(void)
 {
+	deinit_database();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");
 	deinit_logging();

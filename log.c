@@ -77,7 +77,6 @@ static GIOChannel * open_channel_append(GString * name)
 	if(channel == NULL){
 		g_string_printf(pub,"Несмог открыть файл %s!\n%s",name->str,err->message);
 		dialog_error(pub->str);
-		g_critical("%s",pub->str);
 		g_error_free(err);
 	}
 
@@ -99,7 +98,6 @@ static int flush_info_channel(gpointer ud)
 	if(rc != G_IO_STATUS_NORMAL){
 		g_string_printf(pub,"Ошибка введении журнала %s!\n%s",l->info_name->str,err->message);
 		dialog_error(pub->str);
-		g_critical("%s",pub->str);
 		g_error_free(err);
 		g_io_channel_shutdown(channel,TRUE,NULL);
 		g_io_channel_unref(channel);
@@ -169,7 +167,6 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 				log->info_channel = NULL;
 				g_string_printf(pub,"Ошибка ведения журнала %s!\n%s",log->info_name->str,err->message);
 				dialog_error(pub->str);
-				g_critical("%s",pub->str);
 				g_error_free(err);
 			}
 			gtk_text_buffer_insert_at_cursor(log->view_buf,buf->str,-1);
@@ -186,7 +183,6 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 			log->error_channel = NULL;
 			g_string_printf(pub,"Ошибка ведения журнала %s!\n%s",log->error_name->str,err->message);
 			dialog_error(pub->str);
-			g_critical("%s",pub->str);
 			g_error_free(err);
 		}
 		else{
@@ -196,8 +192,8 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 	g_printf("%s\n",buf->str);
 }
 
-static char STR_LOG_DIR[] = G_DIR_SEPARATOR_S"logs";
-static char STR_ERROR_FILE[] = G_DIR_SEPARATOR_S"error";
+static char STR_LOG_DIR[] = "logs";
+static char STR_ERROR_FILE[] = "error";
 
 logging_s logging = {0};
 
@@ -215,7 +211,6 @@ int check_logging(GString * catalog)
 	if(rc == -1){
 		g_string_printf(pub,"Несмог создать каталог журналов %s!",logging.info_name->str);
 		dialog_error(pub->str);
-		g_critical("%s",pub->str);
 		return FAILURE;
 	}
 	cdt = current_date_time();
@@ -283,7 +278,6 @@ int deinit_logging(void)
 		if(rc != G_IO_STATUS_NORMAL){
 			g_string_printf(pub,"Ошибка ведения журнала %s!\n%s",s->str,err->message);
 			dialog_error(pub->str);
-			g_critical("%s",pub->str);
 			g_error_free(err);
 		}
 		g_io_channel_unref(c);
@@ -299,7 +293,6 @@ int deinit_logging(void)
 		if(rc != G_IO_STATUS_NORMAL){
 			g_string_printf(pub,"Ошибка ведения журнала %s!\n%s",s->str,err->message);
 			dialog_error(pub->str);
-			g_critical("%s",pub->str);
 			g_error_free(err);
 		}
 		g_io_channel_unref(c);
