@@ -46,6 +46,7 @@
 
 #include "pub.h"
 #include "log.h"
+#include "kernel.h"
 #include "database.h"
 
 /*****************************************************************************/
@@ -334,6 +335,7 @@ generic_s * init_system(void)
 	init_logging();
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
+	init_kernel();
 	init_database(work_catalog);
 
 	return &generic;
@@ -342,6 +344,7 @@ generic_s * init_system(void)
 int deinit_system(void)
 {
 	deinit_database();
+	deinit_kernel();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");
 	deinit_logging();
