@@ -59,14 +59,26 @@
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+static char STR_TREE_FRAME[] = "Объекты";
 
 GtkWidget * create_block_tree(void)
 {
-	GtkWidget * tree;
+	GtkWidget * frame;
+	GtkWidget * scrwin;
 
-	tree = gtk_label_new("дерево");
+	GtkTreeStore * model;
 
-	return tree;
+	frame = gtk_frame_new(STR_TREE_FRAME);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	scrwin = gtk_scrolled_window_new(NULL,NULL);
+	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	model = gtk_tree_store_new();
+
+	gtk_container_add(GTK_CONTAINER(frame),scrwin);
+
+	return frame;
 }
 
 /*****************************************************************************/

@@ -42,6 +42,7 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
+#include <stdint.h>
 #include <gtk/gtk.h>
 
 #include "pub.h"
@@ -50,8 +51,29 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
+#define TYPE_GROUP     1
+#define TYPE_OBJECT    2
 
-struct _kernel_s 
+struct _object_s
+{
+	uint8_t type;
+	uint64_t number;
+	char * name;
+
+};
+typedef struct _object_s object_s;
+
+struct _group_s
+{
+	uint8_t type;
+	uint64_t number;
+	char * name;
+
+	GSList * list;
+};
+typedef struct _group_s group_s;
+
+struct _kernel_s
 {
 	GSList * list;
 };
@@ -74,8 +96,14 @@ int init_kernel(void)
 	return SUCCESS;
 }
 
+static void kernel_free(gpointer data)
+{
+
+}
+
 int deinit_kernel(void)
 {
+	g_slist_free_full(kernel.list,kernel_free);
 	return SUCCESS;
 }
 /*****************************************************************************/

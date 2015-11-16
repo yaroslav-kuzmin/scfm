@@ -181,7 +181,7 @@ GtkWidget * create_main_block(generic_s * g)
 	block_log = create_block_log();
 
 	gtk_box_pack_start(GTK_BOX(box),block_menu,FALSE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_job,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_job,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_log,FALSE,TRUE,0);
 
 	gtk_container_add(GTK_CONTAINER(win_main),box);
@@ -200,6 +200,7 @@ int main(int argc,char * argv[])
 	gtk_init(&argc,&argv);
 
 	g = init_system();
+
 	create_main_block(g);
 
 	gtk_main();

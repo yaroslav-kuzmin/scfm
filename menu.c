@@ -121,7 +121,7 @@ GtkWidget * create_block_menu(GtkWidget * main_win,GtkAccelGroup * main_accgro)
 	GtkWidget * menite_job;
 
 	menbar_main = gtk_menu_bar_new();
-	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
+	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 
 	menite_job = create_menu_job(main_win,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
