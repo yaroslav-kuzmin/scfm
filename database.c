@@ -112,7 +112,7 @@ static int create_default_database(GString * name)
 /*****************************************************************************/
 
 static char STR_KEY_DATABASE[] = "database";
-static char STR_DATABASE_FILE[] = "database.sqlite3";
+static char STR_DATABASE_FILE[] = "scfm.sqlite3";
 
 int default_database_config(void)
 {

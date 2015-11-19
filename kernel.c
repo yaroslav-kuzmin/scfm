@@ -60,6 +60,7 @@ struct _object_s
 	uint64_t number;
 	char * name;
 
+	void * property;
 };
 typedef struct _object_s object_s;
 
