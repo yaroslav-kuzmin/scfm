@@ -50,21 +50,56 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-
+enum{
+	COLUMN_NAME = 0,
+	COLUMN_POINT,
+	COLUMNS_AMOUNT
+};
 
 /*****************************************************************************/
-/* локальные функции                                                         */
+/*    Локальные функции                                                      */
 /*****************************************************************************/
+char STR_TREE_VIEW_COLUMN[] = "Наименования";
 
+#define WIDTH_COLUMN_TREE             100
+int width_column_tree = WIDTH_COLUMN_TREE;
+
+static int tree_add_column(GtkTreeView * tree)
+{
+	GtkCellRenderer * render;
+	GtkTreeViewColumn * column;
+
+	render = gtk_cell_renderer_text_new();
+	g_object_set(render,"editable",FALSE,NULL);
+	g_object_set(render,"width",width_column_tree,NULL);
+
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN);
+	gtk_tree_view_column_pack_start(column,render,TRUE);
+	gtk_tree_view_column_set_attributes(column,render,"text",COLUMN_NAME,NULL);
+	gtk_tree_view_column_set_sizing (column,GTK_TREE_VIEW_COLUMN_FIXED);
+
+	gtk_tree_view_append_column(tree,column);
+
+	return SUCCESS;
+}
+
+static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
+{
+	g_debug("row_activated_tree_view");
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+
+
 static char STR_TREE_FRAME[] = "Объекты";
 
 GtkWidget * create_block_tree(void)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
+	GtkWidget * treeview;
 
 	GtkTreeStore * model;
 
@@ -74,9 +109,16 @@ GtkWidget * create_block_tree(void)
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	model = gtk_tree_store_new();
+	model = gtk_tree_store_new(COLUMNS_AMOUNT,G_TYPE_STRING,G_TYPE_POINTER);
+	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
+	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	tree_add_column(GTK_TREE_VIEW(treeview));
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
+	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
+	g_object_unref(model);
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
+	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
 
 	return frame;
 }
