@@ -58,39 +58,61 @@ static sqlite3 * database = NULL;
 /* локальные функции                                                         */
 /*****************************************************************************/
 
-static char QUERY_CREATE_TABLE[] =
-"CREATE TABLE object(number INTEGER PRIMARY KEY AUTOINCREMENT,name,type INTEGER)";
 
-static char QUERY_INSERT_00_OBJECT[] = "INSERT INTO object VALUES (0,\"total\",0)";
-/*static char QUERY_INSERT_OBJECT[] = "INSERT INTO object (name,type) VALUES";*/
 
-static int create_total_table(void)
+static int query_simple(GString * query)
 {
 	int rc;
 	char * error_message = NULL;
-
-	rc = sqlite3_exec(database,QUERY_CREATE_TABLE,NULL,NULL, &error_message);
+	rc = sqlite3_exec(database,query->str,NULL,NULL, &error_message);
 	if( rc != SQLITE_OK){
-		g_critical("SQL error QUERY_CREATE_TABLE : %s!",error_message);
+		g_critical("SQL error : %s : %s!",query->str,error_message);
 		sqlite3_free(error_message);
 		return FAILURE;
 	}
+	return SUCCESS;
+}
 
-	rc = sqlite3_exec(database,QUERY_INSERT_00_OBJECT,NULL,NULL, &error_message);
-	if( rc != SQLITE_OK){
-		g_critical("SQL error QUERY_CREATE_TABLE : %s!",error_message);
-		sqlite3_free(error_message);
-		return FAILURE;
-	}
+#define FORMAT_NAME_TABLE_GROUP    "[g%07d]"
+static int create_table_group(int number)
+{
+	g_string_printf(pub,"CREATE TABLE ");
+	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number);
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,type INTEGER)");
+	return query_simple(pub);
+}
 
+static char STR_NAME_TABLE_TYPE_GROUP[] = "[group]";
+static int create_table_type_group(void)
+{
+	g_string_printf(pub,"CREATE TABLE ");
+	g_string_append(pub,STR_NAME_TABLE_TYPE_GROUP);
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,schema)");
+	return query_simple(pub);
+}
+
+static char STR_NAME_TABLE_TYPE_VIDEOCAMERA[] = "[videocamera]";
+static int create_table_type_videocamera(void)
+{
+	g_string_printf(pub,"CREATE TABLE ");
+	g_string_append(pub,STR_NAME_TABLE_TYPE_VIDEOCAMERA);
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,protocol,address,port,access)");
+	return query_simple(pub);
+}
+
+#define FIRST_NUMBER_GROUP     0
+static int create_total_table(void)
+{
+	create_table_group(FIRST_NUMBER_GROUP);
+	create_table_type_group();
+	create_table_type_videocamera();
 
 	return SUCCESS;
 }
 
-static int create_default_database(GString * name)
+static int database_open(GString * name)
 {
 	int rc;
-
 	if(name == NULL){
 		return FAILURE;
 	}
@@ -99,10 +121,19 @@ static int create_default_database(GString * name)
 	if(rc != SQLITE_OK){
 		g_string_printf(pub,"Несмог открыть базу данных %s : %s!",name->str,sqlite3_errmsg(database));
 		dialog_error(pub->str);
-		sqlite3_close(database);
 		return FAILURE;
 	}
+	return SUCCESS;
+}
 
+static int create_default_database(GString * name)
+{
+	int rc;
+
+	rc = database_open(name);
+	if(rc != SUCCESS){
+		return rc;
+	}
 	create_total_table();
 
 	return SUCCESS;
@@ -110,6 +141,14 @@ static int create_default_database(GString * name)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+int add_group(uint32_t number_group,uint32_t number,char * name,int type)
+{
+	g_string_printf(pub,"INSERT INTO ");
+	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number_group);
+	g_string_append(pub," VALUES (");
+	g_string_append_printf(pub,"%d,%s,%d)",number,name,type);
+	return query_simple(pub);
+}
 
 static char STR_KEY_DATABASE[] = "database";
 static char STR_DATABASE_FILE[] = "scfm.sqlite3";
@@ -148,13 +187,30 @@ int check_database(GString * work_catalog)
 
 int init_database(GString * work_catalog)
 {
+	int rc;
+
 	check_database(work_catalog);
 
+	if(database == NULL){
+		rc = database_open(database_name);
+		if(rc != SUCCESS){
+			return rc;
+		}
+	}
+#if 0
+	add_group(0,5,"\'тестовая группа0\'",0);
+	add_group(0,2,"\'тестовая группа1\'",1);
+	add_group(0,7,"\'тестовая группа3\'",1);
+	add_group(0,5,"\'тестовая группа4\'",1);
+#endif
 	return SUCCESS;
 }
 
 int deinit_database(void)
 {
+	if(database != NULL){
+		sqlite3_close(database);
+	}
 	return SUCCESS;
 }
 /*****************************************************************************/

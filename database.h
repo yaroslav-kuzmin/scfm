@@ -49,5 +49,6 @@ int check_database(GString * wc);
 int init_database(GString * work_catalog);
 int deinit_database(void);
 
+int add_group(uint32_t number_group,uint32_t number,char * name,int type);
 #endif
 

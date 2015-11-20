@@ -44,6 +44,8 @@
 #ifndef PUB_H
 #define PUB_H
 
+#include <stdint.h>
+
 #define SUCCESS           0
 #define FAILURE          -1
 

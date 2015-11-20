@@ -56,17 +56,23 @@
 /* локальные функции                                                         */
 /*****************************************************************************/
 
+void clicked_button_object(GtkButton * b,gpointer ud)
+{
+	g_debug("clicked_button_object");
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
 GtkWidget * create_block_object(void)
 {
-	GtkWidget * tree;
+	GtkWidget * object;
 
-	tree = gtk_label_new("объект");
+	object = gtk_button_new_with_label("объект");
+	g_signal_connect(object,"clicked",G_CALLBACK(clicked_button_object),NULL);
 
-	return tree;
+
+	return object;
 }
 
 /*****************************************************************************/
