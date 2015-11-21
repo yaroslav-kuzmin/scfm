@@ -49,6 +49,10 @@ int check_database(GString * wc);
 int init_database(GString * work_catalog);
 int deinit_database(void);
 
-int add_group(uint32_t number_group,uint32_t number,char * name,int type);
+int add_object_database(uint32_t number_group,uint32_t number_object,char * name,uint8_t type,void * property);
+int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t type);
+
+void* prepare_group_database(uint32_t number);
+int next_group_database(void * s,uint32_t * number,char **name,uint8_t * type);
 #endif
 

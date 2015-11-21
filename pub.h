@@ -59,8 +59,28 @@ struct _generic_s
 	GString * pub;
 	GdkPixbuf * default_icon;
 };
-
 typedef struct _generic_s generic_s;
+
+#define FIRST_NUMBER_GROUP     0
+#define TYPE_UNKNOWN           0xFF
+#define TYPE_GROUP             0x80
+#define TYPE_OBJECT            0x40
+#define TYPE_VIDEOCAMERA       0x41
+
+struct _schema_s
+{
+	char * image;
+};
+typedef struct _schema_s schema_s;
+
+struct _videocamera_s
+{
+	char * protocol;
+	char * address;
+	uint32_t port;
+	char * access;
+};
+typedef struct _videocamera_s videocamera_s;
 
 #endif
 

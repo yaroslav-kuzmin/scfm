@@ -335,8 +335,8 @@ generic_s * init_system(void)
 	init_logging();
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
-	init_kernel();
 	init_database(work_catalog);
+	init_kernel();
 
 	return &generic;
 }
@@ -350,6 +350,7 @@ int deinit_system(void)
 	deinit_logging();
 	deinit_config();
  	g_string_free(pub,TRUE);
+	g_object_unref(generic.default_icon);
 	return SUCCESS;
 }
 
