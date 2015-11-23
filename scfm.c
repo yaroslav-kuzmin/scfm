@@ -128,7 +128,6 @@ static GtkWidget * create_block_job(void)
 
 static void destroy_window_main(GtkWidget * w,gpointer ud)
 {
-	deinit_system();
 	gtk_main_quit();
 }
 
@@ -195,15 +194,14 @@ GtkWidget * create_main_block(generic_s * g)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
-	generic_s * g;
 
 	gtk_init(&argc,&argv);
 
-	g = init_system();
-
-	create_main_block(g);
+	create_main_block(init_system());
 
 	gtk_main();
+
+	deinit_system();
 
 	return SUCCESS;
 }

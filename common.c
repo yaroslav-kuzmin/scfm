@@ -321,7 +321,6 @@ generic_s * init_system(void)
 	/*создание постояных блоков*/
 	pub = g_string_new(NULL);
 	generic.pub = pub;
-
 	default_icon = gdk_pixbuf_new_from_resource(RESOURCE_DEFAULT_ICON,NULL);
 	if(default_icon != NULL){
 		gtk_window_set_default_icon(default_icon);
@@ -349,7 +348,8 @@ int deinit_system(void)
 	g_info("Останов системы.\n");
 	deinit_logging();
 	deinit_config();
- 	g_string_free(pub,TRUE);
+	g_string_free(pub,TRUE);
+	g_string_free(work_catalog,TRUE);
 	g_object_unref(generic.default_icon);
 	return SUCCESS;
 }

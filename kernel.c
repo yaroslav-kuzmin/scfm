@@ -48,29 +48,12 @@
 #include "pub.h"
 #include "common.h"
 #include "database.h"
+#include "schema.h"
+#include "videocamera.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _object_s
-{
-	uint8_t type;
-	uint32_t number;
-	char * name;
-	void * property;
-};
-typedef struct _object_s object_s;
-
-struct _group_s
-{
-	uint8_t type;
-	uint32_t number;
-	char * name;
-	void * property;
-	GSList * list;
-};
-typedef struct _group_s group_s;
-
 struct _kernel_s
 {
 	GSList * list;
@@ -82,60 +65,58 @@ typedef struct _kernel_s kernel_s;
 /*    Локальные функции                                                      */
 /*****************************************************************************/
 
-static int full_gslict(kernel_s * k)
+static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 {
 	int rc;
+	GSList * list = NULL;
 	void * query;
 	uint32_t number;
 	char * name;
 	uint8_t type;
-	object_s * o;
-	group_s * g;
+	object_s * object;
+	uint32_t amount = *total_amount;
 
-	query = prepare_group_database(FIRST_NUMBER_GROUP);
+	query = prepare_group_database(number_group);
 	if(query == NULL){
-		return FAILURE;
+		return NULL;
 	}
 	for(;;){
 		rc = next_group_database(query,&number,&name,&type);
 		if(rc != SUCCESS){
 			break;
 		}
-		g_debug(" number :> %d",number);
-		g_debug(" name   :> %s",name);
-		g_debug(" type   :> %d",type);
-		o = NULL;
-		g = NULL;
+		object = (object_s*)g_slice_alloc(sizeof(object_s));
+		object->number = number;
+		object->type = type;
+		object->name = g_strdup(name);
+		object->property = NULL;
+		object->list = NULL;
+
 		switch(type){
 			case TYPE_GROUP:
-				g = (group_s*)g_slice_alloc(sizeof(group_s));
-				g->number = number;
-				g->type = type;
-				g->name = name;
-				g->property = NULL;
-				g->list = NULL;
+				object->list = fill_gslict(number,&amount);
+				fill_group(object);
 				break;
 			case TYPE_VIDEOCAMERA:
-				o = (object_s*)g_slice_alloc(sizeof(object_s));
-				o->number = number;
-				o->type = type;
-				o->name = name;
-				o->property = NULL;
+				fill_videocamera(object);
 				break;
 			default:
+				g_slice_free1(sizeof(object_s),object);
+				object = NULL;
 				break;
 		}
-		if( o != NULL ){
-			k->list = g_slist_append(k->list,o);
-			k->amount++;
+		if(object != NULL){
+			list = g_slist_append(list,object);
+			amount++;
 		}
-		if( g != NULL ){
-			k->list = g_slist_append(k->list,g);
-			k->amount++;
-		}
+		g_debug("\n amount :> %d",amount);
+		g_debug(" number :> %d",object->number);
+		g_debug(" type   :> %#x",object->type);
+		g_debug(" name   :> %s",object->name);
 	}
+	*total_amount = amount;
 
-	return SUCCESS;
+	return list;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -145,7 +126,7 @@ kernel_s kernel;
 
 int init_kernel(void)
 {
-
+	uint32_t number;
 #if 0
 	schema_s schema = {"plan.png"};
 	videocamera_s videocamera = {"rtsp","192.168.1.1",554,"/h_264"};
@@ -159,9 +140,8 @@ int init_kernel(void)
 	/*del_object_database(0,3,TYPE_GROUP);*/
 #endif
 
-	kernel.list = g_slist_alloc();
-	kernel.amount = 0;
-	full_gslict(&kernel);
+	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number);
+	kernel.amount = number;
 
 	return SUCCESS;
 }
@@ -169,19 +149,21 @@ int init_kernel(void)
 static void kernel_free(gpointer data)
 {
 	object_s * o = (object_s*)data;
-	group_s * g = (group_s*)data;
 
+	if( o == NULL){
+		return;
+	}
 	g_free(o->name);
 	switch(o->type){
 		case TYPE_GROUP:
-			g_slice_free1(sizeof(group_s),g);
 			break;
 		case TYPE_VIDEOCAMERA:
-			g_slice_free1(sizeof(object_s),o);
 			break;
 		default:
 			break;
 	}
+	g_slice_free1(sizeof(object_s),o);
+
 }
 
 int deinit_kernel(void)

@@ -44,5 +44,7 @@
 #ifndef VIDEOCAMERA_H
 #define VIDEOCAMERA_H
 
+int fill_videocamera(object_s * object);
+
 #endif
 

@@ -61,18 +61,55 @@ struct _generic_s
 };
 typedef struct _generic_s generic_s;
 
+/**************************************/
+
 #define FIRST_NUMBER_GROUP     0
 #define TYPE_UNKNOWN           0xFF
 #define TYPE_GROUP             0x80
-#define TYPE_OBJECT            0x40
-#define TYPE_VIDEOCAMERA       0x41
 
-struct _schema_s
+#define TYPE_OBJECT            0x00
+#define TYPE_VIDEOCAMERA       0x02
+
+/**************************************/
+#define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
+enum{
+	COLUMN_TABLE_OBJECT_NUMBER = 0,
+	COLUMN_TABLE_OBJECT_NAME,
+	COLUMN_TABLE_OBJECT_TYPE,
+	COLUMN_TABLE_OBJECT_AMOUNT
+};
+struct _object_s
+{
+	uint32_t number;
+	char * name;
+	uint8_t type;
+
+	void * property;
+	GSList * list;
+};
+typedef struct _object_s object_s;
+/**************************************/
+
+enum{
+	COLUMN_TABLE_GROUP_NUMBER = 0,
+	COLUMN_TABLE_GROUP_IMAGE,
+	COLUMN_TABLE_GROUP_AMOUNT
+};
+struct _group_s
 {
 	char * image;
 };
-typedef struct _schema_s schema_s;
+typedef struct _group_s group_s;
+/**************************************/
 
+enum{
+	COLUMN_TABLE_VIDEOCAMERA_NUMBER = 0,
+	COLUMN_TABLE_VIDEOCAMERA_PROTOCOL,
+	COLUMN_TABLE_VIDEOCAMERA_ADDRESS,
+	COLUMN_TABLE_VIDEOCAMERA_PORT,
+	COLUMN_TABLE_VIDEOCAMERA_ACCESS,
+	COLUMN_TABLE_VIDEOCAMERA_AMOUNT
+};
 struct _videocamera_s
 {
 	char * protocol;
@@ -82,5 +119,6 @@ struct _videocamera_s
 };
 typedef struct _videocamera_s videocamera_s;
 
+/**************************************/
 #endif
 
