@@ -101,6 +101,7 @@ static int full_gslict(kernel_s * k)
 		if(rc != SUCCESS){
 			break;
 		}
+		name = g_strdup(name);
 		g_debug(" number :> %d",number);
 		g_debug(" name   :> %s",name);
 		g_debug(" type   :> %d",type);
@@ -146,7 +147,7 @@ kernel_s kernel;
 int init_kernel(void)
 {
 
-#if 0
+#if 1
 	schema_s schema = {"plan.png"};
 	videocamera_s videocamera = {"rtsp","192.168.1.1",554,"/h_264"};
 	add_object_database(0,1,"база 00",TYPE_GROUP,&schema);
@@ -171,7 +172,13 @@ static void kernel_free(gpointer data)
 	object_s * o = (object_s*)data;
 	group_s * g = (group_s*)data;
 
-	g_free(o->name);
+	if(o == NULL){
+		return;
+	}
+
+	if(o->name != NULL){
+		g_free(o->name);
+	}
 	switch(o->type){
 		case TYPE_GROUP:
 			g_slice_free1(sizeof(group_s),g);
