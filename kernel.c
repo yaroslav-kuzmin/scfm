@@ -48,18 +48,12 @@
 #include "pub.h"
 #include "common.h"
 #include "database.h"
-#include "schema.h"
+#include "group.h"
 #include "videocamera.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _kernel_s
-{
-	GSList * list;
-	uint32_t amount;
-};
-typedef struct _kernel_s kernel_s;
 
 /*****************************************************************************/
 /*    Локальные функции                                                      */
@@ -118,15 +112,43 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 
 	return list;
 }
+
+object_s kernel;
+
+int add_object(object_s * parent,object_s * child)
+{
+	int rc;
+	uint32_t number = FIRST_NUMBER_GROUP;
+
+	if( (parent->type != TYPE_KERNEL) || (parent->type != TYPE_GROUP)){
+		return FAILURE;
+	}
+
+	if(parent->type == TYPE_GROUP){
+		number = parent->number;
+	}
+	/*TODO проверка на вставку одинаковава номера */
+	kernel.number ++;
+	rc = add_object_database(number,kernel.number,child->name,child->type,child->property);
+	if(rc != SUCCESS){
+		return FAILURE;
+	}
+	parent->list = g_slist_append(parent->list,child);
+	return SUCCESS;
+}
+
+int del_object(object_s * parent,object_s * child)
+{
+	int rc
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
-kernel_s kernel;
 
 int init_kernel(void)
 {
-	uint32_t number;
+	uint32_t number = 0;
 #if 0
 	schema_s schema = {"plan.png"};
 	videocamera_s videocamera = {"rtsp","192.168.1.1",554,"/h_264"};
@@ -139,9 +161,11 @@ int init_kernel(void)
 
 	/*del_object_database(0,3,TYPE_GROUP);*/
 #endif
-
+	kernel.type = TYPE_KERNEL;
 	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number);
-	kernel.amount = number;
+	kernel.number = number;
+	kernel.name = STR_NAME_PROGRAMM;
+	kernel.property = NULL;
 
 	return SUCCESS;
 }

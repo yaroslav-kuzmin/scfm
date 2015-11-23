@@ -64,10 +64,9 @@ typedef struct _generic_s generic_s;
 /**************************************/
 
 #define FIRST_NUMBER_GROUP     0
-#define TYPE_UNKNOWN           0xFF
+#define TYPE_UNKNOWN           0x00
+#define TYPE_KERNEL            0xFF
 #define TYPE_GROUP             0x80
-
-#define TYPE_OBJECT            0x00
 #define TYPE_VIDEOCAMERA       0x02
 
 /**************************************/
