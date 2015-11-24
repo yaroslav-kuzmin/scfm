@@ -137,6 +137,7 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 	               ,g_date_time_get_month(cdt)
 	               ,g_date_time_get_year(cdt));
 
+	g_date_time_unref(cdt);
 	if(log_level != G_LOG_LEVEL_INFO){
 		g_string_append_printf(buf,"(%s) ",log_domain);
 	}
@@ -270,9 +271,8 @@ int deinit_logging(void)
 	GIOChannel * c;
 	GString * s;
 
-	s = logging.info_name;
 	c = logging.info_channel;
-
+	s = logging.info_name;
 	if(c != NULL){
 		rc = g_io_channel_shutdown(c,TRUE,&err);
 		if(rc != G_IO_STATUS_NORMAL){
@@ -280,14 +280,13 @@ int deinit_logging(void)
 			dialog_error(pub->str);
 			g_error_free(err);
 		}
-		g_io_channel_unref(c);
 		g_string_free(s,TRUE);
 		logging.info_name = NULL;
 		logging.info_channel = NULL;
 	}
-
-	s = logging.error_name;
+	err = NULL;
 	c = logging.error_channel;
+	s = logging.error_name;
 	if(c != NULL){
 		rc = g_io_channel_shutdown(c,TRUE,&err);
 		if(rc != G_IO_STATUS_NORMAL){
@@ -295,13 +294,13 @@ int deinit_logging(void)
 			dialog_error(pub->str);
 			g_error_free(err);
 		}
-		g_io_channel_unref(c);
 		g_string_free(s,TRUE);
 		logging.error_name = NULL;
 		logging.error_channel = NULL;
 	}
 	s = logging.buf;
 	g_string_free(s,TRUE);
+	g_object_unref(logging.view_buf);
 	return SUCCESS;
 }
 

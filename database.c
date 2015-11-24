@@ -58,7 +58,6 @@ static sqlite3 * database = NULL;
 /* локальные функции                                                         */
 /*****************************************************************************/
 
-
 static int query_simple(GString * query)
 {
 	int rc;
@@ -72,65 +71,42 @@ static int query_simple(GString * query)
 	return SUCCESS;
 }
 
-#define FORMAT_NAME_TABLE_GROUP    "[g%07d]"
-enum{
-	COLUMN_TABLE_GROUP_NUMBER = 0,
-	COLUMN_TABLE_GROUP_NAME,
-	COLUMN_TABLE_GROUP_TYPE,
-	COLUMN_TABLE_GROUP_AMOUNT
-};
-static int create_table_group(int number)
+static int create_table_object(int number)
 {
 	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number);
+	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
 	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,type INTEGER)");
 	return query_simple(pub);
 }
-
-static int delete_table_group(int number)
-{
-	g_string_printf(pub,"DROP TABLE ");
-	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number);
-	return query_simple(pub);
-}
-
-static char STR_NAME_TABLE_TYPE_GROUP[] = "[group]";
-enum{
-	COLUMN_TABLE_TYPE_GROUP_NUMBER = 0,
-	COLUMN_TABLE_TYPE_GROUP_IMAGE,
-	COLUMN_TABLE_TYPE_GROUP_AMOUNT
-};
-static int create_table_type_group(void)
+static char STR_NAME_TABLE_GROUP[] = "[group]";
+static int create_table_group(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_GROUP);
+	g_string_append(pub,STR_NAME_TABLE_GROUP);
 	g_string_append(pub,"(number INTEGER PRIMARY KEY,image)");
 	return query_simple(pub);
 }
-
-static char STR_NAME_TABLE_TYPE_VIDEOCAMERA[] = "[videocamera]";
-enum{
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_NUMBER = 0,
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_PROTOCOL,
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_ADDRESS,
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_PORT,
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_ACCESS,
-	COLUMN_TABLE_TYPE_VIDEOCAMERA_AMOUNT
-};
-static int create_table_type_videocamera(void)
+static char STR_NAME_TABLE_VIDEOCAMERA[] = "[videocamera]";
+static int create_table_videocamera(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_VIDEOCAMERA);
+	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
 	g_string_append(pub,"(number INTEGER PRIMARY KEY,protocol,address,port,access)");
 	return query_simple(pub);
 }
 
+static int delete_table_object(int number)
+{
+	g_string_printf(pub,"DROP TABLE ");
+	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
+	return query_simple(pub);
+}
 
 static int create_total_table(void)
 {
-	create_table_group(FIRST_NUMBER_GROUP);
-	create_table_type_group();
-	create_table_type_videocamera();
+	create_table_object(FIRST_NUMBER_GROUP);
+	create_table_group();
+	create_table_videocamera();
 
 	return SUCCESS;
 }
@@ -168,7 +144,7 @@ static int create_default_database(GString * name)
 static int add_info_object_table(uint32_t number_group,uint32_t number_object,char *name,uint8_t type)
 {
 	g_string_printf(pub,"INSERT INTO ");
-	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number_group);
+	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number_group);
 	g_string_append(pub," VALUES (");
 	g_string_append_printf(pub,"%d,\'%s\',%d)",number_object,name,type);
 	return query_simple(pub);
@@ -177,56 +153,56 @@ static int add_info_object_table(uint32_t number_group,uint32_t number_object,ch
 static int del_info_object_table(uint32_t number_group,uint32_t number_object)
 {
 	g_string_printf(pub,"DELETE FROM ");
-	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number_group);
+	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number_group);
 	g_string_append_printf(pub," WHERE number=%d",number_object);
 	return query_simple(pub);
 }
 
-static int add_group_table(uint32_t number,schema_s * schema)
+static int add_table_group(uint32_t number,group_s * group)
 {
 	int rc;
 
-	rc = create_table_group(number);
+	rc = create_table_object(number);
 	if(rc != SUCCESS ){
 		return rc;
 	}
 
 	g_string_printf(pub,"INSERT INTO ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_GROUP);
-	g_string_append_printf(pub," VALUES (%d,\'%s\')",number,schema->image);
+	g_string_append(pub,STR_NAME_TABLE_GROUP);
+	g_string_append_printf(pub," VALUES (%d,\'%s\')",number,group->image);
 
 	return query_simple(pub);
 }
 
-static int del_group_table(uint32_t number)
+static int del_table_group(uint32_t number)
 {
 	int rc;
 
-	rc = delete_table_group(number);
+	rc = delete_table_object(number);
 	if(rc != SUCCESS){
 		return rc;
 	}
 
 	g_string_printf(pub,"DELETE FROM ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_GROUP);
+	g_string_append(pub,STR_NAME_TABLE_GROUP);
 	g_string_append_printf(pub," WHERE number=%d",number);
 
 	return query_simple(pub);
 }
 
-static int add_videcamera_table(uint32_t n,videocamera_s * v)
+static int add_table_videcamera(uint32_t n,videocamera_s * v)
 {
 	g_string_printf(pub,"INSERT INTO ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_VIDEOCAMERA);
+	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
 	g_string_append_printf(pub," VALUES (%d,\'%s\',\'%s\',%d,\'%s\')"
 	                      ,n,v->protocol,v->address,v->port,v->access);
 	return query_simple(pub);
 }
 
-static int del_videcamera_table(uint32_t number)
+static int del_table_videcamera(uint32_t number)
 {
 	g_string_printf(pub,"DELETE FROM ");
-	g_string_append(pub,STR_NAME_TABLE_TYPE_VIDEOCAMERA);
+	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
 	g_string_append_printf(pub," WHERE number=%d",number);
 
 	return query_simple(pub);
@@ -241,7 +217,7 @@ void* prepare_group_database(uint32_t number)
 	sqlite3_stmt * stmt;
 
 	g_string_printf(pub,"SELECT * FROM ");
-	g_string_append_printf(pub,FORMAT_NAME_TABLE_GROUP,number);
+	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
 
 	rc = sqlite3_prepare_v2( database,pub->str,(pub->len+1) ,&stmt,NULL);
 	if(rc != SQLITE_OK){
@@ -275,15 +251,15 @@ int next_group_database(void * s,uint32_t * number,char **name,uint8_t * type)
 	if(rc == SQLITE_ROW){
 		/*строка запроса*/
 		amount_column = sqlite3_data_count(stmt);
-		if(amount_column != COLUMN_TABLE_GROUP_AMOUNT){
+		if(amount_column != COLUMN_TABLE_OBJECT_AMOUNT){
 			g_critical("SQL step : Некорректная таблица групп : %d",amount_column);
 			sqlite3_finalize(stmt);
 			return FAILURE;
 		}
 		/*TODO корректный типы таблицы*/
-		*number = sqlite3_column_int64(stmt,COLUMN_TABLE_GROUP_NUMBER);
-		*name = (char*)sqlite3_column_text(stmt,COLUMN_TABLE_GROUP_NAME);
-		*type = sqlite3_column_int(stmt,COLUMN_TABLE_GROUP_TYPE);
+		*number = sqlite3_column_int64(stmt,COLUMN_TABLE_OBJECT_NUMBER);
+		*name = (char*)sqlite3_column_text(stmt,COLUMN_TABLE_OBJECT_NAME);
+		*type = sqlite3_column_int(stmt,COLUMN_TABLE_OBJECT_TYPE);
 	}
 	return SUCCESS;
 }
@@ -293,13 +269,13 @@ int add_object_database(uint32_t number_group,uint32_t number_object,char * name
 	int rc;
 	switch(type){
 		case TYPE_GROUP:
-			rc = add_group_table(number_object,(schema_s*)property);
+			rc = add_table_group(number_object,(group_s*)property);
 			if(rc != SUCCESS){
 				return rc;
 			}
 			break;
 		case TYPE_VIDEOCAMERA:
-			rc = add_videcamera_table(number_object,(videocamera_s*)property);
+			rc = add_table_videcamera(number_object,(videocamera_s*)property);
 			if(rc != SUCCESS){
 				return rc;
 			}
@@ -317,13 +293,13 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 	int rc;
 	switch(type){
 		case TYPE_GROUP:
-			rc = del_group_table(number_object);
+			rc = del_table_group(number_object);
 			if(rc != SUCCESS){
 				return rc;
 			}
 			break;
 		case TYPE_VIDEOCAMERA:
-			rc = del_videcamera_table(number_object);
+			rc = del_table_videcamera(number_object);
 			if(rc != SUCCESS){
 				return rc;
 			}

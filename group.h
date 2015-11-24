@@ -41,8 +41,9 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef SCHEMA_H
-#define SCHEMA_H
+#ifndef GROUP_H
+#define GROUP_H
 
+int fill_group(object_s * object);
 #endif
 
