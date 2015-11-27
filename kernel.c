@@ -81,6 +81,9 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		}
 		object = (object_s*)g_slice_alloc(sizeof(object_s));
 		object->number = number;
+		if(amount < number){
+			amount += number;
+		}
 		object->type = type;
 		object->name = g_strdup(name);
 		object->property = NULL;
@@ -101,7 +104,6 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		}
 		if(object != NULL){
 			list = g_slist_append(list,object);
-			amount++;
 		}
 		g_debug("\n amount :> %d",amount);
 		g_debug(" number :> %d",object->number);
@@ -113,6 +115,7 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 	return list;
 }
 
+#define MAX_NUMBER_OBJECT    0x000fffff
 object_s kernel;
 
 int add_object(object_s * parent,object_s * child)
@@ -127,11 +130,13 @@ int add_object(object_s * parent,object_s * child)
 	if(parent->type == TYPE_GROUP){
 		number = parent->number;
 	}
-	/*TODO проверка на вставку одинаковава номера */
-	kernel.number ++;
 	rc = add_object_database(number,kernel.number,child->name,child->type,child->property);
 	if(rc != SUCCESS){
 		return FAILURE;
+	}
+	kernel.number ++;
+	if(kernel.number == MAX_NUMBER_OBJECT){
+		reindex_database();
 	}
 	parent->list = g_slist_append(parent->list,child);
 	return SUCCESS;

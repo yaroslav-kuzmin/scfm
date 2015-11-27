@@ -319,6 +319,11 @@ int default_database_config(void)
 	g_key_file_set_string(system_config,STR_GROUP_GLOBAL,STR_KEY_DATABASE,STR_DATABASE_FILE);
 	return SUCCESS;
 }
+int reindex_database(void)
+{
+/*TODO сделать преобразование идентификаторов в базе данных*/
+	return SUCCESS;
+}
 
 static GString * database_name = NULL;
 

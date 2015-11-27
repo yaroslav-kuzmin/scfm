@@ -45,6 +45,7 @@
 #define DATABASE_H
 
 int default_database_config(void);
+int reindex_database(void);
 int check_database(GString * wc);
 int init_database(GString * work_catalog);
 int deinit_database(void);
