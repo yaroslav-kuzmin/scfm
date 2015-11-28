@@ -44,7 +44,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-GtkWidget * create_window_config(void);
+int create_window_config(GtkWidget * w);
 
 #endif
 

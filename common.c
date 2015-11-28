@@ -47,6 +47,7 @@
 #include "pub.h"
 #include "log.h"
 #include "kernel.h"
+#include "config.h"
 #include "database.h"
 
 /*****************************************************************************/
@@ -286,7 +287,7 @@ static int deinit_config(void)
 /*****************************************************************************/
 int mode_work = MODE_NOT_WORK;
 
-int set_mode_work(int mode)
+int set_mode_work(int mode,GtkWidget * win_main)
 {
 	switch(mode){
 		case MODE_CONTROL:
@@ -294,6 +295,7 @@ int set_mode_work(int mode)
 			break;
 		case MODE_CONFIG:
 			mode_work = MODE_CONFIG;
+			create_window_config(win_main);
 			break;
 		default:
 			mode_work = MODE_NOT_WORK;

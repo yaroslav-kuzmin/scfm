@@ -60,7 +60,7 @@ extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];
 int set_flag_save_config(void);
 
-int set_mode_work(int mode);
+int set_mode_work(int mode,GtkWidget * w);
 
 generic_s * init_system(void);
 int deinit_system(void);
