@@ -56,7 +56,7 @@
 /* локальные функции                                                         */
 /*****************************************************************************/
 
-void clicked_button_object(GtkButton * b,gpointer ud)
+static void clicked_button_object(GtkButton * b,gpointer ud)
 {
 	g_debug("clicked_button_object");
 }

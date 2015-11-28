@@ -41,103 +41,10 @@
 /*                                                                           */
 /*****************************************************************************/
 
-/*****************************************************************************/
-#include <gtk/gtk.h>
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include "pub.h"
-#include "common.h"
-#include "config.h"
+GtkWidget * create_window_config(void);
 
-/*****************************************************************************/
-/*    Общие переменые                                                        */
-/*****************************************************************************/
+#endif
 
-
-/*****************************************************************************/
-/* локальные функции                                                         */
-/*****************************************************************************/
-static void activate_menu_job_control(GtkMenuItem * b,gpointer d)
-{
-	set_mode_work(MODE_CONTROL);
-}
-
-static void activate_menu_job_config(GtkMenuItem * b,gpointer d)
-{
-	set_mode_work(MODE_CONFIG);
-	create_window_config();
-}
-static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)
-{
-	GtkWidget * w = (GtkWidget *)ud;
-	gtk_widget_destroy(w);
-}
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-
-static char STR_MENU_JOB[] = "Работа";
-static char STR_MENU_JOB_CONTROL[] = "Управление";
-static char STR_MENU_JOB_CONFIG[] = "Конфигурирование";
-static char STR_MENU_JOB_EXIT[] = "Выход";
-
-static GtkWidget * create_menu_job(GtkWidget * main_win,GtkAccelGroup * main_accgro)
-{
-	GtkWidget * menite_job;
-	GtkWidget * men_job;
-	GtkWidget * menite_control;
-	GtkWidget * menite_config;
-	GtkWidget * menite_s0;
-	GtkWidget * menite_exit;
-
-	menite_job = gtk_menu_item_new_with_label(STR_MENU_JOB);
-
-	men_job = gtk_menu_new();
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menite_job),men_job);
-
-	menite_control = gtk_menu_item_new_with_label(STR_MENU_JOB_CONTROL);
-	g_signal_connect(menite_control,"activate",G_CALLBACK(activate_menu_job_control),NULL);
-	gtk_widget_add_accelerator(menite_control,"activate",main_accgro
-	                          ,GDK_KEY_E,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
-	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_control);
-
-	menite_config = gtk_menu_item_new_with_label(STR_MENU_JOB_CONFIG);
-	g_signal_connect(menite_config,"activate",G_CALLBACK(activate_menu_job_config),NULL);
-	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
-	                          ,GDK_KEY_C,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
-	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_config);
-
-	menite_s0 = gtk_separator_menu_item_new();
-	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_s0);
-
-	menite_exit = gtk_menu_item_new_with_label(STR_MENU_JOB_EXIT);
-	g_signal_connect(menite_exit,"activate",G_CALLBACK(activate_menu_job_exit),main_win);
-	gtk_widget_add_accelerator(menite_exit,"activate",main_accgro
-	                          ,GDK_KEY_Q,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
-	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_exit);
-
-	gtk_widget_show(menite_job);
-	gtk_widget_show(men_job);
-	gtk_widget_show(menite_control);
-	gtk_widget_show(menite_config);
-	gtk_widget_show(menite_s0);
-	gtk_widget_show(menite_exit);
-
-	return menite_job;
-}
-
-GtkWidget * create_block_menu(GtkWidget * main_win,GtkAccelGroup * main_accgro)
-{
-	GtkWidget * menbar_main;
-	GtkWidget * menite_job;
-
-	menbar_main = gtk_menu_bar_new();
-	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
-
-	menite_job = create_menu_job(main_win,main_accgro);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
-
-	gtk_widget_show(menbar_main);
-	return menbar_main;
-}
-
-/*****************************************************************************/
