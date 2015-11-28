@@ -105,6 +105,7 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		if(object != NULL){
 			list = g_slist_append(list,object);
 		}
+
 		g_debug("\n amount :> %d",amount);
 		g_debug(" number :> %d",object->number);
 		g_debug(" type   :> %#x",object->type);
@@ -114,9 +115,6 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 
 	return list;
 }
-
-#define MAX_NUMBER_OBJECT    0x000fffff
-object_s kernel;
 
 int add_object(object_s * parent,object_s * child)
 {
@@ -145,9 +143,14 @@ int del_object(object_s * parent,object_s * child)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-group_s group = {"plan.png"};
-videocamera_s videocamera = {"rtsp","192.168.1.1",554,"/h_264"};
-object_s object_00 = {1,"база",TYPE_GROUP,NULL,NULL};
+
+#define MAX_NUMBER_OBJECT    0x000fffff
+object_s kernel;
+
+GSList * kernel_list(void)
+{
+	return kernel.list;
+}
 
 int init_kernel(void)
 {
@@ -158,33 +161,7 @@ int init_kernel(void)
 	kernel.number = number;
 	kernel.name = STR_NAME_PROGRAMM;
 	kernel.property = NULL;
-	g_debug(" n :> %d",number);
 
-#if 1
-	object_00.property = &group;
-	kernel.number ++;
-	if(kernel.number == MAX_NUMBER_OBJECT){
-		reindex_database();
-	}
-	object_00.number = kernel.number;
-	add_object(&kernel,&object_00);
-
-	object_00.property = &group;
-	kernel.number ++;
-	if(kernel.number == MAX_NUMBER_OBJECT){
-		reindex_database();
-	}
-	object_00.number = kernel.number;
-	add_object(&kernel,&object_00);
-
-	object_00.property = &group;
-	kernel.number ++;
-	if(kernel.number == MAX_NUMBER_OBJECT){
-		reindex_database();
-	}
-	object_00.number = kernel.number;
-	add_object(&kernel,&object_00);
-#endif
 	return SUCCESS;
 }
 
@@ -212,7 +189,7 @@ static void kernel_free(gpointer data)
 
 int deinit_kernel(void)
 {
-	/*g_slist_free_full(kernel.list,kernel_free);*/
+	g_slist_free_full(kernel.list,kernel_free);
 	return SUCCESS;
 }
 /*****************************************************************************/

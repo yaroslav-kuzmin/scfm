@@ -44,6 +44,7 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
+GSList * kernel_list(void);
 int init_kernel(void);
 int deinit_kernel(void);
 

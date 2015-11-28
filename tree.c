@@ -46,6 +46,8 @@
 
 #include "pub.h"
 #include "common.h"
+#include "kernel.h"
+#include "menu.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -88,10 +90,50 @@ static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeVie
 {
 	g_debug("row_activated_tree_view");
 }
+
+static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
+{
+	GSList * list = NULL;
+	GtkTreeIter child_iter;
+
+	list = object->list;
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter,COLUMN_NAME,o->name,COLUMN_POINT,o,-1);
+		if(o->type == TYPE_GROUP){
+			fill_treeview_group(tree_model,&child_iter,o);
+		}
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
+}
+static int fill_treeview(GtkTreeView * treeview)
+{
+	GtkTreeSelection * select;
+	GtkTreeModel * tree_model;
+	GtkTreeIter tree_iter;
+	GSList * list;
+
+	select =	gtk_tree_view_get_selection (treeview);
+	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
+
+	list = kernel_list();
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,NULL);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter,COLUMN_NAME,o->name,COLUMN_POINT,o,-1);
+		if(o->type == TYPE_GROUP){
+			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o);
+		}
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
+}
+
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-
 
 static char STR_TREE_FRAME[] = "Объекты";
 
@@ -116,9 +158,14 @@ GtkWidget * create_block_tree(void)
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_object_unref(model);
+	fill_treeview(GTK_TREE_VIEW(treeview));
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
+	gtk_widget_show(treeview);
 
 	return frame;
 }

@@ -326,5 +326,8 @@ GtkWidget * create_block_log(void)
 	gtk_widget_set_size_request(log,-1,size_height_view_log);
 
 	gtk_container_add(GTK_CONTAINER(frame),log);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(log);
 	return frame;
 }

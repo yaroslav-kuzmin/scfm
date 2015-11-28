@@ -44,6 +44,7 @@
 #ifndef MENU_H
 #define MENU_H
 
+int menu_job_config_block_button(GtkWidget * block_button);
 GtkWidget * create_block_menu(GtkWidget * main_win,GtkAccelGroup * main_accgro);
 
 #endif

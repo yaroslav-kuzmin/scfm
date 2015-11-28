@@ -64,6 +64,7 @@ void clicked_button_object(GtkButton * b,gpointer ud)
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
+
 GtkWidget * create_block_object(void)
 {
 	GtkWidget * object;
@@ -71,7 +72,7 @@ GtkWidget * create_block_object(void)
 	object = gtk_button_new_with_label("объект");
 	g_signal_connect(object,"clicked",G_CALLBACK(clicked_button_object),NULL);
 
-
+	gtk_widget_show(object);
 	return object;
 }
 

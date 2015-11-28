@@ -61,6 +61,14 @@ GString * pub = NULL;
 GKeyFile * system_config = NULL;
 char STR_GROUP_GLOBAL[] = "global";
 
+GdkRGBA color_black =     {0  ,0  ,0  ,1};
+GdkRGBA color_green =     {0  ,1  ,0  ,1};
+GdkRGBA color_red =       {1  ,0  ,0  ,1};
+GdkRGBA color_white =     {1  ,1  ,1  ,1};
+GdkRGBA color_lite_blue = {0.2,0.1,1  ,1};
+GdkRGBA color_lite_red  = {1  ,0.2,0.1,1};
+GdkRGBA color_lite_green= {0.2,1  ,0.1,1};
+
 /*****************************************************************************/
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -276,6 +284,23 @@ static int deinit_config(void)
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
+int mode_work = MODE_NOT_WORK;
+
+int set_mode_work(int mode)
+{
+	switch(mode){
+		case MODE_CONTROL:
+			mode_work = MODE_CONTROL;
+			break;
+		case MODE_CONFIG:
+			mode_work = MODE_CONFIG;
+			break;
+		default:
+			mode_work = MODE_NOT_WORK;
+			break;
+	}
+	return SUCCESS;
+}
 
 #ifdef G_OS_WIN32
 static const char STR_HOME_PATH[] = "HOME";

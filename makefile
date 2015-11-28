@@ -45,8 +45,8 @@ OBJ_CATALOG=.obj/
 DEPEND_CATALOG=.depend/
 
 MODBUS_CATALOG=libmodbus/
-#LIB_MODBUS=$(MODBUS_CATALOG)libmodbus.a
-#LIB_MODBUS_OPTION=-lmodbus
+LIB_MODBUS=$(MODBUS_CATALOG)libmodbus.a
+LIB_MODBUS_OPTION=-lmodbus
 
 EXEC=scfm.exe
 SOURCE=$(wildcard *.c)
@@ -71,6 +71,7 @@ COMPILE_RESOURCE=glib-compile-resources
 HEADER_VERSION=version.h
 GIT_REPOSITOR=.git
 GIT_VERSION=./git_version.sh
+
 
 $(EXEC):$(OBJS) $(OBJ_RESOURCE) $(LIB_MODBUS)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)

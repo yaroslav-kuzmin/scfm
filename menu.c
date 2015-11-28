@@ -57,11 +57,13 @@
 /*****************************************************************************/
 static void activate_menu_job_control(GtkMenuItem * b,gpointer d)
 {
-	g_debug("activate_menu_job_control");
+	set_mode_work(MODE_CONTROL);
 }
+
 static void activate_menu_job_config(GtkMenuItem * b,gpointer d)
 {
-	g_debug("activate_menu_job_control");
+	set_mode_work(MODE_CONFIG);
+	create_window_config();
 }
 static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)
 {
@@ -112,6 +114,13 @@ static GtkWidget * create_menu_job(GtkWidget * main_win,GtkAccelGroup * main_acc
 	                          ,GDK_KEY_Q,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_exit);
 
+	gtk_widget_show(menite_job);
+	gtk_widget_show(men_job);
+	gtk_widget_show(menite_control);
+	gtk_widget_show(menite_config);
+	gtk_widget_show(menite_s0);
+	gtk_widget_show(menite_exit);
+
 	return menite_job;
 }
 
@@ -126,6 +135,7 @@ GtkWidget * create_block_menu(GtkWidget * main_win,GtkAccelGroup * main_accgro)
 	menite_job = create_menu_job(main_win,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
 
+	gtk_widget_show(menbar_main);
 	return menbar_main;
 }
 

@@ -63,6 +63,14 @@ typedef struct _generic_s generic_s;
 
 /**************************************/
 
+enum{
+	MODE_NOT_WORK = 0,
+	MODE_CONTROL,
+	MODE_CONFIG
+};
+
+/**************************************/
+
 #define FIRST_NUMBER_GROUP     0
 #define TYPE_UNKNOWN           0x00
 #define TYPE_KERNEL            0xFF
