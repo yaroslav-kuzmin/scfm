@@ -147,6 +147,11 @@ int del_object(object_s * parent,object_s * child)
 #define MAX_NUMBER_OBJECT    0x000fffff
 object_s kernel;
 
+object_s * get_kernel(void)
+{
+	return &kernel;
+}
+
 GSList * kernel_list(void)
 {
 	return kernel.list;

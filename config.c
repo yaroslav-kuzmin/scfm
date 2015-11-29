@@ -49,13 +49,21 @@
 #include "kernel.h"
 
 /*****************************************************************************/
-/*    Общие переменые                                                        */
+/*    локальные переменые                                                    */
 /*****************************************************************************/
+struct _config_s
+{
+	GtkTreeView * tree_view;
 
+	object_s * group;
+	object_s * object;
+};
+typedef struct _config_s config_s;
 
 /*****************************************************************************/
-/* локальные функции                                                         */
+/*    локальные функции                                                      */
 /*****************************************************************************/
+/*TODO обеденить с основным деревом*/
 enum{
 	COLUMN_NAME = 0,
 	COLUMN_POINT,
@@ -85,15 +93,98 @@ static int tree_add_column(GtkTreeView * tree)
 
 	return SUCCESS;
 }
+static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
+{
+	GSList * list = NULL;
+	GtkTreeIter child_iter;
+
+	list = object->list;
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter,COLUMN_NAME,o->name,COLUMN_POINT,o,-1);
+		if(o->type == TYPE_GROUP){
+			fill_treeview_group(tree_model,&child_iter,o);
+		}
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
+}
+
+static char STR_ROOT_TREE[] = "основа";
+
+static int fill_treeview(GtkTreeView * treeview)
+{
+	GtkTreeSelection * select;
+	GtkTreeModel * tree_model;
+	GtkTreeIter tree_iter_root;
+	GtkTreeIter tree_iter;
+	GSList * list;
+
+	select =	gtk_tree_view_get_selection (treeview);
+	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
+
+	gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter_root,NULL);
+	gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter_root,COLUMN_NAME,STR_ROOT_TREE,COLUMN_POINT,NULL,-1);
+
+	list = kernel_list();
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,&tree_iter_root);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter,COLUMN_NAME,o->name,COLUMN_POINT,o,-1);
+		if(o->type == TYPE_GROUP){
+			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o);
+		}
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
+}
 
 static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
 {
 	g_debug("row_activated_tree_view");
 }
 
+static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
+{
+	g_debug("cursor_changed_tree_view");
+#if 0
+	int rc;
+	config_s * c = (config_s*)ud;
+	GtkTreeModel * model;
+	GtkTreeIter * iter_parent = c->tree_iter_parent;
+	GtkTreeIter * iter = c->tree_iter;
+	GtkTreeSelection * select = gtk_tree_view_get_selection (tv);
+	rc = gtk_tree_selection_get_selected(select,&model,iter);
+	if(rc == TRUE){
+		object_s * object;
+		c->tree_model = model;
+		gtk_tree_model_get(model,iter,COLUMN_POINT,&object,-1);
+		if(object == NULL){ /*основа*/
+			c->group = get_kernel();
+			c->object = NULL;
+			c->tree_root = OK;
+		}
+		else{
+			if(object->type == TYPE_GROUP){
+				c->group = object;
+				c->object = NULL;
+				rc = gtk_tree_model_iter_parent(model,iter_parent,iter);
+				if(rc == TRUE){
+					c->tree_root = OK;
+				}
+				else{
+					c->tree_root = NOT_OK;
+				}
+			}
+		}
+	}
+#endif
+}
+
 static char STR_TREE_FRAME[] = "Группы";
 
-static GtkWidget * create_block_tree(void)
+static GtkWidget * create_block_tree(config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
@@ -112,9 +203,11 @@ static GtkWidget * create_block_tree(void)
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	tree_add_column(GTK_TREE_VIEW(treeview));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
-	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
+	config->tree_view = GTK_TREE_VIEW(treeview);
+	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),config);
+	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),config);
 	g_object_unref(model);
-	/*fill_treeview(GTK_TREE_VIEW(treeview));*/
+	fill_treeview(GTK_TREE_VIEW(treeview));
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
@@ -132,7 +225,7 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 }
 
 static char STR_BUTTON_ADD[] = "добавить";
-static GtkWidget * create_block_option(void)
+static GtkWidget * create_block_option(config_s * config)
 {
 	GtkWidget * box;
 	GtkWidget * but_add;
@@ -141,8 +234,8 @@ static GtkWidget * create_block_option(void)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	but_add = gtk_button_new_with_label(STR_BUTTON_ADD);
-	layout_widget(but_add,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_add,"clicked",G_CALLBACK(clicked_button_add),NULL);
+	layout_widget(but_add,GTK_ALIGN_CENTER,GTK_ALIGN_END,FALSE,FALSE);
+	g_signal_connect(but_add,"clicked",G_CALLBACK(clicked_button_add),config);
 
 	gtk_box_pack_start(GTK_BOX(box),but_add,FALSE,FALSE,0);
 
@@ -154,7 +247,7 @@ static GtkWidget * create_block_option(void)
 
 static char STR_FRAME_CONFIG[] = "Конфигурирование";
 
-static GtkWidget * create_block_config(void)
+static GtkWidget * create_block_config(config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * box;
@@ -168,8 +261,8 @@ static GtkWidget * create_block_config(void)
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_tree = create_block_tree();
-	block_option = create_block_option();
+	block_tree = create_block_tree(config);
+	block_option = create_block_option(config);
 
 	gtk_container_add(GTK_CONTAINER(frame),box);
 	gtk_box_pack_start(GTK_BOX(box),block_tree,TRUE,TRUE,0);
@@ -185,6 +278,7 @@ struct _config_button_s
 {
 	GtkWidget * win_main;
 	GtkWidget * win_config;
+	int flag_exit;
 };
 typedef struct _config_button_s config_button_s;
 
@@ -192,16 +286,48 @@ static void clicked_button_exit(GtkButton * b,gpointer ud)
 {
 	config_button_s * cb = (config_button_s*)ud;
 	gtk_widget_show(cb->win_main);
+	cb->flag_exit = NOT_OK;
 	gtk_widget_destroy(cb->win_config);
 	set_mode_work(MODE_CONTROL,cb->win_main);
 }
 
+static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpointer ud)
+{
+	config_button_s * cb = (config_button_s*)ud;
+	GdkEventType type = event->type;
+	gint state;
+
+	if(type == GDK_KEY_PRESS){
+		GdkEventKey * event_key = (GdkEventKey*)event;
+		state = event_key->state;
+		if( (state & GDK_MOD1_MASK) ){
+			if( event_key->keyval == GDK_KEY_F4){
+				gtk_widget_destroy(cb->win_config);
+			}
+		}
+	}
+	return FALSE;
+}
+
+static void destroy_window_config(GtkWidget * w,gpointer ud)
+{
+	config_button_s * cb = (config_button_s*)ud;
+	if(cb->flag_exit == OK){
+		gtk_widget_destroy(cb->win_main);
+	}
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 #define CONFIG_BLOCK_SPACING   5
 static char STR_CONFIG_EXIT[] = "выход";
 static config_button_s config_button;
+
+#define MIN_WIDTH_WIN_CONFIG      400
+#define MIN_HEIGHT_WIN_CONFIG     400
+static GtkTreeIter config_tree_iter_parent;
+static GtkTreeIter config_tree_iter;
+static config_s total_config;
 
 int create_window_config(GtkWidget * win_main)
 {
@@ -210,19 +336,26 @@ int create_window_config(GtkWidget * win_main)
 	GtkWidget * block_config;
 	GtkWidget * exit;
 
+	total_config.tree_view = NULL;
+	total_config.group = NULL;
+	total_config.object = NULL;
+
+	config_button.flag_exit = OK;
 	config_button.win_main = win_main;
 	win_config = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	config_button.win_config = win_config;
 	gtk_container_set_border_width(GTK_CONTAINER(win_config),CONFIG_BLOCK_SPACING);
 	gtk_window_set_title(GTK_WINDOW(win_config),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_config),TRUE);
 	gtk_window_set_position (GTK_WINDOW(win_config),GTK_WIN_POS_CENTER);
-	/*gtk_window_set_default_size(GTK_WINDOW(win_config),300,300);*/
-	config_button.win_config = win_config;
+	gtk_window_set_default_size(GTK_WINDOW(win_config),MIN_WIDTH_WIN_CONFIG,MIN_HEIGHT_WIN_CONFIG);
+	g_signal_connect(win_config,"destroy",G_CALLBACK(destroy_window_config),&config_button);
+	g_signal_connect(win_config,"key-press-event",G_CALLBACK(key_press_event_window_config),&config_button);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_config = create_block_config();
+	block_config = create_block_config(&total_config);
 
 	exit = gtk_button_new_with_label(STR_CONFIG_EXIT);
 	layout_widget(exit,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
@@ -231,7 +364,7 @@ int create_window_config(GtkWidget * win_main)
 	gtk_container_add(GTK_CONTAINER(win_config),box);
 	gtk_box_pack_start(GTK_BOX(box),block_config,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),exit,FALSE,TRUE,0);
-
+	/*TODO обработка alt-f4*/
 	gtk_widget_hide(win_main);
 	gtk_widget_show(win_config);
 	gtk_widget_show(box);
