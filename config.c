@@ -325,8 +325,6 @@ static config_button_s config_button;
 
 #define MIN_WIDTH_WIN_CONFIG      400
 #define MIN_HEIGHT_WIN_CONFIG     400
-static GtkTreeIter config_tree_iter_parent;
-static GtkTreeIter config_tree_iter;
 static config_s total_config;
 
 int create_window_config(GtkWidget * win_main)
