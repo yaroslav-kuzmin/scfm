@@ -54,7 +54,9 @@
 struct _config_s
 {
 	GtkTreeView * tree_view;
+	GtkLabel * select;
 
+	int type;
 	object_s * group;
 	object_s * object;
 };
@@ -225,22 +227,43 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 }
 
 static char STR_BUTTON_ADD[] = "добавить";
+
+static GtkWidget * create_combobox(config_s * config)
+{
+	GtkWidget * combox;
+
+	
+	return combox;
+}
+
 static GtkWidget * create_block_option(config_s * config)
 {
 	GtkWidget * box;
-	GtkWidget * but_add;
+	GtkWidget * lab_select;
+	GtkWidget * combox;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	but_add = gtk_button_new_with_label(STR_BUTTON_ADD);
-	layout_widget(but_add,GTK_ALIGN_CENTER,GTK_ALIGN_END,FALSE,FALSE);
-	g_signal_connect(but_add,"clicked",G_CALLBACK(clicked_button_add),config);
+	lab_select = gtk_label_new(STR_ROOT_TREE);
+	layout_widget(lab_select,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,TRUE);
+	config->select = GTK_LABEL(lab_select);
 
-	gtk_box_pack_start(GTK_BOX(box),but_add,FALSE,FALSE,0);
+	combox = create_combobox(config);
+
+	/*but_add = gtk_button_new_with_label(STR_BUTTON_ADD);*/
+	/*layout_widget(but_add,GTK_ALIGN_CENTER,GTK_ALIGN_END,FALSE,FALSE);*/
+	/*g_signal_connect(but_add,"clicked",G_CALLBACK(clicked_button_add),config);*/
+
+	gtk_box_pack_start(GTK_BOX(box),lab_select,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),combox,TRUE,TRUE,0);
+
+	/*gtk_box_pack_start(GTK_BOX(box),but_add,FALSE,FALSE,0);*/
 
 	gtk_widget_show(box);
-	gtk_widget_show(but_add);
+	gtk_widget_show(lab_select);
+
+	/*gtk_widget_show(but_add);*/
 
 	return box;
 }
