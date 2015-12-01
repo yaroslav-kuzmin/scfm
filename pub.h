@@ -54,6 +54,11 @@
 
 #define MODE_WORK_CATALOG             0755
 
+/**************************************/
+
+extern char STR_NAME_PROGRAMM[];
+
+/**************************************/
 struct _generic_s
 {
 	GString * pub;
@@ -76,6 +81,18 @@ enum{
 #define TYPE_KERNEL            0xFF
 #define TYPE_GROUP             0x80
 #define TYPE_VIDEOCAMERA       0x02
+
+extern char STR_TYPE_GROUP[];
+extern char STR_TYPE_VIDEOCAMERE[];
+
+/**************************************/
+extern GdkRGBA color_black;
+extern GdkRGBA color_green;
+extern GdkRGBA color_red;
+extern GdkRGBA color_white;
+extern GdkRGBA color_lite_blue;
+extern GdkRGBA color_lite_red;
+extern GdkRGBA color_lite_green;
 
 /**************************************/
 #define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
@@ -125,6 +142,13 @@ struct _videocamera_s
 	char * access;
 };
 typedef struct _videocamera_s videocamera_s;
+
+/**************************************/
+enum{
+	COLUMN_NAME_TREE = 0,
+	COLUMN_POINT_TREE,
+	AMOUNT_COLUMN_TREE
+};
 
 /**************************************/
 #endif

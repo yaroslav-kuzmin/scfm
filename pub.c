@@ -41,127 +41,23 @@
 /*                                                                           */
 /*****************************************************************************/
 
-/*****************************************************************************/
 #include <gtk/gtk.h>
-
-#include "pub.h"
-#include "common.h"
-#include "kernel.h"
-#include "menu.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-/*****************************************************************************/
-/*    Локальные функции                                                      */
-/*****************************************************************************/
-char STR_TREE_VIEW_COLUMN[] = "Наименования";
 
-#define WIDTH_COLUMN_TREE             100
-int width_column_tree = WIDTH_COLUMN_TREE;
+char STR_NAME_PROGRAMM[] = "Система Управления Лафетными Стволами";
 
-static int tree_add_column(GtkTreeView * tree)
-{
-	GtkCellRenderer * render;
-	GtkTreeViewColumn * column;
+char STR_TYPE_GROUP[] = "группа";
+char STR_TYPE_VIDEOCAMERE[] = "видеокамера";
 
-	render = gtk_cell_renderer_text_new();
-	g_object_set(render,"editable",FALSE,NULL);
-	g_object_set(render,"width",width_column_tree,NULL);
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN);
-	gtk_tree_view_column_pack_start(column,render,TRUE);
-	gtk_tree_view_column_set_attributes(column,render,"text",COLUMN_NAME_TREE,NULL);
-	gtk_tree_view_column_set_sizing (column,GTK_TREE_VIEW_COLUMN_FIXED);
-
-	gtk_tree_view_append_column(tree,column);
-
-	return SUCCESS;
-}
-
-static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
-{
-	g_debug("row_activated_tree_view");
-}
-
-static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
-{
-	GSList * list = NULL;
-	GtkTreeIter child_iter;
-
-	list = object->list;
-	for(;list;){
-		object_s * o = (object_s*)list->data;
-		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
-		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter,COLUMN_NAME_TREE,o->name,COLUMN_POINT_TREE,o,-1);
-		if(o->type == TYPE_GROUP){
-			fill_treeview_group(tree_model,&child_iter,o);
-		}
-		list = g_slist_next(list);
-	}
-	return SUCCESS;
-}
-static int fill_treeview(GtkTreeView * treeview)
-{
-	GtkTreeSelection * select;
-	GtkTreeModel * tree_model;
-	GtkTreeIter tree_iter;
-	GSList * list;
-
-	select =	gtk_tree_view_get_selection (treeview);
-	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
-
-	list = kernel_list();
-	for(;list;){
-		object_s * o = (object_s*)list->data;
-		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,NULL);
-		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter,COLUMN_NAME_TREE,o->name,COLUMN_POINT_TREE,o,-1);
-		if(o->type == TYPE_GROUP){
-			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o);
-		}
-		list = g_slist_next(list);
-	}
-	return SUCCESS;
-}
-
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-
-static char STR_TREE_FRAME[] = "Объекты";
-
-GtkWidget * create_block_tree(void)
-{
-	GtkWidget * frame;
-	GtkWidget * scrwin;
-	GtkWidget * treeview;
-
-	GtkTreeStore * model;
-
-	frame = gtk_frame_new(STR_TREE_FRAME);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	scrwin = gtk_scrolled_window_new(NULL,NULL);
-	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	model = gtk_tree_store_new(AMOUNT_COLUMN_TREE,G_TYPE_STRING,G_TYPE_POINTER);
-	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
-	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	tree_add_column(GTK_TREE_VIEW(treeview));
-	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
-	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
-	g_object_unref(model);
-	fill_treeview(GTK_TREE_VIEW(treeview));
-
-	gtk_container_add(GTK_CONTAINER(frame),scrwin);
-	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(scrwin);
-	gtk_widget_show(treeview);
-
-	return frame;
-}
+GdkRGBA color_black =     {0  ,0  ,0  ,1};
+GdkRGBA color_green =     {0  ,1  ,0  ,1};
+GdkRGBA color_red =       {1  ,0  ,0  ,1};
+GdkRGBA color_white =     {1  ,1  ,1  ,1};
+GdkRGBA color_lite_blue = {0.2,0.1,1  ,1};
+GdkRGBA color_lite_red  = {1  ,0.2,0.1,1};
+GdkRGBA color_lite_green= {0.2,1  ,0.1,1};
 
 /*****************************************************************************/

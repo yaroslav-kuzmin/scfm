@@ -44,17 +44,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-extern char STR_NAME_PROGRAMM[];
-
 extern GString * pub;
-
-extern GdkRGBA color_black;
-extern GdkRGBA color_green;
-extern GdkRGBA color_red;
-extern GdkRGBA color_white;
-extern GdkRGBA color_lite_blue;
-extern GdkRGBA color_lite_red;
-extern GdkRGBA color_lite_green;
 
 extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];

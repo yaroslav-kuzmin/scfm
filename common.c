@@ -54,21 +54,11 @@
 /*    Общие переменые                                                        */
 /*****************************************************************************/
 
-char STR_NAME_PROGRAMM[] = "Система Управления Лафетными Стволами";
-
 generic_s generic;
 GString * pub = NULL;
 
 GKeyFile * system_config = NULL;
 char STR_GROUP_GLOBAL[] = "global";
-
-GdkRGBA color_black =     {0  ,0  ,0  ,1};
-GdkRGBA color_green =     {0  ,1  ,0  ,1};
-GdkRGBA color_red =       {1  ,0  ,0  ,1};
-GdkRGBA color_white =     {1  ,1  ,1  ,1};
-GdkRGBA color_lite_blue = {0.2,0.1,1  ,1};
-GdkRGBA color_lite_red  = {1  ,0.2,0.1,1};
-GdkRGBA color_lite_green= {0.2,1  ,0.1,1};
 
 /*****************************************************************************/
 /*****************************************************************************/
