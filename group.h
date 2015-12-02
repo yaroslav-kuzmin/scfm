@@ -44,6 +44,8 @@
 #ifndef GROUP_H
 #define GROUP_H
 
+GtkWidget * create_setting_group(void);
 int fill_group(object_s * object);
+
 #endif
 

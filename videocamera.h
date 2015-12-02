@@ -44,6 +44,7 @@
 #ifndef VIDEOCAMERA_H
 #define VIDEOCAMERA_H
 
+GtkWidget * create_setting_videocamera(void);
 int fill_videocamera(object_s * object);
 
 #endif

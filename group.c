@@ -59,6 +59,15 @@
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+GtkWidget * create_setting_group(void)
+{
+	GtkWidget * label;
+	label = gtk_label_new("Блок группа");
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_hide(label);
+	return label;
+}
+
 int fill_group(object_s * object)
 {
 	return SUCCESS;

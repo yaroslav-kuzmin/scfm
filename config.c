@@ -47,6 +47,8 @@
 #include "pub.h"
 #include "common.h"
 #include "kernel.h"
+#include "group.h"
+#include "videocamera.h"
 
 /*****************************************************************************/
 /*    локальные переменые                                                    */
@@ -56,9 +58,14 @@ struct _config_s
 	GtkTreeView * tree_view;
 	GtkLabel * select;
 
-	int type;
 	object_s * group;
 	object_s * object;
+
+	int type;
+	/*TODO пересикается с pub.h*/
+	GtkWidget * setting_unknown;
+	GtkWidget * setting_group;
+	GtkWidget * setting_videocamera;
 };
 typedef struct _config_s config_s;
 
@@ -242,6 +249,33 @@ static GtkTreeModel * create_model_combobox(void)
 	return GTK_TREE_MODEL(model);
 }
 
+static int select_setting(config_s * config)
+{
+	switch(config->type){
+		case TYPE_UNKNOWN:
+			gtk_widget_show(config->setting_unknown);
+			gtk_widget_hide(config->setting_group);
+			gtk_widget_hide(config->setting_videocamera);
+			break;
+		case TYPE_GROUP:
+			gtk_widget_hide(config->setting_unknown);
+			gtk_widget_show(config->setting_group);
+			gtk_widget_hide(config->setting_videocamera);
+			break;
+		case TYPE_VIDEOCAMERA:
+			gtk_widget_hide(config->setting_unknown);
+			gtk_widget_hide(config->setting_group);
+			gtk_widget_show(config->setting_videocamera);
+			break;
+		default:
+			gtk_widget_show(config->setting_unknown);
+			gtk_widget_hide(config->setting_group);
+			gtk_widget_hide(config->setting_videocamera);
+			break;
+	}
+	return SUCCESS;
+}
+
 static void changed_combobox(GtkComboBox *cb, gpointer ud)
 {
 	config_s * config = (config_s*)ud;
@@ -253,6 +287,7 @@ static void changed_combobox(GtkComboBox *cb, gpointer ud)
 	if(rc == TRUE){
 		gtk_tree_model_get(model,&iter,COLUMN_COMBOBOX_TYPE,&rc,-1);
 		config->type = rc;
+		select_setting(config);
 	}
 }
 static GtkWidget * create_combobox(config_s * config)
@@ -275,34 +310,54 @@ static GtkWidget * create_combobox(config_s * config)
 	return combox;
 }
 
-static char STR_SETTING[] = "Настройка";
 
+static GtkWidget * create_setting_unknown(void)
+{
+	GtkWidget * label;
+	label = gtk_label_new("Блок выбора");
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_hide(label);
+	return label;
+}
+
+
+static char STR_SETTING[] = "Настройка";
 static GtkWidget * create_block_setting(config_s * config)
 {
 	GtkWidget * frame;
-	GtkWidget * label;
+	GtkWidget * grid;
 
 	frame = gtk_frame_new(STR_SETTING);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	label = gtk_label_new("Блок выбора");
-	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	gtk_container_add(GTK_CONTAINER(frame),label);
+	config->setting_unknown = create_setting_unknown();
+	config->setting_group = create_setting_group();
+	config->setting_videocamera = create_setting_videocamera();
+
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+
+	gtk_grid_attach(GTK_GRID(grid),config->setting_unknown    ,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),config->setting_group      ,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),config->setting_videocamera,0,0,1,1);
 
 	gtk_widget_show(frame);
-	gtk_widget_show(label);
-
+	gtk_widget_show(grid);
+	select_setting(config);
 	return frame;
 }
 
 static void clicked_button_add(GtkButton * b,gpointer ud)
 {
+	/*config_s * config = (config_s*)ud;*/
 	g_debug("clicked_button_add");
 }
 
 static void clicked_button_del(GtkButton * b,gpointer ud)
 {
+	/*config_s * config = (config_s*)ud;*/
 	g_debug("clicked_button_del");
 }
 
@@ -395,26 +450,26 @@ static GtkWidget * create_block_config(config_s * config)
 	return frame;
 }
 
-struct _config_button_s
+struct _config_window_s
 {
-	GtkWidget * win_main;
-	GtkWidget * win_config;
-	int flag_exit;
+	GtkWidget * main;
+	GtkWidget * config;
+	int main_exit;
 };
-typedef struct _config_button_s config_button_s;
+typedef struct _config_window_s config_window_s;
 
 static void clicked_button_exit(GtkButton * b,gpointer ud)
 {
-	config_button_s * cb = (config_button_s*)ud;
-	gtk_widget_show(cb->win_main);
-	cb->flag_exit = NOT_OK;
-	gtk_widget_destroy(cb->win_config);
-	set_mode_work(MODE_CONTROL,cb->win_main);
+	config_window_s * win = (config_window_s*)ud;
+	gtk_widget_show(win->main);
+	win->main_exit = NOT_OK;
+	gtk_widget_destroy(win->config);
+	set_mode_work(MODE_CONTROL,win->main);
 }
 
 static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpointer ud)
 {
-	config_button_s * cb = (config_button_s*)ud;
+	config_window_s * win = (config_window_s*)ud;
 	GdkEventType type = event->type;
 	gint state;
 
@@ -423,7 +478,7 @@ static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpo
 		state = event_key->state;
 		if( (state & GDK_MOD1_MASK) ){
 			if( event_key->keyval == GDK_KEY_F4){
-				gtk_widget_destroy(cb->win_config);
+				gtk_widget_destroy(win->config);
 			}
 		}
 	}
@@ -432,9 +487,9 @@ static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpo
 
 static void destroy_window_config(GtkWidget * w,gpointer ud)
 {
-	config_button_s * cb = (config_button_s*)ud;
-	if(cb->flag_exit == OK){
-		gtk_widget_destroy(cb->win_main);
+	config_window_s * win = (config_window_s*)ud;
+	if(win->main_exit == OK){
+		gtk_widget_destroy(win->main);
 	}
 }
 /*****************************************************************************/
@@ -442,7 +497,7 @@ static void destroy_window_config(GtkWidget * w,gpointer ud)
 /*****************************************************************************/
 #define CONFIG_BLOCK_SPACING   5
 static char STR_CONFIG_EXIT[] = "выход";
-static config_button_s config_button;
+static config_window_s config_window;
 
 #define MIN_WIDTH_WIN_CONFIG      400
 #define MIN_HEIGHT_WIN_CONFIG     400
@@ -460,17 +515,17 @@ int create_window_config(GtkWidget * win_main)
 	total_config.group = NULL;
 	total_config.object = NULL;
 
-	config_button.flag_exit = OK;
-	config_button.win_main = win_main;
+	config_window.main_exit = OK;
+	config_window.main = win_main;
 	win_config = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	config_button.win_config = win_config;
+	config_window.config = win_config;
 	gtk_container_set_border_width(GTK_CONTAINER(win_config),CONFIG_BLOCK_SPACING);
 	gtk_window_set_title(GTK_WINDOW(win_config),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_config),TRUE);
 	gtk_window_set_position (GTK_WINDOW(win_config),GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(win_config),MIN_WIDTH_WIN_CONFIG,MIN_HEIGHT_WIN_CONFIG);
-	g_signal_connect(win_config,"destroy",G_CALLBACK(destroy_window_config),&config_button);
-	g_signal_connect(win_config,"key-press-event",G_CALLBACK(key_press_event_window_config),&config_button);
+	g_signal_connect(win_config,"destroy",G_CALLBACK(destroy_window_config),&config_window);
+	g_signal_connect(win_config,"key-press-event",G_CALLBACK(key_press_event_window_config),&config_window);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -479,7 +534,7 @@ int create_window_config(GtkWidget * win_main)
 
 	exit = gtk_button_new_with_label(STR_CONFIG_EXIT);
 	layout_widget(exit,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(exit,"clicked",G_CALLBACK(clicked_button_exit),&config_button);
+	g_signal_connect(exit,"clicked",G_CALLBACK(clicked_button_exit),&config_window);
 
 	gtk_container_add(GTK_CONTAINER(win_config),box);
 	gtk_box_pack_start(GTK_BOX(box),block_config,TRUE,TRUE,0);
