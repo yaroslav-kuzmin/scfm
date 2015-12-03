@@ -66,7 +66,7 @@ GtkWidget * create_setting_videocamera(void)
 	GtkWidget * label;
 	label = gtk_label_new("Блок видеокамера");
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_hide(label);
+	gtk_widget_show(label);
 	return label;
 }
 int fill_videocamera(object_s * object)

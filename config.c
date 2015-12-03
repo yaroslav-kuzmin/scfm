@@ -321,7 +321,7 @@ static GtkWidget * create_setting_unknown(void)
 }
 
 
-static char STR_SETTING[] = "Настройка";
+static char STR_SETTING[] = "Свойства";
 static GtkWidget * create_block_setting(config_s * config)
 {
 	GtkWidget * frame;
@@ -351,8 +351,21 @@ static GtkWidget * create_block_setting(config_s * config)
 
 static void clicked_button_add(GtkButton * b,gpointer ud)
 {
-	/*config_s * config = (config_s*)ud;*/
-	g_debug("clicked_button_add");
+	config_s * config = (config_s*)ud;
+	/*object_s * object;*/
+	switch(config->type){
+		case TYPE_GROUP:
+			/*object = g_slice_alloc0(sizeof(object_s));*/
+			g_debug("группа");
+			break;
+		case TYPE_VIDEOCAMERA:
+			g_debug("видеокамера");
+			break;
+		case TYPE_UNKNOWN:
+			break;
+		default:
+			break;
+	}
 }
 
 static void clicked_button_del(GtkButton * b,gpointer ud)
@@ -391,34 +404,68 @@ static GtkWidget * create_block_button(config_s * config)
 	return box;
 }
 
+static char STR_NAME_GROUP[] = "Группа";
+static char STR_NAME_OBJECT[] = "Название";
+static char STR_TYPE_OBJECT[] = "Тип";
+
 static GtkWidget * create_block_option(config_s * config)
 {
-	GtkWidget * box;
+	GtkWidget * grid;
+
+	GtkWidget * lab_name_group;
 	GtkWidget * lab_select;
+
+	GtkWidget * lab_name_object;
+	GtkWidget * ent_name_object;
+
+	GtkWidget * lab_name_type;
 	GtkWidget * combox;
+
 	GtkWidget * block_setting;
 	GtkWidget * block_button;
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	lab_name_group = gtk_label_new(STR_NAME_GROUP);
+	layout_widget(lab_name_group,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,TRUE);
 
 	lab_select = gtk_label_new(STR_ROOT_TREE);
 	layout_widget(lab_select,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
 	config->select = GTK_LABEL(lab_select);
 
+	lab_name_object = gtk_label_new(STR_NAME_OBJECT);
+	layout_widget(lab_name_object,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
+
+	ent_name_object = gtk_entry_new();
+	layout_widget(ent_name_object,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
+
+	lab_name_type = gtk_label_new(STR_TYPE_OBJECT);
+	layout_widget(lab_name_type,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 	combox = create_combobox(config);
+
 	block_setting = create_block_setting(config);
+
 	block_button = create_block_button(config);
 
-	gtk_box_pack_start(GTK_BOX(box),lab_select,FALSE,FALSE,0);
-	gtk_box_pack_start(GTK_BOX(box),combox,FALSE,FALSE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_setting,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_button,FALSE,FALSE,0);
+	gtk_grid_attach(GTK_GRID(grid),lab_name_group ,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_select     ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_name_object,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),ent_name_object,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_name_type  ,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),combox         ,1,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_setting  ,0,3,2,1);
+	gtk_grid_attach(GTK_GRID(grid),block_button   ,0,4,2,1);
 
-	gtk_widget_show(box);
+	gtk_widget_show(grid);
+	gtk_widget_show(lab_name_group);
 	gtk_widget_show(lab_select);
+	gtk_widget_show(lab_name_object);
+	gtk_widget_show(ent_name_object);
+	gtk_widget_show(lab_name_type);
+	gtk_widget_show(ent_name_object);
 
-	return box;
+	return grid;
 }
 
 static char STR_FRAME_CONFIG[] = "Конфигурирование";
@@ -499,8 +546,8 @@ static void destroy_window_config(GtkWidget * w,gpointer ud)
 static char STR_CONFIG_EXIT[] = "выход";
 static config_window_s config_window;
 
-#define MIN_WIDTH_WIN_CONFIG      400
-#define MIN_HEIGHT_WIN_CONFIG     400
+#define MIN_WIDTH_WIN_CONFIG      500
+#define MIN_HEIGHT_WIN_CONFIG     500
 static config_s total_config;
 
 int create_window_config(GtkWidget * win_main)
