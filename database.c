@@ -219,7 +219,7 @@ void* prepare_group_database(uint32_t number)
 	g_string_printf(pub,"SELECT * FROM ");
 	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
 
-	rc = sqlite3_prepare_v2( database,pub->str,(pub->len+1) ,&stmt,NULL);
+	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1) ,&stmt,NULL);
 	if(rc != SQLITE_OK){
 		const char * error_message = sqlite3_errmsg(database);
 		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);

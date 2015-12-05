@@ -116,11 +116,21 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 	return list;
 }
 
+/*****************************************************************************/
+/*    Общие функции                                                          */
+/*****************************************************************************/
+
 int add_object(object_s * parent,object_s * child)
 {
 	int rc;
 	uint32_t number = FIRST_NUMBER_GROUP;
 
+	if(parent == NULL){
+		return FAILURE;
+	}
+	if(child == NULL){
+		return FAILURE;
+	}
 	if( (parent->type != TYPE_KERNEL) && (parent->type != TYPE_GROUP)){
 		return FAILURE;
 	}
@@ -140,10 +150,6 @@ int del_object(object_s * parent,object_s * child)
 {
 	return SUCCESS;
 }
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-
 #define MAX_NUMBER_OBJECT    0x000fffff
 object_s kernel;
 
@@ -152,14 +158,20 @@ object_s * get_kernel(void)
 	return &kernel;
 }
 
-GSList * kernel_list(void)
+GSList * list_kernel(void)
 {
 	return kernel.list;
 }
 
+uint32_t next_number_kernel(void)
+{
+	kernel.number ++;
+	return kernel.number;
+}
+
 int init_kernel(void)
 {
-	uint32_t number = 0;
+	uint32_t number = FIRST_NUMBER_GROUP;
 
 	kernel.type = TYPE_KERNEL;
 	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number);

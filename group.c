@@ -50,7 +50,11 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-
+struct _block_group_s
+{
+	GtkEntryBuffer * image;
+};
+typedef struct _block_group_s block_group_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -79,6 +83,36 @@ static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+static block_group_s block_group;
+
+void * new_property_group(void)
+{
+	group_s * group;
+	char * image = (char*)gtk_entry_buffer_get_text(block_group.image);
+
+	if( (image == NULL) || (*image == 0) ){
+		g_warning("Нет имени рисунка");
+		return NULL;
+	}
+	/*TODO проверка изображения*/
+	group = g_slice_alloc0(sizeof(group_s));
+	group->image = g_strdup(image);
+	return group;
+}
+
+int del_property_group(group_s * property)
+{
+	char * image;
+	if(property == NULL){
+		return SUCCESS;
+	}
+	image = property->image;
+	g_free(image);
+	g_slice_free1(sizeof(group_s),property);
+
+	return SUCCESS;
+}
+
 static char STR_NAME_FILE[] = "имя файла";
 static char STR_ADD_GROUP[] = "открыть файл";
 /*static group_s group;*/
@@ -101,7 +135,7 @@ GtkWidget * create_setting_group(void)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
-
+	block_group.image = buf;
 	button = gtk_button_new_with_label(STR_ADD_GROUP);
 	layout_widget(button,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(button,"clicked",G_CALLBACK(clicked_button_open_file),buf);
@@ -118,6 +152,7 @@ GtkWidget * create_setting_group(void)
 	return grid;
 }
 
+/*TODO считывание данных из базыданных*/
 int fill_group(object_s * object)
 {
 	return SUCCESS;

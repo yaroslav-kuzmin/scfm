@@ -44,7 +44,12 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-GSList * kernel_list(void);
+int add_object(object_s * parent,object_s * child);
+int del_object(object_s * parent,object_s * child);
+object_s * get_kernel(void);
+GSList * list_kernel(void);
+uint32_t next_number_kernel(void);
+
 int init_kernel(void);
 int deinit_kernel(void);
 

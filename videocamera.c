@@ -50,27 +50,94 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-
-
+struct _block_videocamera_s
+{
+	GtkEntryBuffer * protocol;
+	GtkEntryBuffer * addres;
+	GtkEntryBuffer * port;
+	GtkEntryBuffer * access;
+};
+typedef struct _block_videocamera_s block_videocamera_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
 
+static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
+{
+	GtkWidget * box;
+	GtkWidget * label;
+	GtkWidget * entry;
 
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
+
+	label = gtk_label_new(name);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
+	*buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
+
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(entry);
+	return box;
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
+void * new_property_videocamera(void)
+{
+	return NULL;
+}
+
+int del_property_videocamera(videocamera_s * property)
+{
+	return SUCCESS;
+}
+
+
+static char STR_NAME_PROTOCOL[] = "протокол :";
+static char STR_NAME_ADDRES[] = "адрес :";
+static char STR_NAME_PORT[] = "порт :";
+static char STR_NAME_ACCESS[] = "доступ :";
+static block_videocamera_s block_videocamera;
+
 GtkWidget * create_setting_videocamera(void)
 {
-	GtkWidget * label;
-	label = gtk_label_new("Блок видеокамера");
-	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_show(label);
-	return label;
+	GtkWidget * box;
+	GtkWidget * block_protocol;
+	GtkWidget * block_addres;
+	GtkWidget * block_port;
+	GtkWidget * block_access;
+	GtkEntryBuffer * buf;
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_protocol = create_block_entry(STR_NAME_PROTOCOL,&buf);
+	block_videocamera.protocol = buf;
+	block_addres = create_block_entry(STR_NAME_ADDRES,&buf);
+	block_videocamera.addres = buf;
+	block_port = create_block_entry(STR_NAME_PORT,&buf);
+	block_videocamera.port = buf;
+	block_access = create_block_entry(STR_NAME_ACCESS,&buf);
+	block_videocamera.access = buf;
+
+	gtk_box_pack_start(GTK_BOX(box),block_protocol,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_addres,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_port,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_access,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+	return box;
 }
+
+/*TODO считывание данных из базыданных*/
 int fill_videocamera(object_s * object)
 {
+
 	return SUCCESS;
 }
 

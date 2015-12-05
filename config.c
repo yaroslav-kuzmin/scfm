@@ -53,21 +53,24 @@
 /*****************************************************************************/
 /*    локальные переменые                                                    */
 /*****************************************************************************/
-struct _config_s
+struct _block_config_s
 {
-	GtkTreeView * tree_view;
-	GtkLabel * select;
-
+	/*название группы*/
+	GtkTreeModel * model_group;
+	GtkTreeIter * iter_group;
+	GtkTreeIter * iter_parent_group;
+	GtkLabel * select_group;
 	object_s * group;
-	object_s * object;
-
+	/*название объекта*/
+	GtkEntryBuffer * name;
+	/*тип объекта*/
 	int type;
 	/*TODO пересикается с pub.h*/
 	GtkWidget * setting_unknown;
 	GtkWidget * setting_group;
-	GtkWidget * setting_videocamera;
+ 	GtkWidget * setting_videocamera;
 };
-typedef struct _config_s config_s;
+typedef struct _block_config_s block_config_s;
 
 /*****************************************************************************/
 /*    локальные функции                                                      */
@@ -127,21 +130,38 @@ static int fill_treeview(GtkTreeView * treeview)
 	GSList * list;
 
 	select =	gtk_tree_view_get_selection (treeview);
-	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
+	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter_root);
 
 	gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter_root,NULL);
-	gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter_root,COLUMN_NAME_TREE,STR_ROOT_TREE,COLUMN_POINT_TREE,NULL,-1);
+	gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter_root
+	                  ,COLUMN_NAME_TREE,STR_ROOT_TREE
+	                  ,COLUMN_POINT_TREE,NULL,-1);
 
-	list = kernel_list();
+	list = list_kernel();
 	for(;list;){
 		object_s * o = (object_s*)list->data;
 		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,&tree_iter_root);
-		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter,COLUMN_NAME_TREE,o->name,COLUMN_POINT_TREE,o,-1);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter
+		                  ,COLUMN_NAME_TREE,o->name
+		                  ,COLUMN_POINT_TREE,o,-1);
 		if(o->type == TYPE_GROUP){
 			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o);
 		}
 		list = g_slist_next(list);
 	}
+	return SUCCESS;
+}
+
+static int add_object_treeview(block_config_s * config,object_s * object)
+{
+	GtkTreeModel * model = config->model_group;
+	GtkTreeIter * iter_parent = config->iter_parent_group;
+	GtkTreeIter * iter = config->iter_group ;
+
+	gtk_tree_store_append(GTK_TREE_STORE(model),iter,iter_parent);
+	gtk_tree_store_set(GTK_TREE_STORE(model),iter
+		                  ,COLUMN_NAME_TREE,object->name
+		                  ,COLUMN_POINT_TREE,object,-1);
 	return SUCCESS;
 }
 
@@ -152,44 +172,60 @@ static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeVie
 
 static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 {
-	g_debug("cursor_changed_tree_view");
-#if 0
 	int rc;
-	config_s * c = (config_s*)ud;
+	block_config_s * config = (block_config_s*)ud;
+	object_s * group;
 	GtkTreeModel * model;
-	GtkTreeIter * iter_parent = c->tree_iter_parent;
-	GtkTreeIter * iter = c->tree_iter;
-	GtkTreeSelection * select = gtk_tree_view_get_selection (tv);
-	rc = gtk_tree_selection_get_selected(select,&model,iter);
-	if(rc == TRUE){
-		object_s * object;
-		c->tree_model = model;
-		gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
-		if(object == NULL){ /*основа*/
-			c->group = get_kernel();
-			c->object = NULL;
-			c->tree_root = OK;
+	GtkTreeIter * iter_parent = config->iter_parent_group;
+	GtkTreeIter * iter = config->iter_group ;
+	GtkTreeSelection * select = gtk_tree_view_get_selection(tv);
+
+	gtk_label_set_text(config->select_group,STR_ROOT_TREE);
+
+	rc = gtk_tree_selection_get_selected(select,&model,iter_parent);
+	if(rc != TRUE){
+		config->group = NULL;
+	}
+	else{
+		config->model_group = model;
+		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
+		if(group == NULL){
+			config->group = get_kernel();
+			gtk_tree_model_iter_children(model,iter,iter_parent);
 		}
 		else{
-			if(object->type == TYPE_GROUP){
-				c->group = object;
-				c->object = NULL;
-				rc = gtk_tree_model_iter_parent(model,iter_parent,iter);
-				if(rc == TRUE){
-					c->tree_root = OK;
+			if(group->type == TYPE_GROUP){
+				config->group = group;
+				gtk_label_set_text(config->select_group,group->name);
+				gtk_tree_model_iter_children(model,iter,iter_parent);
+			}
+			else{
+				gtk_tree_selection_get_selected(select,&model,iter);
+				config->model_group = model;
+				gtk_tree_model_iter_parent(model,iter_parent,iter);
+				gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
+				if(group == NULL){
+					config->group = get_kernel();
 				}
 				else{
-					c->tree_root = NOT_OK;
+					if(group->type == TYPE_GROUP){
+						config->group = group;
+						gtk_label_set_text(config->select_group,group->name);
+					}
+					else{
+						g_warning("Некорректное дерево объектов");
+						config->group = NULL;
+					}
 				}
 			}
 		}
 	}
-#endif
 }
 
 static char STR_TREE_FRAME[] = "Группы";
-
-static GtkWidget * create_block_tree(config_s * config)
+GtkTreeIter iter = {0};
+GtkTreeIter iter_parent = {0};
+static GtkWidget * create_block_tree(block_config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
@@ -208,11 +244,14 @@ static GtkWidget * create_block_tree(config_s * config)
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	tree_add_column(GTK_TREE_VIEW(treeview));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
-	config->tree_view = GTK_TREE_VIEW(treeview);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),config);
 	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),config);
 	g_object_unref(model);
 	fill_treeview(GTK_TREE_VIEW(treeview));
+	config->model_group = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	config->iter_group = &iter;
+	config->iter_parent_group = &iter_parent;
+	config->group = NULL;
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
@@ -249,25 +288,29 @@ static GtkTreeModel * create_model_combobox(void)
 	return GTK_TREE_MODEL(model);
 }
 
-static int select_setting(config_s * config)
+static int select_setting(block_config_s * config)
 {
 	switch(config->type){
 		case TYPE_UNKNOWN:
+			g_debug("u");
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
 			break;
 		case TYPE_GROUP:
+			g_debug("g");
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_show(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
 			break;
 		case TYPE_VIDEOCAMERA:
+			g_debug("v");
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_show(config->setting_videocamera);
 			break;
 		default:
+			g_debug("d");
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
@@ -278,7 +321,7 @@ static int select_setting(config_s * config)
 
 static void changed_combobox(GtkComboBox *cb, gpointer ud)
 {
-	config_s * config = (config_s*)ud;
+	block_config_s * config = (block_config_s*)ud;
 	GtkTreeModel * model = gtk_combo_box_get_model(cb);
 	GtkTreeIter iter;
 	int rc;
@@ -288,9 +331,10 @@ static void changed_combobox(GtkComboBox *cb, gpointer ud)
 		gtk_tree_model_get(model,&iter,COLUMN_COMBOBOX_TYPE,&rc,-1);
 		config->type = rc;
 		select_setting(config);
+		g_debug(" :> %d",rc);
 	}
 }
-static GtkWidget * create_combobox(config_s * config)
+static GtkWidget * create_combobox(block_config_s * config)
 {
 	GtkWidget * combox;
 	GtkTreeModel * model = create_model_combobox();
@@ -310,7 +354,6 @@ static GtkWidget * create_combobox(config_s * config)
 	return combox;
 }
 
-
 static GtkWidget * create_setting_unknown(void)
 {
 	GtkWidget * label;
@@ -322,7 +365,7 @@ static GtkWidget * create_setting_unknown(void)
 
 
 static char STR_SETTING[] = "Свойства";
-static GtkWidget * create_block_setting(config_s * config)
+static GtkWidget * create_block_setting(block_config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * grid;
@@ -336,6 +379,7 @@ static GtkWidget * create_block_setting(config_s * config)
 	config->setting_unknown = create_setting_unknown();
 	config->setting_group = create_setting_group();
 	config->setting_videocamera = create_setting_videocamera();
+	config->type = TYPE_UNKNOWN;
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);
 
@@ -351,33 +395,75 @@ static GtkWidget * create_block_setting(config_s * config)
 
 static void clicked_button_add(GtkButton * b,gpointer ud)
 {
-	config_s * config = (config_s*)ud;
-	/*object_s * object;*/
+	int rc;
+	block_config_s * config = (block_config_s*)ud;
+	object_s * object;
+	void * property = NULL;
+	char * name = (char*)gtk_entry_buffer_get_text(config->name);
+
+	if(config->group == NULL){
+		g_warning("Не выбрана группа");
+		return;
+	}
+	if( (name == NULL) || (*name == 0)){
+		g_warning("Невведено имя объекта");
+		return ;
+	}
+	/*TODO проверка на корректность имени*/
+
+	if(config->type == TYPE_UNKNOWN){
+		g_warning("Не выбран тип");
+		return ;
+	}
+	/*TODO оптимизация выбора типа*/
 	switch(config->type){
 		case TYPE_GROUP:
-			/*object = g_slice_alloc0(sizeof(object_s));*/
-			g_debug("группа");
+			property = new_property_group();
 			break;
 		case TYPE_VIDEOCAMERA:
-			g_debug("видеокамера");
+			property = new_property_videocamera();
 			break;
 		case TYPE_UNKNOWN:
-			break;
 		default:
 			break;
 	}
+	if(property == NULL){
+		g_warning("Нет свойств объекта");
+		return;
+	}
+
+	object = g_slice_alloc0(sizeof(object_s));
+	object->name = g_strdup(name);
+	object->type = config->type;
+	object->number = next_number_kernel();
+	object->property = property;
+
+	rc = add_object(config->group,object);
+	if(rc == FAILURE){
+		switch(config->type){
+			case TYPE_GROUP:
+				del_property_group(property);
+				break;
+			case TYPE_VIDEOCAMERA:
+				del_property_videocamera(property);
+				break;
+		}
+		g_slice_free1(sizeof(object_s),object);
+		return;
+	}
+	add_object_treeview(config,object);
 }
 
 static void clicked_button_del(GtkButton * b,gpointer ud)
 {
-	/*config_s * config = (config_s*)ud;*/
+	/*block_config_s * config = (block_config_s*)ud;*/
 	g_debug("clicked_button_del");
 }
 
 static char STR_BUTTON_ADD[] = "добавить";
 static char STR_BUTTON_DEL[] = "удалить";
 
-static GtkWidget * create_block_button(config_s * config)
+static GtkWidget * create_block_button(block_config_s * config)
 {
 	GtkWidget * box;
 	GtkWidget * but_add;
@@ -408,7 +494,7 @@ static char STR_NAME_GROUP[] = "Группа";
 static char STR_NAME_OBJECT[] = "Название";
 static char STR_TYPE_OBJECT[] = "Тип";
 
-static GtkWidget * create_block_option(config_s * config)
+static GtkWidget * create_block_option(block_config_s * config)
 {
 	GtkWidget * grid;
 
@@ -428,17 +514,18 @@ static GtkWidget * create_block_option(config_s * config)
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	lab_name_group = gtk_label_new(STR_NAME_GROUP);
-	layout_widget(lab_name_group,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,TRUE);
+	layout_widget(lab_name_group,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 
 	lab_select = gtk_label_new(STR_ROOT_TREE);
 	layout_widget(lab_select,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
-	config->select = GTK_LABEL(lab_select);
+	config->select_group = GTK_LABEL(lab_select);
 
 	lab_name_object = gtk_label_new(STR_NAME_OBJECT);
 	layout_widget(lab_name_object,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 
 	ent_name_object = gtk_entry_new();
-	layout_widget(ent_name_object,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
+	layout_widget(ent_name_object,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
+	config->name = gtk_entry_get_buffer(GTK_ENTRY(ent_name_object));
 
 	lab_name_type = gtk_label_new(STR_TYPE_OBJECT);
 	layout_widget(lab_name_type,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
@@ -470,7 +557,7 @@ static GtkWidget * create_block_option(config_s * config)
 
 static char STR_FRAME_CONFIG[] = "Конфигурирование";
 
-static GtkWidget * create_block_config(config_s * config)
+static GtkWidget * create_block_config(block_config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * box;
@@ -548,7 +635,8 @@ static config_window_s config_window;
 
 #define MIN_WIDTH_WIN_CONFIG      500
 #define MIN_HEIGHT_WIN_CONFIG     500
-static config_s total_config;
+
+static block_config_s total_config = {0};
 
 int create_window_config(GtkWidget * win_main)
 {
@@ -556,11 +644,6 @@ int create_window_config(GtkWidget * win_main)
 	GtkWidget * box;
 	GtkWidget * block_config;
 	GtkWidget * exit;
-
-	total_config.tree_view = NULL;
-	total_config.type = TYPE_UNKNOWN;
-	total_config.group = NULL;
-	total_config.object = NULL;
 
 	config_window.main_exit = OK;
 	config_window.main = win_main;

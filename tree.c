@@ -112,7 +112,7 @@ static int fill_treeview(GtkTreeView * treeview)
 	select =	gtk_tree_view_get_selection (treeview);
 	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
 
-	list = kernel_list();
+	list = list_kernel();
 	for(;list;){
 		object_s * o = (object_s*)list->data;
 		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,NULL);
