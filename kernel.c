@@ -50,6 +50,7 @@
 #include "database.h"
 #include "group.h"
 #include "videocamera.h"
+#include "config.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -148,8 +149,32 @@ int add_object(object_s * parent,object_s * child)
 
 int del_object(object_s * parent,object_s * child)
 {
+	int rc;
+	uint32_t number = FIRST_NUMBER_GROUP;
+
+	if(parent == NULL){
+		return FAILURE;
+	}
+	if(child == NULL){
+		return FAILURE;
+	}
+	if( (parent->type != TYPE_KERNEL) && (parent->type != TYPE_GROUP)){
+		return FAILURE;
+	}
+
+	if(parent->type == TYPE_GROUP){
+		number = parent->number;
+	}
+	rc = del_object_database(number,child->number,child->type);
+	if(rc != SUCCESS){
+		return FAILURE;
+	}
+	parent->list = g_slist_remove(parent->list,child);
+	del_property(child->type,child->property);
+	g_slice_free1(sizeof(object_s),child);
 	return SUCCESS;
 }
+
 #define MAX_NUMBER_OBJECT    0x000fffff
 object_s kernel;
 

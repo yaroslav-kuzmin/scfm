@@ -166,6 +166,15 @@ static int add_object_treeview(block_config_s * config,object_s * object)
 	return SUCCESS;
 }
 
+static int del_object_treeview(block_config_s * config,object_s * object)
+{
+	GtkTreeModel * model = config->model_group;
+	GtkTreeIter * iter = config->iter_group ;
+
+	gtk_tree_store_remove(GTK_TREE_STORE(model),iter);
+	return SUCCESS;
+}
+
 static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
 {
 	g_debug("row_activated_tree_view");
@@ -410,6 +419,21 @@ static void * new_property(int type)
 	return property;
 }
 
+int del_property(int type,void * property)
+{
+	switch(type){
+		case TYPE_GROUP:
+			del_property_group(property);
+			break;
+		case TYPE_VIDEOCAMERA:
+			del_property_videocamera(property);
+			break;
+		case TYPE_UNKNOWN:
+		default:
+			break;
+	}
+	return SUCCESS;
+}
 static void clicked_button_add(GtkButton * b,gpointer ud)
 {
 	int rc;
@@ -447,14 +471,7 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 
 	rc = add_object(config->group,object);
 	if(rc == FAILURE){
-		switch(config->type){
-			case TYPE_GROUP:
-				del_property_group(property);
-				break;
-			case TYPE_VIDEOCAMERA:
-				del_property_videocamera(property);
-				break;
-		}
+		del_property(config->type,property);
 		g_slice_free1(sizeof(object_s),object);
 		return;
 	}
@@ -463,7 +480,8 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 
 static void clicked_button_del(GtkButton * b,gpointer ud)
 {
-	/*block_config_s * config = (block_config_s*)ud;*/
+	block_config_s * config = (block_config_s*)ud;
+
 	g_debug("clicked_button_del");
 }
 
