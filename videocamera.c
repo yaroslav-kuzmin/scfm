@@ -53,7 +53,7 @@
 struct _block_videocamera_s
 {
 	GtkEntryBuffer * protocol;
-	GtkEntryBuffer * addres;
+	GtkEntryBuffer * address;
 	GtkEntryBuffer * port;
 	GtkEntryBuffer * access;
 };
@@ -61,6 +61,43 @@ typedef struct _block_videocamera_s block_videocamera_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+static char * check_buf_protocol(const char * protocol)
+{
+	/*TODO */
+	if((protocol == NULL) || (*protocol == 0) ){
+		return NULL;
+	}
+	return g_strdup(protocol);
+}
+static char * check_buf_address(const char * address)
+{
+	/*TODO*/
+	if((address == NULL) || (*address == 0)){
+		return NULL;
+	}
+	return g_strdup(address);
+}
+static uint32_t check_buf_port(const char * str_port)
+{
+	/*TODO */
+	uint32_t port = 0;
+	if((str_port == NULL) || (*str_port == 0)){
+		return 0;
+	}
+	port = (uint32_t)g_strtod(str_port,NULL);
+	if(port > 0xFFFF){
+		return 0;
+	}
+	return port;
+}
+static char * check_buf_access(const char * access)
+{
+	/*TODO*/
+	if((access == NULL) || (*access == 0)){
+		return NULL;
+	}
+	return g_strdup(access);
+}
 
 static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 {
@@ -78,22 +115,81 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 	layout_widget(entry,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 	*buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
+	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
 	gtk_widget_show(box);
 	gtk_widget_show(label);
 	gtk_widget_show(entry);
+
 	return box;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
+static block_videocamera_s block_videocamera;
 void * new_property_videocamera(void)
 {
-	return NULL;
+	videocamera_s * property = NULL;
+	GtkEntryBuffer * buf;
+	const char * protocol;
+	const char * address;
+	const char * str_port;
+	uint32_t port;
+	const char * access;
+
+	buf = block_videocamera.protocol;
+	protocol = gtk_entry_buffer_get_text(buf);
+	protocol = check_buf_protocol(protocol);
+	if(protocol == NULL){
+		g_warning("Некорректный протокол!");
+		return property;
+	}
+	buf = block_videocamera.address;
+	address = gtk_entry_buffer_get_text(buf);
+	address = check_buf_address(address);
+	if(address == NULL){
+		g_warning("Некорректный адрес!");
+		return property;
+	}
+	buf = block_videocamera.port;
+	str_port = gtk_entry_buffer_get_text(buf);
+	port = check_buf_port(str_port);
+	if(port == 0){
+		g_warning("Некорректный порт!");
+		return property;
+	}
+	buf = block_videocamera.access;
+	access = gtk_entry_buffer_get_text(buf);
+	access = check_buf_access(access);
+	if(access == NULL){
+		g_warning("Некорректная строка доступа!");
+		return property;
+	}
+
+	property = g_slice_alloc0(sizeof(videocamera_s));
+	property->protocol = (char*)protocol;
+	property->address = (char*)address;
+	property->port = port;
+	property->access = (char*)access;
+
+	return property;
 }
 
 int del_property_videocamera(videocamera_s * property)
 {
+	char * str;
+	if(property == NULL){
+		return SUCCESS;
+	}
+	str = property->protocol;
+	g_free(str);
+	str = property->address;
+	g_free(str);
+	str = property->access;
+	g_free(str);
+	g_slice_free1(sizeof(videocamera_s),property);
 	return SUCCESS;
 }
 
@@ -102,7 +198,6 @@ static char STR_NAME_PROTOCOL[] = "протокол :";
 static char STR_NAME_ADDRES[] = "адрес :";
 static char STR_NAME_PORT[] = "порт :";
 static char STR_NAME_ACCESS[] = "доступ :";
-static block_videocamera_s block_videocamera;
 
 GtkWidget * create_setting_videocamera(void)
 {
@@ -119,7 +214,7 @@ GtkWidget * create_setting_videocamera(void)
 	block_protocol = create_block_entry(STR_NAME_PROTOCOL,&buf);
 	block_videocamera.protocol = buf;
 	block_addres = create_block_entry(STR_NAME_ADDRES,&buf);
-	block_videocamera.addres = buf;
+	block_videocamera.address = buf;
 	block_port = create_block_entry(STR_NAME_PORT,&buf);
 	block_videocamera.port = buf;
 	block_access = create_block_entry(STR_NAME_ACCESS,&buf);
@@ -131,6 +226,7 @@ GtkWidget * create_setting_videocamera(void)
 	gtk_box_pack_start(GTK_BOX(box),block_access,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
+
 	return box;
 }
 

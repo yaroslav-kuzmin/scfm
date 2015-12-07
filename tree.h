@@ -44,7 +44,8 @@
 #ifndef TREE_H
 #define TREE_H
 
-GtkWidget * create_block_tree(void);
+int reread_tree(void);
+GtkWidget * create_block_tree_object(void);
 
 #endif
 

@@ -49,6 +49,7 @@
 #include "kernel.h"
 #include "group.h"
 #include "videocamera.h"
+#include "tree.h"
 
 /*****************************************************************************/
 /*    локальные переменые                                                    */
@@ -263,7 +264,6 @@ static GtkWidget * create_block_tree(block_config_s * config)
 	return frame;
 }
 
-
 enum{
 	COLUMN_COMBOBOX_NAME = 0,
 	COLUMN_COMBOBOX_TYPE,
@@ -393,6 +393,23 @@ static GtkWidget * create_block_setting(block_config_s * config)
 	return frame;
 }
 
+static void * new_property(int type)
+{
+	void * property = NULL;
+	switch(type){
+		case TYPE_GROUP:
+			property = new_property_group();
+			break;
+		case TYPE_VIDEOCAMERA:
+			property = new_property_videocamera();
+			break;
+		case TYPE_UNKNOWN:
+		default:
+			break;
+	}
+	return property;
+}
+
 static void clicked_button_add(GtkButton * b,gpointer ud)
 {
 	int rc;
@@ -416,17 +433,7 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 		return ;
 	}
 	/*TODO оптимизация выбора типа*/
-	switch(config->type){
-		case TYPE_GROUP:
-			property = new_property_group();
-			break;
-		case TYPE_VIDEOCAMERA:
-			property = new_property_videocamera();
-			break;
-		case TYPE_UNKNOWN:
-		default:
-			break;
-	}
+	property = new_property(config->type);
 	if(property == NULL){
 		g_warning("Нет свойств объекта");
 		return;
@@ -595,6 +602,7 @@ typedef struct _config_window_s config_window_s;
 static void clicked_button_exit(GtkButton * b,gpointer ud)
 {
 	config_window_s * win = (config_window_s*)ud;
+	reread_tree();
 	gtk_widget_show(win->main);
 	win->main_exit = NOT_OK;
 	gtk_widget_destroy(win->config);

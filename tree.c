@@ -52,6 +52,11 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
+struct _block_tree_s
+{
+	GtkTreeView * view;
+};
+typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
 /*    Локальные функции                                                      */
 /*****************************************************************************/
@@ -128,10 +133,24 @@ static int fill_treeview(GtkTreeView * treeview)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+block_tree_s block_tree;
+
+int reread_tree(void)
+{
+	GtkTreeModel * tree_model = gtk_tree_view_get_model(block_tree.view);
+
+	if(tree_model == NULL){
+		return SUCCESS;
+	}
+	gtk_tree_store_clear(GTK_TREE_STORE(tree_model));
+
+	fill_treeview(block_tree.view);
+	return SUCCESS;
+}
 
 static char STR_TREE_FRAME[] = "Объекты";
 
-GtkWidget * create_block_tree(void)
+GtkWidget * create_block_tree_object(void)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
@@ -153,7 +172,7 @@ GtkWidget * create_block_tree(void)
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_object_unref(model);
 	fill_treeview(GTK_TREE_VIEW(treeview));
-
+	block_tree.view = GTK_TREE_VIEW(treeview);
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
 
