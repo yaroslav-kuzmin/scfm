@@ -61,7 +61,9 @@ struct _block_config_s
 	GtkTreeIter * iter_group;
 	GtkTreeIter * iter_parent_group;
 	GtkLabel * select_group;
+	object_s * parent_group;
 	object_s * group;
+	object_s * object;
 	/*название объекта*/
 	GtkEntryBuffer * name;
 	/*тип объекта*/
@@ -194,33 +196,48 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 
 	rc = gtk_tree_selection_get_selected(select,&model,iter_parent);
 	if(rc != TRUE){
+		config->parent_group = NULL;
 		config->group = NULL;
+		config->object = NULL;
 	}
 	else{
 		config->model_group = model;
 		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 		if(group == NULL){
+			config->parent_group = NULL;
 			config->group = get_kernel();
 			gtk_tree_model_iter_children(model,iter,iter_parent);
+			config->object = NULL;
 		}
 		else{
 			if(group->type == TYPE_GROUP){
+				GtkTreeIter iter_parent_group;
+				gtk_tree_model_iter_parent(model,&iter_parent_group,iter_parent);
+				gtk_tree_model_get(model,&iter_parent_group,COLUMN_POINT_TREE,&object,-1);
+				config->parent_group = object;
 				config->group = group;
 				gtk_label_set_text(config->select_group,group->name);
 				gtk_tree_model_iter_children(model,iter,iter_parent);
+				config->object = NULL;
 			}
 			else{
+				config->parent_group = NULL;
 				gtk_tree_selection_get_selected(select,&model,iter);
 				config->model_group = model;
 				gtk_tree_model_iter_parent(model,iter_parent,iter);
 				gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 				if(group == NULL){
+					config->parent_group = NULL;
 					config->group = get_kernel();
+					config->object = NULL;
+					g_warning("Некорректное дерево объектов");
 				}
 				else{
 					if(group->type == TYPE_GROUP){
 						config->group = group;
 						gtk_label_set_text(config->select_group,group->name);
+						gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
+						config->object = object;
 					}
 					else{
 						g_warning("Некорректное дерево объектов");

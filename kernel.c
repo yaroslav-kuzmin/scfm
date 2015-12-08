@@ -151,13 +151,26 @@ int del_object(object_s * parent,object_s * child)
 {
 	int rc;
 	uint32_t number = FIRST_NUMBER_GROUP;
+	GSList * listl
+
+	if(child == NULL){
+		return FAILURE;
+	}
+
+	if( (child->type == TYPE_KERNEL) || (child->type == TYPE_GROUP) ) {
+		object_s * object;
+		list = child->list;
+		for(;list;){
+			object = list->data;
+			del_object(child,object);
+			list = g_slist_next(list);
+		}
+	}
 
 	if(parent == NULL){
 		return FAILURE;
 	}
-	if(child == NULL){
-		return FAILURE;
-	}
+
 	if( (parent->type != TYPE_KERNEL) && (parent->type != TYPE_GROUP)){
 		return FAILURE;
 	}
