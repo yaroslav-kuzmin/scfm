@@ -153,7 +153,7 @@ GtkWidget * create_setting_group(void)
 }
 
 /*TODO считывание данных из базыданных*/
-int fill_group(object_s * object)
+group_s * fill_group(uint32_t number)
 {
 	return SUCCESS;
 }

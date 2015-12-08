@@ -187,6 +187,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	int rc;
 	block_config_s * config = (block_config_s*)ud;
 	object_s * group;
+	object_s * object;
 	GtkTreeModel * model;
 	GtkTreeIter * iter_parent = config->iter_parent_group;
 	GtkTreeIter * iter = config->iter_group ;
@@ -203,7 +204,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	else{
 		config->model_group = model;
 		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
-		if(group == NULL){
+		if(group == NULL){/*выбрано основа (ядро) */
 			config->parent_group = NULL;
 			config->group = get_kernel();
 			gtk_tree_model_iter_children(model,iter,iter_parent);
@@ -226,22 +227,21 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 				config->model_group = model;
 				gtk_tree_model_iter_parent(model,iter_parent,iter);
 				gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
+				gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
+				config->object = object;
 				if(group == NULL){
-					config->parent_group = NULL;
 					config->group = get_kernel();
-					config->object = NULL;
-					g_warning("Некорректное дерево объектов");
 				}
 				else{
 					if(group->type == TYPE_GROUP){
 						config->group = group;
 						gtk_label_set_text(config->select_group,group->name);
-						gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
-						config->object = object;
 					}
 					else{
 						g_warning("Некорректное дерево объектов");
+						config->parent_group = NULL;
 						config->group = NULL;
+						config->object = NULL;
 					}
 				}
 			}
@@ -498,8 +498,25 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 static void clicked_button_del(GtkButton * b,gpointer ud)
 {
 	block_config_s * config = (block_config_s*)ud;
+	object_s * parent_group = config->parent_group;
+	object_s * group = config->group;
+	object_s * object = config->object;
 
-	g_debug("clicked_button_del");
+	if(group == NULL){
+		return;
+	}
+	if( (object == NULL) && (parent_group == NULL) ){
+		return;
+	}
+
+	if(object == NULL){
+		del_object(parent_group,group);
+		return;
+	}
+	if(parent_group == NULL){
+		del_object(group,object);
+		return;
+	}
 }
 
 static char STR_BUTTON_ADD[] = "добавить";

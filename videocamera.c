@@ -231,7 +231,7 @@ GtkWidget * create_setting_videocamera(void)
 }
 
 /*TODO считывание данных из базыданных*/
-int fill_videocamera(object_s * object)
+videocamera_s * fill_videocamera(uint32_t number)
 {
 
 	return SUCCESS;
