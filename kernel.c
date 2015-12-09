@@ -90,6 +90,10 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		object->property = NULL;
 		object->list = NULL;
 
+g_debug("\n amount :> %d",amount);
+g_debug(" number :> %d",object->number);
+g_debug(" type   :> %#x",object->type);
+g_debug(" name   :> %s",object->name);
 		switch(type){
 			case TYPE_GROUP:
 				object->list = fill_gslict(number,&amount);
@@ -107,10 +111,6 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 			list = g_slist_append(list,object);
 		}
 
-		g_debug("\n amount :> %d",amount);
-		g_debug(" number :> %d",object->number);
-		g_debug(" type   :> %#x",object->type);
-		g_debug(" name   :> %s",object->name);
 	}
 	*total_amount = amount;
 
@@ -154,40 +154,31 @@ int del_object(object_s * parent,object_s * child)
 	uint32_t number = FIRST_NUMBER_GROUP;
 	GSList * list;
 
-	if((parent == NULL) && (child == NULL)){
+	if(child == NULL){
 		return FAILURE;
 	}
-	if( (parent == NULL) && ((child->type != TYPE_GROUP) ||(child->type != TYPE_KERNEL))){
+	if( (parent == NULL) && (child->type != TYPE_KERNEL) ){
 		return FAILURE;
 	}
-	if( (child == NULL) && ((parent->type != TYPE_GROUP) || (parent->type != TYPE_KERNEL))){
-		return FAILURE;
-	}
-
-	if(   ( (child->type == TYPE_KERNEL ) && (parent == NULL))
-	   || ( (parent->type == TYPE_KERNEL) && (child == NULL )) ){
+	if( (parent == NULL) && (child->type == TYPE_KERNEL)){
+		/*удаление всех обектов из ядра*/
 		object_s * object;
 		list = child->list;
 		for(;list;){
 			object = list->data;
 			del_object(child,object);
-			list = g_slist_next(list);
+			list = child->list;
 		}
 		return SUCCESS;
 	}
-
-	if(   ( (child->type == TYPE_GROUP ) && (parent == NULL))
-	   || ( (parent->type == TYPE_GROUP) && (child == NULL )) ){
+	if( child->type == TYPE_GROUP ){
 		object_s * object;
 		list = child->list;
 		for(;list;){
 			object = list->data;
 			del_object(child,object);
-			list = g_slist_next(list);
+			list = child->list;
 		}
-	}
-	if(parent == NULL){
-		return SUCCESS;
 	}
 
 	if( (parent->type != TYPE_KERNEL) && (parent->type != TYPE_GROUP)){
@@ -204,6 +195,7 @@ int del_object(object_s * parent,object_s * child)
 	parent->list = g_slist_remove(parent->list,child);
 	del_property(child->type,child->property);
 	g_slice_free1(sizeof(object_s),child);
+
 	return SUCCESS;
 }
 

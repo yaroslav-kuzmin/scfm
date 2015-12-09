@@ -131,24 +131,26 @@ static int fill_treeview(GtkTreeView * treeview)
 	GtkTreeIter tree_iter_root;
 	GtkTreeIter tree_iter;
 	GSList * list;
+	object_s * object;
 
 	select =	gtk_tree_view_get_selection (treeview);
 	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter_root);
 
+	object = get_kernel();
 	gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter_root,NULL);
 	gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter_root
 	                  ,COLUMN_NAME_TREE,STR_ROOT_TREE
-	                  ,COLUMN_POINT_TREE,NULL,-1);
+	                  ,COLUMN_POINT_TREE,object,-1);
 
 	list = list_kernel();
 	for(;list;){
-		object_s * o = (object_s*)list->data;
+		object = (object_s*)list->data;
 		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,&tree_iter_root);
 		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter
-		                  ,COLUMN_NAME_TREE,o->name
-		                  ,COLUMN_POINT_TREE,o,-1);
-		if(o->type == TYPE_GROUP){
-			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o);
+		                  ,COLUMN_NAME_TREE,object->name
+		                  ,COLUMN_POINT_TREE,object,-1);
+		if(object->type == TYPE_GROUP){
+			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,object);
 		}
 		list = g_slist_next(list);
 	}
@@ -168,12 +170,23 @@ static int add_object_treeview(block_config_s * config,object_s * object)
 	return SUCCESS;
 }
 
-static int del_object_treeview(block_config_s * config,object_s * object)
+static int del_object_treeview(block_config_s * config)
 {
+	object_s * group = config->group;
+	object_s * object = config->object;
 	GtkTreeModel * model = config->model_group;
-	GtkTreeIter * iter = config->iter_group ;
+	GtkTreeIter * iter = config->iter_group;
+
+	if(group == NULL){
+		return FAILURE;
+	}
+
+	if( object == NULL){
+		iter = config->iter_parent_group;
+	}
 
 	gtk_tree_store_remove(GTK_TREE_STORE(model),iter);
+
 	return SUCCESS;
 }
 
@@ -194,57 +207,62 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	GtkTreeSelection * select = gtk_tree_view_get_selection(tv);
 
 	gtk_label_set_text(config->select_group,STR_ROOT_TREE);
+	config->parent_group = NULL;
+	config->group = NULL;
+	config->object = NULL;
 
 	rc = gtk_tree_selection_get_selected(select,&model,iter_parent);
 	if(rc != TRUE){
-		config->parent_group = NULL;
-		config->group = NULL;
-		config->object = NULL;
+		return;
+	}
+
+	config->model_group = model;
+	gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
+	if(group == NULL){
+		g_warning("Некорректное дерево объектов 0!");
+		return ;
+	}
+
+	gtk_tree_model_iter_children(model,iter,iter_parent);
+	config->group = group;
+	if(group->type == TYPE_KERNEL){
+		return;
+	}
+
+	if(group->type == TYPE_GROUP){
+		GtkTreeIter iter_parent_group;
+		gtk_tree_model_iter_parent(model,&iter_parent_group,iter_parent);
+		gtk_tree_model_get(model,&iter_parent_group,COLUMN_POINT_TREE,&object,-1);
+		if(group == NULL){
+			g_warning("Некорректное дерево объектов 1!");
+			return ;
+		}
+		config->parent_group = object;
+		gtk_label_set_text(config->select_group,group->name);
+		return;
 	}
 	else{
+		gtk_tree_selection_get_selected(select,&model,iter);
 		config->model_group = model;
+		gtk_tree_model_iter_parent(model,iter_parent,iter);
 		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
-		if(group == NULL){/*выбрано основа (ядро) */
-			config->parent_group = NULL;
-			config->group = get_kernel();
-			gtk_tree_model_iter_children(model,iter,iter_parent);
-			config->object = NULL;
+		gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
+		if( (group == NULL) || (object == NULL)){
+			g_warning("Некорректное дерево объектов 2!");
+			return ;
+		}
+		config->group = group;
+		config->object = object;
+		if(group->type == TYPE_KERNEL){
+			return;
+		}
+		if(group->type == TYPE_GROUP){
+			gtk_label_set_text(config->select_group,group->name);
 		}
 		else{
-			if(group->type == TYPE_GROUP){
-				GtkTreeIter iter_parent_group;
-				gtk_tree_model_iter_parent(model,&iter_parent_group,iter_parent);
-				gtk_tree_model_get(model,&iter_parent_group,COLUMN_POINT_TREE,&object,-1);
-				config->parent_group = object;
-				config->group = group;
-				gtk_label_set_text(config->select_group,group->name);
-				gtk_tree_model_iter_children(model,iter,iter_parent);
-				config->object = NULL;
-			}
-			else{
-				config->parent_group = NULL;
-				gtk_tree_selection_get_selected(select,&model,iter);
-				config->model_group = model;
-				gtk_tree_model_iter_parent(model,iter_parent,iter);
-				gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
-				gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
-				config->object = object;
-				if(group == NULL){
-					config->group = get_kernel();
-				}
-				else{
-					if(group->type == TYPE_GROUP){
-						config->group = group;
-						gtk_label_set_text(config->select_group,group->name);
-					}
-					else{
-						g_warning("Некорректное дерево объектов");
-						config->parent_group = NULL;
-						config->group = NULL;
-						config->object = NULL;
-					}
-				}
-			}
+			g_warning("Некорректное дерево объектов 3!");
+			config->group = NULL;
+			config->object = NULL;
 		}
 	}
 }
@@ -318,25 +336,21 @@ static int select_setting(block_config_s * config)
 {
 	switch(config->type){
 		case TYPE_UNKNOWN:
-			g_debug("u");
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
 			break;
 		case TYPE_GROUP:
-			g_debug("g");
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_show(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
 			break;
 		case TYPE_VIDEOCAMERA:
-			g_debug("v");
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_show(config->setting_videocamera);
 			break;
 		default:
-			g_debug("d");
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
@@ -473,7 +487,7 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 		g_warning("Не выбран тип");
 		return ;
 	}
-	/*TODO оптимизация выбора типа*/
+
 	property = new_property(config->type);
 	if(property == NULL){
 		g_warning("Нет свойств объекта");
@@ -505,18 +519,19 @@ static void clicked_button_del(GtkButton * b,gpointer ud)
 	if(group == NULL){
 		return;
 	}
-	if( (object == NULL) && (parent_group == NULL) ){
-		return;
-	}
-
-	if(object == NULL){
-		del_object(parent_group,group);
-		return;
+	if( (object == NULL) && (parent_group == NULL)){
+		return ; /*основу не удаляем*/
 	}
 	if(parent_group == NULL){
 		del_object(group,object);
-		return;
+		goto exit_clicked_button_del;
 	}
+	if(object == NULL){
+		del_object(parent_group,group);
+		goto exit_clicked_button_del;
+	}
+exit_clicked_button_del:
+	del_object_treeview(config);
 }
 
 static char STR_BUTTON_ADD[] = "добавить";
