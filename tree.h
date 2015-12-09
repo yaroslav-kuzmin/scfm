@@ -45,6 +45,8 @@
 #define TREE_H
 
 int reread_tree(void);
+int tree_add_column(GtkTreeView * tree);
+int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object);
 GtkWidget * create_block_tree_object(void);
 
 #endif

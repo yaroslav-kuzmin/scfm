@@ -50,11 +50,11 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _block_group_s
+struct _block_setting_group_s
 {
 	GtkEntryBuffer * image;
 };
-typedef struct _block_group_s block_group_s;
+typedef struct _block_setting_group_s block_setting_group_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -83,12 +83,12 @@ static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-static block_group_s block_group;
+static block_setting_group_s block_setting_group;
 
 void * new_property_group(void)
 {
 	group_s * group;
-	char * image = (char*)gtk_entry_buffer_get_text(block_group.image);
+	char * image = (char*)gtk_entry_buffer_get_text(block_setting_group.image);
 
 	if( (image == NULL) || (*image == 0) ){
 		g_warning("Нет имени рисунка");
@@ -135,7 +135,7 @@ GtkWidget * create_setting_group(void)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
-	block_group.image = buf;
+	block_setting_group.image = buf;
 	button = gtk_button_new_with_label(STR_ADD_GROUP);
 	layout_widget(button,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(button,"clicked",G_CALLBACK(clicked_button_open_file),buf);
@@ -151,6 +151,8 @@ GtkWidget * create_setting_group(void)
 
 	return grid;
 }
+
+/*****************************************************************************/
 
 /*TODO считывание данных из базыданных*/
 group_s * fill_group(uint32_t number)

@@ -65,7 +65,7 @@ char STR_TREE_VIEW_COLUMN[] = "Наименования";
 #define WIDTH_COLUMN_TREE             100
 int width_column_tree = WIDTH_COLUMN_TREE;
 
-static int tree_add_column(GtkTreeView * tree)
+int tree_add_column(GtkTreeView * tree)
 {
 	GtkCellRenderer * render;
 	GtkTreeViewColumn * column;
@@ -85,12 +85,7 @@ static int tree_add_column(GtkTreeView * tree)
 	return SUCCESS;
 }
 
-static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
-{
-	g_debug("row_activated_tree_view");
-}
-
-static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
+int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
 {
 	GSList * list = NULL;
 	GtkTreeIter child_iter;
@@ -107,6 +102,7 @@ static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter
 	}
 	return SUCCESS;
 }
+
 static int fill_treeview(GtkTreeView * treeview)
 {
 	GtkTreeSelection * select;
@@ -130,6 +126,14 @@ static int fill_treeview(GtkTreeView * treeview)
 	return SUCCESS;
 }
 
+static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
+{
+	g_debug("row_activated_tree_view");
+}
+
+static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
+{
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
@@ -170,6 +174,7 @@ GtkWidget * create_block_tree_object(void)
 	tree_add_column(GTK_TREE_VIEW(treeview));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
+	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),NULL);
 	g_object_unref(model);
 	fill_treeview(GTK_TREE_VIEW(treeview));
 	block_tree.view = GTK_TREE_VIEW(treeview);

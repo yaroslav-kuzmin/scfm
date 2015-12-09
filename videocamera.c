@@ -50,14 +50,14 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _block_videocamera_s
+struct _block_setting_videocamera_s
 {
 	GtkEntryBuffer * protocol;
 	GtkEntryBuffer * address;
 	GtkEntryBuffer * port;
 	GtkEntryBuffer * access;
 };
-typedef struct _block_videocamera_s block_videocamera_s;
+typedef struct _block_setting_videocamera_s block_setting_videocamera_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -128,7 +128,8 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
-static block_videocamera_s block_videocamera;
+/*  конфигурирование */
+static block_setting_videocamera_s block_setting_videocamera;
 void * new_property_videocamera(void)
 {
 	videocamera_s * property = NULL;
@@ -139,28 +140,28 @@ void * new_property_videocamera(void)
 	uint32_t port;
 	const char * access;
 
-	buf = block_videocamera.protocol;
+	buf = block_setting_videocamera.protocol;
 	protocol = gtk_entry_buffer_get_text(buf);
 	protocol = check_buf_protocol(protocol);
 	if(protocol == NULL){
 		g_warning("Некорректный протокол!");
 		return property;
 	}
-	buf = block_videocamera.address;
+	buf = block_setting_videocamera.address;
 	address = gtk_entry_buffer_get_text(buf);
 	address = check_buf_address(address);
 	if(address == NULL){
 		g_warning("Некорректный адрес!");
 		return property;
 	}
-	buf = block_videocamera.port;
+	buf = block_setting_videocamera.port;
 	str_port = gtk_entry_buffer_get_text(buf);
 	port = check_buf_port(str_port);
 	if(port == 0){
 		g_warning("Некорректный порт!");
 		return property;
 	}
-	buf = block_videocamera.access;
+	buf = block_setting_videocamera.access;
 	access = gtk_entry_buffer_get_text(buf);
 	access = check_buf_access(access);
 	if(access == NULL){
@@ -212,13 +213,13 @@ GtkWidget * create_setting_videocamera(void)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	block_protocol = create_block_entry(STR_NAME_PROTOCOL,&buf);
-	block_videocamera.protocol = buf;
+	block_setting_videocamera.protocol = buf;
 	block_addres = create_block_entry(STR_NAME_ADDRES,&buf);
-	block_videocamera.address = buf;
+	block_setting_videocamera.address = buf;
 	block_port = create_block_entry(STR_NAME_PORT,&buf);
-	block_videocamera.port = buf;
+	block_setting_videocamera.port = buf;
 	block_access = create_block_entry(STR_NAME_ACCESS,&buf);
-	block_videocamera.access = buf;
+	block_setting_videocamera.access = buf;
 
 	gtk_box_pack_start(GTK_BOX(box),block_protocol,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_addres,TRUE,TRUE,0);
@@ -229,6 +230,8 @@ GtkWidget * create_setting_videocamera(void)
 
 	return box;
 }
+
+/*****************************************************************************/
 
 /*TODO считывание данных из базыданных*/
 videocamera_s * fill_videocamera(uint32_t number)

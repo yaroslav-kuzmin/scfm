@@ -50,6 +50,7 @@ object_s * get_kernel(void);
 GSList * list_kernel(void);
 uint32_t next_number_kernel(void);
 
+int del_property(int type,void * property);
 int init_kernel(void);
 int deinit_kernel(void);
 

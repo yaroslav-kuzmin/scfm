@@ -50,7 +50,6 @@
 #include "database.h"
 #include "group.h"
 #include "videocamera.h"
-#include "config.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -90,10 +89,6 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		object->property = NULL;
 		object->list = NULL;
 
-g_debug("\n amount :> %d",amount);
-g_debug(" number :> %d",object->number);
-g_debug(" type   :> %#x",object->type);
-g_debug(" name   :> %s",object->name);
 		switch(type){
 			case TYPE_GROUP:
 				object->list = fill_gslict(number,&amount);
@@ -147,6 +142,21 @@ int add_object(object_s * parent,object_s * child)
 	return SUCCESS;
 }
 
+int del_property(int type,void * property)
+{
+	switch(type){
+		case TYPE_GROUP:
+			del_property_group(property);
+			break;
+		case TYPE_VIDEOCAMERA:
+			del_property_videocamera(property);
+			break;
+		case TYPE_UNKNOWN:
+		default:
+			break;
+	}
+	return SUCCESS;
+}
 
 int del_object(object_s * parent,object_s * child)
 {

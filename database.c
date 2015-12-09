@@ -310,6 +310,8 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 
 	return del_info_object_table(number_group,number_object);
 }
+
+
 /*****************************************************************************/
 static char STR_KEY_DATABASE[] = "database";
 static char STR_DATABASE_FILE[] = "scfm.sqlite3";
