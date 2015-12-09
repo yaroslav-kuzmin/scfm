@@ -117,7 +117,6 @@ static GtkWidget * create_block_job(void)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	block_tree = create_block_tree_object();
-
 	block_object = create_block_object();
 
 	gtk_box_pack_start(GTK_BOX(box),block_tree,TRUE,TRUE,0);
