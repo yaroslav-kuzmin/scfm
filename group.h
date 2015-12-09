@@ -46,8 +46,9 @@
 
 void * new_property_group(void);
 int del_property_group(group_s * group);
-GtkWidget * create_setting_group(void);
+GtkWidget * create_block_setting_group(void);
 group_s * fill_group(uint32_t number);
+GtkWidget * create_block_group(void);
 
 #endif
 

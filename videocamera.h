@@ -46,8 +46,9 @@
 
 void * new_property_videocamera(void);
 int del_property_videocamera(videocamera_s * property);
-GtkWidget * create_setting_videocamera(void);
+GtkWidget * create_block_setting_videocamera(void);
 videocamera_s * fill_videocamera(uint32_t number);
+GtkWidget * create_block_videocamera(void);
 
 #endif
 

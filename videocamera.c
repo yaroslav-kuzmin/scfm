@@ -46,6 +46,7 @@
 
 #include "pub.h"
 #include "common.h"
+#include "database.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -194,13 +195,12 @@ int del_property_videocamera(videocamera_s * property)
 	return SUCCESS;
 }
 
-
 static char STR_NAME_PROTOCOL[] = "протокол :";
 static char STR_NAME_ADDRES[] = "адрес :";
 static char STR_NAME_PORT[] = "порт :";
 static char STR_NAME_ACCESS[] = "доступ :";
 
-GtkWidget * create_setting_videocamera(void)
+GtkWidget * create_block_setting_videocamera(void)
 {
 	GtkWidget * box;
 	GtkWidget * block_protocol;
@@ -236,8 +236,26 @@ GtkWidget * create_setting_videocamera(void)
 /*TODO считывание данных из базыданных*/
 videocamera_s * fill_videocamera(uint32_t number)
 {
+	int rc;
+	videocamera_s * videocamera;
 
-	return SUCCESS;
+	videocamera = g_slice_alloc0(sizeof(videocamera_s));
+	/*память для обектов выделяется при чтении из базыданых*/
+	rc = read_database_videocamera(number,videocamera);
+	if(rc != SUCCESS){
+		g_slice_free1(sizeof(videocamera_s),videocamera);
+		videocamera = NULL;
+	}
+	return videocamera;
 }
 
+GtkWidget * create_block_videocamera(void)
+{
+	GtkWidget * label;
+
+	label = gtk_label_new("ВИДЕО");
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(label);
+	return label;
+}
 /*****************************************************************************/

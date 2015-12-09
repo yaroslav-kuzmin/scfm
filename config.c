@@ -374,8 +374,8 @@ static GtkWidget * create_block_setting(block_config_s * config)
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	config->setting_unknown = create_setting_unknown();
-	config->setting_group = create_setting_group();
-	config->setting_videocamera = create_setting_videocamera();
+	config->setting_group = create_block_setting_group();
+	config->setting_videocamera = create_block_setting_videocamera();
 	config->type = TYPE_UNKNOWN;
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);

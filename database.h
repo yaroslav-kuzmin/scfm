@@ -55,5 +55,8 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 
 void* prepare_group_database(uint32_t number);
 int next_group_database(void * s,uint32_t * number,char **name,uint8_t * type);
+
+int read_database_group(uint32_t number,group_s * group);
+int read_database_videocamera(uint32_t number,videocamera_s * videocamera);
 #endif
 

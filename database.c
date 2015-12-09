@@ -311,7 +311,104 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 	return del_info_object_table(number_group,number_object);
 }
 
+int read_database_group(uint32_t number,group_s * group)
+{
+	int rc;
+	sqlite3_stmt * stmt;
+	int amount_column = 0;
+	const char * image;
 
+	g_string_printf(pub,"SELECT * FROM ");
+	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_GROUP,number);
+
+	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	if(rc != SQLITE_OK){
+		const char * error_message = sqlite3_errmsg(database);
+		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		return FAILURE;
+	}
+
+	rc = sqlite3_step(stmt);
+	if(rc == SQLITE_DONE){
+		/* данных в запросе нет*/
+		g_critical("Ошибка ведения таблицы [group]!");
+		sqlite3_finalize(stmt);
+		/*TODO функция исправления базы данных*/
+		return FAILURE;
+	}
+	if(rc == SQLITE_ERROR ){
+		g_critical("SQL step : %s",sqlite3_errmsg(database));
+		sqlite3_finalize(stmt);
+		return FAILURE;
+	}
+	if(rc == SQLITE_ROW){
+		amount_column = sqlite3_data_count(stmt);
+		if(amount_column != COLUMN_TABLE_GROUP_AMOUNT){
+			g_critical("SQL step : Некорректная таблица групп : %d",amount_column);
+			sqlite3_finalize(stmt);
+			return FAILURE;
+		}
+		/*TODO проверка на тип колонок и название */
+		/*TODO где делать проверки на корректность*/
+		image = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_GROUP_IMAGE);
+		group->image = g_strdup(image);
+	}
+	sqlite3_finalize(stmt);
+	return SUCCESS;
+}
+
+int read_database_videocamera(uint32_t number,videocamera_s * videocamera)
+{
+	int rc;
+	sqlite3_stmt * stmt;
+	int amount_column = 0;
+	const char * protocol;
+	const char * address;
+	const char * access;
+
+	g_string_printf(pub,"SELECT * FROM ");
+	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_VIDEOCAMERA,number);
+
+	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	if(rc != SQLITE_OK){
+		const char * error_message = sqlite3_errmsg(database);
+		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		return FAILURE;
+	}
+
+	rc = sqlite3_step(stmt);
+	if(rc == SQLITE_DONE){
+		/* данных в запросе нет*/
+		g_critical("Ошибка ведения таблицы [videocamera]!");
+		sqlite3_finalize(stmt);
+		/*TODO функция исправления базы данных*/
+		return FAILURE;
+	}
+	if(rc == SQLITE_ERROR ){
+		g_critical("SQL step : %s",sqlite3_errmsg(database));
+		sqlite3_finalize(stmt);
+		return FAILURE;
+	}
+	if(rc == SQLITE_ROW){
+		amount_column = sqlite3_data_count(stmt);
+		if(amount_column != COLUMN_TABLE_VIDEOCAMERA_AMOUNT){
+			g_critical("SQL step : Некорректная таблица видеокамер : %d",amount_column);
+			sqlite3_finalize(stmt);
+			return FAILURE;
+		}
+		/*TODO проверка на тип колонок и название */
+		/*TODO где делать проверки на корректность*/
+		protocol = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_VIDEOCAMERA_PROTOCOL);
+		videocamera->protocol = g_strdup(protocol);
+		address = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_VIDEOCAMERA_ADDRESS);
+		videocamera->address = g_strdup(address);
+		videocamera->port = sqlite3_column_int64(stmt,COLUMN_TABLE_VIDEOCAMERA_PORT);
+		access = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_VIDEOCAMERA_ACCESS);
+		videocamera->access = g_strdup(access);
+	}
+	sqlite3_finalize(stmt);
+	return SUCCESS;
+}
 /*****************************************************************************/
 static char STR_KEY_DATABASE[] = "database";
 static char STR_DATABASE_FILE[] = "scfm.sqlite3";
@@ -324,6 +421,7 @@ int default_database_config(void)
 int reindex_database(void)
 {
 /*TODO сделать преобразование идентификаторов в базе данных*/
+/*TODO прверка на корректность данных */
 	return SUCCESS;
 }
 

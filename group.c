@@ -46,6 +46,7 @@
 
 #include "pub.h"
 #include "common.h"
+#include "database.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -117,7 +118,7 @@ static char STR_NAME_FILE[] = "имя файла";
 static char STR_ADD_GROUP[] = "открыть файл";
 /*static group_s group;*/
 
-GtkWidget * create_setting_group(void)
+GtkWidget * create_block_setting_group(void)
 {
 	GtkWidget * grid;
 
@@ -157,6 +158,27 @@ GtkWidget * create_setting_group(void)
 /*TODO считывание данных из базыданных*/
 group_s * fill_group(uint32_t number)
 {
-	return SUCCESS;
+	int rc;
+	group_s * group = NULL;
+
+	group = g_slice_alloc0(sizeof(group_s));
+	/*память для обектов выделяется при чтении из базыданых*/
+	rc = read_database_group(number,group);
+	if(rc != SUCCESS){
+		g_slice_free1(sizeof(group_s),group);
+		group = NULL;
+	}
+
+	return group;
+}
+
+GtkWidget * create_block_group(void)
+{
+	GtkWidget * label;
+
+	label = gtk_label_new("ГРУППА");
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(label);
+	return label;
 }
 /*****************************************************************************/

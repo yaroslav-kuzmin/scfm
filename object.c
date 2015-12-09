@@ -46,6 +46,8 @@
 
 #include "pub.h"
 #include "common.h"
+#include "group.h"
+#include "videocamera.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
