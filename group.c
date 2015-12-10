@@ -156,7 +156,7 @@ GtkWidget * create_block_setting_group(void)
 /*****************************************************************************/
 
 /*TODO считывание данных из базыданных*/
-group_s * fill_group(uint32_t number)
+group_s * init_group(uint32_t number)
 {
 	int rc;
 	group_s * group = NULL;

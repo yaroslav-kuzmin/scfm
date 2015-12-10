@@ -234,7 +234,7 @@ GtkWidget * create_block_setting_videocamera(void)
 /*****************************************************************************/
 
 /*TODO считывание данных из базыданных*/
-videocamera_s * fill_videocamera(uint32_t number)
+videocamera_s * init_videocamera(uint32_t number)
 {
 	int rc;
 	videocamera_s * videocamera;

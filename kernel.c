@@ -92,10 +92,10 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		switch(type){
 			case TYPE_GROUP:
 				object->list = fill_gslict(number,&amount);
-				object->property = fill_group(object->number);
+				object->property = init_group(object->number);
 				break;
 			case TYPE_VIDEOCAMERA:
-				object->property = fill_videocamera(object->number);
+				object->property = init_videocamera(object->number);
 				break;
 			default:
 				g_slice_free1(sizeof(object_s),object);
