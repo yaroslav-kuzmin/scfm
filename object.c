@@ -52,30 +52,59 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-
-
+struct _block_object_s
+{
+	GtkNotebook * notebook;
+};
+typedef struct _block_object_s block_object_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+#define MAX_COLUMN_AMOUNT     1
+static int column_amount = MAX_COLUMN_AMOUNT;
+#define MAX_ROW_AMOUNT        1
+static int row_amount = MAX_ROW_AMOUNT;
 
-static void clicked_button_object(GtkButton * b,gpointer ud)
+static int create_block_page(block_object_s * block_object,char * name)
 {
-	g_debug("clicked_button_object");
+	int rc;
+	GtkNotebook * notebook = block_object->notebook;
+	GtkWidget * grid;
+	GtkWidget * label;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+
+
+	label = gtk_label_new(name);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+
+	rc = gtk_notebook_append_page(notebook,grid,label);
+	return rc;
 }
+
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
-
+static char STR_BASE_PAGE[] = "основное";
+block_object_s block_object;
 GtkWidget * create_block_object(void)
 {
-	GtkWidget * object;
+	GtkWidget * notebook;
 
-	object = gtk_button_new_with_label("объект");
-	g_signal_connect(object,"clicked",G_CALLBACK(clicked_button_object),NULL);
+	notebook = gtk_notebook_new();
+	layout_widget(notebook,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	block_object.notebook = GTK_NOTEBOOK(notebook);
 
-	gtk_widget_show(object);
-	return object;
+	create_block_page(&block_object,STR_BASE_PAGE);
+
+	gtk_widget_show(notebook);
+
+	return notebook;
 }
 
 /*****************************************************************************/

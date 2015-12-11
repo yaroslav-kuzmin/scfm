@@ -77,6 +77,7 @@ enum{
 /**************************************/
 
 #define FIRST_NUMBER_GROUP     0
+
 #define TYPE_UNKNOWN           0x00
 #define TYPE_KERNEL            0xFF
 #define TYPE_GROUP             0x80
