@@ -59,6 +59,11 @@ struct _block_setting_videocamera_s
 	GtkEntryBuffer * access;
 };
 typedef struct _block_setting_videocamera_s block_setting_videocamera_s;
+struct _block_videocamera_s
+{
+	GtkLabel * label;
+};
+typedef struct _block_videocamera_s block_videocamera_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -249,13 +254,23 @@ videocamera_s * init_videocamera(uint32_t number)
 	return videocamera;
 }
 
+block_videocamera_s block_videocamera;
+
+int fill_videcamera(videocamera_s * videocamera)
+{
+	GtkLabel * label = block_videocamera.label;
+	gtk_label_set_text(label,videocamera->access);
+	return SUCCESS;
+}
+
 GtkWidget * create_block_videocamera(void)
 {
 	GtkWidget * label;
 
-	label = gtk_label_new("ВИДЕО");
+	label = gtk_label_new(NULL);
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_show(label);
+	block_videocamera.label = GTK_LABEL(label);
 	return label;
 }
 /*****************************************************************************/

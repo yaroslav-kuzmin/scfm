@@ -48,6 +48,7 @@
 #include "common.h"
 #include "kernel.h"
 #include "menu.h"
+#include "object.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -144,8 +145,9 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	}
 	gtk_tree_model_get(model,&iter,COLUMN_POINT_TREE,&object,-1);
 
-	g_debug(" name :> %s",object->name);
-
+	if(object != NULL){
+		select_object(object);
+	}
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */

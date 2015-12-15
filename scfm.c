@@ -139,6 +139,7 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 	if(type == GDK_KEY_PRESS){
 		GdkEventKey * event_key = (GdkEventKey*)event;
 		state = event_key->state;
+		/*g_debug(" key :> %#x",event_key->keyval);*/
 		if( (state & GDK_SHIFT_MASK) && (state & GDK_CONTROL_MASK)){
 			if( event_key->keyval == GDK_KEY_A){
 				about_programm(g->default_icon);

@@ -52,25 +52,60 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
+#if 0
+TODO несколько страниц с любым количествои статических или динамических элементов
+#define MAX_COLUMN_AMOUNT     1
+static int column_amount = MAX_COLUMN_AMOUNT;
+#define MAX_ROW_AMOUNT        1
+static int row_amount = MAX_ROW_AMOUNT;
 struct _block_page_s
 {
-	GtkWidget * empty;
-	GtkWidget * group;
-	GtkWidget * videocamera;
+
 };
+#endif
 struct _block_object_s
 {
 	GtkNotebook * notebook;
 
+	GtkWidget * empty;
+	GtkWidget * group;
+	GtkWidget * videocamera;
 };
 typedef struct _block_object_s block_object_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
-#define MAX_COLUMN_AMOUNT     1
-static int column_amount = MAX_COLUMN_AMOUNT;
-#define MAX_ROW_AMOUNT        1
-static int row_amount = MAX_ROW_AMOUNT;
+static int change_object(block_object_s * block_object,int type)
+{
+	switch(type){
+		case TYPE_GROUP:
+			gtk_widget_hide(block_object->empty);
+			gtk_widget_hide(block_object->videocamera);
+			gtk_widget_show(block_object->group);
+			break;
+		case TYPE_VIDEOCAMERA:
+			gtk_widget_hide(block_object->empty);
+			gtk_widget_hide(block_object->group);
+			gtk_widget_show(block_object->videocamera);
+			break;
+		default:
+			gtk_widget_hide(block_object->group);
+			gtk_widget_hide(block_object->videocamera);
+			gtk_widget_show(block_object->empty);
+			break;
+	}
+	return SUCCESS;
+}
+
+static char STR_BLOCK_EMPTY[] = "Выберите объект отображения";
+static GtkWidget * create_block_empty(void)
+{
+	GtkWidget * label;
+	label = gtk_label_new(STR_BLOCK_EMPTY);
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(label);
+	return label;
+}
 
 static int create_block_page(block_object_s * block_object,char * name)
 {
@@ -85,16 +120,17 @@ static int create_block_page(block_object_s * block_object,char * name)
 
 	label = gtk_label_new(name);
 
+	block_object->empty = create_block_empty();
 	block_object->group = create_block_group();
 	block_object->videocamera = create_block_videocamera();
 
+	gtk_grid_attach(GTK_GRID(grid),block_object->empty,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_object->group,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_object->videocamera,0,0,1,1);
 
-
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
-
+	change_object(block_object,TYPE_UNKNOWN);
 	rc = gtk_notebook_append_page(notebook,grid,label);
 	return rc;
 }
@@ -106,15 +142,36 @@ block_object_s block_object;
 
 int select_object(object_s * object)
 {
+	int rc;
+	GtkWidget * child;
+	GtkWidget * label;
+
 	if(object == NULL){
 		return FAILURE;
 	}
 
+	rc = gtk_notebook_get_current_page(block_object.notebook);
+	if(rc == -1){
+		return FAILURE;
+	}
+	child = gtk_notebook_get_nth_page(block_object.notebook,rc);
+	if(child == NULL){
+		return FAILURE;
+	}
+	label = gtk_notebook_get_tab_label(block_object.notebook,child);
+  	gtk_label_set_text(label,object->name);
+
 	switch(object->type){
 		case TYPE_GROUP:
-
+			fill_group((group_s*)object->property);
+			break;
+		case TYPE_VIDEOCAMERA:
+			fill_videcamera((videocamera_s*)object->property);
+			break;
+		default:
+			break;
 	}
-
+	change_object(&block_object,object->type);
 	return SUCCESS;
 }
 

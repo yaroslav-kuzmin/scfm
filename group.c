@@ -56,6 +56,12 @@ struct _block_setting_group_s
 	GtkEntryBuffer * image;
 };
 typedef struct _block_setting_group_s block_setting_group_s;
+
+struct _block_group_s
+{
+	GtkLabel * label;
+};
+typedef struct _block_group_s block_group_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -172,13 +178,22 @@ group_s * init_group(uint32_t number)
 	return group;
 }
 
+block_group_s block_group;
+int fill_group(group_s * group)
+{
+	GtkLabel * image = block_group.label;
+	gtk_label_set_text(image,group->image);
+	return SUCCESS;
+}
+
 GtkWidget * create_block_group(void)
 {
 	GtkWidget * label;
 
-	label = gtk_label_new("ГРУППА");
+	label = gtk_label_new(NULL);
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_show(label);
+	block_group.label = GTK_LABEL(label);
 	return label;
 }
 /*****************************************************************************/
