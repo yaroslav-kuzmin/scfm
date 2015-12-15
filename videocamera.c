@@ -254,6 +254,7 @@ videocamera_s * init_videocamera(uint32_t number)
 	return videocamera;
 }
 
+
 block_videocamera_s block_videocamera;
 
 int fill_videcamera(videocamera_s * videocamera)
@@ -262,7 +263,7 @@ int fill_videcamera(videocamera_s * videocamera)
 	gtk_label_set_text(label,videocamera->access);
 	return SUCCESS;
 }
-
+/*TODO блок становится видимым и не видимым  */
 GtkWidget * create_block_videocamera(void)
 {
 	GtkWidget * label;
@@ -271,6 +272,7 @@ GtkWidget * create_block_videocamera(void)
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_show(label);
 	block_videocamera.label = GTK_LABEL(label);
+
 	return label;
 }
 /*****************************************************************************/
