@@ -52,9 +52,16 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
+struct _block_page_s
+{
+	GtkWidget * empty;
+	GtkWidget * group;
+	GtkWidget * videocamera;
+};
 struct _block_object_s
 {
 	GtkNotebook * notebook;
+
 };
 typedef struct _block_object_s block_object_s;
 /*****************************************************************************/
@@ -72,12 +79,18 @@ static int create_block_page(block_object_s * block_object,char * name)
 	GtkWidget * grid;
 	GtkWidget * label;
 
+
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-
-
 	label = gtk_label_new(name);
+
+	block_object->group = create_block_group();
+	block_object->videocamera = create_block_videocamera();
+
+	gtk_grid_attach(GTK_GRID(grid),block_object->group,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_object->videocamera,0,0,1,1);
+
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
@@ -89,9 +102,24 @@ static int create_block_page(block_object_s * block_object,char * name)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+block_object_s block_object;
+
+int select_object(object_s * object)
+{
+	if(object == NULL){
+		return FAILURE;
+	}
+
+	switch(object->type){
+		case TYPE_GROUP:
+
+	}
+
+	return SUCCESS;
+}
+
 
 static char STR_BASE_PAGE[] = "основное";
-block_object_s block_object;
 GtkWidget * create_block_object(void)
 {
 	GtkWidget * notebook;

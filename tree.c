@@ -133,6 +133,19 @@ static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeVie
 
 static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 {
+	int rc;
+	object_s * object;
+	GtkTreeModel * model;
+	GtkTreeIter iter;
+	GtkTreeSelection * select = gtk_tree_view_get_selection(tv);
+	rc = gtk_tree_selection_get_selected(select,&model,&iter);
+	if(rc != TRUE){
+		return;
+	}
+	gtk_tree_model_get(model,&iter,COLUMN_POINT_TREE,&object,-1);
+
+	g_debug(" name :> %s",object->name);
+
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
