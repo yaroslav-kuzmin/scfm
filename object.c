@@ -159,7 +159,7 @@ int select_object(object_s * object)
 		return FAILURE;
 	}
 	label = gtk_notebook_get_tab_label(block_object.notebook,child);
-  	gtk_label_set_text(label,object->name);
+	gtk_label_set_text(GTK_LABEL(label),object->name);
 
 	switch(object->type){
 		case TYPE_GROUP:
