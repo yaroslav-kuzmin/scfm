@@ -41,127 +41,19 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef PUB_H
-#define PUB_H
+#ifndef LAFET_H
+#define LAFET_H
 
-#include <stdint.h>
+void * new_property_lafet(void);
+int del_property_lafet(lafet_s * lafet);
 
-#define SUCCESS           0
-#define FAILURE          -1
+int init_all_lafet(void);
+int deinit_all_lafet(void);
+lafet_s * init_lafet(uint32_t number);
+int fill_lafet(lafet_s * lafet);
 
-#define OK                0
-#define NOT_OK           -1
+GtkWidget * create_block_setting_lafet(void);
+GtkWidget * create_block_lafet(void);
 
-#define MODE_WORK_CATALOG             0755
-
-/**************************************/
-
-extern char STR_NAME_PROGRAMM[];
-
-/**************************************/
-struct _generic_s
-{
-	GString * pub;
-	GdkPixbuf * default_icon;
-};
-typedef struct _generic_s generic_s;
-
-/**************************************/
-
-enum{
-	MODE_NOT_WORK = 0,
-	MODE_CONTROL,
-	MODE_CONFIG
-};
-
-/**************************************/
-
-#define FIRST_NUMBER_GROUP     0
-
-#define TYPE_UNKNOWN           0x00
-#define TYPE_KERNEL            0xFF
-#define TYPE_GROUP             0x80
-#define TYPE_VIDEOCAMERA       0x02
-#define TYPE_LAFET             0x03
-
-extern char STR_TYPE_GROUP[];
-extern char STR_TYPE_VIDEOCAMERE[];
-extern char STR_TYPE_LAFET[];
-
-/**************************************/
-extern GdkRGBA color_black;
-extern GdkRGBA color_green;
-extern GdkRGBA color_red;
-extern GdkRGBA color_white;
-extern GdkRGBA color_lite_blue;
-extern GdkRGBA color_lite_red;
-extern GdkRGBA color_lite_green;
-
-/**************************************/
-#define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
-enum{
-	COLUMN_TABLE_OBJECT_NUMBER = 0,
-	COLUMN_TABLE_OBJECT_NAME,
-	COLUMN_TABLE_OBJECT_TYPE,
-	COLUMN_TABLE_OBJECT_AMOUNT
-};
-struct _object_s
-{
-	uint32_t number;
-	char * name;
-	uint8_t type;
-
-	void * property;
-	GSList * list;
-};
-typedef struct _object_s object_s;
-/**************************************/
-enum{
-	COLUMN_NAME_TREE = 0,
-	COLUMN_POINT_TREE,
-	AMOUNT_COLUMN_TREE
-};
-
-/**************************************/
-
-enum{
-	COLUMN_TABLE_GROUP_NUMBER = 0,
-	COLUMN_TABLE_GROUP_IMAGE,
-	COLUMN_TABLE_GROUP_AMOUNT
-};
-struct _group_s
-{
-	char * image;
-};
-typedef struct _group_s group_s;
-/**************************************/
-
-enum{
-	COLUMN_TABLE_VIDEOCAMERA_NUMBER = 0,
-	COLUMN_TABLE_VIDEOCAMERA_PROTOCOL,
-	COLUMN_TABLE_VIDEOCAMERA_ADDRESS,
-	COLUMN_TABLE_VIDEOCAMERA_PORT,
-	COLUMN_TABLE_VIDEOCAMERA_ACCESS,
-	COLUMN_TABLE_VIDEOCAMERA_AMOUNT
-};
-struct _videocamera_s
-{
-	char * protocol;
-	char * address;
-	uint32_t port;
-	char * access;
-};
-typedef struct _videocamera_s videocamera_s;
-
-/**************************************/
-enum{
-	COLUMN_TABLE_LAFET_NUMBER = 0,
-	COLUMN_TABLE_LAFET_AMOUNT
-};
-struct _lafet_s
-{
-};
-typedef struct _lafet_s lafet_s;
-/**************************************/
 #endif
 

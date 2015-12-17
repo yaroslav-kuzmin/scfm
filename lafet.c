@@ -41,127 +41,128 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef PUB_H
-#define PUB_H
+/*****************************************************************************/
+#include <gtk/gtk.h>
 
-#include <stdint.h>
+#include "pub.h"
+#include "common.h"
+#include "database.h"
 
-#define SUCCESS           0
-#define FAILURE          -1
-
-#define OK                0
-#define NOT_OK           -1
-
-#define MODE_WORK_CATALOG             0755
-
-/**************************************/
-
-extern char STR_NAME_PROGRAMM[];
-
-/**************************************/
-struct _generic_s
+/*****************************************************************************/
+/*    Общие переменые                                                        */
+/*****************************************************************************/
+struct _block_setting_lafet_s
 {
-	GString * pub;
-	GdkPixbuf * default_icon;
 };
-typedef struct _generic_s generic_s;
+typedef struct _block_setting_lafet_s block_setting_lafet_s;
 
-/**************************************/
-
-enum{
-	MODE_NOT_WORK = 0,
-	MODE_CONTROL,
-	MODE_CONFIG
-};
-
-/**************************************/
-
-#define FIRST_NUMBER_GROUP     0
-
-#define TYPE_UNKNOWN           0x00
-#define TYPE_KERNEL            0xFF
-#define TYPE_GROUP             0x80
-#define TYPE_VIDEOCAMERA       0x02
-#define TYPE_LAFET             0x03
-
-extern char STR_TYPE_GROUP[];
-extern char STR_TYPE_VIDEOCAMERE[];
-extern char STR_TYPE_LAFET[];
-
-/**************************************/
-extern GdkRGBA color_black;
-extern GdkRGBA color_green;
-extern GdkRGBA color_red;
-extern GdkRGBA color_white;
-extern GdkRGBA color_lite_blue;
-extern GdkRGBA color_lite_red;
-extern GdkRGBA color_lite_green;
-
-/**************************************/
-#define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
-enum{
-	COLUMN_TABLE_OBJECT_NUMBER = 0,
-	COLUMN_TABLE_OBJECT_NAME,
-	COLUMN_TABLE_OBJECT_TYPE,
-	COLUMN_TABLE_OBJECT_AMOUNT
-};
-struct _object_s
+struct _block_lafet_s
 {
-	uint32_t number;
-	char * name;
-	uint8_t type;
+	GtkLabel * label;
+};
+typedef struct _block_lafet_s block_lafet_s;
 
-	void * property;
+struct _all_lafet_s
+{
 	GSList * list;
 };
-typedef struct _object_s object_s;
-/**************************************/
-enum{
-	COLUMN_NAME_TREE = 0,
-	COLUMN_POINT_TREE,
-	AMOUNT_COLUMN_TREE
-};
-
-/**************************************/
-
-enum{
-	COLUMN_TABLE_GROUP_NUMBER = 0,
-	COLUMN_TABLE_GROUP_IMAGE,
-	COLUMN_TABLE_GROUP_AMOUNT
-};
-struct _group_s
+typedef struct _all_lafet_s all_lafet_s;
+/*****************************************************************************/
+/* локальные функции                                                         */
+/*****************************************************************************/
+static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 {
-	char * image;
-};
-typedef struct _group_s group_s;
-/**************************************/
+}
+/*****************************************************************************/
+/*    Общие функции                                                          */
+/*****************************************************************************/
+static block_setting_lafet_s block_setting_lafet;
 
-enum{
-	COLUMN_TABLE_VIDEOCAMERA_NUMBER = 0,
-	COLUMN_TABLE_VIDEOCAMERA_PROTOCOL,
-	COLUMN_TABLE_VIDEOCAMERA_ADDRESS,
-	COLUMN_TABLE_VIDEOCAMERA_PORT,
-	COLUMN_TABLE_VIDEOCAMERA_ACCESS,
-	COLUMN_TABLE_VIDEOCAMERA_AMOUNT
-};
-struct _videocamera_s
+void * new_property_lafet(void)
 {
-	char * protocol;
-	char * address;
-	uint32_t port;
-	char * access;
-};
-typedef struct _videocamera_s videocamera_s;
+	lafet_s * lafet;
+	lafet = g_slice_alloc0(sizeof(lafet_s));
+	return lafet;
+}
 
-/**************************************/
-enum{
-	COLUMN_TABLE_LAFET_NUMBER = 0,
-	COLUMN_TABLE_LAFET_AMOUNT
-};
-struct _lafet_s
+int del_property_lafet(lafet_s * property)
 {
-};
-typedef struct _lafet_s lafet_s;
-/**************************************/
+	if(property == NULL){
+		return SUCCESS;
+	}
+	g_slice_free1(sizeof(lafet_s),property);
+
+	return SUCCESS;
+}
+
+GtkWidget * create_block_setting_lafet(void)
+{
+	GtkWidget * grid;
+
+	GtkWidget * label;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	label = gtk_label_new("лафет");
+	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	gtk_grid_attach(GTK_GRID(grid),label ,0,0,1,1);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+
+	return grid;
+}
+
+/*****************************************************************************/
+all_lafet_s all_lafet;
+int init_all_lafet(void)
+{
+	all_lafet.list = g_slist_alloc();
+	return SUCCESS;
+}
+
+int deinit_all_lafet(void)
+{
+	g_slist_free(all_lafet.list);
+	return SUCCESS;
+}
+
+/*TODO считывание данных из базыданных*/
+lafet_s * init_lafet(uint32_t number)
+{
+	int rc;
+	lafet_s * lafet = NULL;
+
+	lafet = g_slice_alloc0(sizeof(lafet_s));
+	/*память для обектов выделяется при чтении из базыданых*/
+#if 0
+	rc = read_database_lafet(number,lafet);
+	if(rc != SUCCESS){
+		g_slice_free1(sizeof(lafet_s),lafet);
+		lafet = NULL;
+	}
 #endif
+	all_lafet.list = g_slist_append(all_lafet.list,lafet);
+	return lafet;
+}
 
+block_lafet_s block_lafet;
+
+int fill_lafet(lafet_s * lafet)
+{
+	return SUCCESS;
+}
+
+GtkWidget * create_block_lafet(void)
+{
+	GtkWidget * label;
+
+	label = gtk_label_new(NULL);
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(label);
+	block_lafet.label = GTK_LABEL(label);
+	return label;
+}
+/*****************************************************************************/

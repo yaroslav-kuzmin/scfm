@@ -51,6 +51,7 @@ char STR_NAME_PROGRAMM[] = "Система Управления Лафетным
 
 char STR_TYPE_GROUP[] = "группа";
 char STR_TYPE_VIDEOCAMERE[] = "видеокамера";
+char STR_TYPE_LAFET[] = "лафет";
 
 GdkRGBA color_black =     {0  ,0  ,0  ,1};
 GdkRGBA color_green =     {0  ,1  ,0  ,1};

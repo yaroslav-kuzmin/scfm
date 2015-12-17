@@ -95,6 +95,14 @@ static int create_table_videocamera(void)
 	return query_simple(pub);
 }
 
+static char STR_NAME_TABLE_LAFET[] = "[lafet]";
+static int create_table_lafet(void)
+{
+	g_string_printf(pub,"CREATE TABLE ");
+	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
+	g_string_append(pub,"(number INTEGER PRIMARY KEY)");
+	return query_simple(pub);
+}
 static int delete_table_object(int number)
 {
 	g_string_printf(pub,"DROP TABLE ");
@@ -107,6 +115,7 @@ static int create_total_table(void)
 	create_table_object(FIRST_NUMBER_GROUP);
 	create_table_group();
 	create_table_videocamera();
+	create_table_lafet();
 
 	return SUCCESS;
 }
