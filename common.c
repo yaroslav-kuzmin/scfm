@@ -49,6 +49,8 @@
 #include "kernel.h"
 #include "config.h"
 #include "database.h"
+#include "group.h"
+#include "videocamera.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -352,6 +354,8 @@ generic_s * init_system(void)
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
 	init_database(work_catalog);
+	init_all_group();
+	init_all_videocamera();
 	init_kernel();
 
 	return &generic;
@@ -360,6 +364,8 @@ generic_s * init_system(void)
 int deinit_system(void)
 {
 	deinit_database();
+	deinit_all_videcamera();
+	deinit_all_group();
 	deinit_kernel();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");

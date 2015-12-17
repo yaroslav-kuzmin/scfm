@@ -62,6 +62,12 @@ struct _block_group_s
 	GtkLabel * label;
 };
 typedef struct _block_group_s block_group_s;
+
+struct _all_group_s
+{
+	GSList * list;
+};
+typedef struct _all_group_s all_group_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -160,6 +166,18 @@ GtkWidget * create_block_setting_group(void)
 }
 
 /*****************************************************************************/
+all_group_s all_group;
+int init_all_group(void)
+{
+	all_group.list = g_slist_alloc();
+	return SUCCESS;
+}
+
+int deinit_all_group(void)
+{
+	g_slist_free(all_group.list);
+	return SUCCESS;
+}
 
 /*TODO считывание данных из базыданных*/
 group_s * init_group(uint32_t number)
@@ -174,7 +192,7 @@ group_s * init_group(uint32_t number)
 		g_slice_free1(sizeof(group_s),group);
 		group = NULL;
 	}
-
+	all_group.list = g_slist_append(all_group.list,group);
 	return group;
 }
 

@@ -64,6 +64,11 @@ struct _block_videocamera_s
 	GtkLabel * label;
 };
 typedef struct _block_videocamera_s block_videocamera_s;
+struct _all_videocamera_s
+{
+	GSList * list;
+};
+typedef struct _all_videocamera_s all_videocamera_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -237,6 +242,18 @@ GtkWidget * create_block_setting_videocamera(void)
 }
 
 /*****************************************************************************/
+all_videocamera_s all_videocamera;
+int init_all_videocamera(void)
+{
+	all_videocamera.list = g_slist_alloc();
+	return SUCCESS;
+}
+
+int deinit_all_videcamera(void)
+{
+	g_slist_free(all_videocamera.list);
+	return SUCCESS;
+}
 
 /*TODO считывание данных из базыданных*/
 videocamera_s * init_videocamera(uint32_t number)
@@ -251,6 +268,7 @@ videocamera_s * init_videocamera(uint32_t number)
 		g_slice_free1(sizeof(videocamera_s),videocamera);
 		videocamera = NULL;
 	}
+	all_videocamera.list = g_slist_append(all_videocamera.list,videocamera);
 	return videocamera;
 }
 
