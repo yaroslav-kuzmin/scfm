@@ -156,10 +156,113 @@ typedef struct _videocamera_s videocamera_s;
 /**************************************/
 enum{
 	COLUMN_TABLE_LAFET_NUMBER = 0,
+	COLUMN_TABLE_LAFET_FLAG,
 	COLUMN_TABLE_LAFET_AMOUNT
 };
+
+#define ALL_BIT                      0xFFFFFFFFFFFFFFFFL
+#define BIT_LIMIT_UP                 0x0000000000000001L
+#define BIT_LIMIT_DOWN               0x0000000000000002L
+#define BIT_TIC_VERTICAL             0x0000000000000004L
+#define BIT_ENCODER_VERTICAL         0x0000000000000008L
+#define BIT_AMPERAGE_VERTICAL        0x0000000000000010L
+#define BIT_LIMIT_LEFT               0x0000000000000020L
+#define BIT_LIMIT_RIGHT              0x0000000000000040L
+#define BIT_TIC_HORIZONTAL           0x0000000000000080L
+#define BIT_ENCODER_HORIZONTAL       0x0000000000000100L
+#define BIT_AMPERAGE_HORIZONTAL      0x0000000000000200L
+#define BIT_PRESSURE                 0x0000000000000400L
+#define BIT_ENGINE_VERTICAL          0x0000000000000800L
+#define BIT_ENGINE_HORIZONTAL        0x0000000000001000L
+#define BIT_ACTUATOR_0               0x0000000000002000L
+#define BIT_ACTUATOR_1               0x0000000000004000L
+#define BIT_ACTUATOR_2               0x0000000000008000L
+#define BIT_ACTUATOR_3               0x0000000000010000L
+#define BIT_ACTUATOR_4               0x0000000000020000L
+#define BIT_ACTUATOR_5               0x0000000000040000L
+
+#define YES_LIMIT_UP(f)              (f | BIT_LIMIT_UP)
+#define NOT_LIMIT_UP(f)              (f & (ALL_BIT^BIT_LIMIT_UP))
+#define LIMIT_UP(f)                  (f & BIT_LIMIT_UP)
+#define YES_LIMIT_DOWN(f)            (f | BIT_LIMIT_DOWN)
+#define NOT_LIMIT_DOWN(f)            (f & (ALL_BIT^BIT_LIMIT_DOWN))
+#define LIMIT_DOWN(f)                (f & BIT_LIMIT_DOWN)
+#define YES_TIC_VERTICAL(f)          (f | BIT_TIC_VERTICAL)
+#define NOT_TIC_VERTICAL(f)          (f & (ALL_BIT^BIT_TIC_VERTICAL))
+#define TIC_VERTICAL(f)              (f & BIT_TIC_VERTICAL)
+#define YES_ENCODER_VERTICAL(f)      (f | BIT_ENCODER_VERTICAL)
+#define NOT_ENCODER_VERTICAL(f)      (f & (ALL_BIT^BIT_ENCODER_VERTICAL))
+#define ENCODER_VERTICAL(f)          (f & BIT_ENCODER_VERTICAL)
+#define YES_AMPERAGE_VERTICAL(f)     (f | BIT_AMPERAGE_VERTICAL)
+#define NOT_AMPERAGE_VERTICAL(f)     (f & (ALL_BIT^BIT_AMPERAGE_VERTICAL))
+#define AMPERAGE_VERTICAL(f)         (f & BIT_AMPERAGE_VERTICAL)
+#define YES_LIMIT_LEFT(f)            (f | BIT_LIMIT_LEFT)
+#define NOT_LIMIT_LEFT(f)            (f & (ALL_BIT^BIT_LIMIT_LEFT))
+#define LIMIT_LEFT(f)                (f & BIT_LIMIT_LEFT)
+#define YES_LIMIT_RIGHT(f)           (f | BIT_LIMIT_RIGHT)
+#define NOT_LIMIT_RIGHT(f)           (f & (ALL_BIT^BIT_LIMIT_RIGHT))
+#define LIMIT_RIGHT(f)               (f & BIT_LIMIT_RIGHT)
+#define YES_TIC_HORIZONTAL(f)        (f | BIT_TIC_HORIZONTAL)
+#define NOT_TIC_HORIZONTAL(f)        (f & (ALL_BIT^BIT_TIC_HORIZONTAL))
+#define TIC_HORIZONTAL(f)            (f & BIT_TIC_HORIZONTAL)
+#define YES_ENCODER_HORIZONTAL(f)    (f | BIT_ENCODER_HORIZONTAL)
+#define NOT_ENCODER_HORIZONTAL(f)    (f & (ALL_BIT^BIT_ENCODER_HORIZONTAL))
+#define ENCODER_HORIZONTAL(f)        (f & BIT_ENCODER_HORIZONTAL)
+#define YES_AMPERAGE_HORIZONTAL(f)   (f | BIT_AMPERAGE_HORIZONTAL)
+#define NOT_AMPERAGE_HORIZONTAL(f)   (f & (ALL_BIT^BIT_AMPERAGE_HORIZONTAL))
+#define AMPERAGE_HORIZONTAL(f)       (f & BIT_AMPERAGE_HORIZONTAL)
+#define YES_PRESSURE(f)              (f | BIT_PRESSURE)
+#define NOT_PRESSURE(f)              (f & (ALL_BIT^BIT_PRESSURE))
+#define PRESSURE(f)                  (f & BIT_PRESSURE)
+#define YES_ENGINE_VERTICAL(f)       (f | BIT_ENGINE_VERTICAL)
+#define NOT_ENGINE_VERTICAL(f)       (f & (ALL_BIT^BIT_ENGINE_VERTICAL))
+#define ENGINE_VERTICAL(f)           (f & BIT_ENGINE_VERTICAL)
+#define YES_ENGINE_HORIZONTAL(f)     (f | BIT_ENGINE_HORIZONTAL)
+#define NOT_ENGINE_HORIZONTAL(f)     (f & (ALL_BIT^BIT_ENGINE_HORIZONTAL))
+#define ENGINE_HORIZONTAL(f)         (f & BIT_ENGINE_HORIZONTAL)
+#define YES_ACTUATOR_0(f)            (f | BIT_ACTUATOR_0)
+#define NOT_ACTUATOR_0(f)            (f & (ALL_BIT^BIT_ACTUATOR_0))
+#define ACTUATOR_0(f)                (f & BIT_ACTUATOR_0)
+#define YES_ACTUATOR_1(f)            (f | BIT_ACTUATOR_1)
+#define NOT_ACTUATOR_1(f)            (f & (ALL_BIT^BIT_ACTUATOR_1))
+#define ACTUATOR_1(f)                (f & BIT_ACTUATOR_1)
+#define YES_ACTUATOR_2(f)            (f | BIT_ACTUATOR_2)
+#define NOT_ACTUATOR_2(f)            (f & (ALL_BIT^BIT_ACTUATOR_2))
+#define ACTUATOR_2(f)                (f & BIT_ACTUATOR_2)
+#define YES_ACTUATOR_3(f)            (f | BIT_ACTUATOR_3)
+#define NOT_ACTUATOR_3(f)            (f & (ALL_BIT^BIT_ACTUATOR_3))
+#define ACTUATOR_3(f)                (f & BIT_ACTUATOR_3)
+#define YES_ACTUATOR_4(f)            (f | BIT_ACTUATOR_4)
+#define NOT_ACTUATOR_4(f)            (f & (ALL_BIT^BIT_ACTUATOR_4))
+#define ACTUATOR_4(f)                (f & BIT_ACTUATOR_4)
+#define YES_ACTUATOR_5(f)            (f | BIT_ACTUATOR_5)
+#define NOT_ACTUATOR_5(f)            (f & (ALL_BIT^BIT_ACTUATOR_5))
+#define ACTUATOR_5(f)                (f & BIT_ACTUATOR_5)
+
+struct _setting_lafet_s
+{
+	uint64_t flag;
+	uint32_t index_tic_vertical;
+	uint32_t index_encoder_vertical;
+	uint32_t index_amperage_vertical;
+	uint32_t index_tic_horizantal;
+	uint32_t index_encoder_horizontal;
+	uint32_t index_amperage_horizontal;
+	uint32_t index_pressure;
+	uint32_t type_engine_vertical;
+	uint32_t type_engine_horizontal;
+};
+typedef struct _setting_lafet_s setting_lafet_s;
+
+struct _state_lafet_s
+{
+
+};
+typedef struct _state_lafet_s state_lafet_s;
+
 struct _lafet_s
 {
+
 };
 typedef struct _lafet_s lafet_s;
 /**************************************/

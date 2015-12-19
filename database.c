@@ -100,7 +100,7 @@ static int create_table_lafet(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
 	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY)");
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,INTEGER flag,)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
