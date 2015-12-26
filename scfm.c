@@ -149,7 +149,7 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 	return FALSE;
 }
 
-#define MAIN_BLOCK_SPACING       3
+#define MAIN_BLOCK_SPACING                3
 #define MIN_SIZE_WIDTH_MAIN_WINDOW        500
 #define MIN_SIZE_HEIGHT_MAIN_WINDOW       600
 
