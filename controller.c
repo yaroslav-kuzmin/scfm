@@ -51,22 +51,22 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _block_setting_lafet_s
+struct _block_setting_controller_s
 {
 };
-typedef struct _block_setting_lafet_s block_setting_lafet_s;
+typedef struct _block_setting_controller_s block_setting_controller_s;
 
-struct _block_lafet_s
+struct _block_controller_s
 {
 	GtkLabel * label;
 };
-typedef struct _block_lafet_s block_lafet_s;
+typedef struct _block_controller_s block_controller_s;
 
-struct _all_lafet_s
+struct _all_controller_s
 {
 	GSList * list;
 };
-typedef struct _all_lafet_s all_lafet_s;
+typedef struct _all_controller_s all_controller_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
@@ -76,26 +76,26 @@ static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-static block_setting_lafet_s block_setting_lafet;
+static block_setting_controller_s block_setting_controller;
 
-void * new_property_lafet(void)
+void * new_property_controller(void)
 {
-	lafet_s * lafet;
-	lafet = g_slice_alloc0(sizeof(lafet_s));
-	return lafet;
+	controller_s * controller;
+	controller = g_slice_alloc0(sizeof(controller_s));
+	return controller;
 }
 
-int del_property_lafet(lafet_s * property)
+int del_property_controller(controller_s * property)
 {
 	if(property == NULL){
 		return SUCCESS;
 	}
-	g_slice_free1(sizeof(lafet_s),property);
+	g_slice_free1(sizeof(controller_s),property);
 
 	return SUCCESS;
 }
 
-GtkWidget * create_block_setting_lafet(void)
+GtkWidget * create_block_setting_controller(void)
 {
 	GtkWidget * grid;
 
@@ -116,53 +116,53 @@ GtkWidget * create_block_setting_lafet(void)
 }
 
 /*****************************************************************************/
-all_lafet_s all_lafet;
-int init_all_lafet(void)
+all_controller_s all_controller;
+int init_all_controller(void)
 {
-	all_lafet.list = g_slist_alloc();
+	all_controller.list = g_slist_alloc();
 	return SUCCESS;
 }
 
-int deinit_all_lafet(void)
+int deinit_all_controller(void)
 {
-	g_slist_free(all_lafet.list);
+	g_slist_free(all_controller.list);
 	return SUCCESS;
 }
 
 /*TODO считывание данных из базыданных*/
-lafet_s * init_lafet(uint32_t number)
+controller_s * init_controller(uint32_t number)
 {
 	int rc;
-	lafet_s * lafet = NULL;
+	controller_s * controller = NULL;
 
-	lafet = g_slice_alloc0(sizeof(lafet_s));
+	controller = g_slice_alloc0(sizeof(controller_s));
 	/*память для обектов выделяется при чтении из базыданых*/
 #if 0
-	rc = read_database_lafet(number,lafet);
+	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
-		g_slice_free1(sizeof(lafet_s),lafet);
-		lafet = NULL;
+		g_slice_free1(sizeof(controller_s),controller);
+		controller = NULL;
 	}
 #endif
-	all_lafet.list = g_slist_append(all_lafet.list,lafet);
-	return lafet;
+	all_controller.list = g_slist_append(all_controller.list,controller);
+	return controller;
 }
 
-block_lafet_s block_lafet;
+block_controller_s block_controller;
 
-int fill_lafet(lafet_s * lafet)
+int fill_controller(controller_s * controller)
 {
 	return SUCCESS;
 }
 
-GtkWidget * create_block_lafet(void)
+GtkWidget * create_block_controller(void)
 {
 	GtkWidget * label;
 
 	label = gtk_label_new(NULL);
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_show(label);
-	block_lafet.label = GTK_LABEL(label);
+	block_controller.label = GTK_LABEL(label);
 	return label;
 }
 /*****************************************************************************/

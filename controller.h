@@ -44,16 +44,16 @@
 #ifndef LAFET_H
 #define LAFET_H
 
-void * new_property_lafet(void);
-int del_property_lafet(lafet_s * lafet);
+void * new_property_controller(void);
+int del_property_controller(controller_s * controller);
 
-int init_all_lafet(void);
-int deinit_all_lafet(void);
-lafet_s * init_lafet(uint32_t number);
-int fill_lafet(lafet_s * lafet);
+int init_all_controller(void);
+int deinit_all_controller(void);
+controller_s * init_controller(uint32_t number);
+int fill_controller(controller_s * controller);
 
-GtkWidget * create_block_setting_lafet(void);
-GtkWidget * create_block_lafet(void);
+GtkWidget * create_block_setting_controller(void);
+GtkWidget * create_block_controller(void);
 
 #endif
 

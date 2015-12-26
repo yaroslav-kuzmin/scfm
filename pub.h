@@ -82,7 +82,7 @@ enum{
 #define TYPE_KERNEL            0xFF
 #define TYPE_GROUP             0x80
 #define TYPE_VIDEOCAMERA       0x02
-#define TYPE_LAFET             0x03
+#define TYPE_CONTROLLERE       0x03
 
 extern char STR_TYPE_GROUP[];
 extern char STR_TYPE_VIDEOCAMERE[];
@@ -239,7 +239,7 @@ enum{
 #define NOT_ACTUATOR_5(f)            (f & (ALL_BIT^BIT_ACTUATOR_5))
 #define ACTUATOR_5(f)                (f & BIT_ACTUATOR_5)
 
-struct _setting_lafet_s
+struct _setting_controller_s
 {
 	uint64_t flag;
 	uint32_t index_tic_vertical;
@@ -252,19 +252,19 @@ struct _setting_lafet_s
 	uint32_t type_engine_vertical;
 	uint32_t type_engine_horizontal;
 };
-typedef struct _setting_lafet_s setting_lafet_s;
+typedef struct _setting_controller_s setting_controller_s;
 
-struct _state_lafet_s
+struct _state_controller_s
 {
 
 };
-typedef struct _state_lafet_s state_lafet_s;
+typedef struct _state_controller_s state_controller_s;
 
-struct _lafet_s
+struct _controller_s
 {
 
 };
-typedef struct _lafet_s lafet_s;
+typedef struct _controller_s controller_s;
 /**************************************/
 #endif
 
