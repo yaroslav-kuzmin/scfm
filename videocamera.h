@@ -50,7 +50,8 @@ int del_property_videocamera(videocamera_s * property);
 int init_all_videocamera(void);
 int deinit_all_videcamera(void);
 videocamera_s * init_videocamera(uint32_t number);
-int fill_videcamera(videocamera_s * videocamera);
+
+int fill_block_videcamera(videocamera_s * videocamera);
 
 GtkWidget * create_block_setting_videocamera(void);
 GtkWidget * create_block_videocamera(void);

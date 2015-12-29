@@ -50,6 +50,7 @@
 #include "database.h"
 #include "group.h"
 #include "videocamera.h"
+#include "controller.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */

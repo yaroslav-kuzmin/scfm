@@ -53,6 +53,7 @@
 /*****************************************************************************/
 struct _block_setting_controller_s
 {
+
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
 
@@ -70,18 +71,21 @@ typedef struct _all_controller_s all_controller_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+/*
 static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 {
 }
+*/
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-static block_setting_controller_s block_setting_controller;
+/*static block_setting_controller_s block_setting_controller;*/
 
 void * new_property_controller(void)
 {
 	controller_s * controller;
 	controller = g_slice_alloc0(sizeof(controller_s));
+	controller->flag = 0xff5423ad5a90ff;
 	return controller;
 }
 
@@ -148,8 +152,11 @@ controller_s * init_controller(uint32_t number)
 
 block_controller_s block_controller;
 
-int fill_controller(controller_s * controller)
+int fill_block_controller(controller_s * controller)
 {
+	GtkLabel * label = block_controller.label;
+	g_string_printf(pub,"%#lx",controller->flag);
+	gtk_label_set_text(label,pub->str);
 	return SUCCESS;
 }
 

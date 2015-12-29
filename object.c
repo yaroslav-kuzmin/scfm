@@ -48,6 +48,7 @@
 #include "common.h"
 #include "group.h"
 #include "videocamera.h"
+#include "controller.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -70,6 +71,7 @@ struct _block_object_s
 	GtkWidget * empty;
 	GtkWidget * group;
 	GtkWidget * videocamera;
+	GtkWidget * controller;
 };
 typedef struct _block_object_s block_object_s;
 /*****************************************************************************/
@@ -82,16 +84,25 @@ static int change_object(block_object_s * block_object,int type)
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->videocamera);
 			gtk_widget_show(block_object->group);
+			gtk_widget_hide(block_object->controller);
 			break;
 		case TYPE_VIDEOCAMERA:
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->group);
 			gtk_widget_show(block_object->videocamera);
+			gtk_widget_hide(block_object->controller);
+			break;
+		case TYPE_CONTROLLERE:
+			gtk_widget_hide(block_object->empty);
+			gtk_widget_hide(block_object->group);
+			gtk_widget_hide(block_object->videocamera);
+			gtk_widget_show(block_object->controller);
 			break;
 		default:
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
 			gtk_widget_show(block_object->empty);
+			gtk_widget_hide(block_object->controller);
 			break;
 	}
 	return SUCCESS;
@@ -123,10 +134,12 @@ static int create_block_page(block_object_s * block_object,char * name)
 	block_object->empty = create_block_empty();
 	block_object->group = create_block_group();
 	block_object->videocamera = create_block_videocamera();
+	block_object->controller = create_block_controller();
 
 	gtk_grid_attach(GTK_GRID(grid),block_object->empty,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_object->group,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_object->videocamera,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_object->controller,0,0,1,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
@@ -163,10 +176,13 @@ int select_object(object_s * object)
 
 	switch(object->type){
 		case TYPE_GROUP:
-			fill_group((group_s*)object->property);
+			fill_block_group((group_s*)object->property);
 			break;
 		case TYPE_VIDEOCAMERA:
-			fill_videcamera((videocamera_s*)object->property);
+			fill_block_videcamera((videocamera_s*)object->property);
+			break;
+		case TYPE_CONTROLLERE:
+			fill_block_controller((controller_s*)object->property);
 			break;
 		default:
 			break;

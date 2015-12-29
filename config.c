@@ -47,9 +47,10 @@
 #include "pub.h"
 #include "common.h"
 #include "kernel.h"
+#include "tree.h"
 #include "group.h"
 #include "videocamera.h"
-#include "tree.h"
+#include "controller.h"
 
 /*****************************************************************************/
 /*    локальные переменые                                                    */
@@ -72,6 +73,7 @@ struct _block_config_s
 	GtkWidget * setting_unknown;
 	GtkWidget * setting_group;
  	GtkWidget * setting_videocamera;
+	GtkWidget * setting_controller;
 };
 typedef struct _block_config_s block_config_s;
 
@@ -286,6 +288,11 @@ static GtkTreeModel * create_model_combobox(void)
 	                  ,COLUMN_COMBOBOX_NAME,STR_TYPE_VIDEOCAMERE
 	                  ,COLUMN_COMBOBOX_TYPE,TYPE_VIDEOCAMERA
 	                  ,-1);
+	gtk_list_store_append(model,&iter);
+	gtk_list_store_set(model,&iter
+	                  ,COLUMN_COMBOBOX_NAME,STR_TYPE_CONTROLLER
+	                  ,COLUMN_COMBOBOX_TYPE,TYPE_CONTROLLERE
+	                  ,-1);
 	return GTK_TREE_MODEL(model);
 }
 
@@ -296,21 +303,31 @@ static int select_setting(block_config_s * config)
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
+			gtk_widget_hide(config->setting_controller);
 			break;
 		case TYPE_GROUP:
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_show(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
+			gtk_widget_hide(config->setting_controller);
 			break;
 		case TYPE_VIDEOCAMERA:
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_show(config->setting_videocamera);
+			gtk_widget_hide(config->setting_controller);
+			break;
+		case TYPE_CONTROLLERE:
+			gtk_widget_hide(config->setting_unknown);
+			gtk_widget_hide(config->setting_group);
+			gtk_widget_hide(config->setting_videocamera);
+			gtk_widget_show(config->setting_controller);
 			break;
 		default:
 			gtk_widget_show(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
+			gtk_widget_hide(config->setting_controller);
 			break;
 	}
 	return SUCCESS;
@@ -328,7 +345,6 @@ static void changed_combobox(GtkComboBox *cb, gpointer ud)
 		gtk_tree_model_get(model,&iter,COLUMN_COMBOBOX_TYPE,&rc,-1);
 		config->type = rc;
 		select_setting(config);
-		g_debug(" :> %d",rc);
 	}
 }
 static GtkWidget * create_combobox(block_config_s * config)
@@ -376,6 +392,7 @@ static GtkWidget * create_block_setting(block_config_s * config)
 	config->setting_unknown = create_setting_unknown();
 	config->setting_group = create_block_setting_group();
 	config->setting_videocamera = create_block_setting_videocamera();
+	config->setting_controller = create_block_setting_controller();
 	config->type = TYPE_UNKNOWN;
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);
@@ -383,6 +400,7 @@ static GtkWidget * create_block_setting(block_config_s * config)
 	gtk_grid_attach(GTK_GRID(grid),config->setting_unknown    ,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),config->setting_group      ,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),config->setting_videocamera,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),config->setting_controller ,0,0,1,1);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(grid);
@@ -399,6 +417,9 @@ static void * new_property(int type)
 			break;
 		case TYPE_VIDEOCAMERA:
 			property = new_property_videocamera();
+			break;
+		case TYPE_CONTROLLERE:
+			property = new_property_controller();
 			break;
 		case TYPE_UNKNOWN:
 		default:

@@ -50,7 +50,8 @@ int del_property_controller(controller_s * controller);
 int init_all_controller(void);
 int deinit_all_controller(void);
 controller_s * init_controller(uint32_t number);
-int fill_controller(controller_s * controller);
+
+int fill_block_controller(controller_s * controller);
 
 GtkWidget * create_block_setting_controller(void);
 GtkWidget * create_block_controller(void);

@@ -221,7 +221,7 @@ static int add_table_controller(uint32_t n,controller_s * c)
 {
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append_printf(pub," VALUES (%d,%ld')"
+	g_string_append_printf(pub," VALUES (%d,%ld)"
 	                      ,n,c->flag);
 	return query_simple(pub);
 }
