@@ -97,6 +97,9 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 			case TYPE_VIDEOCAMERA:
 				object->property = init_videocamera(object->number);
 				break;
+			case TYPE_CONTROLLERE:
+				object->property = init_controller(object->number);
+				break;
 			default:
 				g_slice_free1(sizeof(object_s),object);
 				object = NULL;
@@ -150,6 +153,9 @@ int del_property(int type,void * property)
 			break;
 		case TYPE_VIDEOCAMERA:
 			del_property_videocamera(property);
+			break;
+		case TYPE_CONTROLLERE:
+			del_property_controller(property);
 			break;
 		case TYPE_UNKNOWN:
 		default:

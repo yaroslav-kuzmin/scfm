@@ -95,12 +95,12 @@ static int create_table_videocamera(void)
 	return query_simple(pub);
 }
 
-static char STR_NAME_TABLE_LAFET[] = "[lafet]";
-static int create_table_lafet(void)
+static char STR_NAME_TABLE_CONTROLLER[] = "[controller]";
+static int create_table_controller(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,INTEGER flag,)");
+	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,INTEGER flag)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
@@ -115,7 +115,7 @@ static int create_total_table(void)
 	create_table_object(FIRST_NUMBER_GROUP);
 	create_table_group();
 	create_table_videocamera();
-	create_table_lafet();
+	create_table_controller();
 
 	return SUCCESS;
 }
@@ -216,6 +216,24 @@ static int del_table_videcamera(uint32_t number)
 
 	return query_simple(pub);
 }
+
+static int add_table_controller(uint32_t n,controller_s * c)
+{
+	g_string_printf(pub,"INSERT INTO ");
+	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
+	g_string_append_printf(pub," VALUES (%d,%ld')"
+	                      ,n,c->flag);
+	return query_simple(pub);
+}
+
+static int del_table_controller(uint32_t number)
+{
+	g_string_printf(pub,"DELETE FROM ");
+	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
+	g_string_append_printf(pub," WHERE number=%d",number);
+
+	return query_simple(pub);
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
@@ -289,6 +307,12 @@ int add_object_database(uint32_t number_group,uint32_t number_object,char * name
 				return rc;
 			}
 			break;
+		case TYPE_CONTROLLERE:
+			rc = add_table_controller(number_object,(controller_s*)property);
+			if(rc != SUCCESS){
+				return rc;
+			}
+			break;
 		default :
 			return FAILURE;
 	}
@@ -309,6 +333,12 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 			break;
 		case TYPE_VIDEOCAMERA:
 			rc = del_table_videcamera(number_object);
+			if(rc != SUCCESS){
+				return rc;
+			}
+			break;
+		case TYPE_CONTROLLERE:
+			rc = del_table_controller(number_object);
 			if(rc != SUCCESS){
 				return rc;
 			}
@@ -414,6 +444,50 @@ int read_database_videocamera(uint32_t number,videocamera_s * videocamera)
 		videocamera->port = sqlite3_column_int64(stmt,COLUMN_TABLE_VIDEOCAMERA_PORT);
 		access = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_VIDEOCAMERA_ACCESS);
 		videocamera->access = g_strdup(access);
+	}
+	sqlite3_finalize(stmt);
+	return SUCCESS;
+}
+
+int read_database_controller(uint32_t number,controller_s * controller)
+{
+	int rc;
+	sqlite3_stmt * stmt;
+	int amount_column = 0;
+
+	g_string_printf(pub,"SELECT * FROM ");
+	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
+
+	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	if(rc != SQLITE_OK){
+		const char * error_message = sqlite3_errmsg(database);
+		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		return FAILURE;
+	}
+
+	rc = sqlite3_step(stmt);
+	if(rc == SQLITE_DONE){
+		/* данных в запросе нет*/
+		g_critical("Ошибка ведения таблицы [controller]!");
+		sqlite3_finalize(stmt);
+		/*TODO функция исправления базы данных*/
+		return FAILURE;
+	}
+	if(rc == SQLITE_ERROR ){
+		g_critical("SQL step : %s",sqlite3_errmsg(database));
+		sqlite3_finalize(stmt);
+		return FAILURE;
+	}
+	if(rc == SQLITE_ROW){
+		amount_column = sqlite3_data_count(stmt);
+		if(amount_column != COLUMN_TABLE_CONTROLLER_AMOUNT){
+			g_critical("SQL step : Некорректная таблица контроллеров : %d",amount_column);
+			sqlite3_finalize(stmt);
+			return FAILURE;
+		}
+		/*TODO проверка на тип колонок и название */
+		/*TODO где делать проверки на корректность*/
+		controller->flag = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_FLAG);
 	}
 	sqlite3_finalize(stmt);
 	return SUCCESS;

@@ -86,7 +86,7 @@ enum{
 
 extern char STR_TYPE_GROUP[];
 extern char STR_TYPE_VIDEOCAMERE[];
-extern char STR_TYPE_LAFET[];
+extern char STR_TYPE_CONTROLLER[];
 
 /**************************************/
 extern GdkRGBA color_black;
@@ -155,9 +155,9 @@ typedef struct _videocamera_s videocamera_s;
 
 /**************************************/
 enum{
-	COLUMN_TABLE_LAFET_NUMBER = 0,
-	COLUMN_TABLE_LAFET_FLAG,
-	COLUMN_TABLE_LAFET_AMOUNT
+	COLUMN_TABLE_CONTROLLER_NUMBER = 0,
+	COLUMN_TABLE_CONTROLLER_FLAG,
+	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
 
 #define ALL_BIT                      0xFFFFFFFFFFFFFFFFL
@@ -256,13 +256,13 @@ typedef struct _setting_controller_s setting_controller_s;
 
 struct _state_controller_s
 {
-
+	uint64_t flag;
 };
 typedef struct _state_controller_s state_controller_s;
 
 struct _controller_s
 {
-
+	uint64_t flag;
 };
 typedef struct _controller_s controller_s;
 /**************************************/

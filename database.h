@@ -58,5 +58,6 @@ int next_group_database(void * s,uint32_t * number,char **name,uint8_t * type);
 
 int read_database_group(uint32_t number,group_s * group);
 int read_database_videocamera(uint32_t number,videocamera_s * videocamera);
+int read_database_controller(uint32_t number,controller_s * controller);
 #endif
 

@@ -137,13 +137,11 @@ controller_s * init_controller(uint32_t number)
 
 	controller = g_slice_alloc0(sizeof(controller_s));
 	/*память для обектов выделяется при чтении из базыданых*/
-#if 0
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
 		g_slice_free1(sizeof(controller_s),controller);
 		controller = NULL;
 	}
-#endif
 	all_controller.list = g_slist_append(all_controller.list,controller);
 	return controller;
 }
