@@ -45,6 +45,7 @@
 #define PUB_H
 
 #include <stdint.h>
+#include <gtk/gtk.h>
 
 #define SUCCESS           0
 #define FAILURE          -1
@@ -156,7 +157,8 @@ typedef struct _videocamera_s videocamera_s;
 /**************************************/
 enum{
 	COLUMN_TABLE_CONTROLLER_NUMBER = 0,
-	COLUMN_TABLE_CONTROLLER_FLAG,
+	COLUMN_TABLE_CONTROLLER_NAME,
+	COLUMN_TABLE_CONTROLLER_ID,
 	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
 
@@ -257,12 +259,43 @@ typedef struct _setting_controller_s setting_controller_s;
 struct _state_controller_s
 {
 	uint64_t flag;
+
 };
 typedef struct _state_controller_s state_controller_s;
 
+#define TYPE_LINK_UART        0x01
+#define TYPE_LIMK_TCP         0x02
+struct _link_uart_s
+{
+	char * device;
+	uint32_t baud;
+	int8_t parity;
+	uint8_t data_bit;
+	uint8_t stop_bit;
+
+	/*modbus_t * connect;*/
+};
+typedef struct _link_uart_s link_uart_s;
+struct _link_tcp_s
+{
+	GInetAddress * address;
+	uint16_t port;
+
+	GSocket * connect;
+};
+typedef struct _link_tcp_s link_tcp_s;
+
 struct _controller_s
 {
-	uint64_t flag;
+	char * name;
+	uint16_t id;
+
+	uint8_t type_link;
+	link_uart_s uart;
+	link_tcp_s tcp;
+
+	setting_controller_s setting;
+	state_controller_s state;
 };
 typedef struct _controller_s controller_s;
 /**************************************/

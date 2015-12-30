@@ -43,7 +43,6 @@
 
 /*****************************************************************************/
 #include <glib/gprintf.h>
-#include <gtk/gtk.h>
 
 #include "pub.h"
 #include "common.h"
