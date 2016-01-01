@@ -42,7 +42,6 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-#include <gtk/gtk.h>
 
 #include "pub.h"
 #include "common.h"
@@ -85,15 +84,20 @@ void * new_property_controller(void)
 {
 	controller_s * controller;
 	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->flag = 0xff5423ad5a90ff;
+	controller->id = 2;
 	return controller;
 }
 
 int del_property_controller(controller_s * property)
 {
+	char * name;
 	if(property == NULL){
 		return SUCCESS;
 	}
+
+	name = property->name;
+	g_free(name);
+
 	g_slice_free1(sizeof(controller_s),property);
 
 	return SUCCESS;
@@ -155,7 +159,7 @@ block_controller_s block_controller;
 int fill_block_controller(controller_s * controller)
 {
 	GtkLabel * label = block_controller.label;
-	g_string_printf(pub,"%#lx",controller->flag);
+	g_string_printf(pub,"%#x",controller->id);
 	gtk_label_set_text(label,pub->str);
 	return SUCCESS;
 }
