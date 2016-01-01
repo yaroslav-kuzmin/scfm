@@ -112,7 +112,7 @@ GtkWidget * create_block_setting_controller(void)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	label = gtk_label_new("лафет");
+	label = gtk_label_new("контролер");
 	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
 	gtk_grid_attach(GTK_GRID(grid),label ,0,0,1,1);
