@@ -149,7 +149,7 @@ void * new_property_videocamera(void)
 	const char * str_port;
 	uint32_t port;
 	const char * access;
-
+	/*TODO вывод сообщения*/
 	buf = block_setting_videocamera.protocol;
 	protocol = gtk_entry_buffer_get_text(buf);
 	protocol = check_buf_protocol(protocol);

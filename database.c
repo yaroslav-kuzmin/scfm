@@ -99,7 +99,7 @@ static int create_table_controller(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,INTEGER id)");
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,id,address,port)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
@@ -220,8 +220,9 @@ static int add_table_controller(uint32_t n,controller_s * c)
 {
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append_printf(pub," VALUES (%d,\'%s\',%d)"
-	                      ,n,c->name,c->id);
+	g_string_append_printf(pub," VALUES (%d,\'%s\',%d,\'%s\',%d)"
+	                      ,n
+	                      ,c->name,c->id,c->address,c->port);
 	return query_simple(pub);
 }
 
@@ -454,6 +455,7 @@ int read_database_controller(uint32_t number,controller_s * controller)
 	sqlite3_stmt * stmt;
 	int amount_column = 0;
 	const char * name;
+	const char * address;
 
 	g_string_printf(pub,"SELECT * FROM ");
 	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
@@ -490,6 +492,9 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		name = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_NAME);
 		controller->name = g_strdup(name);
 		controller->id = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_ID);
+		address = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_ADDRESS);
+		controller->address = g_strdup(address);
+		controller->port = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_PORT);
 	}
 	sqlite3_finalize(stmt);
 	return SUCCESS;
