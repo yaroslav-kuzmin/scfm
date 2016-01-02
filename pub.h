@@ -246,6 +246,7 @@ enum{
 
 struct _config_controller_s
 {
+	uint32_t type;
 	uint64_t flag;
 	uint32_t index_tic_vertical;
 	uint32_t index_encoder_vertical;
@@ -262,7 +263,6 @@ typedef struct _config_controller_s config_controller_s;
 struct _state_controller_s
 {
 	uint64_t flag;
-
 };
 typedef struct _state_controller_s state_controller_s;
 
@@ -273,6 +273,7 @@ struct _link_s
 	void * connect;
 	uint8_t id;
 	int type;
+	uint16_t * dest;
 	/*TCP*/
 	char * address;
 	uint16_t port;

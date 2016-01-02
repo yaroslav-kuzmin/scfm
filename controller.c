@@ -47,6 +47,7 @@
 #include "pub.h"
 #include "common.h"
 #include "database.h"
+#include "device.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -353,9 +354,9 @@ controller_s * init_controller(uint32_t number)
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
 		g_slice_free1(sizeof(controller_s),controller);
-		g_slice_free1(sizeof(link_s),link);
-		g_slice_free1(sizeof(config_controller_s),config);
-		g_slice_free1(sizeof(state_controller_s),state);
+		g_slice_free1(sizeof(link_s),controller->link);
+		g_slice_free1(sizeof(config_controller_s),controller->config);
+		g_slice_free1(sizeof(state_controller_s),controller->state);
 		controller = NULL;
 	}
 	controller->name = get_name_controller(controller->config);
@@ -373,13 +374,15 @@ int del_property_controller(controller_s * property)
 	if(property == NULL){
 		return SUCCESS;
 	}
-	/*str = property->name;
-	g_free(str);*/
-	str = property->address;
+	str = property->name;
 	g_free(str);
 
 	link = property->link;
+	link_disconnect_controller(link);
+	str = link->address;
+	g_free(str);
 	g_slice_free1(sizeof(link_s),link);
+
 	config = property->config;
 	g_slice_free1(sizeof(config_controller_s),config);
 	state = property->state;
@@ -394,13 +397,7 @@ block_controller_s block_controller;
 int fill_block_controller(controller_s * controller)
 {
 	GtkLabel * label = block_controller.label;
-	g_string_printf(pub,"%#x",controller->id);
-	gtk_label_set_text(label,pub->str);
-	g_debug("name :> %s\nid :> %d\naddress :> %s\nport :> %d"
-	       ,controller->name
-	       ,controller->id
-	       ,controller->address
-	       ,controller->port);
+	gtk_label_set_text(label,controller->name);
 	return SUCCESS;
 }
 
