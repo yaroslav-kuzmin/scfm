@@ -266,33 +266,29 @@ struct _state_controller_s
 typedef struct _state_controller_s state_controller_s;
 
 #define TYPE_LINK_UART        0x01
-#define TYPE_LIMK_TCP         0x02
-struct _link_uart_s
+#define TYPE_LINK_TCP         0x02
+struct _connect_s
 {
+	void * connect;
+	uint8_t id;
+	int type;
+	/*TCP*/
+	char * address;
+	uint16_t port;
+	/*UART*/
 	char * device;
 	uint32_t baud;
 	int8_t parity;
 	uint8_t data_bit;
 	uint8_t stop_bit;
-
 };
-typedef struct _link_uart_s link_uart_s;
-struct _link_tcp_s
-{
-	char * address;
-	uint16_t port;
-};
-typedef struct _link_tcp_s link_tcp_s;
+typedef struct _connect_s connect_s;
 
 #define MIN_ID     1
 #define MAX_ID     247
 struct _controller_s
 {
-	/*соединение*/
-	uint8_t id;
-	char * address;
-	int port;
-	void * connect;
+	connect_s connect;
 
 	char * name;
 	setting_controller_s setting;

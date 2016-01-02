@@ -222,7 +222,7 @@ static int add_table_controller(uint32_t n,controller_s * c)
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
 	g_string_append_printf(pub," VALUES (%d,\'%s\',%d,\'%s\',%d)"
 	                      ,n
-	                      ,c->name,c->id,c->address,c->port);
+	                      ,c->name,c->connect.id,c->connect.address,c->connect.port);
 	return query_simple(pub);
 }
 

@@ -51,13 +51,21 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
+struct _check_connect_s
+{
+	char * address;
+	uint16_t port;
+	uint8_t id;
+	void * connect;
+};
+typedef struct _check_connect_s check_connect_s;
 struct _block_setting_controller_s
 {
 	GtkEntryBuffer * address;
 	GtkEntryBuffer * port;
 	GtkEntryBuffer * id;
 
-	void * connect;
+	check_connect_s check;
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
 
@@ -93,7 +101,6 @@ static uint16_t check_port(const char * port)
 	p = g_ascii_strtoull(port,NULL,10);
 	return p;
 }
-
 
 static uint8_t check_id(const char * id)
 {
@@ -135,23 +142,19 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 
 	return box;
 }
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-static block_setting_controller_s block_setting_controller;
 
-void * new_property_controller(void)
+static void clicked_button_check(GtkButton * button,gpointer ud)
 {
-	GtkEntryBuffer * buf;
-	const char * str;
 	char * address = NULL;
-	int port;
+	uint16_t port;
 	uint8_t id;
-
-	controller_s * controller;
+	char * str;
+	GtkEntryBuffer * buf;
+	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
+	check_connect_s * check = &bsc->check;
 
 	/*TODO вывод сообщений*/
-	buf = block_setting_controller.address;
+	buf = bsc->address;
 	str = gtk_entry_buffer_get_text(buf);
 	address = check_address(str);
 	if(address == NULL){
@@ -169,7 +172,32 @@ void * new_property_controller(void)
 	str = gtk_entry_buffer_get_text(buf);
 	id = check_id(str);
 	if(id == 0){
-		g_warning("индификатор контролера не корректный!");
+		g_warning("Индификатор контролера не корректный!");
+		return NULL;
+	}
+
+	check->address = address;
+	check->port = port;
+	check->id = id;
+
+
+
+}
+/*****************************************************************************/
+/*    Общие функции                                                          */
+/*****************************************************************************/
+static block_setting_controller_s block_setting_controller;
+
+void * new_property_controller(void)
+{
+	GtkEntryBuffer * buf;
+	const char * str;
+	controller_s * controller;
+	check_connect_s * check = &block_setting_controller.check;
+
+	/*TODO вывод сообщений*/
+	if(check->connect == NULL){
+		g_warning("Соединение не проверено!");
 		return NULL;
 	}
 
@@ -204,6 +232,7 @@ static char STR_NAME_CONTROLLER[] = "Контроллер";
 static char STR_NAME_ADDRESS[] = "Адрес";
 static char STR_NAME_PORT[] = "Порт";
 static char STR_NAME_ID[] = "Номер";
+static char STR_NAME_CHECK[] = "Поиск";
 
 GtkWidget * create_block_setting_controller(void)
 {
@@ -213,6 +242,7 @@ GtkWidget * create_block_setting_controller(void)
 	GtkWidget * block_port;
 	GtkWidget * block_id;
 	GtkEntryBuffer * buf;
+	GtkWidget * but_check;
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -229,13 +259,19 @@ GtkWidget * create_block_setting_controller(void)
 	block_id = create_block_entry(STR_NAME_ID,&buf);
 	block_setting_controller.id = buf;
 
+	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
+	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),&block_setting_controller);
+
 	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_port   ,0,2,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_id     ,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_check    ,0,4,2,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
+	gtk_widget_show(but_check);
 
 	return grid;
 }
