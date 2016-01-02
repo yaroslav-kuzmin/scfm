@@ -51,13 +51,6 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-struct _check_connect_s
-{
-	char * address;
-	uint16_t port;
-	uint8_t id;
-	void * connect;
-};
 typedef struct _check_connect_s check_connect_s;
 struct _block_setting_controller_s
 {
@@ -65,7 +58,9 @@ struct _block_setting_controller_s
 	GtkEntryBuffer * port;
 	GtkEntryBuffer * id;
 
-	check_connect_s check;
+	link_s * link;
+	config_controller_s * config;
+	state_controller_s * state;
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
 
@@ -83,6 +78,29 @@ typedef struct _all_controller_s all_controller_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+static int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+{
+	int rc;
+	rc = link_connect_controller(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_config_controller(link,config);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_state_controller(link,state);
+	if(rc == FAILURE){
+		return rc;
+	}
+	return SUCCESS;
+}
+
+static int fill_block_setting_controller(block_setting_controller_s * bsc)
+{
+	return SUCCESS;
+}
+
 static char * check_address(const char * address)
 {
 	char * str;
@@ -145,43 +163,62 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
+	int rc;
 	char * address = NULL;
 	uint16_t port;
 	uint8_t id;
-	char * str;
-	GtkEntryBuffer * buf;
+	const char * str;
+	link_s * link;
+	config_controller_s * config;
+	state_controller_s * state;
 	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
-	check_connect_s * check = &bsc->check;
 
+	/*TODO при повторном нажатии утечка памяти*/
+	bsc->link = NULL;
 	/*TODO вывод сообщений*/
-	buf = bsc->address;
-	str = gtk_entry_buffer_get_text(buf);
+	str = gtk_entry_buffer_get_text(bsc->address);
 	address = check_address(str);
 	if(address == NULL){
 		g_warning("Адрес контролера не корректный!");
-		return NULL;
+		return ;
 	}
-	buf = block_setting_controller.port;
-	str = gtk_entry_buffer_get_text(buf);
+	str = gtk_entry_buffer_get_text(bsc->port);
 	port = check_port(str);
 	if(port == 0){
 		g_warning("Порт контролера не корректный!");
-		return NULL;
+		return ;
 	}
-	buf = block_setting_controller.id;
-	str = gtk_entry_buffer_get_text(buf);
+	str = gtk_entry_buffer_get_text(bsc->id);
 	id = check_id(str);
 	if(id == 0){
 		g_warning("Индификатор контролера не корректный!");
-		return NULL;
+		return ;
 	}
 
-	check->address = address;
-	check->port = port;
-	check->id = id;
+	link = g_slice_alloc0(sizeof(link_s));
+	config = g_slice_alloc0(sizeof(config_controller_s));
+	state = g_slice_alloc0(sizeof(state_controller_s));
 
+	/*TODO добавление других типов соединений*/
+	link->type = TYPE_LINK_TCP;
+	link->connect = NULL;
+	link->address = address;
+	link->port = port;
+	link->id = id;
 
+	rc = check_link_controller(link,config,state);
+	if(rc == FAILURE){
+		g_slice_free1(sizeof(link_s),link);
+		g_slice_free1(sizeof(config_controller_s),config);
+		g_slice_free1(sizeof(state_controller_s),state);
+		return;
+	}
 
+	bsc->link = link;
+	bsc->config = config;
+	bsc->state = state;
+	/*TODO сообщенийние что проверка корректноа*/
+	fill_block_setting_controller(bsc);
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -190,42 +227,24 @@ static block_setting_controller_s block_setting_controller;
 
 void * new_property_controller(void)
 {
-	GtkEntryBuffer * buf;
-	const char * str;
 	controller_s * controller;
-	check_connect_s * check = &block_setting_controller.check;
+	link_s * link = block_setting_controller.link;
+	config_controller_s * config = block_setting_controller.config;
+	state_controller_s * state = block_setting_controller.state;
 
 	/*TODO вывод сообщений*/
-	if(check->connect == NULL){
+	if(link == NULL){
 		g_warning("Соединение не проверено!");
 		return NULL;
 	}
 
 	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->name = "ЛСД-тест";
-	controller->address = address;
-	controller->port = port;
-	controller->id = id;
-	controller->connect = NULL;
+	controller->name = get_name_controller(config);
+	controller->link = link;
+	controller->config = config;
+	controller->state = state;
 
 	return controller;
-}
-
-int del_property_controller(controller_s * property)
-{
-	char * str;
-	if(property == NULL){
-		return SUCCESS;
-	}
-/*
-	str = property->name;
-	g_free(str);
-*/
-	str = property->address;
-	g_free(str);
-	g_slice_free1(sizeof(controller_s),property);
-
-	return SUCCESS;
 }
 
 static char STR_NAME_CONTROLLER[] = "Контроллер";
@@ -243,6 +262,8 @@ GtkWidget * create_block_setting_controller(void)
 	GtkWidget * block_id;
 	GtkEntryBuffer * buf;
 	GtkWidget * but_check;
+
+	block_setting_controller.link = NULL;
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -290,6 +311,34 @@ int deinit_all_controller(void)
 	return SUCCESS;
 }
 
+int connect_controller(controller_s * controller)
+{
+	int rc;
+	link_s * link = controller->link;
+	config_controller_s check;
+	config_controller_s * config = controller->config;
+	state_controller_s * state = controller->state;
+
+	if(link->connect != NULL){
+		g_warning("Контролер подключен!");
+		return SUCCESS;
+	}
+	rc = check_link_controller(link,&check,state);
+	if(rc == FAILURE){
+		g_warning("Нет подключения к контроллеру!");
+		return rc;
+	}
+	rc = check_config_controller(&check,config);
+	if(rc == FAILURE){
+		/*TODO перезапись базы данных*/
+		g_warning("Данные из контроллера не совпадают с данными из базы данных!");
+		link_disconnect_controller(link);
+		return rc;
+	}
+
+	return SUCCESS;
+}
+
 /*TODO считывание данных из базыданных*/
 controller_s * init_controller(uint32_t number)
 {
@@ -297,14 +346,47 @@ controller_s * init_controller(uint32_t number)
 	controller_s * controller = NULL;
 
 	controller = g_slice_alloc0(sizeof(controller_s));
+	controller->link = g_slice_alloc0(sizeof(link_s));
+	controller->config = g_slice_alloc0(sizeof(config_controller_s));
+	controller->state = g_slice_alloc0(sizeof(state_controller_s));
 	/*память для обектов выделяется при чтении из базыданых*/
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
 		g_slice_free1(sizeof(controller_s),controller);
+		g_slice_free1(sizeof(link_s),link);
+		g_slice_free1(sizeof(config_controller_s),config);
+		g_slice_free1(sizeof(state_controller_s),state);
 		controller = NULL;
 	}
+	controller->name = get_name_controller(controller->config);
 	all_controller.list = g_slist_append(all_controller.list,controller);
 	return controller;
+}
+
+int del_property_controller(controller_s * property)
+{
+	char * str;
+	link_s * link;
+	config_controller_s * config;
+	state_controller_s * state;
+
+	if(property == NULL){
+		return SUCCESS;
+	}
+	/*str = property->name;
+	g_free(str);*/
+	str = property->address;
+	g_free(str);
+
+	link = property->link;
+	g_slice_free1(sizeof(link_s),link);
+	config = property->config;
+	g_slice_free1(sizeof(config_controller_s),config);
+	state = property->state;
+	g_slice_free1(sizeof(state_controller_s),state);
+	g_slice_free1(sizeof(controller_s),property);
+
+	return SUCCESS;
 }
 
 block_controller_s block_controller;

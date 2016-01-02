@@ -157,10 +157,11 @@ typedef struct _videocamera_s videocamera_s;
 /**************************************/
 enum{
 	COLUMN_TABLE_CONTROLLER_NUMBER = 0,
-	COLUMN_TABLE_CONTROLLER_NAME,
+	COLUMN_TABLE_CONTROLLER_TYPE_LINK,
 	COLUMN_TABLE_CONTROLLER_ID,
 	COLUMN_TABLE_CONTROLLER_ADDRESS,
 	COLUMN_TABLE_CONTROLLER_PORT,
+	COLUMN_TABLE_CONTROLLER_NAME,
 	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
 
@@ -243,7 +244,7 @@ enum{
 #define NOT_ACTUATOR_5(f)            (f & (ALL_BIT^BIT_ACTUATOR_5))
 #define ACTUATOR_5(f)                (f & BIT_ACTUATOR_5)
 
-struct _setting_controller_s
+struct _config_controller_s
 {
 	uint64_t flag;
 	uint32_t index_tic_vertical;
@@ -256,7 +257,7 @@ struct _setting_controller_s
 	uint32_t type_engine_vertical;
 	uint32_t type_engine_horizontal;
 };
-typedef struct _setting_controller_s setting_controller_s;
+typedef struct _config_controller_s config_controller_s;
 
 struct _state_controller_s
 {
@@ -267,7 +268,7 @@ typedef struct _state_controller_s state_controller_s;
 
 #define TYPE_LINK_UART        0x01
 #define TYPE_LINK_TCP         0x02
-struct _connect_s
+struct _link_s
 {
 	void * connect;
 	uint8_t id;
@@ -282,17 +283,16 @@ struct _connect_s
 	uint8_t data_bit;
 	uint8_t stop_bit;
 };
-typedef struct _connect_s connect_s;
+typedef struct _link_s link_s;
 
 #define MIN_ID     1
 #define MAX_ID     247
 struct _controller_s
 {
-	connect_s connect;
-
+	link_s * link;
 	char * name;
-	setting_controller_s setting;
-	state_controller_s state;
+	config_controller_s * config;
+	state_controller_s * state;
 };
 typedef struct _controller_s controller_s;
 /**************************************/

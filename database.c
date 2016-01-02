@@ -99,7 +99,7 @@ static int create_table_controller(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,id,address,port)");
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,type_link,id,address,port,name)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
@@ -216,13 +216,15 @@ static int del_table_videcamera(uint32_t number)
 	return query_simple(pub);
 }
 
-static int add_table_controller(uint32_t n,controller_s * c)
+static int add_table_controller(uint32_t number,controller_s * controller)
 {
+	link_s * link = controller->link;
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append_printf(pub," VALUES (%d,\'%s\',%d,\'%s\',%d)"
-	                      ,n
-	                      ,c->name,c->connect.id,c->connect.address,c->connect.port);
+	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d,\'%s\')"
+	                      ,number
+	                      ,link->type,link->id,link->address,link->port
+	                      ,controller->name);
 	return query_simple(pub);
 }
 
@@ -489,12 +491,13 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		}
 		/*TODO проверка на тип колонок и название */
 		/*TODO где делать проверки на корректность*/
+		controller->link->type = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_TYPE_LINK);
+		controller->link->id = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_ID);
+		address = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_ADDRESS);
+		controller->link->address = g_strdup(address);
+		controller->link->port = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_PORT);
 		name = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_NAME);
 		controller->name = g_strdup(name);
-		controller->id = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_ID);
-		address = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_ADDRESS);
-		controller->address = g_strdup(address);
-		controller->port = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_PORT);
 	}
 	sqlite3_finalize(stmt);
 	return SUCCESS;
