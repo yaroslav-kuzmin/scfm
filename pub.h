@@ -248,6 +248,7 @@ struct _config_controller_s
 {
 	uint32_t type;
 	uint64_t flag;
+
 	uint32_t index_tic_vertical;
 	uint32_t index_encoder_vertical;
 	uint32_t index_amperage_vertical;
@@ -262,7 +263,18 @@ typedef struct _config_controller_s config_controller_s;
 
 struct _state_controller_s
 {
-	uint64_t flag;
+	uint16_t lafet;
+	uint16_t tic_vertical;
+	uint16_t tic_horizontal;
+	uint16_t encoder_vertical;
+	uint16_t encoder_horizontal;
+	uint16_t pressure;
+	uint16_t amperage_vertical;
+	uint16_t amperage_horizontal;
+   uint16_t valve;
+   uint16_t tic_valve;
+   uint16_t fire_sensor;
+   uint16_t fire_alarm;
 };
 typedef struct _state_controller_s state_controller_s;
 
