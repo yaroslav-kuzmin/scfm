@@ -231,32 +231,9 @@ char * get_name_controller(config_controller_s * config)
 	uint32_t type = config->type;
 
 	name_robot = type >> AMOUNT_BIT_D300;
+	/*Регистр D301 литраж установки */
 	liter_robot = type;
 
-	/*Регистр D301 литраж установки*/
-	switch(liter_robot){
-		case 1:
-			liter_robot = 20;
-			break;
-		case 2:
-			liter_robot = 40;
-			break;
-		case 3:
-			liter_robot = 60;
-			break;
-		case 4:
-			liter_robot = 80;
-			break;
-		case 5:
-			liter_robot = 100;
-			break;
-		case 6:
-			liter_robot = 125;
-			break;
-		default:
-			liter_robot = 0;
-			break;
-	}
 	/*Регистр D300 названия установки*/
 	switch(name_robot){
 		case 1:
