@@ -60,6 +60,7 @@ struct _block_setting_controller_s
 	GtkEntryBuffer * id;
 
 	link_s * link;
+	char * name;
 	config_controller_s * config;
 	state_controller_s * state;
 };
@@ -218,6 +219,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	bsc->link = link;
 	bsc->config = config;
 	bsc->state = state;
+	bsc->name = get_name_controller(config);
 	/*TODO сообщенийние что проверка корректноа*/
 	fill_block_setting_controller(bsc);
 }
@@ -240,7 +242,7 @@ void * new_property_controller(void)
 	}
 
 	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->name = get_name_controller(config);
+	controller->name = block_setting_controller.name;
 	controller->link = link;
 	controller->config = config;
 	controller->state = state;
