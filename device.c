@@ -237,31 +237,31 @@ char * get_name_controller(config_controller_s * config)
 	/*Регистр D300 названия установки*/
 	switch(name_robot){
 		case 1:
-			g_string_printf(pub,"ЛСД-С%03dУ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ",liter_robot);
 			break;
 		case 2:
-			g_string_printf(pub,"ЛСД-С%03dУ-Ех",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ-Ех",liter_robot);
 			break;
 		case 3:
-			g_string_printf(pub,"ЛСД-С%03dУ-ИК",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ-ИК",liter_robot);
 			break;
 		case 4:
-			g_string_printf(pub,"ЛСД-С%03dУ-Ех-ИК",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ-Ех-ИК",liter_robot);
 			break;
 		case 5:
-			g_string_printf(pub,"ЛСД-С%03dУ-ТВ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ-ТВ",liter_robot);
 			break;
 		case 6:
-			g_string_printf(pub,"ЛСД-С%03dУ-Ех-ТВ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%04dУ-Ех-ТВ",liter_robot);
 			break;
 		case 7:
-			g_string_printf(pub,"ПР-ЛСД-С%03dУ-ИК-ТВ",liter_robot);
+			g_string_printf(pub,"ПР-ЛСД-С%04dУ-ИК-ТВ",liter_robot);
 			break;
 		case 8:
-			g_string_printf(pub,"ПР-ЛСД-С%03dУ-Ех-ИК-ТВ",liter_robot);
+			g_string_printf(pub,"ПР-ЛСД-С%04dУ-Ех-ИК-ТВ",liter_robot);
 			break;
 		default:
-			g_string_printf(pub,"ЛСД-%03d",liter_robot);
+			g_string_printf(pub,"ЛСД-%04d",liter_robot);
 			break;
 	}
 	return g_strdup(pub->str);
