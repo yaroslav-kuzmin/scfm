@@ -976,22 +976,22 @@ static char STR_FIRE_ALARM_13[]        = "13 шлейф ПС";
 static char STR_FIRE_ALARM_14[]        = "14 шлейф ПС";
 static char STR_FIRE_ALARM_15[]        = "15 шлейф ПС";
 static char STR_FIRE_ALARM_16[]        = "16 шлейф ПС";
-static char STR_DEVICE_01_STATE_0[]    = "Устройство 1[] (Состояние А)";
+static char STR_DEVICE_01_STATE_0[]    = "Устройство 1 (Состояние А)";
 static char STR_DEVICE_01_STATE_1[]    = "Устройство 1 (Состояние Б)";
-static char STR_DEVICE_02_STATE_0[]    = "Устройство 2[] (Состояние А)";
-static char STR_DEVICE_02_STATE_1[]    = "Устройство 2[] (Состояние Б)";
-static char STR_DEVICE_03_STATE_0[]    = "Устройство 3[] (Состояние А)";
-static char STR_DEVICE_03_STATE_1[]    = "Устройство 3[] (Состояние Б)";
-static char STR_DEVICE_04_STATE_0[]    = "Устройство 4[] (Состояние А)";
-static char STR_DEVICE_04_STATE_1[]    = "Устройство 4[] (Состояние Б)";
-static char STR_DEVICE_05_STATE_0[]    = "Устройство 5[] (Состояние А)";
-static char STR_DEVICE_05_STATE_1[]    = "Устройство 5[] (Состояние Б)";
-static char STR_DEVICE_06_STATE_0[]    = "Устройство 6[] (Состояние А)";
-static char STR_DEVICE_06_STATE_1[]    = "Устройство 6[] (Состояние Б)";
-static char STR_DEVICE_07_STATE_0[]    = "Устройство 7[] (Состояние А)";
-static char STR_DEVICE_07_STATE_1[]    = "Устройство 7[] (Состояние Б)";
-static char STR_DEVICE_08_STATE_0[]    = "Устройство 8[] (Состояние А)";
-static char STR_DEVICE_08_STATE_1[]    = "Устройство 8[] (Состояние Б)";
+static char STR_DEVICE_02_STATE_0[]    = "Устройство 2 (Состояние А)";
+static char STR_DEVICE_02_STATE_1[]    = "Устройство 2 (Состояние Б)";
+static char STR_DEVICE_03_STATE_0[]    = "Устройство 3 (Состояние А)";
+static char STR_DEVICE_03_STATE_1[]    = "Устройство 3 (Состояние Б)";
+static char STR_DEVICE_04_STATE_0[]    = "Устройство 4 (Состояние А)";
+static char STR_DEVICE_04_STATE_1[]    = "Устройство 4 (Состояние Б)";
+static char STR_DEVICE_05_STATE_0[]    = "Устройство 5 (Состояние А)";
+static char STR_DEVICE_05_STATE_1[]    = "Устройство 5 (Состояние Б)";
+static char STR_DEVICE_06_STATE_0[]    = "Устройство 6 (Состояние А)";
+static char STR_DEVICE_06_STATE_1[]    = "Устройство 6 (Состояние Б)";
+static char STR_DEVICE_07_STATE_0[]    = "Устройство 7 (Состояние А)";
+static char STR_DEVICE_07_STATE_1[]    = "Устройство 7 (Состояние Б)";
+static char STR_DEVICE_08_STATE_0[]    = "Устройство 8 (Состояние А)";
+static char STR_DEVICE_08_STATE_1[]    = "Устройство 8 (Состояние Б)";
 
 static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 {
