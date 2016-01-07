@@ -316,6 +316,65 @@ struct _block_info_controller_s
 {
 	GtkLabel * label_name;
 	GtkWidget * box_engine_vertical;
+	GtkWidget * box_engine_horizontal;
+	GtkWidget * box_actuator_spray;
+	GtkWidget * box_actuator_rate;
+	GtkWidget * box_actuator_veil;
+	GtkWidget * box_limit_vertical;
+	GtkWidget * box_tic_vertical;
+	GtkWidget * box_encoder_vertical;
+	GtkWidget * box_amperage_vertical;
+	GtkWidget * box_limit_horizontal;
+	GtkWidget * box_tic_horizontal;
+	GtkWidget * box_encoder_horizontal;
+	GtkWidget * box_amperage_horizontal;
+	GtkWidget * box_console_singly;
+	GtkWidget * box_console;
+	GtkWidget * box_post;
+	GtkWidget * box_sensor_fire_dry;
+	GtkWidget * box_sensor_fire_485;
+	GtkWidget * box_sensor_fire_ethernet;
+	GtkWidget * box_sensor_dry_485;
+	GtkWidget * box_sensor_dry_etherner;
+	GtkWidget * box_valve_dry;
+	GtkWidget * box_valve_analog;
+	GtkWidget * box_valve_limit;
+	GtkWidget * box_valve_feedback;
+	GtkWidget * box_cam_analog_dc;
+	GtkWidget * box_cam_digital_dc;
+	GtkWidget * box_cam_digital_poe;
+	GtkWidget * box_fire_alarm_01;
+	GtkWidget * box_fire_alarm_02;
+	GtkWidget * box_fire_alarm_03;
+	GtkWidget * box_fire_alarm_04;
+	GtkWidget * box_fire_alarm_05;
+	GtkWidget * box_fire_alarm_06;
+	GtkWidget * box_fire_alarm_07;
+	GtkWidget * box_fire_alarm_08;
+	GtkWidget * box_fire_alarm_09;
+	GtkWidget * box_fire_alarm_10;
+	GtkWidget * box_fire_alarm_11;
+	GtkWidget * box_fire_alarm_12;
+	GtkWidget * box_fire_alarm_13;
+	GtkWidget * box_fire_alarm_14;
+	GtkWidget * box_fire_alarm_15;
+	GtkWidget * box_fire_alarm_16;
+	GtkWidget * box_device_01_state_0;
+	GtkWidget * box_device_01_state_1;
+	GtkWidget * box_device_02_state_0;
+	GtkWidget * box_device_02_state_1;
+	GtkWidget * box_device_03_state_0;
+	GtkWidget * box_device_03_state_1;
+	GtkWidget * box_device_04_state_0;
+	GtkWidget * box_device_04_state_1;
+	GtkWidget * box_device_05_state_0;
+	GtkWidget * box_device_05_state_1;
+	GtkWidget * box_device_06_state_0;
+	GtkWidget * box_device_06_state_1;
+	GtkWidget * box_device_07_state_0;
+	GtkWidget * box_device_07_state_1;
+	GtkWidget * box_device_08_state_0;
+	GtkWidget * box_device_08_state_1;
 };
 typedef struct _block_info_controller_s block_info_controller_s;
 
@@ -394,13 +453,545 @@ static int fill_block_info(block_setting_controller_s * bsc)
 		gtk_widget_hide(box);
 	}
 
+	box = block_info->box_engine_horizontal;
+	if(ENGINE_HORIZONTAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_actuator_spray;
+	if(ACTUATOR_SPRAY(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_actuator_rate;
+	if(ACTUATOR_RATE(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_actuator_veil;
+	if(ACTUATOR_VEIL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_limit_vertical;
+	if(LIMIT_VERTICAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_tic_vertical;
+	if(TIC_VERTICAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_encoder_vertical;
+	if(ENCODER_VERTICAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_amperage_vertical;
+	if(AMPERAGE_VERTICAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_limit_horizontal;
+	if(LIMIT_HORIZONTAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_tic_horizontal;
+	if(TIC_HORIZONTAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_encoder_horizontal;
+	if(ENCODER_HORIZONTAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_amperage_horizontal;
+	if(AMPERAGE_HORIZONTAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_console_singly;
+	if(CONSOLE_SINGLY(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_console;
+	if(CONSOLE(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_post;
+	if(POST(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_sensor_fire_dry;
+	if(SENSOR_FIRE_DRY(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_sensor_fire_485;
+	if(SENSOR_FIRE_485(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_sensor_fire_ethernet;
+	if(SENSOR_FIRE_ETHERNET(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_sensor_dry_485;
+	if(SENSOR_DRY_485(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_sensor_dry_etherner;
+	if(SENSOR_DRY_ETHERNET(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_valve_dry;
+	if(VALVE_DRY(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_valve_analog;
+	if(VALVE_ANALOG(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_valve_limit;
+	if(VALVE_LIMIT(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_valve_feedback;
+	if(VALVE_FEEDBACK(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_cam_analog_dc;
+	if(CAM_ANALOG_DC(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_cam_digital_dc;
+	if(CAM_DIGITAL_DC(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_cam_digital_poe;
+	if(CAM_DIGITAL_POE(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_01;
+	if(FIRE_ALARM_01(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_02;
+	if(FIRE_ALARM_02(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_03;
+	if(FIRE_ALARM_03(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_04;
+	if(FIRE_ALARM_04(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_05;
+	if(FIRE_ALARM_05(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_06;
+	if(FIRE_ALARM_06(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_07;
+	if(FIRE_ALARM_07(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_08;
+	if(FIRE_ALARM_08(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_09;
+	if(FIRE_ALARM_09(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_10;
+	if(FIRE_ALARM_10(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_11;
+	if(FIRE_ALARM_11(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_12;
+	if(FIRE_ALARM_12(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_13;
+	if(FIRE_ALARM_13(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_14;
+	if(FIRE_ALARM_14(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_15;
+	if(FIRE_ALARM_15(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_fire_alarm_16;
+	if(FIRE_ALARM_16(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_01_state_0;
+	if(DEVICE_01_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_01_state_1;
+	if(DEVICE_01_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_02_state_0;
+	if(DEVICE_02_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_02_state_1;
+	if(DEVICE_02_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_03_state_0;
+	if(DEVICE_03_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_03_state_1;
+	if(DEVICE_03_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_04_state_0;
+	if(DEVICE_04_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_04_state_1;
+	if(DEVICE_04_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_05_state_0;
+	if(DEVICE_05_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_05_state_1;
+	if(DEVICE_05_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_06_state_0;
+	if(DEVICE_06_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_06_state_1;
+	if(DEVICE_06_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_07_state_0;
+	if(DEVICE_07_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_07_state_1;
+	if(DEVICE_07_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_08_state_0;
+	if(DEVICE_08_STATE_0(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
+	box = block_info->box_device_08_state_1;
+	if(DEVICE_08_STATE_1(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
 	return SUCCESS;
 }
 
 block_info_controller_s block_info_controller;
 static char STR_NAME[] = "Наименование : ";
 static char STR_NAME_DEFAULT[] = "Нет информации";
-static char STR_ENGINE_VERTICAL[] = "Двигатель вертикальной оси";
+
+static char STR_ENGINE_VERTICAL[]      = "Двигатель вертикальной оси";
+static char STR_ENGINE_HORIZONTAL[]    = "Двигатель горизонтальной оси";
+static char STR_ACTUATOR_SPRAY[]       = "Актуатор (Распыл)";
+static char STR_ACTUATOR_RATE[]        = "Актуатор (Расход)";
+static char STR_ACTUATOR_VEIL[]        = "Актуатор (Завеса)";
+static char STR_LIMIT_VERTICAL[]       = "Концевики вертикальной оси";
+static char STR_TIC_VERTICAL[]         = "Датчик импульсов вертикальной оси";
+static char STR_ENCODER_VERTICAL[]     = "Энкодер вертикальной оси";
+static char STR_AMPERAGE_VERTICAL[]    = "Датчик тока вертикальной оси";
+static char STR_LIMIT_HORIZONTAL[]     = "Концевики горизонтальной оси";
+static char STR_TIC_HORIZONTAL[]       = "Датчик импульсов горизонтальной оси";
+static char STR_ENCODER_HORIZONTAL[]   = "Энкодер горизонтальной оси";
+static char STR_AMPERAGE_HORIZONTAL[]  = "Датчик тока горизонтальной оси";
+static char STR_CONSOLE_SINGLY[]       = "Пульт ПДУ-П (отдельно)";
+static char STR_CONSOLE[]              = "Пульт ПДУ-П (на панели шкафа)";
+static char STR_POST[]                 = "Пост ПДУ";
+static char STR_SENSOR_FIRE_DRY[]      = "Датчик пламени (сухой контакт)";
+static char STR_SENSOR_FIRE_485[]      = "Датчик пламени (интерфейс RS-485)";
+static char STR_SENSOR_FIRE_ETHERNET[] = "Датчик пламени (интерфейс Ethernet)";
+static char STR_SENSOR_DRY_485[]       = "Датчик (Сухой контакт + Интерфейс RS-485)";
+static char STR_SENSOR_DRY_ETHERNER[]  = "Датчик (Сухой контакт + Интерфейс Ethernet)";
+static char STR_VALVE_DRY[]            = "Заслонка (Сухой контакт)";
+static char STR_VALVE_ANALOG[]         = "Заслонка (Аналоговый сигнал)";
+static char STR_VALVE_LIMIT[]          = "Заслонка (Концевики)";
+static char STR_VALVE_FEEDBACK[]       = "Заслонка (Обратная связь)";
+static char STR_CAM_ANALOG_DC[]        = "Аналоговая видеокамера (DC)";
+static char STR_CAM_DIGITAL_DC[]       = "Цифровая видеокамера (DC)";
+static char STR_CAM_DIGITAL_POE[]      = "Цифровая видеокамера (POE)";
+static char STR_FIRE_ALARM_01[]        = "1 шлейф ПС";
+static char STR_FIRE_ALARM_02[]        = "2 шлейф ПС";
+static char STR_FIRE_ALARM_03[]        = "3 шлейф ПС";
+static char STR_FIRE_ALARM_04[]        = "4 шлейф ПС";
+static char STR_FIRE_ALARM_05[]        = "5 шлейф ПС";
+static char STR_FIRE_ALARM_06[]        = "6 шлейф ПС";
+static char STR_FIRE_ALARM_07[]        = "7 шлейф ПС";
+static char STR_FIRE_ALARM_08[]        = "8 шлейф ПС";
+static char STR_FIRE_ALARM_09[]        = "9 шлейф ПС";
+static char STR_FIRE_ALARM_10[]        = "10 шлейф ПС";
+static char STR_FIRE_ALARM_11[]        = "11 шлейф ПС";
+static char STR_FIRE_ALARM_12[]        = "12 шлейф ПС";
+static char STR_FIRE_ALARM_13[]        = "13 шлейф ПС";
+static char STR_FIRE_ALARM_14[]        = "14 шлейф ПС";
+static char STR_FIRE_ALARM_15[]        = "15 шлейф ПС";
+static char STR_FIRE_ALARM_16[]        = "16 шлейф ПС";
+static char STR_DEVICE_01_STATE_0[]    = "Устройство 1[] (Состояние А)";
+static char STR_DEVICE_01_STATE_1[]    = "Устройство 1 (Состояние Б)";
+static char STR_DEVICE_02_STATE_0[]    = "Устройство 2[] (Состояние А)";
+static char STR_DEVICE_02_STATE_1[]    = "Устройство 2[] (Состояние Б)";
+static char STR_DEVICE_03_STATE_0[]    = "Устройство 3[] (Состояние А)";
+static char STR_DEVICE_03_STATE_1[]    = "Устройство 3[] (Состояние Б)";
+static char STR_DEVICE_04_STATE_0[]    = "Устройство 4[] (Состояние А)";
+static char STR_DEVICE_04_STATE_1[]    = "Устройство 4[] (Состояние Б)";
+static char STR_DEVICE_05_STATE_0[]    = "Устройство 5[] (Состояние А)";
+static char STR_DEVICE_05_STATE_1[]    = "Устройство 5[] (Состояние Б)";
+static char STR_DEVICE_06_STATE_0[]    = "Устройство 6[] (Состояние А)";
+static char STR_DEVICE_06_STATE_1[]    = "Устройство 6[] (Состояние Б)";
+static char STR_DEVICE_07_STATE_0[]    = "Устройство 7[] (Состояние А)";
+static char STR_DEVICE_07_STATE_1[]    = "Устройство 7[] (Состояние Б)";
+static char STR_DEVICE_08_STATE_0[]    = "Устройство 8[] (Состояние А)";
+static char STR_DEVICE_08_STATE_1[]    = "Устройство 8[] (Состояние Б)";
 
 static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 {
@@ -443,6 +1034,767 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 	block_info->box_engine_vertical = box;
+
+	/*двигатель горизонтальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ENGINE_HORIZONTAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_engine_horizontal = box;
+
+	/*Актуатор Распыление*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ACTUATOR_SPRAY);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_actuator_spray = box;
+
+	/*Актуатор распыл*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ACTUATOR_RATE);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_actuator_rate = box;
+
+	/*Актуатор завеса*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ACTUATOR_VEIL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_actuator_veil = box;
+
+	/*концевики вертикальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_LIMIT_VERTICAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_limit_vertical = box;
+
+	/*датчик импульсов вертикальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_TIC_VERTICAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_tic_vertical = box;
+	block_info->buf_tic_vertical = gtk_entry_get_buffer(entry);
+
+	/*Энкодер вертикальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ENCODER_VERTICAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_encoder_vertical = box;
+	block_info->buf_encoder_vertical = gtk_entry_get_buffer(entry);
+
+	/*датчик тока вертикальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_AMPERAGE_VERTICAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_amperage_vertical = box;
+	block_info->buf_amperage_vertical = gtk_entry_get_buffer(entry);
+
+	/*Концевики горизонтальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_LIMIT_HORIZONTAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_limit_horizontal = box;
+
+	/*Датчик импульсов горизонтальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_TIC_HORIZONTAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_tic_horizontal = box;
+	block_info->buf_tic_horizontal = gtk_entry_get_buffer(entry);
+
+	/*Энкодер горизонтальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ENCODER_HORIZONTAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_encoder_horizontal = box;
+	block_info->buf_encoder_horizontal = gtk_entry_get_buffer(entry);
+
+	/*Датчик тока горизонтальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_AMPERAGE_HORIZONTAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_amperage_horizontal = box;
+	block_info->buf_amperage_horizontal = gtk_entry_get_buffer(entry);
+
+	/*Пулт ПДУ-П отдельно */
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_CONSOLE_SINGLY);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_console_singly = box;
+
+	/*Пульт ПДУ */
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_CONSOLE);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_console = box;
+
+	/*Пост ПДУ*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_POST);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_post = box;
+
+	/*Датчик пламени сухой контакт*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_SENSOR_FIRE_DRY);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_sensor_fire_dry = box;
+
+	/*Датчик пламени RS-485*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_SENSOR_FIRE_485);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_sensor_fire_485 = box;
+
+	/*датчик пламени Ethernet*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_SENSOR_FIRE_ETHERNET);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_sensor_fire_ethernet = box;
+
+	/*Датчик суой контакт RS-485*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_SENSOR_DRY_485);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_sensor_dry_485 = box;
+
+	/*Датчик сухой контакт Ethernet*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_SENSOR_DRY_ETHERNER);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_sensor_dry_etherner = box;
+
+	/*Заслонка сухой контакт*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_VALVE_DRY);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	block_info->box_valve_dry = box;
+
+	/*Заслонка с управлением*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_VALVE_ANALOG);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+
+	block_info->box_valve_analog = box;
+	block_info->buf_valve_analog = gtk_entry_get_buffer(entry);
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_VALVE_LIMIT);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_VALVE_FEEDBACK);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_CAM_ANALOG_DC);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_CAM_DIGITAL_DC);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_CAM_DIGITAL_POE);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_01);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_02);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_03);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_04);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_05);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_06);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_07);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_08);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_09);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_10);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_11);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_12);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_13);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_14);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_15);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_FIRE_ALARM_16);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_01_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_01_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_02_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_02_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_03_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_03_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_04_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_04_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_05_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_05_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_06_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_06_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_07_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_07_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_08_STATE_0);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_DEVICE_08_STATE_1);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info-> = box;
+
 
 	gtk_widget_show(box_main);
 
