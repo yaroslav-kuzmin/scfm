@@ -312,14 +312,20 @@
 #define UNSET_RESERVE_3(f)             (f & (ALL_BIT^BIT_RESERVE_3))
 #define RESERVE_3(f)                   (f & BIT_RESERVE_3)
 
-typedef struct _check_connect_s check_connect_s;
-typedef struct _check_connect_s check_connect_s;
+struct _block_info_controller_s
+{
+	GtkLabel * label_name;
+	GtkWidget * box_engine_vertical;
+};
+typedef struct _block_info_controller_s block_info_controller_s;
+
 struct _block_setting_controller_s
 {
 	GtkEntryBuffer * address;
 	GtkEntryBuffer * port;
 	GtkEntryBuffer * id;
-	GtkWidget * block_info;
+
+	block_info_controller_s * block_info;
 
 	link_s * link;
 	char * name;
@@ -362,20 +368,88 @@ static int check_link_controller(link_s * link,config_controller_s * config,stat
 
 static int fill_block_info(block_setting_controller_s * bsc)
 {
+	GtkLabel * label;
+	GtkWidget * box;
+	char * name;
+	block_info_controller_s * block_info = bsc->block_info;
+	config_controller_s * config = bsc->config;
+	uint64_t flag;
+
+	if(config == NULL){
+		flag = 0;
+	}
+	else{
+		flag = config->flag;
+	}
+
+	name = bsc->name;
+	label = block_info->label_name;
+	gtk_label_set_text(label,name);
+
+	box = block_info->box_engine_vertical;
+	if(ENGINE_VERTICAL(flag)){
+		gtk_widget_show(box);
+	}
+	else{
+		gtk_widget_hide(box);
+	}
+
 	return SUCCESS;
 }
 
-/*static STR_NAME[] = "Наименование : ";*/
+block_info_controller_s block_info_controller;
+static char STR_NAME[] = "Наименование : ";
+static char STR_NAME_DEFAULT[] = "Нет информации";
+static char STR_ENGINE_VERTICAL[] = "Двигатель вертикальной оси";
 
-static GtkWidget * create_block_info()
+static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 {
+	GtkWidget * box_main;
 	GtkWidget * box;
-	/*GtkWidget * label;*/
+	GtkWidget * label;
+	GtkWidget * entry;
+	GtkEntryBuffer * buf;
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	block_info_controller_s * block_info = &block_info_controller;
 
-	return box;
+	box_main = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box_main,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	/*наименование*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_NAME);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	label = gtk_label_new(STR_NAME_DEFAULT);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->label_name = GTK_LABEL(label);
+
+	/*двигатель вертикальной оси*/
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_show(box);
+	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
+
+	label = gtk_label_new(STR_ENGINE_VERTICAL);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+	block_info->box_engine_vertical = box;
+
+	gtk_widget_show(box_main);
+
+	bsc->block_info = block_info;
+	fill_block_info(bsc);
+
+	return box_main;
 }
 
 static char * check_address(const char * address)
@@ -488,6 +562,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 		g_slice_free1(sizeof(link_s),link);
 		g_slice_free1(sizeof(config_controller_s),config);
 		g_slice_free1(sizeof(state_controller_s),state);
+		link_disconnect_controller(link);
 		return;
 	}
 
@@ -495,7 +570,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	bsc->config = config;
 	bsc->state = state;
 	bsc->name = get_name_controller(config);
-	/*TODO сообщенийние что проверка корректноа*/
+	/*TODO сообщенийние что проверка корректна*/
 	fill_block_info(bsc);
 
 	link_disconnect_controller(link);
@@ -545,6 +620,8 @@ GtkWidget * create_block_setting_controller(void)
 	GtkWidget * but_check;
 
 	block_setting_controller.link = NULL;
+	block_setting_controller.config = NULL;
+	block_setting_controller.name = STR_NAME_DEFAULT;
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -565,8 +642,7 @@ GtkWidget * create_block_setting_controller(void)
 	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),&block_setting_controller);
 
-	block_info = create_block_info();
-	block_setting_controller.block_info = block_info;
+	block_info = create_block_info(&block_setting_controller);
 
 	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);

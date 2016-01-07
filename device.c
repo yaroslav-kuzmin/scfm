@@ -303,7 +303,7 @@ int link_state_controller(link_s * link,state_controller_s * state)
 		return FAILURE;
 	}
 	set_state_controller(dest,state);
-	return FAILURE;
+	return SUCCESS;
 }
 
 static uint16_t reg_D300 = 0x112C;
