@@ -322,12 +322,18 @@ struct _block_info_controller_s
 	GtkWidget * box_actuator_veil;
 	GtkWidget * box_limit_vertical;
 	GtkWidget * box_tic_vertical;
+	GtkEntryBuffer * buf_tic_vertical;
 	GtkWidget * box_encoder_vertical;
+	GtkEntryBuffer * buf_encoder_vertical;
 	GtkWidget * box_amperage_vertical;
+	GtkEntryBuffer * buf_amperage_vertical;
 	GtkWidget * box_limit_horizontal;
 	GtkWidget * box_tic_horizontal;
+	GtkEntryBuffer * buf_tic_horizontal;
 	GtkWidget * box_encoder_horizontal;
+	GtkEntryBuffer * buf_encoder_horizontal;
 	GtkWidget * box_amperage_horizontal;
+	GtkEntryBuffer * buf_amperage_horizontal;
 	GtkWidget * box_console_singly;
 	GtkWidget * box_console;
 	GtkWidget * box_post;
@@ -338,6 +344,7 @@ struct _block_info_controller_s
 	GtkWidget * box_sensor_dry_etherner;
 	GtkWidget * box_valve_dry;
 	GtkWidget * box_valve_analog;
+	GtkEntryBuffer * buf_valve_analog;
 	GtkWidget * box_valve_limit;
 	GtkWidget * box_valve_feedback;
 	GtkWidget * box_cam_analog_dc;
@@ -993,15 +1000,23 @@ static char STR_DEVICE_07_STATE_1[]    = "Устройство 7 (Состоян
 static char STR_DEVICE_08_STATE_0[]    = "Устройство 8 (Состояние А)";
 static char STR_DEVICE_08_STATE_1[]    = "Устройство 8 (Состояние Б)";
 
+static int min_width_block_info = 300;
+static int min_height_block_info = 400;
+
 static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 {
+	GtkWidget * scrwin;
 	GtkWidget * box_main;
 	GtkWidget * box;
 	GtkWidget * label;
 	GtkWidget * entry;
-	GtkEntryBuffer * buf;
 
 	block_info_controller_s * block_info = &block_info_controller;
+
+	scrwin = gtk_scrolled_window_new(NULL,NULL);
+	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_scrolled_window_set_min_content_width(GTK_SCROLLED_WINDOW(scrwin),min_width_block_info);
+	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrwin),min_height_block_info);
 
 	box_main = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box_main,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1109,9 +1124,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_tic_vertical = box;
-	block_info->buf_tic_vertical = gtk_entry_get_buffer(entry);
+	block_info->buf_tic_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Энкодер вертикальной оси*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1127,9 +1143,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_encoder_vertical = box;
-	block_info->buf_encoder_vertical = gtk_entry_get_buffer(entry);
+	block_info->buf_encoder_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*датчик тока вертикальной оси*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1145,9 +1162,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_amperage_vertical = box;
-	block_info->buf_amperage_vertical = gtk_entry_get_buffer(entry);
+	block_info->buf_amperage_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Концевики горизонтальной оси*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1176,9 +1194,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_tic_horizontal = box;
-	block_info->buf_tic_horizontal = gtk_entry_get_buffer(entry);
+	block_info->buf_tic_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Энкодер горизонтальной оси*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1194,9 +1213,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_encoder_horizontal = box;
-	block_info->buf_encoder_horizontal = gtk_entry_get_buffer(entry);
+	block_info->buf_encoder_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Датчик тока горизонтальной оси*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1212,9 +1232,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_amperage_horizontal = box;
-	block_info->buf_amperage_horizontal = gtk_entry_get_buffer(entry);
+	block_info->buf_amperage_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Пулт ПДУ-П отдельно */
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1347,11 +1368,12 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
 
 	block_info->box_valve_analog = box;
-	block_info->buf_valve_analog = gtk_entry_get_buffer(entry);
+	block_info->buf_valve_analog = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
-
+	/*Заслонка концевики */
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1361,9 +1383,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_valve_limit = box;
 
-
+	/*Заслонка обратнаясвязь*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1373,9 +1395,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_valve_feedback = box;
 
-
+	/*Видеокамера аналоговая*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1385,9 +1407,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_cam_analog_dc = box;
 
-
+	/*Видеокамера цифровая*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1397,9 +1419,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_cam_digital_dc = box;
 
-
+	/*Видеокамера цифровая питание по Ethernet*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1409,9 +1431,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_cam_digital_poe = box;
 
-
+	/*ПС шлейф 01*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1421,9 +1443,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_01 = box;
 
-
+	/*ПС шлейф 02*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1433,9 +1455,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_02 = box;
 
-
+	/*ПС шлейф 03*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1445,9 +1467,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_03 = box;
 
-
+	/*ПС шлейф 04*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1457,9 +1479,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_04 = box;
 
-
+	/*ПС шлейф 05*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1469,9 +1491,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_05 = box;
 
-
+	/*ПС шлейф 06*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1481,9 +1503,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_06 = box;
 
-
+	/*ПС шлейф 07*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1493,9 +1515,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_07 = box;
 
-
+	/*ПС шлейф 08*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1505,9 +1527,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_08 = box;
 
-
+	/*ПС шлейф 09*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1517,9 +1539,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_09 = box;
 
-
+	/*ПС шлейф 10*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1529,9 +1551,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_10 = box;
 
-
+	/*ПС шлейф 11*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1541,9 +1563,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_11 = box;
 
-
+	/*ПС шлейф 12*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1553,9 +1575,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_12 = box;
 
-
+	/*ПС шлейф 13*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1565,9 +1587,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_13 = box;
 
-
+	/*ПС шлейф 14*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1577,9 +1599,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_14 = box;
 
-
+	/*ПС шлейф 15*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1589,9 +1611,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_15 = box;
 
-
+	/*ПС шлейф 16*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1601,9 +1623,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_fire_alarm_16 = box;
 
-
+	/*Устройство 1 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1613,9 +1635,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_01_state_0 = box;
 
-
+	/*Устройство 1 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1625,9 +1647,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_01_state_1 = box;
 
-
+	/*Устройство 2 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1637,9 +1659,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_02_state_0 = box;
 
-
+	/*Устройство 2 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1649,9 +1671,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_02_state_1 = box;
 
-
+	/*Устройство 3 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1661,9 +1683,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_03_state_0 = box;
 
-
+	/*Устройство 3 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1673,9 +1695,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_03_state_1 = box;
 
-
+	/*Устройство 4 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1685,9 +1707,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_04_state_0 = box;
 
-
+	/*Устройство 4 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1697,9 +1719,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_04_state_1 = box;
 
-
+	/*Устройство 5 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1709,9 +1731,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_05_state_0 = box;
 
-
+	/*Устройство 5 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1721,9 +1743,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_05_state_1 = box;
 
-
+	/*Устройство 6 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1733,9 +1755,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_06_state_0 = box;
 
-
+	/*Устройство 6 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1745,9 +1767,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_06_state_1 = box;
 
-
+	/*Устройство 7 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1757,9 +1779,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_07_state_0 = box;
 
-
+	/*Устройство 7 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1769,9 +1791,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_07_state_1 = box;
 
-
+	/*Устройство 8 стутас 0*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1781,9 +1803,9 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_08_state_0 = box;
 
-
+	/*Устройство 8 стутас 1*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
@@ -1793,15 +1815,18 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	block_info-> = box;
+	block_info->box_device_08_state_1 = box;
 
+
+	gtk_container_add(GTK_CONTAINER(scrwin),box_main);
 
 	gtk_widget_show(box_main);
+	gtk_widget_show(scrwin);
 
 	bsc->block_info = block_info;
 	fill_block_info(bsc);
 
-	return box_main;
+	return scrwin;
 }
 
 static char * check_address(const char * address)
