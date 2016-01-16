@@ -1121,6 +1121,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1140,6 +1141,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1159,6 +1161,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1191,6 +1194,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1210,6 +1214,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1229,6 +1234,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1365,6 +1371,7 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
+	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -1889,6 +1896,50 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 	return box;
 }
 
+static int check_rate_controller(block_info_controller_s * block_info,config_controller_s * config)
+{
+	const char * str;
+	double rate;
+	GtkEntryBuffer * buf;
+
+	buf = block_info->buf_tic_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_tic_vertical = rate;
+
+	buf = block_info->buf_encoder_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_encoder_vertical = rate;
+
+	buf = block_info->buf_amperage_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_amperage_vertical = rate;
+
+	buf = block_info->buf_tic_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_tic_horizontal = rate;
+
+	buf = block_info->buf_encoder_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_encoder_horizontal = rate;
+
+	buf = block_info->buf_amperage_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_amperage_horizontal = rate;
+
+	buf = block_info->buf_valve_analog;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_valve_analog = rate;
+
+	return SUCCESS;
+}
+
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
 	int rc;
@@ -1959,10 +2010,12 @@ static block_setting_controller_s block_setting_controller;
 
 void * new_property_controller(void)
 {
+	int rc;
 	controller_s * controller;
 	link_s * link = block_setting_controller.link;
 	config_controller_s * config = block_setting_controller.config;
 	state_controller_s * state = block_setting_controller.state;
+	block_info_controller_s * block_info = block_setting_controller.block_info;
 
 	/*TODO вывод сообщений*/
 	if(link == NULL){
@@ -1970,6 +2023,11 @@ void * new_property_controller(void)
 		return NULL;
 	}
 
+	rc = check_rate_controller(block_info,config);
+	if(rc == FAILURE){
+		g_warning("Некоректный коэффициенты");
+		return NULL;
+	}
 	controller = g_slice_alloc0(sizeof(controller_s));
 	controller->name = block_setting_controller.name;
 	controller->link = link;
@@ -2095,9 +2153,20 @@ controller_s * init_controller(uint32_t number)
 		g_slice_free1(sizeof(config_controller_s),controller->config);
 		g_slice_free1(sizeof(state_controller_s),controller->state);
 		controller = NULL;
+		return NULL;
 	}
 	controller->name = get_name_controller(controller->config);
 	all_controller.list = g_slist_append(all_controller.list,controller);
+	g_debug(" :> %d",controller->config->type);
+	g_debug(" :> %#lx",controller->config->flag);
+	g_debug(" :> %f",controller->config->rate_tic_vertical);
+	g_debug(" :> %f",controller->config->rate_encoder_vertical);
+	g_debug(" :> %f",controller->config->rate_amperage_vertical);
+	g_debug(" :> %f",controller->config->rate_tic_horizontal);
+	g_debug(" :> %f",controller->config->rate_encoder_horizontal);
+	g_debug(" :> %f",controller->config->rate_amperage_horizontal);
+	g_debug(" :> %f",controller->config->rate_valve_analog);
+
 	return controller;
 }
 

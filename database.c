@@ -99,7 +99,9 @@ static int create_table_controller(void)
 {
 	g_string_printf(pub,"CREATE TABLE ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,type_link,id,address,port,name)");
+	g_string_append(pub,"(number INTEGER PRIMARY KEY,type_link,id,address,port,type,flag \
+,tic_vertical,encoder_vertical,amperage_vertical,tic_horizontal,encoder_horizontal,amperage_horizontal \
+,valve_analog)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
@@ -219,12 +221,21 @@ static int del_table_videcamera(uint32_t number)
 static int add_table_controller(uint32_t number,controller_s * controller)
 {
 	link_s * link = controller->link;
+	config_controller_s * config = controller->config;
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d,\'%s\')"
+	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d \
+,%d,%ld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
 	                      ,number
 	                      ,link->type,link->id,link->address,link->port
-	                      ,controller->name);
+	                      ,config->type,config->flag
+	                      ,config->rate_tic_vertical
+	                      ,config->rate_encoder_vertical
+	                      ,config->rate_amperage_vertical
+	                      ,config->rate_tic_horizontal
+	                      ,config->rate_encoder_horizontal
+	                      ,config->rate_amperage_horizontal
+	                      ,config->rate_valve_analog);
 	return query_simple(pub);
 }
 
@@ -456,7 +467,6 @@ int read_database_controller(uint32_t number,controller_s * controller)
 	int rc;
 	sqlite3_stmt * stmt;
 	int amount_column = 0;
-	const char * name;
 	const char * address;
 
 	g_string_printf(pub,"SELECT * FROM ");
@@ -496,8 +506,15 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		address = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_ADDRESS);
 		controller->link->address = g_strdup(address);
 		controller->link->port = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_PORT);
-		name = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_NAME);
-		controller->name = g_strdup(name);
+		controller->config->type = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_TYPE);
+		controller->config->flag = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_FLAG);
+		controller->config->rate_tic_vertical = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_TIC_VERTICAL);
+		controller->config->rate_encoder_vertical = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_ENCODER_VERTICAL);
+		controller->config->rate_amperage_vertical = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_AMPERAGE_VERTICAL);
+		controller->config->rate_tic_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_TIC_HORIZONTAL);
+		controller->config->rate_encoder_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_ENCODER_HORIZONTAL);
+		controller->config->rate_amperage_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_AMPERAGE_HORIZONTAL);
+		controller->config->rate_valve_analog = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_VALVE_ANALOG);
 	}
 	sqlite3_finalize(stmt);
 	return SUCCESS;
