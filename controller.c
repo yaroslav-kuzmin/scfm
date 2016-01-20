@@ -2198,6 +2198,38 @@ int del_property_controller(controller_s * property)
 	return SUCCESS;
 }
 
+static char STR_STATE[] = "Информация";
+static GtkWidget * create_block_state(block_controller_s * block)
+{
+	GtkWidget * frame;
+	GtkWidget *
+	GtkWidget * label;
+
+	frame = gtk_frame_new(STR_STATE);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+
+	label = gtk_label_new(NULL);
+	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	block->label = GTK_LABEL(label);
+	gtk_widget_show(label);
+
+	gtk_container_add(GTK_CONTAINER(frame),label);
+
+	gtk_widget_show(frame);
+	return frame;
+}
+
+static char STR_CONTROL[] = "Управление";
+static GtkWidget * create_block_control(block_controller_s * block)
+{
+	GtkWidget * frame;
+	frame = gtk_frame_new(STR_CONTROL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(frame);
+	return frame;
+}
+
 block_controller_s block_controller;
 
 int fill_block_controller(controller_s * controller)
@@ -2209,12 +2241,24 @@ int fill_block_controller(controller_s * controller)
 
 GtkWidget * create_block_controller(void)
 {
-	GtkWidget * label;
+	GtkWidget * box;
+	GtkWidget * frame_state;
+	GtkWidget * frame_control;
 
-	label = gtk_label_new(NULL);
-	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_show(label);
-	block_controller.label = GTK_LABEL(label);
-	return label;
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_set_homogeneous(GTK_BOX(box),TRUE);
+
+	frame_state = create_block_state(&block_controller);
+
+	frame_control = create_block_control(&block_controller);
+
+	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+
+	return box;
 }
+
 /*****************************************************************************/
