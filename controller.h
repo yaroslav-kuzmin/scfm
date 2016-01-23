@@ -45,11 +45,14 @@
 #define LAFET_H
 
 void * new_property_controller(void);
+controller_s * init_controller(uint32_t number);
+
 int del_property_controller(controller_s * controller);
 
 int init_all_controller(void);
 int deinit_all_controller(void);
-controller_s * init_controller(uint32_t number);
+
+int control_controllers(void);
 
 int select_block_controller(controller_s * controller);
 

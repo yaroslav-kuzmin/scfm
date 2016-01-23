@@ -2116,7 +2116,7 @@ GtkWidget * create_block_setting_controller(void)
 all_controller_s all_controller;
 int init_all_controller(void)
 {
-	all_controller.list = g_slist_alloc();
+	all_controller.list = NULL;
 	all_controller.current = NULL;
 	all_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
 	all_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
@@ -2155,6 +2155,31 @@ static int connect_controller(controller_s * controller)
 		g_warning("Данные из контроллера не совпадают с данными из базы данных!");
 		link_disconnect_controller(link);
 		return rc;
+	}
+
+	return SUCCESS;
+}
+
+int control_controllers(void)
+{
+	int rc;
+	GSList * list = all_controller.list;
+
+	if(list == NULL){
+		g_info("Нет контролеров");
+		return FAILURE;
+	}
+
+	for(;list;){
+		controller_s * controller = (controller_s*)list->data;
+		rc = connect_controller(controller);
+		if(rc == SUCCESS){
+			g_info("Подключился к %s",controller->name);
+		}
+		else{
+			g_info("Несмог подключится к %s",controller->name);
+		}
+		list = g_slist_next(list);
 	}
 
 	return SUCCESS;
@@ -2392,9 +2417,9 @@ block_controller_s block_controller;
 
 int show_block_controler(gpointer data)
 {
-	controller_s * controller = (controller_s*)data;
+	/*controller_s * controller = (controller_s*)data;*/
 
-	return FALSE; /*завершить работу*/
+	/*return FALSE; [>завершить работу<]*/
 	return TRUE; /* продолжаем работу */
 }
 

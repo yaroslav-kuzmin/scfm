@@ -635,7 +635,6 @@ static void clicked_button_exit(GtkButton * b,gpointer ud)
 	gtk_widget_show(win->main);
 	win->main_exit = NOT_OK;
 	gtk_widget_destroy(win->config);
-	set_mode_work(MODE_CONTROL,win->main);
 }
 
 static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpointer ud)
