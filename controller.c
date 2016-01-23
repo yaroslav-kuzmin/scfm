@@ -402,13 +402,29 @@ typedef struct _block_setting_controller_s block_setting_controller_s;
 
 struct _block_controller_s
 {
-	GtkLabel * label;
+	GtkLabel * name;
+	GtkLabel * lafet;
+	GtkLabel * tic_vertical;
+	GtkLabel * tic_horizontal;
+	GtkLabel * encoder_vertical;
+	GtkLabel * encoder_horizontal;
+	GtkLabel * pressure;
+	GtkLabel * amperage_vertical;
+	GtkLabel * amperage_horizontal;
+   GtkLabel * valve;
+   GtkLabel * tic_valve;
+   GtkLabel * fire_sensor;
+   GtkLabel * fire_alarm;
 };
 typedef struct _block_controller_s block_controller_s;
 
 struct _all_controller_s
 {
 	GSList * list;
+	controller_s * current;
+	uint32_t timeout_current;
+	uint32_t timeout_all;
+	uint32_t timeout_config;
 };
 typedef struct _all_controller_s all_controller_s;
 /*****************************************************************************/
@@ -2094,10 +2110,18 @@ GtkWidget * create_block_setting_controller(void)
 }
 
 /*****************************************************************************/
+#define DEFAULT_TIMEOUT_CURRENR        500     /* 500 милесекунд*/
+#define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
+#define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
 all_controller_s all_controller;
 int init_all_controller(void)
 {
 	all_controller.list = g_slist_alloc();
+	all_controller.current = NULL;
+	all_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
+	all_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
+	all_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
+
 	return SUCCESS;
 }
 
@@ -2107,13 +2131,14 @@ int deinit_all_controller(void)
 	return SUCCESS;
 }
 
-int connect_controller(controller_s * controller)
+static int connect_controller(controller_s * controller)
 {
 	int rc;
 	link_s * link = controller->link;
 	config_controller_s check;
 	config_controller_s * config = controller->config;
 	state_controller_s * state = controller->state;
+
 
 	if(link->connect != NULL){
 		g_warning("Контролер подключен!");
@@ -2156,7 +2181,9 @@ controller_s * init_controller(uint32_t number)
 		return NULL;
 	}
 	controller->name = get_name_controller(controller->config);
+
 	all_controller.list = g_slist_append(all_controller.list,controller);
+
 	g_debug(" :> %d",controller->config->type);
 	g_debug(" :> %#lx",controller->config->flag);
 	g_debug(" :> %f",controller->config->rate_tic_vertical);
@@ -2202,21 +2229,151 @@ static char STR_STATE[] = "Информация";
 static GtkWidget * create_block_state(block_controller_s * block)
 {
 	GtkWidget * frame;
-	GtkWidget *
-	GtkWidget * label;
+	GtkWidget * grid;
+	GtkWidget * label_name;
+	GtkWidget * label_value;
 
 	frame = gtk_frame_new(STR_STATE);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),TRUE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
 
-	label = gtk_label_new(NULL);
-	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	block->label = GTK_LABEL(label);
-	gtk_widget_show(label);
+#if 1
+	label_name = gtk_label_new(NULL);
+	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_grid_attach(GTK_GRID(grid),label_name,0,0,2,1);
+	block->name = GTK_LABEL(label_name);
 
-	gtk_container_add(GTK_CONTAINER(frame),label);
+	label_name = gtk_label_new("Датчики лафета");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,1,1,1);
+	block->lafet = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Вертикальная ось");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,2,1,1);
+	block->tic_vertical = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Горизонтальная ось");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,3,1,1);
+	block->tic_horizontal = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Энкодер вертикальной оси");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,4,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,4,1,1);
+	block->encoder_vertical = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Энкодер горизонтальной оси");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,5,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,5,1,1);
+	block->encoder_horizontal = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Давление");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,6,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,6,1,1);
+	block->pressure = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Ток вертикальной оси");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,7,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,7,1,1);
+	block->amperage_vertical = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Ток горизонтально оси");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,8,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,8,1,1);
+	block->amperage_horizontal = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Заслонка");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,9,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,9,1,1);
+	block->valve = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Заслонка положение");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,10,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,10,1,1);
+	block->tic_valve = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Датчик пламени");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,11,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,11,1,1);
+	block->fire_sensor = GTK_LABEL(label_value);
+
+	label_name = gtk_label_new("Пожарная сигнализация");
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	label_value = gtk_label_new(NULL);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_show(label_name);
+	gtk_widget_show(label_value);
+	gtk_grid_attach(GTK_GRID(grid),label_name ,0,12,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_value,1,12,1,1);
+	block->fire_alarm = GTK_LABEL(label_value);
+
+#endif
+	gtk_container_add(GTK_CONTAINER(frame),grid);
 
 	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+
 	return frame;
 }
 
@@ -2230,14 +2387,86 @@ static GtkWidget * create_block_control(block_controller_s * block)
 	return frame;
 }
 
+
 block_controller_s block_controller;
 
-int fill_block_controller(controller_s * controller)
+int show_block_controler(gpointer data)
 {
-	GtkLabel * label = block_controller.label;
+	controller_s * controller = (controller_s*)data;
+
+	return FALSE; /*завершить работу*/
+	return TRUE; /* продолжаем работу */
+}
+
+int select_block_controller(controller_s * controller)
+{
+	state_controller_s * state;
+	GtkLabel * label;
+	/*через mutex*/
+	all_controller.current = controller;
+
+	if(controller == NULL){
+		/*если таймер запушен то остановить*/
+		return SUCCESS;
+	}
+	/*запустить таймер*/
+
+	state = controller->state;
+	label = block_controller.name;
 	gtk_label_set_text(label,controller->name);
+#if 1
+
+	label = block_controller.lafet;
+	g_string_printf(pub,"%#x",state->lafet);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.tic_vertical;
+	g_string_printf(pub,"%#x",state->tic_vertical);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.tic_horizontal;
+	g_string_printf(pub,"%#x",state->tic_horizontal);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.encoder_vertical;
+	g_string_printf(pub,"%#x",state->encoder_vertical);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.encoder_horizontal;
+	g_string_printf(pub,"%#x",state->encoder_horizontal);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.pressure;
+	g_string_printf(pub,"%#x",state->pressure);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.amperage_vertical;
+	g_string_printf(pub,"%#x",state->amperage_vertical);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.amperage_horizontal;
+	g_string_printf(pub,"%#x",state->amperage_horizontal);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.valve;
+	g_string_printf(pub,"%#x",state->valve);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.tic_valve;
+	g_string_printf(pub,"%#x",state->tic_valve);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.fire_sensor;
+	g_string_printf(pub,"%#x",state->fire_sensor);
+	gtk_label_set_text(label,pub->str);
+
+	label = block_controller.fire_alarm;
+	g_string_printf(pub,"%#x",state->fire_alarm);
+	gtk_label_set_text(label,pub->str);
+#endif
 	return SUCCESS;
 }
+
 
 GtkWidget * create_block_controller(void)
 {

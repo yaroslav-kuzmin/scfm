@@ -274,7 +274,7 @@ videocamera_s * init_videocamera(uint32_t number)
 
 block_videocamera_s block_videocamera;
 
-int fill_block_videcamera(videocamera_s * videocamera)
+int select_block_videcamera(videocamera_s * videocamera)
 {
 	GtkLabel * label = block_videocamera.label;
 	gtk_label_set_text(label,videocamera->access);

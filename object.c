@@ -173,15 +173,16 @@ int select_object(object_s * object)
 	label = gtk_notebook_get_tab_label(block_object.notebook,child);
 	gtk_label_set_text(GTK_LABEL(label),object->name);
 
+	select_block_controller(NULL);
 	switch(object->type){
 		case TYPE_GROUP:
-			fill_block_group((group_s*)object->property);
+			select_block_group((group_s*)object->property);
 			break;
 		case TYPE_VIDEOCAMERA:
-			fill_block_videcamera((videocamera_s*)object->property);
+			select_block_videcamera((videocamera_s*)object->property);
 			break;
 		case TYPE_CONTROLLERE:
-			fill_block_controller((controller_s*)object->property);
+			select_block_controller((controller_s*)object->property);
 			break;
 		default:
 			break;

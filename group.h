@@ -51,7 +51,7 @@ int init_all_group(void);
 int deinit_all_group(void);
 group_s * init_group(uint32_t number);
 
-int fill_block_group(group_s * group);
+int select_block_group(group_s * group);
 
 GtkWidget * create_block_setting_group(void);
 GtkWidget * create_block_group(void);

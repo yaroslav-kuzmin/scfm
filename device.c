@@ -145,7 +145,6 @@ static int set_config_controller(uint16_t * reg,config_controller_s * config)
 
 static int set_state_controller(uint16_t * dest,state_controller_s *state)
 {
-
 	state->lafet               = dest[REG_D100];
 	state->tic_vertical        = dest[REG_D101];
 	state->tic_horizontal      = dest[REG_D102];

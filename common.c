@@ -283,6 +283,7 @@ int set_mode_work(int mode,GtkWidget * win_main)
 	switch(mode){
 		case MODE_CONTROL:
 			mode_work = MODE_CONTROL;
+			
 			break;
 		case MODE_CONFIG:
 			mode_work = MODE_CONFIG;
