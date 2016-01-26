@@ -1956,6 +1956,11 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 	return SUCCESS;
 }
 
+static GtkWidget * create_block_find(void)
+{
+	return NULL;
+}	
+
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
 	int rc;
@@ -2061,6 +2066,7 @@ static char STR_NAME_CHECK[] = "Поиск";
 
 GtkWidget * create_block_setting_controller(void)
 {
+#if 0	
 	GtkWidget * grid;
 	GtkWidget * label;
 	GtkWidget * block_address;
@@ -2069,10 +2075,6 @@ GtkWidget * create_block_setting_controller(void)
 	GtkWidget * block_info;
 	GtkEntryBuffer * buf;
 	GtkWidget * but_check;
-
-	block_setting_controller.link = NULL;
-	block_setting_controller.config = NULL;
-	block_setting_controller.name = STR_NAME_DEFAULT;
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -2088,6 +2090,7 @@ GtkWidget * create_block_setting_controller(void)
 
 	block_id = create_block_entry(STR_NAME_ID,&buf);
 	block_setting_controller.id = buf;
+
 
 	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
 	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
@@ -2107,6 +2110,21 @@ GtkWidget * create_block_setting_controller(void)
 	gtk_widget_show(but_check);
 
 	return grid;
+#endif	
+	GtkWidget * box;
+	GtkWidget * block_find;
+	GtkWidget * block_info;
+
+	block_setting_controller.link = NULL;
+	block_setting_controller.config = NULL;
+	block_setting_controller.name = STR_NAME_DEFAULT;
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+
+	gtk_widget_show(box);
+	return box;
 }
 
 /*****************************************************************************/

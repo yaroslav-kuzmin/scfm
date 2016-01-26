@@ -191,7 +191,33 @@ static int connect_tcp(link_s * link)
 
 static int connect_uart(link_s * link)
 {
-	return FAILURE;
+#if 0
+	int rc;
+
+	char * device = link->address;
+	uint16_t port = link->port;
+	uint8_t id = link->id;
+	modbus_t *ctx;
+
+	ctx = modbus_new_tcp(address,port);
+	if (ctx == NULL) {
+		return FAILURE;
+	}
+
+	modbus_set_error_recovery(ctx,(MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL));
+
+	modbus_set_slave(ctx,id);
+
+	rc = modbus_connect(ctx);
+	if(rc == -1){
+		g_warning("Несмог подключится к : %d",id);
+		modbus_free(ctx);
+		return FAILURE;
+	}
+	link->connect = ctx;
+	link->dest = g_slice_alloc0(MODBUS_TCP_MAX_ADU_LENGTH);
+#endif
+	return SUCCESS;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
