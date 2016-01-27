@@ -951,7 +951,7 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	return SUCCESS;
 }
 
-block_info_controller_s block_info_controller;
+static block_info_controller_s block_info_controller;
 static char STR_NAME[] = "Наименование : ";
 static char STR_NAME_DEFAULT[] = "Нет информации";
 
@@ -1956,11 +1956,6 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 	return SUCCESS;
 }
 
-static GtkWidget * create_block_find(void)
-{
-	return NULL;
-}	
-
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
 	int rc;
@@ -1975,6 +1970,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 
 	/*TODO при повторном нажатии утечка памяти*/
 	bsc->link = NULL;
+
 	/*TODO вывод сообщений*/
 	str = gtk_entry_buffer_get_text(bsc->address);
 	address = check_address(str);
@@ -2024,6 +2020,55 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 
 	link_disconnect_controller(link);
 }
+
+static char STR_NAME_CONTROLLER[] = "Контроллер";
+static char STR_NAME_ADDRESS[] = "Адрес";
+static char STR_NAME_PORT[] = "Порт";
+static char STR_NAME_ID[] = "Номер";
+static char STR_NAME_CHECK[] = "Поиск";
+
+static GtkWidget * create_block_find(block_setting_controller_s * bsc)
+{
+	GtkWidget * grid;
+
+	GtkWidget * label;
+	GtkWidget * block_address;
+	GtkWidget * block_port;
+	GtkWidget * block_id;
+	GtkEntryBuffer * buf;
+	GtkWidget * but_check;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	label = gtk_label_new(STR_NAME_CONTROLLER);
+	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,FALSE);
+
+	block_address = create_block_entry(STR_NAME_ADDRESS,&buf);
+	bsc->address = buf;
+
+	block_port = create_block_entry(STR_NAME_PORT,&buf);
+	bsc->port = buf;
+
+	block_id = create_block_entry(STR_NAME_ID,&buf);
+	bsc->id = buf;
+
+	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
+	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),bsc);
+
+	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
+	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_port   ,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_id     ,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_check    ,0,4,2,1);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(but_check);
+
+	return grid;
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
@@ -2058,59 +2103,8 @@ void * new_property_controller(void)
 	return controller;
 }
 
-static char STR_NAME_CONTROLLER[] = "Контроллер";
-static char STR_NAME_ADDRESS[] = "Адрес";
-static char STR_NAME_PORT[] = "Порт";
-static char STR_NAME_ID[] = "Номер";
-static char STR_NAME_CHECK[] = "Поиск";
-
 GtkWidget * create_block_setting_controller(void)
 {
-#if 0	
-	GtkWidget * grid;
-	GtkWidget * label;
-	GtkWidget * block_address;
-	GtkWidget * block_port;
-	GtkWidget * block_id;
-	GtkWidget * block_info;
-	GtkEntryBuffer * buf;
-	GtkWidget * but_check;
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	label = gtk_label_new(STR_NAME_CONTROLLER);
-	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,FALSE);
-
-	block_address = create_block_entry(STR_NAME_ADDRESS,&buf);
-	block_setting_controller.address = buf;
-
-	block_port = create_block_entry(STR_NAME_PORT,&buf);
-	block_setting_controller.port = buf;
-
-	block_id = create_block_entry(STR_NAME_ID,&buf);
-	block_setting_controller.id = buf;
-
-
-	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
-	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),&block_setting_controller);
-
-	block_info = create_block_info(&block_setting_controller);
-
-	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
-	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_port   ,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_id     ,0,3,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_check    ,0,4,2,1);
-	gtk_grid_attach(GTK_GRID(grid),block_info   ,0,5,2,1);
-
-	gtk_widget_show(grid);
-	gtk_widget_show(label);
-	gtk_widget_show(but_check);
-
-	return grid;
-#endif	
 	GtkWidget * box;
 	GtkWidget * block_find;
 	GtkWidget * block_info;
@@ -2122,6 +2116,12 @@ GtkWidget * create_block_setting_controller(void)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
+	block_find = create_block_find(&block_setting_controller);
+
+	block_info = create_block_info(&block_setting_controller);
+
+	gtk_box_pack_start(GTK_BOX(box),block_find,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_info,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 	return box;
@@ -2131,7 +2131,7 @@ GtkWidget * create_block_setting_controller(void)
 #define DEFAULT_TIMEOUT_CURRENR        500     /* 500 милесекунд*/
 #define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
 #define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
-all_controller_s all_controller;
+static all_controller_s all_controller;
 int init_all_controller(void)
 {
 	all_controller.list = NULL;
@@ -2431,7 +2431,7 @@ static GtkWidget * create_block_control(block_controller_s * block)
 }
 
 
-block_controller_s block_controller;
+static block_controller_s block_controller;
 
 int show_block_controler(gpointer data)
 {
