@@ -387,9 +387,15 @@ typedef struct _block_info_controller_s block_info_controller_s;
 
 struct _block_setting_controller_s
 {
-	GtkEntryBuffer * address;
-	GtkEntryBuffer * port;
-	GtkEntryBuffer * id;
+	GtkEntryBuffer * ip_address;
+	GtkEntryBuffer * ip_port;
+	GtkEntryBuffer * ip_id;
+
+	GtkEntryBuffer * uart_device;
+	GtkEntryBuffer * uart_baud;
+	GtkEntryBuffer * uart_parity;
+	GtkEntryBuffer * uart_data_bit;
+	GtkEntryBuffer * uart_stop_bit;
 
 	block_info_controller_s * block_info;
 
@@ -2029,8 +2035,8 @@ static char STR_NAME_CHECK[] = "Поиск";
 
 static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 {
+#if 0
 	GtkWidget * grid;
-
 	GtkWidget * label;
 	GtkWidget * block_address;
 	GtkWidget * block_port;
@@ -2068,6 +2074,18 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 	gtk_widget_show(but_check);
 
 	return grid;
+#endif
+	GtkWidget * box;
+	GtkWidget * block_select_type;
+	GtkWidget * block_find_type;
+
+	gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+
+	gtk_widget_show(box);
+
+	return box;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
