@@ -1964,6 +1964,7 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
+#if 0
 	int rc;
 	char * address = NULL;
 	uint16_t port;
@@ -1973,7 +1974,6 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	config_controller_s * config;
 	state_controller_s * state;
 	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
-
 	/*TODO при повторном нажатии утечка памяти*/
 	bsc->link = NULL;
 
@@ -2025,6 +2025,52 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	fill_block_info(bsc);
 
 	link_disconnect_controller(link);
+#endif
+}
+
+static char STR_TYPE_CONNECT[] = "Тип соединения";
+static char STR_TYPE_CONNECT_TCP[] = "TCP/IP";
+static char STR_TYPE_CONNECT_UART[] = "RS-485";
+
+static GtkWidget * create_block_select_type(block_setting_controller_s * bsc)
+{
+	GtkWidget * grid;
+	GtkWidget * lab_type;
+	GtkWidget * lab_tcp;
+	GtkWidget * but_tcp;
+	GtkWidget * lab_uart;
+	GtkWidget * but_uart;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	lab_type = gtk_label_new(STR_TYPE_CONNECT);
+	layout_widget(lab_type,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+
+	lab_tcp = gtk_label_new(STR_TYPE_CONNECT_TCP);
+	layout_widget(lab_tcp,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+
+	but_tcp = gtk_radio_button_new(NULL);
+	g_signal_connect(but_tcp,"group-changed",);
+	lab_uart = gtk_label_new(STR_TYPE_CONNECT_UART);
+	layout_widget(lab_uart,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+
+
+	gtk_grid_attach(GTK_GRID(grid),lab_type,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_tcp ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_uart,2,0,1,1);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(lab_type);
+	gtk_widget_show(lab_tcp);
+	gtk_widget_show(lab_uart);
+
+	return grid;
+}
+
+static GtkWidget * create_block_find_type(block_setting_controller_s * bsc)
+{
+
 }
 
 static char STR_NAME_CONTROLLER[] = "Контроллер";
@@ -2042,8 +2088,6 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 	GtkWidget * block_port;
 	GtkWidget * block_id;
 	GtkEntryBuffer * buf;
-	GtkWidget * but_check;
-
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
@@ -2058,10 +2102,6 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 
 	block_id = create_block_entry(STR_NAME_ID,&buf);
 	bsc->id = buf;
-
-	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
-	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),bsc);
 
 	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);
@@ -2078,12 +2118,25 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 	GtkWidget * box;
 	GtkWidget * block_select_type;
 	GtkWidget * block_find_type;
+	GtkWidget * but_check;
 
 	gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
+	block_select_type = create_block_select_type(bsc);
+
+	block_find_type = create_block_find_type(bsc);
+
+	but_check = gtk_button_new_with_label(STR_NAME_CHECK);
+	layout_widget(but_check,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_check,"clicked",G_CALLBACK(clicked_button_check),bsc);
+
+	gtk_box_pack_start(GTK_BOX(box),block_select_type,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_find_type,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),but_check,FALSE,FALSE,0);
 
 	gtk_widget_show(box);
+	gtk_widget_show(but_check);
 
 	return box;
 }
