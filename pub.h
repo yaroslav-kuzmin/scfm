@@ -212,6 +212,7 @@ typedef struct _state_controller_s state_controller_s;
 
 #define TYPE_LINK_UART        0x01
 #define TYPE_LINK_TCP         0x02
+extern char STR_EMPTY[];
 struct _link_s
 {
 	void * connect;

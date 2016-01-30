@@ -191,15 +191,16 @@ static int connect_tcp(link_s * link)
 
 static int connect_uart(link_s * link)
 {
-#if 0
 	int rc;
-
-	char * device = link->address;
-	uint16_t port = link->port;
+	char * device = link->device;
+	uint32_t baud = link->baud;
+	int8_t parity = link->parity;
+	uint8_t data_bit = link->data_bit;
+	uint8_t stop_bit = link->stop_bit;
 	uint8_t id = link->id;
 	modbus_t *ctx;
 
-	ctx = modbus_new_tcp(address,port);
+	ctx = modbus_new_rtu(device,baud,parity,data_bit,stop_bit);
 	if (ctx == NULL) {
 		return FAILURE;
 	}
@@ -215,8 +216,7 @@ static int connect_uart(link_s * link)
 		return FAILURE;
 	}
 	link->connect = ctx;
-	link->dest = g_slice_alloc0(MODBUS_TCP_MAX_ADU_LENGTH);
-#endif
+	link->dest = g_slice_alloc0(MODBUS_RTU_MAX_ADU_LENGTH);
 	return SUCCESS;
 }
 /*****************************************************************************/

@@ -385,12 +385,18 @@ struct _block_info_controller_s
 };
 typedef struct _block_info_controller_s block_info_controller_s;
 
+#define SELECT_BLOCK_FIND_TCP    1
+#define SELECT_BLOCK_FIND_UART   2
 struct _block_setting_controller_s
 {
-	GtkEntryBuffer * ip_address;
-	GtkEntryBuffer * ip_port;
-	GtkEntryBuffer * ip_id;
+	int select_block_find;
+	GtkWidget * block_find_type_tcp;
+	GtkEntryBuffer * tcp_id;
+	GtkEntryBuffer * tcp_address;
+	GtkEntryBuffer * tcp_port;
 
+	GtkWidget * block_find_type_uart;
+	GtkEntryBuffer * uart_id;
 	GtkEntryBuffer * uart_device;
 	GtkEntryBuffer * uart_baud;
 	GtkEntryBuffer * uart_parity;
@@ -469,11 +475,9 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		flag = config->flag;
 	}
-
 	name = bsc->name;
 	label = block_info->label_name;
 	gtk_label_set_text(label,name);
-
 	box = block_info->box_engine_vertical;
 	if(ENGINE_VERTICAL(flag)){
 		gtk_widget_show(box);
@@ -481,7 +485,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_engine_horizontal;
 	if(ENGINE_HORIZONTAL(flag)){
 		gtk_widget_show(box);
@@ -489,7 +492,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_actuator_spray;
 	if(ACTUATOR_SPRAY(flag)){
 		gtk_widget_show(box);
@@ -497,7 +499,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_actuator_rate;
 	if(ACTUATOR_RATE(flag)){
 		gtk_widget_show(box);
@@ -505,7 +506,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_actuator_veil;
 	if(ACTUATOR_VEIL(flag)){
 		gtk_widget_show(box);
@@ -513,7 +513,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_limit_vertical;
 	if(LIMIT_VERTICAL(flag)){
 		gtk_widget_show(box);
@@ -521,7 +520,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_tic_vertical;
 	if(TIC_VERTICAL(flag)){
 		gtk_widget_show(box);
@@ -529,7 +527,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_encoder_vertical;
 	if(ENCODER_VERTICAL(flag)){
 		gtk_widget_show(box);
@@ -537,7 +534,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_amperage_vertical;
 	if(AMPERAGE_VERTICAL(flag)){
 		gtk_widget_show(box);
@@ -545,7 +541,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_limit_horizontal;
 	if(LIMIT_HORIZONTAL(flag)){
 		gtk_widget_show(box);
@@ -553,7 +548,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_tic_horizontal;
 	if(TIC_HORIZONTAL(flag)){
 		gtk_widget_show(box);
@@ -561,7 +555,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_encoder_horizontal;
 	if(ENCODER_HORIZONTAL(flag)){
 		gtk_widget_show(box);
@@ -569,7 +562,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_amperage_horizontal;
 	if(AMPERAGE_HORIZONTAL(flag)){
 		gtk_widget_show(box);
@@ -577,7 +569,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_console_singly;
 	if(CONSOLE_SINGLY(flag)){
 		gtk_widget_show(box);
@@ -585,7 +576,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_console;
 	if(CONSOLE(flag)){
 		gtk_widget_show(box);
@@ -593,7 +583,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_post;
 	if(POST(flag)){
 		gtk_widget_show(box);
@@ -601,7 +590,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_sensor_fire_dry;
 	if(SENSOR_FIRE_DRY(flag)){
 		gtk_widget_show(box);
@@ -609,7 +597,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_sensor_fire_485;
 	if(SENSOR_FIRE_485(flag)){
 		gtk_widget_show(box);
@@ -617,7 +604,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_sensor_fire_ethernet;
 	if(SENSOR_FIRE_ETHERNET(flag)){
 		gtk_widget_show(box);
@@ -625,7 +611,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_sensor_dry_485;
 	if(SENSOR_DRY_485(flag)){
 		gtk_widget_show(box);
@@ -633,7 +618,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_sensor_dry_etherner;
 	if(SENSOR_DRY_ETHERNET(flag)){
 		gtk_widget_show(box);
@@ -641,7 +625,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_valve_dry;
 	if(VALVE_DRY(flag)){
 		gtk_widget_show(box);
@@ -649,7 +632,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_valve_analog;
 	if(VALVE_ANALOG(flag)){
 		gtk_widget_show(box);
@@ -657,7 +639,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_valve_limit;
 	if(VALVE_LIMIT(flag)){
 		gtk_widget_show(box);
@@ -665,7 +646,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_valve_feedback;
 	if(VALVE_FEEDBACK(flag)){
 		gtk_widget_show(box);
@@ -673,7 +653,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_cam_analog_dc;
 	if(CAM_ANALOG_DC(flag)){
 		gtk_widget_show(box);
@@ -681,7 +660,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_cam_digital_dc;
 	if(CAM_DIGITAL_DC(flag)){
 		gtk_widget_show(box);
@@ -689,7 +667,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_cam_digital_poe;
 	if(CAM_DIGITAL_POE(flag)){
 		gtk_widget_show(box);
@@ -697,7 +674,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_01;
 	if(FIRE_ALARM_01(flag)){
 		gtk_widget_show(box);
@@ -705,7 +681,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_02;
 	if(FIRE_ALARM_02(flag)){
 		gtk_widget_show(box);
@@ -713,7 +688,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_03;
 	if(FIRE_ALARM_03(flag)){
 		gtk_widget_show(box);
@@ -721,7 +695,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_04;
 	if(FIRE_ALARM_04(flag)){
 		gtk_widget_show(box);
@@ -729,7 +702,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_05;
 	if(FIRE_ALARM_05(flag)){
 		gtk_widget_show(box);
@@ -737,7 +709,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_06;
 	if(FIRE_ALARM_06(flag)){
 		gtk_widget_show(box);
@@ -745,7 +716,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_07;
 	if(FIRE_ALARM_07(flag)){
 		gtk_widget_show(box);
@@ -753,7 +723,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_08;
 	if(FIRE_ALARM_08(flag)){
 		gtk_widget_show(box);
@@ -761,7 +730,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_09;
 	if(FIRE_ALARM_09(flag)){
 		gtk_widget_show(box);
@@ -769,7 +737,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_10;
 	if(FIRE_ALARM_10(flag)){
 		gtk_widget_show(box);
@@ -777,7 +744,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_11;
 	if(FIRE_ALARM_11(flag)){
 		gtk_widget_show(box);
@@ -785,7 +751,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_12;
 	if(FIRE_ALARM_12(flag)){
 		gtk_widget_show(box);
@@ -793,7 +758,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_13;
 	if(FIRE_ALARM_13(flag)){
 		gtk_widget_show(box);
@@ -801,7 +765,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_14;
 	if(FIRE_ALARM_14(flag)){
 		gtk_widget_show(box);
@@ -809,7 +772,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_15;
 	if(FIRE_ALARM_15(flag)){
 		gtk_widget_show(box);
@@ -817,7 +779,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_fire_alarm_16;
 	if(FIRE_ALARM_16(flag)){
 		gtk_widget_show(box);
@@ -825,7 +786,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_01_state_0;
 	if(DEVICE_01_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -833,7 +793,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_01_state_1;
 	if(DEVICE_01_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -841,7 +800,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_02_state_0;
 	if(DEVICE_02_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -849,7 +807,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_02_state_1;
 	if(DEVICE_02_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -857,7 +814,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_03_state_0;
 	if(DEVICE_03_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -865,7 +821,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_03_state_1;
 	if(DEVICE_03_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -873,7 +828,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_04_state_0;
 	if(DEVICE_04_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -881,7 +835,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_04_state_1;
 	if(DEVICE_04_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -889,7 +842,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_05_state_0;
 	if(DEVICE_05_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -897,7 +849,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_05_state_1;
 	if(DEVICE_05_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -905,7 +856,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_06_state_0;
 	if(DEVICE_06_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -913,7 +863,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_06_state_1;
 	if(DEVICE_06_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -921,7 +870,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_07_state_0;
 	if(DEVICE_07_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -929,7 +877,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_07_state_1;
 	if(DEVICE_07_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -937,7 +884,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_08_state_0;
 	if(DEVICE_08_STATE_0(flag)){
 		gtk_widget_show(box);
@@ -945,7 +891,6 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-
 	box = block_info->box_device_08_state_1;
 	if(DEVICE_08_STATE_1(flag)){
 		gtk_widget_show(box);
@@ -953,6 +898,49 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
+	return SUCCESS;
+}
+
+static int check_rate_controller(block_info_controller_s * block_info,config_controller_s * config)
+{
+	const char * str;
+	double rate;
+	GtkEntryBuffer * buf;
+
+	buf = block_info->buf_tic_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_tic_vertical = rate;
+
+	buf = block_info->buf_encoder_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_encoder_vertical = rate;
+
+	buf = block_info->buf_amperage_vertical;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_amperage_vertical = rate;
+
+	buf = block_info->buf_tic_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_tic_horizontal = rate;
+
+	buf = block_info->buf_encoder_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_encoder_horizontal = rate;
+
+	buf = block_info->buf_amperage_horizontal;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_amperage_horizontal = rate;
+
+	buf = block_info->buf_valve_analog;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_valve_analog = rate;
 
 	return SUCCESS;
 }
@@ -1022,8 +1010,8 @@ static char STR_DEVICE_07_STATE_1[]    = "Устройство 7 (Состоян
 static char STR_DEVICE_08_STATE_0[]    = "Устройство 8 (Состояние А)";
 static char STR_DEVICE_08_STATE_1[]    = "Устройство 8 (Состояние Б)";
 
-static int min_width_block_info = 300;
-static int min_height_block_info = 400;
+static int32_t min_width_block_info = 300;
+static int32_t min_height_block_info = 400;
 
 static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 {
@@ -1858,25 +1846,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	return scrwin;
 }
 
-static char * check_address(const char * address)
-{
-	char * str;
-	GInetAddress * inet_address = g_inet_address_new_from_string(address);
-	if(inet_address == NULL){
-		return NULL;
-	}
-	str = g_inet_address_to_string(inet_address);
-	g_object_unref(inet_address);
-	return str;
-}
-
-static uint16_t check_port(const char * port)
-{
-	uint16_t p = 0;
-	p = g_ascii_strtoull(port,NULL,10);
-	return p;
-}
-
 static uint8_t check_id(const char * id)
 {
 	uint8_t t = 0;
@@ -1890,6 +1859,288 @@ static uint8_t check_id(const char * id)
 		}
 	}
 	return t;
+}
+
+static char * check_tcp_address(const char * address)
+{
+	char * str;
+	GInetAddress * inet_address = g_inet_address_new_from_string(address);
+	if(inet_address == NULL){
+		return NULL;
+	}
+	str = g_inet_address_to_string(inet_address);
+	g_object_unref(inet_address);
+	return str;
+}
+
+static uint16_t check_tcp_port(const char * port)
+{
+	uint16_t p = 0;
+	p = g_ascii_strtoull(port,NULL,10);
+	return p;
+}
+
+static link_s * check_option_tcp(block_setting_controller_s * bsc)
+{
+	link_s * link = NULL;
+	uint8_t id;
+	char * address = NULL;
+	uint16_t port;
+	const char * str;
+
+	/*TODO вывод сообщений*/
+	str = gtk_entry_buffer_get_text(bsc->tcp_id);
+	id = check_id(str);
+	if(id == 0){
+		g_warning("Индификатор контролера не корректный!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->tcp_address);
+	address = check_tcp_address(str);
+	if(address == NULL){
+		g_warning("Адрес контролера не корректный!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->tcp_port);
+	port = check_tcp_port(str);
+	if(port == 0){
+		g_warning("Порт контролера не корректный!");
+		return link;
+	}
+
+	link = g_slice_alloc0(sizeof(link_s));
+	link->id = id;
+	link->connect = NULL;
+
+	link->type = TYPE_LINK_TCP;
+	link->address = address;
+	link->port = port;
+
+	link->device = STR_EMPTY;
+	link->baud = 0;
+	link->parity = 0;
+	link->data_bit = 0;
+	link->stop_bit = 0;
+
+	return link;
+}
+
+static char * check_uart_device(const char * device)
+{
+	/*TODO в Linux и Windos разные название файлов*/
+	return g_strdup(device);
+}
+static uint32_t check_uart_baud(const char * baud)
+{
+	uint32_t speed = g_ascii_strtoull(baud,NULL,10);
+	return speed;
+}
+static int8_t check_uart_parity(const char * parity)
+{
+	int8_t symbol = parity[0];
+	/*N нет четности : E четно : O не четно */
+	if(symbol != 'N'){
+		if(symbol != 'E'){
+			if(symbol != 'O'){
+				symbol = 0;
+			}
+		}
+	}
+	return symbol;
+}
+static uint8_t check_uart_data_bit(const char * data_bit)
+{
+	uint8_t bit = g_ascii_strtoull(data_bit,NULL,10);
+	if( (bit < 5) || (bit > 8)){
+		bit = 0;
+	}
+	return bit;
+}
+static uint8_t check_uart_stop_bit(const char * stop_bit)
+{
+	uint8_t bit = g_ascii_strtoull(stop_bit,NULL,10);
+	if(bit != 1){
+		if(bit != 2){
+			bit = 0;
+		}
+	}
+	return bit;
+}
+
+static link_s * check_option_uart(block_setting_controller_s * bsc)
+{
+	link_s * link = NULL;
+	uint8_t id;
+	char * device = NULL;
+	uint32_t baud;
+	int8_t parity;
+	uint8_t data_bit;
+	uint8_t stop_bit;
+	const char * str;
+
+	/*TODO вывод сообщений*/
+	str = gtk_entry_buffer_get_text(bsc->uart_id);
+	id = check_id(str);
+	if(id == 0){
+		g_warning("Индификатор контролера не корректный!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->uart_device);
+	device = check_uart_device(str);
+	if(device == NULL){
+		g_warning("Название файла не корректно!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->uart_baud);
+	baud = check_uart_baud(str);
+	if(baud == 0){
+		g_warning("Скорость не корректна!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->uart_parity);
+	parity = check_uart_parity(str);
+	if(parity == 0){
+		g_warning("Четность не корректна!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->uart_data_bit);
+	data_bit = check_uart_data_bit(str);
+	if(data_bit == 0){
+		g_warning("Бит дата не корректна!");
+		return link;
+	}
+	str = gtk_entry_buffer_get_text(bsc->uart_stop_bit);
+	stop_bit = check_uart_stop_bit(str);
+	if(stop_bit == 0){
+		g_warning("Стоп бит не корректна!");
+		return link;
+	}
+
+	link = g_slice_alloc0(sizeof(link_s));
+	link->id = id;
+	link->connect = NULL;
+	link->type = TYPE_LINK_UART;
+	link->device = device;
+	link->baud = baud;
+	link->parity = parity;
+	link->data_bit = data_bit;
+	link->stop_bit = stop_bit;
+
+	link->address = STR_EMPTY;
+	link->port = 0;
+
+	return link;
+}
+
+static void clicked_button_check(GtkButton * button,gpointer ud)
+{
+	int rc;
+	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
+	link_s * link = NULL;
+	config_controller_s * config;
+	state_controller_s * state;
+
+	if(bsc->select_block_find == SELECT_BLOCK_FIND_TCP){
+		link = check_option_tcp(bsc);
+	}
+	else{
+		link = check_option_uart(bsc);
+	}
+	if(link == NULL){
+		return ;
+	}
+
+	/*TODO при повторном нажатии утечка памяти*/
+	bsc->link = NULL;
+
+	config = g_slice_alloc0(sizeof(config_controller_s));
+	state = g_slice_alloc0(sizeof(state_controller_s));
+
+	rc = check_link_controller(link,config,state);
+	if(rc == FAILURE){
+		g_slice_free1(sizeof(link_s),link);
+		g_slice_free1(sizeof(config_controller_s),config);
+		g_slice_free1(sizeof(state_controller_s),state);
+		return;
+	}
+
+	bsc->link = link;
+	bsc->config = config;
+	bsc->state = state;
+	bsc->name = get_name_controller(config);
+	/*TODO сообщенийние что проверка корректна*/
+	fill_block_info(bsc);
+
+	link_disconnect_controller(link);
+}
+
+static void clicked_radio_button_tcp(GtkRadioButton * rb,gpointer ud)
+{
+	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
+	GtkWidget * block_tcp = bsc->block_find_type_tcp;
+	GtkWidget * block_uart = bsc->block_find_type_uart;
+	bsc->select_block_find = SELECT_BLOCK_FIND_TCP;
+	gtk_widget_hide(block_uart);
+	gtk_widget_show(block_tcp);
+}
+
+static void clicked_radio_button_uart(GtkRadioButton * rb,gpointer ud)
+{
+	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
+	GtkWidget * block_tcp = bsc->block_find_type_tcp;
+	GtkWidget * block_uart = bsc->block_find_type_uart;
+	bsc->select_block_find = SELECT_BLOCK_FIND_UART;
+	gtk_widget_hide(block_tcp);
+	gtk_widget_show(block_uart);
+}
+
+static char STR_TYPE_CONNECT[] = "Тип соединения";
+static char STR_TYPE_CONNECT_TCP[] = "TCP/IP";
+static char STR_TYPE_CONNECT_UART[] = "RS-485";
+
+static GtkWidget * create_block_select_type(block_setting_controller_s * bsc)
+{
+	GtkWidget * grid;
+	GtkWidget * lab_type;
+	GtkWidget * lab_tcp;
+	GtkWidget * but_tcp;
+	GtkWidget * lab_uart;
+	GtkWidget * but_uart;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	lab_type = gtk_label_new(STR_TYPE_CONNECT);
+	layout_widget(lab_type,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
+
+	lab_tcp = gtk_label_new(STR_TYPE_CONNECT_TCP);
+	layout_widget(lab_tcp,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+
+	but_tcp = gtk_radio_button_new(NULL);
+	g_signal_connect(but_tcp,"clicked",G_CALLBACK(clicked_radio_button_tcp),bsc);
+	layout_widget(but_tcp,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	lab_uart = gtk_label_new(STR_TYPE_CONNECT_UART);
+	layout_widget(lab_uart,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+
+	but_uart = gtk_radio_button_new_from_widget(GTK_RADIO_BUTTON(but_tcp));
+	g_signal_connect(but_uart,"clicked",G_CALLBACK(clicked_radio_button_uart),bsc);
+	layout_widget(but_uart,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	gtk_grid_attach(GTK_GRID(grid),lab_type,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_tcp ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_tcp ,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),lab_uart,2,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_uart,2,1,1,1);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(lab_type);
+	gtk_widget_show(lab_tcp);
+	gtk_widget_show(but_tcp);
+	gtk_widget_show(lab_uart);
+	gtk_widget_show(but_uart);
+
+	return grid;
 }
 
 static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
@@ -1917,210 +2168,133 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 
 	return box;
 }
+static char STR_NAME_ID[] = "Номер контролера";
 
-static int check_rate_controller(block_info_controller_s * block_info,config_controller_s * config)
+static char STR_NAME_TCP_ADDRESS[] = "Адрес";
+static char STR_DEFAULT_TCP_ADDRESS[] = "127.0.0.1";
+static char STR_NAME_TCP_PORT[] = "Порт";
+static char STR_DEFAULT_TCP_PORT[] = "1502";
+
+static GtkWidget * create_block_find_type_tcp(block_setting_controller_s * bsc)
 {
-	const char * str;
-	double rate;
+	GtkWidget * box;
+	GtkWidget * block_id;
+	GtkWidget * block_address;
+	GtkWidget * block_port;
 	GtkEntryBuffer * buf;
 
-	buf = block_info->buf_tic_vertical;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_tic_vertical = rate;
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = block_info->buf_encoder_vertical;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_encoder_vertical = rate;
+	block_id = create_block_entry(STR_NAME_ID,&buf);
+	gtk_entry_buffer_set_text(buf,"2",-1);
+	bsc->tcp_id = buf;
+	block_address = create_block_entry(STR_NAME_TCP_ADDRESS,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_TCP_ADDRESS,-1);
+	bsc->tcp_address = buf;
+	block_port = create_block_entry(STR_NAME_TCP_PORT,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_TCP_PORT,-1);
+	bsc->tcp_port = buf;
 
-	buf = block_info->buf_amperage_vertical;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_amperage_vertical = rate;
+	gtk_box_pack_start(GTK_BOX(box),block_id,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_address,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_port,TRUE,TRUE,0);
 
-	buf = block_info->buf_tic_horizontal;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_tic_horizontal = rate;
-
-	buf = block_info->buf_encoder_horizontal;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_encoder_horizontal = rate;
-
-	buf = block_info->buf_amperage_horizontal;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_amperage_horizontal = rate;
-
-	buf = block_info->buf_valve_analog;
-	str = gtk_entry_buffer_get_text(buf);
-	rate = g_strtod(str,NULL);
-	config->rate_valve_analog = rate;
-
-	return SUCCESS;
+	gtk_widget_show(box);
+	return box;
 }
 
-static void clicked_button_check(GtkButton * button,gpointer ud)
+static char STR_NAME_UART_DEVICE[] = "Устройство";
+static char STR_DEFAULT_UART_DEVICE[] = "\\\\.\\COM7";
+static char STR_NAME_UART_BAUD[] = "Скорость";
+static char STR_DEFAULT_UART_BAUD[] = "9600";
+static char STR_NAME_UART_PARITY[] = "Четность";
+static char STR_DEFAULT_UART_PARITY[] = "N";
+static char STR_NAME_UART_DATA_BIT[] = "Бит данных";
+static char STR_DEFAULT_UART_DATA_BIT[] = "8";
+static char STR_NAME_UART_STOP_BIT[] = "Стоп бит";
+static char STR_DEFAULT_UART_STOP_BIT[] = "1";
+
+static GtkWidget * create_block_find_type_uart(block_setting_controller_s * bsc)
 {
-#if 0
-	int rc;
-	char * address = NULL;
-	uint16_t port;
-	uint8_t id;
-	const char * str;
-	link_s * link;
-	config_controller_s * config;
-	state_controller_s * state;
-	block_setting_controller_s * bsc = (block_setting_controller_s*)ud;
-	/*TODO при повторном нажатии утечка памяти*/
-	bsc->link = NULL;
+	GtkWidget * box;
+	GtkWidget * block_id;
+	GtkWidget * block_device;
+	GtkWidget * block_baud;
+	GtkWidget * block_parity;
+	GtkWidget * block_data_bit;
+	GtkWidget * block_stop_bit;
+	GtkEntryBuffer * buf;
 
-	/*TODO вывод сообщений*/
-	str = gtk_entry_buffer_get_text(bsc->address);
-	address = check_address(str);
-	if(address == NULL){
-		g_warning("Адрес контролера не корректный!");
-		return ;
-	}
-	str = gtk_entry_buffer_get_text(bsc->port);
-	port = check_port(str);
-	if(port == 0){
-		g_warning("Порт контролера не корректный!");
-		return ;
-	}
-	str = gtk_entry_buffer_get_text(bsc->id);
-	id = check_id(str);
-	if(id == 0){
-		g_warning("Индификатор контролера не корректный!");
-		return ;
-	}
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	link = g_slice_alloc0(sizeof(link_s));
-	config = g_slice_alloc0(sizeof(config_controller_s));
-	state = g_slice_alloc0(sizeof(state_controller_s));
+	block_id = create_block_entry(STR_NAME_ID,&buf);
+	gtk_entry_buffer_set_text(buf,"2",-1);
+	bsc->uart_id = buf;
+	block_device = create_block_entry(STR_NAME_UART_DEVICE,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_UART_DEVICE,-1);
+	bsc->uart_device = buf;
+	block_baud = create_block_entry(STR_NAME_UART_BAUD,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_UART_BAUD,-1);
+	bsc->uart_baud = buf;
+	block_parity = create_block_entry(STR_NAME_UART_PARITY,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_UART_PARITY,-1);
+	bsc->uart_parity = buf;
+	block_data_bit = create_block_entry(STR_NAME_UART_DATA_BIT,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_UART_DATA_BIT,-1);
+	bsc->uart_data_bit = buf;
+	block_stop_bit = create_block_entry(STR_NAME_UART_STOP_BIT,&buf);
+	gtk_entry_buffer_set_text(buf,STR_DEFAULT_UART_STOP_BIT,-1);
+	bsc->uart_stop_bit = buf;
 
-	/*TODO добавление других типов соединений*/
-	link->type = TYPE_LINK_TCP;
-	link->connect = NULL;
-	link->address = address;
-	link->port = port;
-	link->id = id;
+	gtk_box_pack_start(GTK_BOX(box),block_id,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_device,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_baud,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_parity,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_data_bit,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_stop_bit,TRUE,TRUE,0);
 
-	rc = check_link_controller(link,config,state);
-	if(rc == FAILURE){
-		g_slice_free1(sizeof(link_s),link);
-		g_slice_free1(sizeof(config_controller_s),config);
-		g_slice_free1(sizeof(state_controller_s),state);
-		link_disconnect_controller(link);
-		return;
-	}
-
-	bsc->link = link;
-	bsc->config = config;
-	bsc->state = state;
-	bsc->name = get_name_controller(config);
-	/*TODO сообщенийние что проверка корректна*/
-	fill_block_info(bsc);
-
-	link_disconnect_controller(link);
-#endif
-}
-
-static char STR_TYPE_CONNECT[] = "Тип соединения";
-static char STR_TYPE_CONNECT_TCP[] = "TCP/IP";
-static char STR_TYPE_CONNECT_UART[] = "RS-485";
-
-static GtkWidget * create_block_select_type(block_setting_controller_s * bsc)
-{
-	GtkWidget * grid;
-	GtkWidget * lab_type;
-	GtkWidget * lab_tcp;
-	GtkWidget * but_tcp;
-	GtkWidget * lab_uart;
-	GtkWidget * but_uart;
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	lab_type = gtk_label_new(STR_TYPE_CONNECT);
-	layout_widget(lab_type,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
-
-	lab_tcp = gtk_label_new(STR_TYPE_CONNECT_TCP);
-	layout_widget(lab_tcp,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-
-	but_tcp = gtk_radio_button_new(NULL);
-	g_signal_connect(but_tcp,"group-changed",);
-	lab_uart = gtk_label_new(STR_TYPE_CONNECT_UART);
-	layout_widget(lab_uart,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-
-
-	gtk_grid_attach(GTK_GRID(grid),lab_type,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),lab_tcp ,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),lab_uart,2,0,1,1);
-
-	gtk_widget_show(grid);
-	gtk_widget_show(lab_type);
-	gtk_widget_show(lab_tcp);
-	gtk_widget_show(lab_uart);
-
-	return grid;
+	gtk_widget_show(box);
+	return box;
 }
 
 static GtkWidget * create_block_find_type(block_setting_controller_s * bsc)
 {
+	GtkWidget * grid;
+	GtkWidget * block_find_type_tcp;
+	GtkWidget * block_find_type_uart;
 
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_find_type_tcp = create_block_find_type_tcp(bsc);
+	bsc->block_find_type_tcp = block_find_type_tcp;
+
+	block_find_type_uart = create_block_find_type_uart(bsc);
+	bsc->block_find_type_uart = block_find_type_uart;
+
+	gtk_grid_attach(GTK_GRID(grid),block_find_type_tcp,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_find_type_uart,0,0,1,1);
+
+	gtk_widget_show(grid);
+	bsc->select_block_find = SELECT_BLOCK_FIND_TCP;
+	gtk_widget_show(block_find_type_tcp);
+	gtk_widget_hide(block_find_type_uart);
+
+	return grid;
 }
 
-static char STR_NAME_CONTROLLER[] = "Контроллер";
-static char STR_NAME_ADDRESS[] = "Адрес";
-static char STR_NAME_PORT[] = "Порт";
-static char STR_NAME_ID[] = "Номер";
 static char STR_NAME_CHECK[] = "Поиск";
 
 static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 {
-#if 0
-	GtkWidget * grid;
-	GtkWidget * label;
-	GtkWidget * block_address;
-	GtkWidget * block_port;
-	GtkWidget * block_id;
-	GtkEntryBuffer * buf;
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	label = gtk_label_new(STR_NAME_CONTROLLER);
-	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,FALSE);
-
-	block_address = create_block_entry(STR_NAME_ADDRESS,&buf);
-	bsc->address = buf;
-
-	block_port = create_block_entry(STR_NAME_PORT,&buf);
-	bsc->port = buf;
-
-	block_id = create_block_entry(STR_NAME_ID,&buf);
-	bsc->id = buf;
-
-	gtk_grid_attach(GTK_GRID(grid),label        ,0,0,2,1);
-	gtk_grid_attach(GTK_GRID(grid),block_address,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_port   ,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_id     ,0,3,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_check    ,0,4,2,1);
-
-	gtk_widget_show(grid);
-	gtk_widget_show(label);
-	gtk_widget_show(but_check);
-
-	return grid;
-#endif
 	GtkWidget * box;
 	GtkWidget * block_select_type;
 	GtkWidget * block_find_type;
 	GtkWidget * but_check;
 
-	gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	block_select_type = create_block_select_type(bsc);

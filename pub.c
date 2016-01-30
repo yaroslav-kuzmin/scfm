@@ -61,4 +61,5 @@ GdkRGBA color_lite_blue = {0.2,0.1,1  ,1};
 GdkRGBA color_lite_red  = {1  ,0.2,0.1,1};
 GdkRGBA color_lite_green= {0.2,1  ,0.1,1};
 
+extern char STR_EMPTY[] = "empty";
 /*****************************************************************************/
