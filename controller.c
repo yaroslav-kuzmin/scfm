@@ -2423,8 +2423,8 @@ static int connect_controller(controller_s * controller)
 	return SUCCESS;
 }
 
- 
-int control_controllers(int )
+
+int control_controllers(void)
 {
 	int rc;
 	GSList * list = all_controller.list;
