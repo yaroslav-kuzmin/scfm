@@ -41,6 +41,12 @@
 #                                                                             #
 ###############################################################################
 
+PLATFORM=Linux 
+OS=$(uname)
+ifneq ($(PLATFORM),$(OS))
+PLATFORM=Windows	
+endif
+
 OBJ_CATALOG=.obj/
 DEPEND_CATALOG=.depend/
 
@@ -56,7 +62,10 @@ DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 CXX=gcc
 CFLAGS=-g2 -Wall -I. -I$(MODBUS_CATALOG) -DG_LOG_DOMAIN=\"scfm\" `pkg-config --cflags gtk+-3.0`
 LDFLAGS=-g2 -L$(MODBUS_CATALOG) 
-LIB=`pkg-config --libs gtk+-3.0` -lavformat -lavcodec -lswscale -lavutil -lsqlite3 -lws2_32  
+LIB=`pkg-config --libs gtk+-3.0` -lavformat -lavcodec -lswscale -lavutil -lsqlite3  
+ifeq ($(OS),Windows)
+LIB+=-lws2_32	
+endif	
 
 RESOURCE_CATALOG=resource/
 RC=rcedit
