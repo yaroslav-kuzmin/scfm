@@ -161,7 +161,20 @@ enum{
 	COLUMN_TABLE_CONTROLLER_ID,
 	COLUMN_TABLE_CONTROLLER_ADDRESS,
 	COLUMN_TABLE_CONTROLLER_PORT,
-	COLUMN_TABLE_CONTROLLER_NAME,
+	COLUMN_TABLE_CONTROLLER_DEVICE,
+	COLUMN_TABLE_CONTROLLER_BAUD,
+	COLUMN_TABLE_CONTROLLER_PARITY,
+	COLUMN_TABLE_CONTROLLER_DATA_BIT,
+	COLUMN_TABLE_CONTROLLER_STOP_BIT,
+	COLUMN_TABLE_CONTROLLER_TYPE,
+	COLUMN_TABLE_CONTROLLER_FLAG,
+	COLUMN_TABLE_CONTROLLER_TIC_VERTICAL,
+	COLUMN_TABLE_CONTROLLER_ENCODER_VERTICAL,
+	COLUMN_TABLE_CONTROLLER_AMPERAGE_VERTICAL,
+	COLUMN_TABLE_CONTROLLER_TIC_HORIZONTAL,
+	COLUMN_TABLE_CONTROLLER_ENCODER_HORIZONTAL,
+	COLUMN_TABLE_CONTROLLER_AMPERAGE_HORIZONTAL,
+	COLUMN_TABLE_CONTROLLER_VALVE_ANALOG,
 	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
 
@@ -170,15 +183,13 @@ struct _config_controller_s
 	uint32_t type;
 	uint64_t flag;
 
-	uint32_t index_tic_vertical;
-	uint32_t index_encoder_vertical;
-	uint32_t index_amperage_vertical;
-	uint32_t index_tic_horizantal;
-	uint32_t index_encoder_horizontal;
-	uint32_t index_amperage_horizontal;
-	uint32_t index_pressure;
-	uint32_t type_engine_vertical;
-	uint32_t type_engine_horizontal;
+	double rate_tic_vertical;
+	double rate_encoder_vertical;
+	double rate_amperage_vertical;
+	double rate_tic_horizontal;
+	double rate_encoder_horizontal;
+	double rate_amperage_horizontal;
+	double rate_valve_analog;
 };
 typedef struct _config_controller_s config_controller_s;
 
@@ -201,6 +212,7 @@ typedef struct _state_controller_s state_controller_s;
 
 #define TYPE_LINK_UART        0x01
 #define TYPE_LINK_TCP         0x02
+extern char STR_EMPTY[];
 struct _link_s
 {
 	void * connect;

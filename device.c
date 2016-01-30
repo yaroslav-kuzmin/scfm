@@ -145,7 +145,6 @@ static int set_config_controller(uint16_t * reg,config_controller_s * config)
 
 static int set_state_controller(uint16_t * dest,state_controller_s *state)
 {
-
 	state->lafet               = dest[REG_D100];
 	state->tic_vertical        = dest[REG_D101];
 	state->tic_horizontal      = dest[REG_D102];
@@ -192,7 +191,33 @@ static int connect_tcp(link_s * link)
 
 static int connect_uart(link_s * link)
 {
-	return FAILURE;
+	int rc;
+	char * device = link->device;
+	uint32_t baud = link->baud;
+	int8_t parity = link->parity;
+	uint8_t data_bit = link->data_bit;
+	uint8_t stop_bit = link->stop_bit;
+	uint8_t id = link->id;
+	modbus_t *ctx;
+
+	ctx = modbus_new_rtu(device,baud,parity,data_bit,stop_bit);
+	if (ctx == NULL) {
+		return FAILURE;
+	}
+
+	modbus_set_error_recovery(ctx,(MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL));
+
+	modbus_set_slave(ctx,id);
+
+	rc = modbus_connect(ctx);
+	if(rc == -1){
+		g_warning("Несмог подключится к : %d",id);
+		modbus_free(ctx);
+		return FAILURE;
+	}
+	link->connect = ctx;
+	link->dest = g_slice_alloc0(MODBUS_RTU_MAX_ADU_LENGTH);
+	return SUCCESS;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */

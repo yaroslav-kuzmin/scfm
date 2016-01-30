@@ -50,6 +50,7 @@
 #include "database.h"
 #include "group.h"
 #include "videocamera.h"
+#include "controller.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -283,6 +284,7 @@ int set_mode_work(int mode,GtkWidget * win_main)
 	switch(mode){
 		case MODE_CONTROL:
 			mode_work = MODE_CONTROL;
+			control_controllers();
 			break;
 		case MODE_CONFIG:
 			mode_work = MODE_CONFIG;
@@ -355,6 +357,7 @@ generic_s * init_system(void)
 	init_database(work_catalog);
 	init_all_group();
 	init_all_videocamera();
+	init_all_controller();
 	init_kernel();
 
 	return &generic;
@@ -363,6 +366,7 @@ generic_s * init_system(void)
 int deinit_system(void)
 {
 	deinit_database();
+	deinit_all_controller();
 	deinit_all_videcamera();
 	deinit_all_group();
 	deinit_kernel();

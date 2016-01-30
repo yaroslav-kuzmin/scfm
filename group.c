@@ -196,7 +196,7 @@ group_s * init_group(uint32_t number)
 }
 
 block_group_s block_group;
-int fill_block_group(group_s * group)
+int select_block_group(group_s * group)
 {
 	GtkLabel * image = block_group.label;
 	gtk_label_set_text(image,group->image);
