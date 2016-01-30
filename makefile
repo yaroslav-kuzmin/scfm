@@ -44,9 +44,8 @@
 OS_LINUX=Linux
 OS_WINDOWS=Windows
 OS=$(shell uname)
-
 ifneq '$(OS)' '$(OS_LINUX)'
-OS=Windows
+OS=$(OS_WINDOWS)
 endif
 
 OBJ_CATALOG=.obj/
