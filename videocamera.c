@@ -242,13 +242,13 @@ GtkWidget * create_block_setting_videocamera(void)
 
 /*****************************************************************************/
 all_videocamera_s all_videocamera;
-int init_all_videocamera(void)
+int init_all_videocameras(void)
 {
 	all_videocamera.list = g_slist_alloc();
 	return SUCCESS;
 }
 
-int deinit_all_videcamera(void)
+int deinit_all_videcameras(void)
 {
 	g_slist_free(all_videocamera.list);
 	return SUCCESS;
@@ -270,7 +270,6 @@ videocamera_s * init_videocamera(uint32_t number)
 	all_videocamera.list = g_slist_append(all_videocamera.list,videocamera);
 	return videocamera;
 }
-
 
 block_videocamera_s block_videocamera;
 

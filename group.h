@@ -47,8 +47,8 @@
 void * new_property_group(void);
 int del_property_group(group_s * group);
 
-int init_all_group(void);
-int deinit_all_group(void);
+int init_all_groups(void);
+int deinit_all_groups(void);
 group_s * init_group(uint32_t number);
 
 int select_block_group(group_s * group);

@@ -47,8 +47,8 @@
 void * new_property_videocamera(void);
 int del_property_videocamera(videocamera_s * property);
 
-int init_all_videocamera(void);
-int deinit_all_videcamera(void);
+int init_all_videocameras(void);
+int deinit_all_videcameras(void);
 videocamera_s * init_videocamera(uint32_t number);
 
 int select_block_videcamera(videocamera_s * videocamera);

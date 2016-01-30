@@ -2377,7 +2377,7 @@ GtkWidget * create_block_setting_controller(void)
 #define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
 #define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
 static all_controller_s all_controller;
-int init_all_controller(void)
+int init_all_controllers(void)
 {
 	all_controller.list = NULL;
 	all_controller.current = NULL;
@@ -2388,7 +2388,7 @@ int init_all_controller(void)
 	return SUCCESS;
 }
 
-int deinit_all_controller(void)
+int deinit_all_controllers(void)
 {
 	g_slist_free(all_controller.list);
 	return SUCCESS;
@@ -2675,7 +2675,6 @@ static GtkWidget * create_block_control(block_controller_s * block)
 	return frame;
 }
 
-
 static block_controller_s block_controller;
 
 int show_block_controler(gpointer data)
@@ -2754,7 +2753,6 @@ int select_block_controller(controller_s * controller)
 #endif
 	return SUCCESS;
 }
-
 
 GtkWidget * create_block_controller(void)
 {

@@ -41,10 +41,12 @@
 #                                                                             #
 ###############################################################################
 
-PLATFORM=Linux 
-OS=$(uname)
-ifneq ($(PLATFORM),$(OS))
-PLATFORM=Windows	
+OS_LINUX=Linux
+OS_WINDOWS=Windows
+OS=$(shell uname)
+
+ifneq '$(OS)' '$(OS_LINUX)'
+OS=Windows
 endif
 
 OBJ_CATALOG=.obj/
@@ -62,14 +64,17 @@ DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 CXX=gcc
 CFLAGS=-g2 -Wall -I. -I$(MODBUS_CATALOG) -DG_LOG_DOMAIN=\"scfm\" `pkg-config --cflags gtk+-3.0`
 LDFLAGS=-g2 -L$(MODBUS_CATALOG) 
+ifeq '$(OS)' '$(OS_WINDOWS)'
+LDFLAGS+=-mwindows
+endif
 LIB=`pkg-config --libs gtk+-3.0` -lavformat -lavcodec -lswscale -lavutil -lsqlite3  
-ifeq ($(OS),Windows)
+ifeq '$(OS)' '$(OS_WINDOWS)'
 LIB+=-lws2_32	
 endif	
 
 RESOURCE_CATALOG=resource/
 RC=rcedit
-ICON=$(RESOURCE_CATALOG)cid.ico
+ICON=$(RESOURCE_CATALOG)scfm.ico
 
 RESOURCE=$(RESOURCE_CATALOG)scfm.gresource.xml
 SOURCE_RESOURCE=$(RESOURCE_CATALOG)scfm.c
@@ -84,7 +89,9 @@ GIT_VERSION=./git_version.sh
 
 $(EXEC):$(OBJS) $(OBJ_RESOURCE) $(LIB_MODBUS)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIB)
-#	$(RC) $(EXEC) --set-icon $(ICON) windows
+ifeq '$(OS)' '$(OS_WINDOWS)'
+	$(RC) $(EXEC) --set-icon $(ICON)
+endif		
 
 $(LIB_MODBUS):$(MODBUS_CATALOG)
 	make -C $<
@@ -108,7 +115,13 @@ $(HEADRE_RESOURCE):$(RESOURCE)
 
 $(HEADER_VERSION):$(GIT_REPOSITOR)
 	$(GIT_VERSION)
-	
+
+STRIP=strip	
+
+.PHONY:releas
+releas:$(EXEC)
+	$(STRIP) -s $(EXEC)		
+
 .PHONY:clean
 clean:
 	-rm -f $(EXEC) *~ $(OBJ_CATALOG)*.o $(DEPEND_CATALOG)*.d $(OBJ_RESOURCE) $(SOURCE_RESOURCE) $(HEADRE_RESOURCE)

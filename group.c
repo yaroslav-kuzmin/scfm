@@ -166,13 +166,13 @@ GtkWidget * create_block_setting_group(void)
 
 /*****************************************************************************/
 all_group_s all_group;
-int init_all_group(void)
+int init_all_groups(void)
 {
 	all_group.list = g_slist_alloc();
 	return SUCCESS;
 }
 
-int deinit_all_group(void)
+int deinit_all_groups(void)
 {
 	g_slist_free(all_group.list);
 	return SUCCESS;
