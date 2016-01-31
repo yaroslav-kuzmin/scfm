@@ -277,17 +277,18 @@ static int deinit_config(void)
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
-int mode_work = MODE_NOT_WORK;
+/*TODO  нужна не нужна ?*/
+static int mode_work = MODE_NOT_WORK;
 
 int set_mode_work(int mode,GtkWidget * win_main)
 {
-	switch(mode){
-		case MODE_CONTROL:
-			mode_work = MODE_CONTROL;
-			control_controllers();
+	mode_work = mode;
+	switch(mode_work){
+		case MODE_CONTROL_OFF:
+		case MODE_CONTROL_ON:
+			control_controllers(mode_work);
 			break;
 		case MODE_CONFIG:
-			mode_work = MODE_CONFIG;
 			create_window_config(win_main);
 			break;
 		default:

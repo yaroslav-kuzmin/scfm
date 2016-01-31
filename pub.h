@@ -71,7 +71,8 @@ typedef struct _generic_s generic_s;
 
 enum{
 	MODE_NOT_WORK = 0,
-	MODE_CONTROL,
+	MODE_CONTROL_ON,
+	MODE_CONTROL_OFF,
 	MODE_CONFIG
 };
 

@@ -412,6 +412,13 @@ struct _block_setting_controller_s
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
 
+struct _communication_controller_s
+{
+	GThread * tid;
+	GMutex m;
+};
+typedef struct _communication_controller_s communication_controller_s;
+
 struct _block_controller_s
 {
 	GtkLabel * name;
@@ -423,10 +430,10 @@ struct _block_controller_s
 	GtkLabel * pressure;
 	GtkLabel * amperage_vertical;
 	GtkLabel * amperage_horizontal;
-   GtkLabel * valve;
-   GtkLabel * tic_valve;
-   GtkLabel * fire_sensor;
-   GtkLabel * fire_alarm;
+	GtkLabel * valve;
+	GtkLabel * tic_valve;
+	GtkLabel * fire_sensor;
+	GtkLabel * fire_alarm;
 };
 typedef struct _block_controller_s block_controller_s;
 
@@ -2373,26 +2380,6 @@ GtkWidget * create_block_setting_controller(void)
 }
 
 /*****************************************************************************/
-#define DEFAULT_TIMEOUT_CURRENR        500     /* 500 милесекунд*/
-#define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
-#define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
-static all_controller_s all_controller;
-int init_all_controllers(void)
-{
-	all_controller.list = NULL;
-	all_controller.current = NULL;
-	all_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
-	all_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
-	all_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
-
-	return SUCCESS;
-}
-
-int deinit_all_controllers(void)
-{
-	g_slist_free(all_controller.list);
-	return SUCCESS;
-}
 
 static int connect_controller(controller_s * controller)
 {
@@ -2401,7 +2388,6 @@ static int connect_controller(controller_s * controller)
 	config_controller_s check;
 	config_controller_s * config = controller->config;
 	state_controller_s * state = controller->state;
-
 
 	if(link->connect != NULL){
 		g_warning("Контролер подключен!");
@@ -2419,14 +2405,43 @@ static int connect_controller(controller_s * controller)
 		link_disconnect_controller(link);
 		return rc;
 	}
-
 	return SUCCESS;
 }
 
-
-int control_controllers(void)
+static int disconnect_controller(controller_s * controller)
 {
 	int rc;
+	link_s * link = controller->link;
+	if(link->connect == NULL){
+		g_warning("Контролер не подключен!");
+		return SUCCESS;
+	}
+	link_disconnect_controller(link);
+	return SUCCESS;
+}
+#define DEFAULT_TIMEOUT_COMMUNICATION    250000  /* 1 000 000  микросекунд == 1 сукенде*/
+gulong timeout_communication = DEFAULT_TIMEOUT_COMMUNICATION;
+/* функция  потока комуникации с контролерами */
+static gpointer controllers_communication(gpointer * ud)
+{
+	communication_controller_s * cc = (communication_controller_s *)ud;
+	all_controller_s * ac = cc->all_controller;
+
+	for(;;){
+		g_debug("state controller");
+		g_usleep(timeout_communication);
+		g_mutex_lock(&(cc->flag));
+		if(cc->exit == OK){
+			g_mutex_unlock(&(cc->flag));
+			g_thread_exit(cc->tid);
+		}
+		g_mutex_unlock(&(cc->flag));
+	}
+	return NULL;
+}
+
+static int control_controllers_on(communication_controller_s * cc)
+{
 	GSList * list = all_controller.list;
 
 	if(list == NULL){
@@ -2446,10 +2461,87 @@ int control_controllers(void)
 		list = g_slist_next(list);
 	}
 
+	if(cc->run == NOT_OK){
+		cc->run = OK;
+		cc->exit = NOT_OK;
+		g_mutex_init(&(cc->m_flag));
+		g_mutex_init(&(cc->m_state));
+		g_mutex_init(&(cc->m_control));
+		cc->tid = g_thread_new("controller",controllers_communication,cc);
+	}
+	return FAILURE;
+}
+
+static int control_controllers_off(communication_controller_s * cc)
+{
+	GSList * list = all_controller.list;
+
+	if(cc->run == OK){/*поток запущен*/
+		cc->exit = OK;
+		g_thread_join(cc->tid);
+		g_mutex_clear(&(cc->m_flag));
+		g_mutex_clear(&(cc->m_state));
+		g_mutex_clear(&(cc->m_control));
+		cc->run = NOT_OK;
+	}
+
+	if(list == NULL){
+		g_info("Нет контролеров");
+		return SUCCESS;
+	}
+
+	for(;list;){
+		controller_s * controller = (controller_s*)list->data;
+		disconnect_controller(controller);
+		g_info("Отключился от %s",controller->name);
+		list = g_slist_next(list);
+	}
+	return FAILURE;
+}
+
+#define DEFAULT_TIMEOUT_CURRENR        500     /* 500 милесекунд*/
+#define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
+#define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
+static all_controller_s all_controller;
+static communication_controller_s communication_controller;
+
+int init_all_controllers(void)
+{
+	all_controller.list = NULL;
+	all_controller.current = NULL;
+	all_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
+	all_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
+	all_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
+
+	communication_controller.run = NOT_OK;
+	communication_controller.exit = OK;
+	communication_controller.all_controller = &all_controller;
+
 	return SUCCESS;
 }
 
-/*TODO считывание данных из базыданных*/
+int deinit_all_controllers(void)
+{
+	g_slist_free(all_controller.list);
+	return SUCCESS;
+}
+
+int control_controllers(int mode)
+{
+	int rc = FAILURE;
+	switch(mode){
+		case MODE_CONTROL_ON:
+			rc = control_controllers_on(&communication_controller);
+			break;
+		case MODE_CONTROL_OFF:
+			rc = control_controllers_off(&communication_controller);
+			break;
+	}
+	return rc;
+}
+
+/*****************************************************************************/
+
 controller_s * init_controller(uint32_t number)
 {
 	int rc;

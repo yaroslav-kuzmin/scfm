@@ -60,7 +60,6 @@ static int column_amount = MAX_COLUMN_AMOUNT;
 static int row_amount = MAX_ROW_AMOUNT;
 struct _block_page_s
 {
-
 };
 #endif
 struct _block_object_s
@@ -123,7 +122,6 @@ static int create_block_page(block_object_s * block_object,char * name)
 	GtkNotebook * notebook = block_object->notebook;
 	GtkWidget * grid;
 	GtkWidget * label;
-
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -190,7 +188,6 @@ int select_object(object_s * object)
 	change_object(&block_object,object->type);
 	return SUCCESS;
 }
-
 
 static char STR_BASE_PAGE[] = "основное";
 GtkWidget * create_block_object(void)

@@ -228,9 +228,14 @@ int link_disconnect_controller(link_s * link)
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
 	if(ctx != NULL){
-    	modbus_close(ctx);
+   	modbus_close(ctx);
 		modbus_free(ctx);
-		g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
+		if(link->type == TYPE_LINK_TCP){
+			g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
+		}
+		if(link->type == TYPE_LINK_UART){
+			g_slice_free1(MODBUS_RTU_MAX_ADU_LENGTH,dest);
+		}
 	}
 	link->connect = NULL;
 
