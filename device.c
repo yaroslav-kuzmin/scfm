@@ -332,6 +332,7 @@ int link_state_controller(link_s * link,state_controller_s * state)
 		link_disconnect_controller(link);
 		return FAILURE;
 	}
+	/*TODO запись чтение в разных потоках */
 	set_state_controller(dest,state);
 	return SUCCESS;
 }
@@ -361,6 +362,7 @@ int link_config_controller(link_s * link,config_controller_s * config)
 		link_disconnect_controller(link);
 		return FAILURE;
 	}
+	/*TODO запись чтение в разных потоках */
 	set_config_controller(dest,config);
 
 	return SUCCESS;
