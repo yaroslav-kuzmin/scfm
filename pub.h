@@ -55,6 +55,8 @@
 
 #define MODE_WORK_CATALOG             0755
 
+#define INT_TO_POINTER(s)  (((gpointer)((uint64_t)(s))))
+
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];
@@ -234,7 +236,7 @@ typedef struct _state_controller_s state_controller_s;
 
 struct _control_controller_s
 {
-	int select;
+	GQueue * command;
 };
 typedef struct _control_controller_s control_controller_s;
 #define MIN_ID     1
@@ -249,5 +251,14 @@ struct _controller_s
 };
 typedef struct _controller_s controller_s;
 /**************************************/
+
+enum{
+	COMMAND_UP=1,
+	COMMAND_STOP_UP,
+	COMMAND_DOWN,
+	COMMAND_RIGHT,
+	COMMAND_LEFT,
+	AMOUNT_COMMAND
+};
 #endif
 

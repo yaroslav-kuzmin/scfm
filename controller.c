@@ -2392,11 +2392,12 @@ static int disconnect_controller(controller_s * controller)
 	link_s * link = controller->link;
 	if(link->connect == NULL){
 		g_warning("Контролер не подключен!");
-		return SUCCESS;
+		return FAILURE;
 	}
 	return link_disconnect_controller(link);
 }
 
+uint32_t debug_id = 0;
 /* функция  потока комуникации с контролерами */
 static gpointer controllers_communication(gpointer ud)
 {
@@ -2418,7 +2419,7 @@ static gpointer controllers_communication(gpointer ud)
 			rc = link_state_controller(link,state);
 			if(rc == FAILURE){
 				/*TODO сделать реконнект*/
-				g_debug("reconnect");
+				/*g_debug("reconnect");*/
 			}
 		}
 #if 0
@@ -2445,7 +2446,8 @@ static gpointer controllers_communication(gpointer ud)
 			list = g_slist_next(list);
 		}
 #endif
-		g_debug("state controller");
+		debug_id ++;
+		g_debug("state controller : %d",debug_id);
 		/*TODO сделать возможное в реальном режиме менять таймаут*/
 		g_usleep(cc->timeout_current);
 		g_mutex_lock(&(cc->m_flag));
@@ -2496,6 +2498,7 @@ static int control_controllers_on(communication_controller_s * cc)
 
 static int control_controllers_off(communication_controller_s * cc)
 {
+	int rc;
 	GSList * list = cc->list;
 
 	if(cc->tid != NULL){/*поток запущен*/
@@ -2514,8 +2517,10 @@ static int control_controllers_off(communication_controller_s * cc)
 
 	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
-		disconnect_controller(controller);
-		g_info("Отключился от %s",controller->name);
+		rc = disconnect_controller(controller);
+		if(rc == SUCCESS){
+			g_info("Отключился от %s",controller->name);
+		}
 		list = g_slist_next(list);
 	}
 	return FAILURE;
@@ -2538,7 +2543,7 @@ int control_controllers(int mode)
 }
 
 /* 1 000 000  микросекунд == 1 секунда*/
-#define DEFAULT_TIMEOUT_CURRENR        250000       /* 250 милесекунд*/
+#define DEFAULT_TIMEOUT_CURRENR        1000000      /*   250000        250 милесекунд */
 #define DEFAULT_TIMEOUT_ALL            3000000      /* 3 секунды */
 #define DEFAULT_TIMEOUT_CONFIG         600000000    /* 600 секунд*/
 
@@ -2564,6 +2569,130 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
+static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press up");
+}
+static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release up");
+}
+
+static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press down");
+}
+static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release down");
+}
+
+static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press rigth");
+}
+static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release rigth");
+}
+
+static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press left");
+}
+static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	int command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release left");
+}
+
 static char STR_STATE[] = "Информация";
 static GtkWidget * create_block_state(block_controller_s * block)
 {
@@ -2581,7 +2710,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
 
 #if 1
-	label_name = gtk_label_new(NULL);
+	label_name = gtk_label_new("Нет подключения к контролеру!");
 	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
 	gtk_widget_show(label_name);
 	gtk_grid_attach(GTK_GRID(grid),label_name,0,0,2,1);
@@ -2717,12 +2846,56 @@ static GtkWidget * create_block_state(block_controller_s * block)
 }
 
 static char STR_CONTROL[] = "Управление";
-static GtkWidget * create_block_control(block_controller_s * block)
+static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * frame;
+	GtkWidget * grid;
+	GtkWidget * but_up;
+	GtkWidget * but_down;
+	GtkWidget * but_right;
+	GtkWidget * but_left;
+
 	frame = gtk_frame_new(STR_CONTROL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+#if 1
+	but_up = gtk_button_new_with_label("ВВЕРХ");
+	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
+	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
+
+	but_down = gtk_button_new_with_label("ВНИЗ");
+	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
+	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
+
+	but_right = gtk_button_new_with_label("ВПРАВО");
+	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
+	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
+
+	but_left = gtk_button_new_with_label("ВЛЕВО");
+	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
+	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
+
+#endif
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+
+	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+
+	gtk_widget_show(but_up);
+	gtk_widget_show(but_down);
+	gtk_widget_show(but_right);
+	gtk_widget_show(but_left);
 	return frame;
 }
 
@@ -2798,10 +2971,6 @@ int select_block_controller(controller_s * controller)
 	GtkLabel * label;
 	GThread * tid = cc->tid;
 
-	if(tid == NULL){
-		g_warning("Нет подключения");
-		return FAILURE;
-	}
 
 	if(controller == NULL){
 		/*TODO если таймер запушен то остановить*/
@@ -2809,9 +2978,21 @@ int select_block_controller(controller_s * controller)
 		return SUCCESS;
 	}
 
+	if(tid == NULL){
+		g_warning("Нет подключения!");
+		return FAILURE;
+	}
+
 	g_mutex_lock(&(cc->m_flag));
 	cc->current = controller;
 	g_mutex_unlock(&(cc->m_flag));
+
+	{
+	GQueue * queue = controller->control->command;
+	g_mutex_lock(&(cc->m_control));
+	g_queue_clear(queue);
+	g_mutex_unlock(&(cc->m_control));
+	}
 
 	block_controller.stop_show = NOT_OK;
 	g_timeout_add(block_controller.timeout_show,show_block_controler,&block_controller);
@@ -2881,6 +3062,7 @@ void * new_property_controller(void)
 	controller->config = config;
 	controller->state = state;
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
+	controller->control.command = g_queue_new();
 
 	return controller;
 }
@@ -2895,6 +3077,7 @@ controller_s * init_controller(uint32_t number)
 	controller->config = g_slice_alloc0(sizeof(config_controller_s));
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
+	controller->control.command = g_queue_new();
 	/*память для обектов выделяется при чтении из базыданых*/
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
