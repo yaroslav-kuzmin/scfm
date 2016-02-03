@@ -412,8 +412,30 @@ struct _block_setting_controller_s
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
 
+struct _communication_controller_s
+{
+	int exit;
+
+	GThread * tid;
+	GMutex m_flag;
+	GMutex m_state;
+	GMutex m_control;
+
+	GSList * list;
+	controller_s * current;
+
+	uint32_t timeout_current;
+	uint32_t timeout_all;
+	uint32_t timeout_config;
+};
+typedef struct _communication_controller_s communication_controller_s;
+
 struct _block_controller_s
 {
+	int stop_show;
+	uint32_t timeout_show;
+	communication_controller_s * communication_controller;
+
 	GtkLabel * name;
 	GtkLabel * lafet;
 	GtkLabel * tic_vertical;
@@ -423,25 +445,17 @@ struct _block_controller_s
 	GtkLabel * pressure;
 	GtkLabel * amperage_vertical;
 	GtkLabel * amperage_horizontal;
-   GtkLabel * valve;
-   GtkLabel * tic_valve;
-   GtkLabel * fire_sensor;
-   GtkLabel * fire_alarm;
+	GtkLabel * valve;
+	GtkLabel * tic_valve;
+	GtkLabel * fire_sensor;
+	GtkLabel * fire_alarm;
 };
 typedef struct _block_controller_s block_controller_s;
 
-struct _all_controller_s
-{
-	GSList * list;
-	controller_s * current;
-	uint32_t timeout_current;
-	uint32_t timeout_all;
-	uint32_t timeout_config;
-};
-typedef struct _all_controller_s all_controller_s;
 /*****************************************************************************/
-/* локальные функции                                                         */
+/* Блок отображения конфигурированием контролером                            */
 /*****************************************************************************/
+
 static int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
 {
 	int rc;
@@ -946,9 +960,8 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 }
 
 static block_info_controller_s block_info_controller;
-static char STR_NAME[] = "Наименование : ";
-static char STR_NAME_DEFAULT[] = "Нет информации";
-
+static char STR_NAME[]                 = "Наименование : ";
+static char STR_NAME_DEFAULT[]         = "Нет информации";
 static char STR_ENGINE_VERTICAL[]      = "Двигатель вертикальной оси";
 static char STR_ENGINE_HORIZONTAL[]    = "Двигатель горизонтальной оси";
 static char STR_ACTUATOR_SPRAY[]       = "Актуатор (Распыл)";
@@ -1930,11 +1943,13 @@ static char * check_uart_device(const char * device)
 	/*TODO в Linux и Windos разные название файлов*/
 	return g_strdup(device);
 }
+
 static uint32_t check_uart_baud(const char * baud)
 {
 	uint32_t speed = g_ascii_strtoull(baud,NULL,10);
 	return speed;
 }
+
 static int8_t check_uart_parity(const char * parity)
 {
 	int8_t symbol = parity[0];
@@ -1948,6 +1963,7 @@ static int8_t check_uart_parity(const char * parity)
 	}
 	return symbol;
 }
+
 static uint8_t check_uart_data_bit(const char * data_bit)
 {
 	uint8_t bit = g_ascii_strtoull(data_bit,NULL,10);
@@ -1956,6 +1972,7 @@ static uint8_t check_uart_data_bit(const char * data_bit)
 	}
 	return bit;
 }
+
 static uint8_t check_uart_stop_bit(const char * stop_bit)
 {
 	uint8_t bit = g_ascii_strtoull(stop_bit,NULL,10);
@@ -2168,8 +2185,8 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 
 	return box;
 }
-static char STR_NAME_ID[] = "Номер контролера";
 
+static char STR_NAME_ID[] = "Номер контролера";
 static char STR_NAME_TCP_ADDRESS[] = "Адрес";
 static char STR_DEFAULT_TCP_ADDRESS[] = "127.0.0.1";
 static char STR_NAME_TCP_PORT[] = "Порт";
@@ -2314,39 +2331,7 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 
 	return box;
 }
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
 static block_setting_controller_s block_setting_controller;
-
-void * new_property_controller(void)
-{
-	int rc;
-	controller_s * controller;
-	link_s * link = block_setting_controller.link;
-	config_controller_s * config = block_setting_controller.config;
-	state_controller_s * state = block_setting_controller.state;
-	block_info_controller_s * block_info = block_setting_controller.block_info;
-
-	/*TODO вывод сообщений*/
-	if(link == NULL){
-		g_warning("Соединение не проверено!");
-		return NULL;
-	}
-
-	rc = check_rate_controller(block_info,config);
-	if(rc == FAILURE){
-		g_warning("Некоректный коэффициенты");
-		return NULL;
-	}
-	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->name = block_setting_controller.name;
-	controller->link = link;
-	controller->config = config;
-	controller->state = state;
-
-	return controller;
-}
 
 GtkWidget * create_block_setting_controller(void)
 {
@@ -2373,27 +2358,8 @@ GtkWidget * create_block_setting_controller(void)
 }
 
 /*****************************************************************************/
-#define DEFAULT_TIMEOUT_CURRENR        500     /* 500 милесекунд*/
-#define DEFAULT_TIMEOUT_ALL            3000    /* 3 секунды */
-#define DEFAULT_TIMEOUT_CONFIG         600000  /* 600 секунд*/
-static all_controller_s all_controller;
-int init_all_controller(void)
-{
-	all_controller.list = NULL;
-	all_controller.current = NULL;
-	all_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
-	all_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
-	all_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
-
-	return SUCCESS;
-}
-
-int deinit_all_controller(void)
-{
-	g_slist_free(all_controller.list);
-	return SUCCESS;
-}
-
+/* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
+/*****************************************************************************/
 static int connect_controller(controller_s * controller)
 {
 	int rc;
@@ -2401,7 +2367,6 @@ static int connect_controller(controller_s * controller)
 	config_controller_s check;
 	config_controller_s * config = controller->config;
 	state_controller_s * state = controller->state;
-
 
 	if(link->connect != NULL){
 		g_warning("Контролер подключен!");
@@ -2419,17 +2384,109 @@ static int connect_controller(controller_s * controller)
 		link_disconnect_controller(link);
 		return rc;
 	}
-
 	return SUCCESS;
 }
 
-int control_controllers(void)
+static int disconnect_controller(controller_s * controller)
+{
+	link_s * link = controller->link;
+	if(link->connect == NULL){
+		g_warning("Контролер не подключен!");
+		return FAILURE;
+	}
+	return link_disconnect_controller(link);
+}
+
+uint32_t debug_id = 0;
+/* функция  потока комуникации с контролерами */
+static gpointer controllers_communication(gpointer ud)
 {
 	int rc;
-	GSList * list = all_controller.list;
+	communication_controller_s * cc = (communication_controller_s *)ud;
+	controller_s * controller;
+	link_s * link;
+	state_controller_s * state;
+	control_controller_s * control;
+	GQueue * queue;
+	uint64_t command;
+	/*GSList * list;*/
+
+	for(;;){
+		g_mutex_lock(&(cc->m_flag));
+		controller = cc->current;
+		g_mutex_unlock(&(cc->m_flag));
+		if(controller != NULL){
+			link = controller->link;
+			state = controller->state;
+			rc = link_state_controller(link,state);
+			if(rc == FAILURE){
+				/*TODO сделать реконнект*/
+				/*g_debug("reconnect");*/
+			}
+			control = controller->control;
+			queue = control->command;
+			g_mutex_lock(&(cc->m_control));
+			command = POINTER_TO_INT(g_queue_pop_tail(queue));
+			g_mutex_unlock(&(cc->m_control));
+			if(command != COMMAND_EMPTY){
+				/*g_debug(" :> %ld ",command);*/
+				rc = command_controller(link,command);
+				if(rc == FAILURE){
+					/*TODO сделать реконнект*/
+					/*g_debug("reconnect");*/
+				}
+			}
+		}
+#if 0
+		/*проверка всех */
+		list = ac->list;
+		for(;list;){
+			controller = (controller_s*)list->data;
+			control = controller->control;
+			g_mutex_lock(&(cc->flag));
+			if(control->select == OK ){
+				g_mutex_unlock(&(cc->m_flag));
+				link = controller->link;
+				state = controller->state;
+				g_mutex_lock(&(cc->m_state));
+				/*TODO вынести заполнение структуры в отдельную функцию*/
+				rc = link_state_controller(link,state);
+				g_mutex_unlock(&(cc->m_state));
+				if(rc == FAILURE){
+					/*TODO сделать реконнект*/
+					g_debug("reconnect");
+				}
+			}
+			g_mutex_unlock(&(cc->flag));
+			list = g_slist_next(list);
+		}
+#endif
+		debug_id ++;
+		g_debug("state controller : %d",debug_id);
+		/*TODO сделать возможное в реальном режиме менять таймаут*/
+		g_usleep(cc->timeout_current);
+		g_mutex_lock(&(cc->m_flag));
+		if(cc->exit == OK){
+			g_mutex_unlock(&(cc->m_flag));
+			g_thread_exit(cc->tid);
+		}
+		g_mutex_unlock(&(cc->m_flag));
+	}
+	return NULL;
+}
+
+static int control_controllers_on(communication_controller_s * cc)
+{
+	int rc;
+	GSList * list = cc->list;
 
 	if(list == NULL){
 		g_info("Нет контролеров");
+		return FAILURE;
+	}
+
+	if(cc->tid != NULL){
+		g_warning("Поток коммуникации уже запущен!");
 		return FAILURE;
 	}
 
@@ -2445,72 +2502,211 @@ int control_controllers(void)
 		list = g_slist_next(list);
 	}
 
-	return SUCCESS;
+	cc->exit = NOT_OK;
+	g_mutex_init(&(cc->m_flag));
+	g_mutex_init(&(cc->m_state));
+	g_mutex_init(&(cc->m_control));
+	cc->tid = g_thread_new("controller",controllers_communication,cc);
+
+	return FAILURE;
 }
 
-/*TODO считывание данных из базыданных*/
-controller_s * init_controller(uint32_t number)
+static int control_controllers_off(communication_controller_s * cc)
 {
 	int rc;
-	controller_s * controller = NULL;
+	GSList * list = cc->list;
 
-	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->link = g_slice_alloc0(sizeof(link_s));
-	controller->config = g_slice_alloc0(sizeof(config_controller_s));
-	controller->state = g_slice_alloc0(sizeof(state_controller_s));
-	/*память для обектов выделяется при чтении из базыданых*/
-	rc = read_database_controller(number,controller);
-	if(rc != SUCCESS){
-		g_slice_free1(sizeof(controller_s),controller);
-		g_slice_free1(sizeof(link_s),controller->link);
-		g_slice_free1(sizeof(config_controller_s),controller->config);
-		g_slice_free1(sizeof(state_controller_s),controller->state);
-		controller = NULL;
-		return NULL;
+	if(cc->tid != NULL){/*поток запущен*/
+		cc->exit = OK;
+		g_thread_join(cc->tid);
+		g_mutex_clear(&(cc->m_flag));
+		g_mutex_clear(&(cc->m_state));
+		g_mutex_clear(&(cc->m_control));
+		cc->tid = NULL;
 	}
-	controller->name = get_name_controller(controller->config);
 
-	all_controller.list = g_slist_append(all_controller.list,controller);
-
-	g_debug(" :> %d",controller->config->type);
-	g_debug(" :> %#lx",controller->config->flag);
-	g_debug(" :> %f",controller->config->rate_tic_vertical);
-	g_debug(" :> %f",controller->config->rate_encoder_vertical);
-	g_debug(" :> %f",controller->config->rate_amperage_vertical);
-	g_debug(" :> %f",controller->config->rate_tic_horizontal);
-	g_debug(" :> %f",controller->config->rate_encoder_horizontal);
-	g_debug(" :> %f",controller->config->rate_amperage_horizontal);
-	g_debug(" :> %f",controller->config->rate_valve_analog);
-
-	return controller;
-}
-
-int del_property_controller(controller_s * property)
-{
-	char * str;
-	link_s * link;
-	config_controller_s * config;
-	state_controller_s * state;
-
-	if(property == NULL){
+	if(list == NULL){
+		g_info("Нет контролеров");
 		return SUCCESS;
 	}
-	str = property->name;
-	g_free(str);
 
-	link = property->link;
-	link_disconnect_controller(link);
-	str = link->address;
-	g_free(str);
-	g_slice_free1(sizeof(link_s),link);
+	for(;list;){
+		controller_s * controller = (controller_s*)list->data;
+		rc = disconnect_controller(controller);
+		if(rc == SUCCESS){
+			g_info("Отключился от %s",controller->name);
+		}
+		list = g_slist_next(list);
+	}
+	return FAILURE;
+}
 
-	config = property->config;
-	g_slice_free1(sizeof(config_controller_s),config);
-	state = property->state;
-	g_slice_free1(sizeof(state_controller_s),state);
-	g_slice_free1(sizeof(controller_s),property);
+static communication_controller_s communication_controller;
+
+int control_controllers(int mode)
+{
+	int rc = FAILURE;
+	switch(mode){
+		case MODE_CONTROL_ON:
+			rc = control_controllers_on(&communication_controller);
+			break;
+		case MODE_CONTROL_OFF:
+			rc = control_controllers_off(&communication_controller);
+			break;
+	}
+	return rc;
+}
+
+/* 1 000 000  микросекунд == 1 секунда*/
+#define DEFAULT_TIMEOUT_CURRENR        1000000      /*   250000        250 милесекунд */
+#define DEFAULT_TIMEOUT_ALL            3000000      /* 3 секунды */
+#define DEFAULT_TIMEOUT_CONFIG         600000000    /* 600 секунд*/
+
+int init_all_controllers(void)
+{
+	communication_controller.list = NULL;
+	communication_controller.current = NULL;
+	communication_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
+	communication_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
+	communication_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
+	communication_controller.exit = OK;
+	communication_controller.tid = NULL;
 
 	return SUCCESS;
+}
+
+int deinit_all_controllers(void)
+{
+	g_slist_free(communication_controller.list);
+	return SUCCESS;
+}
+
+/*****************************************************************************/
+/* Блок отображение основного окна управления контролером                    */
+/*****************************************************************************/
+static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_UP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press up");
+}
+/*TODO  одна функция отпускания клавиши команда одна */
+static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_STOP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release up");
+}
+
+static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_DOWN;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press down");
+}
+static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_STOP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release down");
+}
+
+static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_RIGHT;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press rigth");
+}
+static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_STOP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release rigth");
+}
+
+static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_LEFT;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("press left");
+}
+static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	control_controller_s * control = c->control;
+	GQueue * queue = control->command;
+	uint64_t command = COMMAND_STOP;
+
+	g_mutex_lock(&(cc->m_control));
+	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_mutex_unlock(&(cc->m_control));
+
+	g_debug("release left");
 }
 
 static char STR_STATE[] = "Информация";
@@ -2530,7 +2726,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
 
 #if 1
-	label_name = gtk_label_new(NULL);
+	label_name = gtk_label_new("Нет подключения к контролеру!");
 	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
 	gtk_widget_show(label_name);
 	gtk_grid_attach(GTK_GRID(grid),label_name,0,0,2,1);
@@ -2666,101 +2862,175 @@ static GtkWidget * create_block_state(block_controller_s * block)
 }
 
 static char STR_CONTROL[] = "Управление";
-static GtkWidget * create_block_control(block_controller_s * block)
+static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * frame;
+	GtkWidget * grid;
+	GtkWidget * but_up;
+	GtkWidget * but_down;
+	GtkWidget * but_right;
+	GtkWidget * but_left;
+
 	frame = gtk_frame_new(STR_CONTROL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+#if 1
+	but_up = gtk_button_new_with_label("ВВЕРХ");
+	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
+	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
+
+	but_down = gtk_button_new_with_label("ВНИЗ");
+	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
+	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
+
+	but_right = gtk_button_new_with_label("ВПРАВО");
+	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
+	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
+
+	but_left = gtk_button_new_with_label("ВЛЕВО");
+	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
+	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
+
+#endif
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+
+	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+
+	gtk_widget_show(but_up);
+	gtk_widget_show(but_down);
+	gtk_widget_show(but_right);
+	gtk_widget_show(but_left);
 	return frame;
 }
 
-
-static block_controller_s block_controller;
-
-int show_block_controler(gpointer data)
+/*        функция по таймеру        */
+static int show_block_controler(gpointer data)
 {
-	/*controller_s * controller = (controller_s*)data;*/
-
-	/*return FALSE; [>завершить работу<]*/
-	return TRUE; /* продолжаем работу */
-}
-
-int select_block_controller(controller_s * controller)
-{
-	state_controller_s * state;
 	GtkLabel * label;
-	/*через mutex*/
-	all_controller.current = controller;
+	block_controller_s * bc = (block_controller_s *)data;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	state_controller_s * state = c->state;
 
-	if(controller == NULL){
-		/*если таймер запушен то остановить*/
-		return SUCCESS;
+	if(bc->stop_show == OK ){
+		return FALSE; /*завершить работу*/
 	}
-	/*запустить таймер*/
-
-	state = controller->state;
-	label = block_controller.name;
-	gtk_label_set_text(label,controller->name);
-#if 1
-
-	label = block_controller.lafet;
+	/*TODO запись в структуру в другом потоке */
+	label = bc->lafet;
 	g_string_printf(pub,"%#x",state->lafet);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.tic_vertical;
+	label = bc->tic_vertical;
 	g_string_printf(pub,"%#x",state->tic_vertical);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.tic_horizontal;
+	label = bc->tic_horizontal;
 	g_string_printf(pub,"%#x",state->tic_horizontal);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.encoder_vertical;
+	label = bc->encoder_vertical;
 	g_string_printf(pub,"%#x",state->encoder_vertical);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.encoder_horizontal;
+	label = bc->encoder_horizontal;
 	g_string_printf(pub,"%#x",state->encoder_horizontal);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.pressure;
+	label = bc->pressure;
 	g_string_printf(pub,"%#x",state->pressure);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.amperage_vertical;
+	label = bc->amperage_vertical;
 	g_string_printf(pub,"%#x",state->amperage_vertical);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.amperage_horizontal;
+	label = bc->amperage_horizontal;
 	g_string_printf(pub,"%#x",state->amperage_horizontal);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.valve;
+	label = bc->valve;
 	g_string_printf(pub,"%#x",state->valve);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.tic_valve;
+	label = bc->tic_valve;
 	g_string_printf(pub,"%#x",state->tic_valve);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.fire_sensor;
+	label = bc->fire_sensor;
 	g_string_printf(pub,"%#x",state->fire_sensor);
 	gtk_label_set_text(label,pub->str);
 
-	label = block_controller.fire_alarm;
+	label = bc->fire_alarm;
 	g_string_printf(pub,"%#x",state->fire_alarm);
 	gtk_label_set_text(label,pub->str);
-#endif
+
+	return TRUE; /* продолжаем работу */
+}
+
+static block_controller_s block_controller;
+
+int select_block_controller(controller_s * controller)
+{
+	communication_controller_s * cc = block_controller.communication_controller;
+	GtkLabel * label;
+	GThread * tid = cc->tid;
+
+
+	if(controller == NULL){
+		/*TODO если таймер запушен то остановить*/
+		block_controller.stop_show = OK;
+		return SUCCESS;
+	}
+
+	if(tid == NULL){
+		g_warning("Нет подключения!");
+		return FAILURE;
+	}
+
+	g_mutex_lock(&(cc->m_flag));
+	cc->current = controller;
+	g_mutex_unlock(&(cc->m_flag));
+
+	{
+	GQueue * queue = controller->control->command;
+	g_mutex_lock(&(cc->m_control));
+	g_queue_clear(queue);
+	g_mutex_unlock(&(cc->m_control));
+	}
+
+	block_controller.stop_show = NOT_OK;
+	g_timeout_add(block_controller.timeout_show,show_block_controler,&block_controller);
+
+	label = block_controller.name;
+	gtk_label_set_text(label,controller->name);
+
 	return SUCCESS;
 }
 
+/* 1000 миллесекунд == 1 секунде */
+#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду*/
 
 GtkWidget * create_block_controller(void)
 {
 	GtkWidget * box;
 	GtkWidget * frame_state;
 	GtkWidget * frame_control;
+
+	block_controller.stop_show = NOT_OK;
+	block_controller.timeout_show = DEFAULT_TIMEOUT_SHOW;
+	block_controller.communication_controller = &communication_controller;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -2778,4 +3048,111 @@ GtkWidget * create_block_controller(void)
 	return box;
 }
 
+/*****************************************************************************/
+/* Выделение и высвобождения памяти для структур контролера                  */
+/*****************************************************************************/
+/*выделение памяти при конфигурировании */
+void * new_property_controller(void)
+{
+	int rc;
+	controller_s * controller;
+	link_s * link = block_setting_controller.link;
+	config_controller_s * config = block_setting_controller.config;
+	state_controller_s * state = block_setting_controller.state;
+	block_info_controller_s * block_info = block_setting_controller.block_info;
+
+	/*TODO вывод сообщений*/
+	if(link == NULL){
+		g_warning("Соединение не проверено!");
+		return NULL;
+	}
+
+	rc = check_rate_controller(block_info,config);
+	if(rc == FAILURE){
+		g_warning("Некоректный коэффициенты");
+		return NULL;
+	}
+	controller = g_slice_alloc0(sizeof(controller_s));
+	controller->name = block_setting_controller.name;
+	controller->link = link;
+	controller->config = config;
+	controller->state = state;
+	controller->control = g_slice_alloc0(sizeof(control_controller_s));
+	controller->control->command = g_queue_new();
+
+	return controller;
+}
+/*Выделение памяти и считывание из базы данных*/
+controller_s * init_controller(uint32_t number)
+{
+	int rc;
+	controller_s * controller = NULL;
+
+	controller = g_slice_alloc0(sizeof(controller_s));
+	controller->link = g_slice_alloc0(sizeof(link_s));
+	controller->config = g_slice_alloc0(sizeof(config_controller_s));
+	controller->state = g_slice_alloc0(sizeof(state_controller_s));
+	controller->control = g_slice_alloc0(sizeof(control_controller_s));
+	controller->control->command = g_queue_new();
+	/*память для обектов выделяется при чтении из базыданых*/
+	rc = read_database_controller(number,controller);
+	if(rc != SUCCESS){
+		g_slice_free1(sizeof(controller_s),controller);
+		g_slice_free1(sizeof(link_s),controller->link);
+		g_slice_free1(sizeof(config_controller_s),controller->config);
+		g_slice_free1(sizeof(state_controller_s),controller->state);
+		controller = NULL;
+		return NULL;
+	}
+	controller->name = get_name_controller(controller->config);
+
+	communication_controller.list = g_slist_append(communication_controller.list,controller);
+
+	g_debug(" :> %d",controller->config->type);
+	g_debug(" :> %#lx",controller->config->flag);
+	g_debug(" :> %f",controller->config->rate_tic_vertical);
+	g_debug(" :> %f",controller->config->rate_encoder_vertical);
+	g_debug(" :> %f",controller->config->rate_amperage_vertical);
+	g_debug(" :> %f",controller->config->rate_tic_horizontal);
+	g_debug(" :> %f",controller->config->rate_encoder_horizontal);
+	g_debug(" :> %f",controller->config->rate_amperage_horizontal);
+	g_debug(" :> %f",controller->config->rate_valve_analog);
+
+	return controller;
+}
+/*Высвобождение памяти   */
+int del_property_controller(controller_s * property)
+{
+	char * str;
+	link_s * link;
+	config_controller_s * config;
+	state_controller_s * state;
+	control_controller_s * control;
+	GQueue * queue;
+
+	if(property == NULL){
+		return SUCCESS;
+	}
+	str = property->name;
+	g_free(str);
+
+	link = property->link;
+	link_disconnect_controller(link);
+	str = link->address;
+	g_free(str);
+	g_slice_free1(sizeof(link_s),link);
+
+	config = property->config;
+	g_slice_free1(sizeof(config_controller_s),config);
+	state = property->state;
+	g_slice_free1(sizeof(state_controller_s),state);
+	control = property->control;
+	queue = control->command;
+	g_queue_free(queue);
+	g_slice_free1(sizeof(control_controller_s),control);
+
+	g_slice_free1(sizeof(controller_s),property);
+
+	return SUCCESS;
+}
 /*****************************************************************************/

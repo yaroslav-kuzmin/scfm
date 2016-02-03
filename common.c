@@ -277,17 +277,18 @@ static int deinit_config(void)
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
-int mode_work = MODE_NOT_WORK;
+/*TODO  нужна не нужна ?*/
+static int mode_work = MODE_NOT_WORK;
 
 int set_mode_work(int mode,GtkWidget * win_main)
 {
-	switch(mode){
-		case MODE_CONTROL:
-			mode_work = MODE_CONTROL;
-			control_controllers();
+	mode_work = mode;
+	switch(mode_work){
+		case MODE_CONTROL_OFF:
+		case MODE_CONTROL_ON:
+			control_controllers(mode_work);
 			break;
 		case MODE_CONFIG:
-			mode_work = MODE_CONFIG;
 			create_window_config(win_main);
 			break;
 		default:
@@ -355,9 +356,9 @@ generic_s * init_system(void)
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
 	init_database(work_catalog);
-	init_all_group();
-	init_all_videocamera();
-	init_all_controller();
+	init_all_groups();
+	init_all_videocameras();
+	init_all_controllers();
 	init_kernel();
 
 	return &generic;
@@ -366,9 +367,9 @@ generic_s * init_system(void)
 int deinit_system(void)
 {
 	deinit_database();
-	deinit_all_controller();
-	deinit_all_videcamera();
-	deinit_all_group();
+	deinit_all_controllers();
+	deinit_all_videcameras();
+	deinit_all_groups();
 	deinit_kernel();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");

@@ -49,10 +49,10 @@ controller_s * init_controller(uint32_t number);
 
 int del_property_controller(controller_s * controller);
 
-int init_all_controller(void);
-int deinit_all_controller(void);
+int init_all_controllers(void);
+int deinit_all_controllers(void);
 
-int control_controllers(void);
+int control_controllers(int mode);
 
 int select_block_controller(controller_s * controller);
 

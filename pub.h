@@ -55,6 +55,8 @@
 
 #define MODE_WORK_CATALOG             0755
 
+#define INT_TO_POINTER(s)  (((gpointer)((uint64_t)(s))))
+#define POINTER_TO_INT(s)  ((uint64_t)(s))
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];
@@ -71,7 +73,8 @@ typedef struct _generic_s generic_s;
 
 enum{
 	MODE_NOT_WORK = 0,
-	MODE_CONTROL,
+	MODE_CONTROL_ON,
+	MODE_CONTROL_OFF,
 	MODE_CONFIG
 };
 
@@ -178,6 +181,27 @@ enum{
 	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
 
+#define TYPE_LINK_UART        0x01
+#define TYPE_LINK_TCP         0x02
+extern char STR_EMPTY[];
+struct _link_s
+{
+	void * connect;
+	uint8_t id;
+	int type;
+	uint16_t * dest;
+	/*TCP*/
+	char * address;
+	uint16_t port;
+	/*UART*/
+	char * device;
+	uint32_t baud;
+	int8_t parity;
+	uint8_t data_bit;
+	uint8_t stop_bit;
+};
+typedef struct _link_s link_s;
+
 struct _config_controller_s
 {
 	uint32_t type;
@@ -210,27 +234,11 @@ struct _state_controller_s
 };
 typedef struct _state_controller_s state_controller_s;
 
-#define TYPE_LINK_UART        0x01
-#define TYPE_LINK_TCP         0x02
-extern char STR_EMPTY[];
-struct _link_s
+struct _control_controller_s
 {
-	void * connect;
-	uint8_t id;
-	int type;
-	uint16_t * dest;
-	/*TCP*/
-	char * address;
-	uint16_t port;
-	/*UART*/
-	char * device;
-	uint32_t baud;
-	int8_t parity;
-	uint8_t data_bit;
-	uint8_t stop_bit;
+	GQueue * command;
 };
-typedef struct _link_s link_s;
-
+typedef struct _control_controller_s control_controller_s;
 #define MIN_ID     1
 #define MAX_ID     247
 struct _controller_s
@@ -239,8 +247,19 @@ struct _controller_s
 	char * name;
 	config_controller_s * config;
 	state_controller_s * state;
+	control_controller_s * control;
 };
 typedef struct _controller_s controller_s;
 /**************************************/
+
+enum{
+	COMMAND_EMPTY=0,
+	COMMAND_STOP,
+	COMMAND_UP,
+	COMMAND_DOWN,
+	COMMAND_RIGHT,
+	COMMAND_LEFT,
+	AMOUNT_COMMAND
+};
 #endif
 

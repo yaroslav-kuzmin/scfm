@@ -54,10 +54,17 @@
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+static int mode_control = MODE_CONTROL_OFF;
 static void activate_menu_job_control(GtkMenuItem * b,gpointer ud)
 {
 	GtkWidget * w = (GtkWidget *)ud;
-	set_mode_work(MODE_CONTROL,w);
+	if(mode_control == MODE_CONTROL_ON){
+		mode_control = MODE_CONTROL_OFF;
+	}
+	else{
+		mode_control = MODE_CONTROL_ON;
+	}
+	set_mode_work(mode_control,w);
 }
 
 static void activate_menu_job_config(GtkMenuItem * b,gpointer ud)

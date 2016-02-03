@@ -228,12 +228,82 @@ int link_disconnect_controller(link_s * link)
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
 	if(ctx != NULL){
-    	modbus_close(ctx);
+   	modbus_close(ctx);
 		modbus_free(ctx);
-		g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
+		if(link->type == TYPE_LINK_TCP){
+			g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
+		}
+		if(link->type == TYPE_LINK_UART){
+			g_slice_free1(MODBUS_RTU_MAX_ADU_LENGTH,dest);
+		}
 	}
 	link->connect = NULL;
 
+	return SUCCESS;
+}
+
+static uint16_t reg_D200 = 0x10C8;
+/*static uint16_t reg_D201 = 0x10C9;*/
+/*static uint16_t reg_D202 = 0x10CA;*/
+/*static uint16_t reg_D203 = 0x10CB;*/
+/*static uint16_t reg_D204 = 0x10CC;*/
+/*static uint16_t reg_D205 = 0x10CD;*/
+/*static uint16_t reg_D206 = 0x10CE;*/
+/*static uint16_t reg_D207 = 0x10CF;*/
+/*static uint16_t reg_D208 = 0x10D0;*/
+
+static uint16_t VALUE_STOP  = 0x0000;
+static uint16_t VALUE_UP    = 0x0001;
+static uint16_t VALUE_DOWN  = 0x0002;
+static uint16_t VALUE_RIGHT = 0x0004;
+static uint16_t VALUE_LEFT  = 0x0008;
+static int set_value_command(uint64_t command,uint16_t * reg,uint16_t * value)
+{
+
+	switch(command){
+		case COMMAND_UP:
+			*reg = reg_D200;
+			*value = VALUE_UP;
+			break;
+		case COMMAND_DOWN:
+			*reg = reg_D200;
+			*value = VALUE_DOWN;
+			break;
+		case COMMAND_RIGHT:
+			*reg = reg_D200;
+			*value = VALUE_RIGHT;
+			break;
+		case COMMAND_LEFT:
+			*reg = reg_D200;
+			*value = VALUE_LEFT;
+			break;
+		default:
+			/*TODO возможно возврашать ошибку */
+			*reg = reg_D200;
+			*value = VALUE_STOP;
+			break;
+	}
+	return SUCCESS;
+}
+
+int command_controller(link_s * link,uint64_t command)
+{
+	int rc;
+	modbus_t * ctx = (modbus_t*)link->connect;
+	uint16_t reg = 0;
+	uint16_t value = 0;
+
+	if(ctx == NULL){
+		return FAILURE;
+	}
+
+	set_value_command(command,&reg,&value);
+
+	rc = modbus_write_register(ctx,reg,value);
+	if(rc == -1){
+		link_disconnect_controller(link);
+		return FAILURE;
+	}
 	return SUCCESS;
 }
 
@@ -327,6 +397,7 @@ int link_state_controller(link_s * link,state_controller_s * state)
 		link_disconnect_controller(link);
 		return FAILURE;
 	}
+	/*TODO запись чтение в разных потоках */
 	set_state_controller(dest,state);
 	return SUCCESS;
 }
@@ -356,6 +427,7 @@ int link_config_controller(link_s * link,config_controller_s * config)
 		link_disconnect_controller(link);
 		return FAILURE;
 	}
+	/*TODO запись чтение в разных потоках */
 	set_config_controller(dest,config);
 
 	return SUCCESS;
