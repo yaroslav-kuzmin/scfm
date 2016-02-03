@@ -2406,7 +2406,9 @@ static gpointer controllers_communication(gpointer ud)
 	controller_s * controller;
 	link_s * link;
 	state_controller_s * state;
-	/*control_controller_s * control;*/
+	control_controller_s * control;
+	GQueue * queue;
+	uint64_t command;
 	/*GSList * list;*/
 
 	for(;;){
@@ -2420,6 +2422,19 @@ static gpointer controllers_communication(gpointer ud)
 			if(rc == FAILURE){
 				/*TODO сделать реконнект*/
 				/*g_debug("reconnect");*/
+			}
+			control = controller->control;
+			queue = control->command;
+			g_mutex_lock(&(cc->m_control));
+			command = POINTER_TO_INT(g_queue_pop_tail(queue));
+			g_mutex_unlock(&(cc->m_control));
+			if(command != COMMAND_EMPTY){
+				/*g_debug(" :> %ld ",command);*/
+				rc = command_controller(link,command);
+				if(rc == FAILURE){
+					/*TODO сделать реконнект*/
+					/*g_debug("reconnect");*/
+				}
 			}
 		}
 #if 0
@@ -2576,7 +2591,7 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_UP;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2584,6 +2599,7 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 
 	g_debug("press up");
 }
+/*TODO  одна функция отпускания клавиши команда одна */
 static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -2591,7 +2607,7 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_STOP;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2607,7 +2623,7 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_DOWN;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2622,7 +2638,7 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_STOP;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2638,7 +2654,7 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_RIGHT;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2653,7 +2669,7 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_STOP;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2669,7 +2685,7 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_LEFT;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2684,7 +2700,7 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	controller_s * c = cc->current;
 	control_controller_s * control = c->control;
 	GQueue * queue = control->command;
-	int command = COMMAND_UP;
+	uint64_t command = COMMAND_STOP;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -3062,7 +3078,7 @@ void * new_property_controller(void)
 	controller->config = config;
 	controller->state = state;
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->control.command = g_queue_new();
+	controller->control->command = g_queue_new();
 
 	return controller;
 }
@@ -3077,7 +3093,7 @@ controller_s * init_controller(uint32_t number)
 	controller->config = g_slice_alloc0(sizeof(config_controller_s));
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->control.command = g_queue_new();
+	controller->control->command = g_queue_new();
 	/*память для обектов выделяется при чтении из базыданых*/
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
@@ -3112,6 +3128,7 @@ int del_property_controller(controller_s * property)
 	config_controller_s * config;
 	state_controller_s * state;
 	control_controller_s * control;
+	GQueue * queue;
 
 	if(property == NULL){
 		return SUCCESS;
@@ -3130,6 +3147,8 @@ int del_property_controller(controller_s * property)
 	state = property->state;
 	g_slice_free1(sizeof(state_controller_s),state);
 	control = property->control;
+	queue = control->command;
+	g_queue_free(queue);
 	g_slice_free1(sizeof(control_controller_s),control);
 
 	g_slice_free1(sizeof(controller_s),property);

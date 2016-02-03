@@ -56,7 +56,7 @@
 #define MODE_WORK_CATALOG             0755
 
 #define INT_TO_POINTER(s)  (((gpointer)((uint64_t)(s))))
-
+#define POINTER_TO_INT(s)  ((uint64_t)(s))
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];
@@ -253,8 +253,9 @@ typedef struct _controller_s controller_s;
 /**************************************/
 
 enum{
-	COMMAND_UP=1,
-	COMMAND_STOP_UP,
+	COMMAND_EMPTY=0,
+	COMMAND_STOP,
+	COMMAND_UP,
 	COMMAND_DOWN,
 	COMMAND_RIGHT,
 	COMMAND_LEFT,

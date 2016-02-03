@@ -44,6 +44,7 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+int command_controller(link_s * link,uint64_t command);
 int check_config_controller(config_controller_s * config_c,config_controller_s * config_d);
 char * get_name_controller(config_controller_s * config);
 int link_state_controller(link_s * link,state_controller_s * state);
