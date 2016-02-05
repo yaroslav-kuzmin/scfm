@@ -120,9 +120,10 @@ struct _object_s
 };
 typedef struct _object_s object_s;
 /**************************************/
+/*Основное дерево */
 enum{
-	COLUMN_NAME_TREE = 0,
-	COLUMN_POINT_TREE,
+	COLUMN_NAME_TREE = 0,  /*имя обеъкта*/
+	COLUMN_POINT_TREE,     /*указатель на обект*/
 	AMOUNT_COLUMN_TREE
 };
 

@@ -91,6 +91,7 @@ static int change_object(block_object_s * block_object,int type)
 			gtk_widget_hide(block_object->controller);
 			break;
 		case TYPE_CONTROLLERE:
+			/*TODO если нет подключения то неотобпажать*/
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
