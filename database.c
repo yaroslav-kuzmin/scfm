@@ -227,7 +227,7 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
 	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d,\'%s\',%d,%d,%d,%d \
-,%d,%ld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
+,%d,%lld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
 	                      ,number
 	                      ,link->type,link->id,link->address,link->port
 	                      ,link->device,link->baud,link->parity,link->data_bit,link->stop_bit
