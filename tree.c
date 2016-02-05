@@ -73,6 +73,7 @@ int tree_add_column(GtkTreeView * tree)
 	render = gtk_cell_renderer_text_new();
 	g_object_set(render,"editable",FALSE,NULL);
 	g_object_set(render,"width",width_column_tree,NULL);
+	g_object_set(render,"size",15000,NULL); /*размер шрифта*/
 
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN);
@@ -167,6 +168,8 @@ int reread_tree(void)
 }
 
 static char STR_TREE_FRAME[] = "Объекты";
+#define DEFAULT_WIDTH_TREE       200
+#define DEFAULT_HEIGHT_TREE      400
 
 GtkWidget * create_block_tree_object(void)
 {
@@ -177,7 +180,8 @@ GtkWidget * create_block_tree_object(void)
 	GtkTreeStore * model;
 
 	frame = gtk_frame_new(STR_TREE_FRAME);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_TREE,-1);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);

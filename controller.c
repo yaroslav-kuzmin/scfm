@@ -2584,14 +2584,22 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
+
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_UP;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2605,9 +2613,16 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_STOP;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2621,9 +2636,16 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_DOWN;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2636,9 +2658,16 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_STOP;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2652,9 +2681,16 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_RIGHT;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2667,9 +2703,16 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_STOP;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2683,9 +2726,16 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_LEFT;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2698,9 +2748,16 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control = c->control;
-	GQueue * queue = control->command;
+	control_controller_s * control;
+	GQueue * queue;
 	uint64_t command = COMMAND_STOP;
+
+	if( c == NULL){
+		g_warning("Не выбран контролер");
+		return;
+	}
+	control = c->control;
+	queue = control->command;
 
 	g_mutex_lock(&(cc->m_control));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
@@ -2721,8 +2778,8 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid),TRUE);
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
 
 #if 1
@@ -2733,9 +2790,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->name = GTK_LABEL(label_name);
 
 	label_name = gtk_label_new("Датчики лафета");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,1,1,1);
@@ -2743,9 +2800,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->lafet = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Вертикальная ось");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,2,1,1);
@@ -2753,9 +2810,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->tic_vertical = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Горизонтальная ось");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,3,1,1);
@@ -2763,9 +2820,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->tic_horizontal = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Энкодер вертикальной оси");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,4,1,1);
@@ -2773,9 +2830,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->encoder_vertical = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Энкодер горизонтальной оси");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,5,1,1);
@@ -2783,9 +2840,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->encoder_horizontal = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Давление");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,6,1,1);
@@ -2793,9 +2850,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->pressure = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Ток вертикальной оси");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,7,1,1);
@@ -2803,9 +2860,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->amperage_vertical = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Ток горизонтально оси");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,8,1,1);
@@ -2813,9 +2870,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->amperage_horizontal = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Заслонка");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,9,1,1);
@@ -2823,9 +2880,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->valve = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Заслонка положение");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,10,1,1);
@@ -2833,9 +2890,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->tic_valve = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Датчик пламени");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,11,1,1);
@@ -2843,9 +2900,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	block->fire_sensor = GTK_LABEL(label_value);
 
 	label_name = gtk_label_new("Пожарная сигнализация");
-	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_name,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	label_value = gtk_label_new(NULL);
-	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(label_value,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_widget_show(label_name);
 	gtk_widget_show(label_value);
 	gtk_grid_attach(GTK_GRID(grid),label_name ,0,12,1,1);
@@ -2872,7 +2929,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	GtkWidget * but_left;
 
 	frame = gtk_frame_new(STR_CONTROL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_END,FALSE,FALSE);
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -2991,11 +3048,13 @@ int select_block_controller(controller_s * controller)
 	if(controller == NULL){
 		/*TODO если таймер запушен то остановить*/
 		block_controller.stop_show = OK;
+		cc->current = NULL;
 		return SUCCESS;
 	}
 
 	if(tid == NULL){
 		g_warning("Нет подключения!");
+		cc->current = NULL;
 		return FAILURE;
 	}
 
@@ -3034,14 +3093,14 @@ GtkWidget * create_block_controller(void)
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_box_set_homogeneous(GTK_BOX(box),TRUE);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	frame_state = create_block_state(&block_controller);
 
 	frame_control = create_block_control(&block_controller);
 
 	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),frame_control,FALSE,TRUE,0);
 
 	gtk_widget_show(box);
 
