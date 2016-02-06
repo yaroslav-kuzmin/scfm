@@ -456,24 +456,6 @@ typedef struct _block_controller_s block_controller_s;
 /* Блок отображения конфигурированием контролером                            */
 /*****************************************************************************/
 
-static int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
-{
-	int rc;
-	rc = link_connect_controller(link);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_config_controller(link,config);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_state_controller(link,state);
-	if(rc == FAILURE){
-		return rc;
-	}
-	return SUCCESS;
-}
-
 static int fill_block_info(block_setting_controller_s * bsc)
 {
 	GtkLabel * label;
@@ -2049,6 +2031,7 @@ static link_s * check_option_uart(block_setting_controller_s * bsc)
 	return link;
 }
 
+static int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
 	int rc;
@@ -2360,6 +2343,24 @@ GtkWidget * create_block_setting_controller(void)
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*****************************************************************************/
+static int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+{
+	int rc;
+	rc = link_connect_controller(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_config_controller(link,config);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_state_controller(link,state);
+	if(rc == FAILURE){
+		return rc;
+	}
+	return SUCCESS;
+}
+
 static int connect_controller(controller_s * controller)
 {
 	int rc;
@@ -2584,6 +2585,12 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
+
+static int init_image(block_controller_s * bc)
+{
+
+	return SUCCESS;
+}
 
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -2972,18 +2979,27 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	return frame;
 }
 
-/*        функция по таймеру        */
+/*        функция отображения по таймеру        */
 static int show_block_controler(gpointer data)
 {
 	GtkLabel * label;
 	block_controller_s * bc = (block_controller_s *)data;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	state_controller_s * state = c->state;
+	state_controller_s * state;
+	/*uint64_t flag;*/
 
 	if(bc->stop_show == OK ){
 		return FALSE; /*завершить работу*/
 	}
+	if(c == NULL){
+		return FALSE;
+	}
+
+	state = c->state;
+	/*flag = c->config->flag;*/
+
+#if 1
 	/*TODO запись в структуру в другом потоке */
 	label = bc->lafet;
 	g_string_printf(pub,"%#x",state->lafet);
@@ -3032,7 +3048,7 @@ static int show_block_controler(gpointer data)
 	label = bc->fire_alarm;
 	g_string_printf(pub,"%#x",state->fire_alarm);
 	gtk_label_set_text(label,pub->str);
-
+#endif
 	return TRUE; /* продолжаем работу */
 }
 
@@ -3090,6 +3106,8 @@ GtkWidget * create_block_controller(void)
 	block_controller.stop_show = NOT_OK;
 	block_controller.timeout_show = DEFAULT_TIMEOUT_SHOW;
 	block_controller.communication_controller = &communication_controller;
+
+	init_image(&block_controller);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);

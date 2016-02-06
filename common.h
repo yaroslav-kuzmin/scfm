@@ -62,5 +62,6 @@ int set_size_font(GtkWidget * w,int size);
 
 GDateTime * current_date_time(void);
 
+GdkPixbuf * get_resource_image(const char * name_resource);
 #endif
 
