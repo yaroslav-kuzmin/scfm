@@ -44,7 +44,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <gresources>
-	<gresource prefix="/">
-		<file>resource/scfm.png</file>
+	<gresource prefix="/base">
+		<file>scfm.png</file>
 	</gresource>
 </gresources>

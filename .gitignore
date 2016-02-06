@@ -8,5 +8,8 @@
 *.db
 tags
 version.h
-resource/scfm.c
-resource/scfm.h
+resource/.obj
+resource/.obj/base.c
+resource/.obj/base.o
+resource/image.gresource
+doc
