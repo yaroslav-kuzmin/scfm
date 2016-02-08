@@ -450,4 +450,22 @@ int link_connect_controller(link_s * link)
 	return rc;
 }
 
+int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+{
+	int rc;
+	rc = link_connect_controller(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_config_controller(link,config);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_state_controller(link,state);
+	if(rc == FAILURE){
+		return rc;
+	}
+	return SUCCESS;
+}
+
 /*****************************************************************************/

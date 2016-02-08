@@ -50,6 +50,7 @@
 #include "group.h"
 #include "videocamera.h"
 #include "controller.h"
+#include "setting_controller.h"
 
 /*****************************************************************************/
 /*    локальные переменые                                                    */

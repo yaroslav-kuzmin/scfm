@@ -226,8 +226,9 @@ static int create_default_config(GString * name)
 		g_string_printf(pub,"Несмог создать файл конфигурации %s!\n%s",name->str,err->message);
 		dialog_error(pub->str);
 		g_error("%s",pub->str);
-		g_error_free(err);
 	}
+	/*TODO создание каталога ресурсов и файла ресурсов*/
+
 	/*TODO вызывать функции для значений по умолчанию из блоков*/
 	default_database_config();
 
@@ -274,6 +275,67 @@ static int deinit_config(void)
 	return SUCCESS;
 }
 
+/*****************************************************************************/
+/*  Ресурсы                                                                  */
+/*****************************************************************************/
+static char STR_RESOURCE_DIR[] = "resource"G_DIR_SEPARATOR_S;
+static char STR_RESOURCE_EXT[] = ".gresource";
+static char STR_RESOURCE_IMAGE[] = "image";
+static GString * name_resource_image = NULL;
+
+static int check_resource(GString * catalog)
+{
+	int rc;
+	name_resource_image = g_string_new(catalog->str);
+	g_string_append(name_resource_image,STR_RESOURCE_DIR);
+	g_string_append(name_resource_image,STR_RESOURCE_IMAGE);
+	g_string_append(name_resource_image,STR_RESOURCE_EXT);
+	rc = g_file_test(name_resource_image->str,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		/*TODO создавать ресурс image*/
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
+static GResource * resource_image;
+
+static int init_resource(void)
+{
+	GError * err = NULL;
+	resource_image = g_resource_load(name_resource_image->str,&err);
+	if(resource_image == NULL){
+		g_warning("Нет ресурсов : %s",err->message);
+		g_error_free(err);
+		return FAILURE;
+	}
+
+	g_resources_register(resource_image);
+	return SUCCESS;
+}
+
+static int deinit_resource(void)
+{
+	if(resource_image != NULL){
+		g_resources_unregister(resource_image);
+		g_resource_unref(resource_image);
+	}
+	return SUCCESS;
+}
+
+GdkPixbuf * get_resource_image(const char * name_resource)
+{
+	GError * err = NULL;
+	GdkPixbuf * image;
+	g_string_printf(pub,"/%s/",STR_RESOURCE_IMAGE);
+	g_string_append(pub,name_resource);
+	image = gdk_pixbuf_new_from_resource(pub->str,&err);
+	if(image == NULL){
+		g_warning("Несмог загрузить рисунок : %s",err->message);
+		g_error_free(err);
+	}
+	return image;
+}
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
@@ -330,11 +392,12 @@ static int check_system(void)
 
 	check_config(work_catalog);
 	check_logging(work_catalog);
+	check_resource(work_catalog);
 
 	return SUCCESS;
 }
 
-static char RESOURCE_DEFAULT_ICON[] = "/resource/scfm.png";
+static char RESOURCE_DEFAULT_ICON[] = "/base/scfm.png";
 
 generic_s * init_system(void)
 {
@@ -355,6 +418,7 @@ generic_s * init_system(void)
 	init_logging();
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
+	init_resource();
 	init_database(work_catalog);
 	init_all_groups();
 	init_all_videocameras();
@@ -371,6 +435,7 @@ int deinit_system(void)
 	deinit_all_videcameras();
 	deinit_all_groups();
 	deinit_kernel();
+	deinit_resource();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");
 	deinit_logging();

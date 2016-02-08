@@ -51,6 +51,7 @@ int link_state_controller(link_s * link,state_controller_s * state);
 int link_config_controller(link_s * link,config_controller_s * config);
 int link_connect_controller(link_s * link);
 int link_disconnect_controller(link_s * link);
+int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
 
 #endif
 
