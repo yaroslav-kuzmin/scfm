@@ -41,8 +41,8 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef LAFET_H
-#define LAFET_H
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
 void * new_property_controller(void);
 controller_s * init_controller(uint32_t number);
@@ -56,7 +56,6 @@ int control_controllers(int mode);
 
 int select_block_controller(controller_s * controller);
 
-GtkWidget * create_block_setting_controller(void);
 GtkWidget * create_block_controller(void);
 
 #endif

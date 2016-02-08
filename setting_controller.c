@@ -46,13 +46,12 @@
 
 #include "pub.h"
 #include "common.h"
-#include "database.h"
+/*#include "database.h"*/
 #include "device.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-#if 0
 
 #define ALL_BIT                        0xFFFFFFFFFFFFFFFFL
 #define BIT_ENGINE_VERTICAL            0x0000000000000001L
@@ -412,8 +411,7 @@ struct _block_setting_controller_s
 	state_controller_s * state;
 };
 typedef struct _block_setting_controller_s block_setting_controller_s;
-#endif
-
+#if 0
 struct _communication_controller_s
 {
 	int exit;
@@ -455,8 +453,8 @@ struct _block_controller_s
 #endif
 };
 typedef struct _block_controller_s block_controller_s;
+#endif
 
-#if 0
 /*****************************************************************************/
 /* Блок отображения конфигурированием контролером                            */
 /*****************************************************************************/
@@ -2343,10 +2341,12 @@ GtkWidget * create_block_setting_controller(void)
 	gtk_widget_show(box);
 	return box;
 }
-#endif
+
+#if 0
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*****************************************************************************/
+
 static int connect_controller(controller_s * controller)
 {
 	int rc;
@@ -3056,11 +3056,10 @@ GtkWidget * create_block_controller(void)
 
 	return box;
 }
-
+#endif
 /*****************************************************************************/
 /* Выделение и высвобождения памяти для структур контролера                  */
 /*****************************************************************************/
-#if 0
 /*выделение памяти при конфигурировании */
 void * new_property_controller(void)
 {
@@ -3092,7 +3091,8 @@ void * new_property_controller(void)
 
 	return controller;
 }
-#endif
+
+#if 0
 /*Выделение памяти и считывание из базы данных*/
 controller_s * init_controller(uint32_t number)
 {
@@ -3167,3 +3167,4 @@ int del_property_controller(controller_s * property)
 	return SUCCESS;
 }
 /*****************************************************************************/
+#endif
