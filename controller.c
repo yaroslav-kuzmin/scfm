@@ -78,6 +78,9 @@ struct _block_controller_s
 	communication_controller_s * communication_controller;
 	GtkLabel * name;
 
+	GtkImage * axis_vertical;
+	GtkImage * axis_horizontal;
+	GtkImage * pressure_valve;
 };
 typedef struct _block_controller_s block_controller_s;
 
@@ -497,33 +500,76 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	g_debug("release left");
 }
 
+#define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
 static char STR_VERTICAL[] = "Вертикальная Ось";
 static GtkWidget * create_block_vertical(block_controller_s * block)
 {
 	GtkWidget * frame;
+	GtkWidget * image;
+
 	frame = gtk_frame_new(STR_VERTICAL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	image = gtk_image_new();
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);
+	block->axis_vertical = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(image);
 	return frame;
 }
 
+#define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
 static char STR_HORIZONTAL[] = "Горизонтальная Ось";
 static GtkWidget * create_block_horizontal(block_controller_s * block)
 {
 	GtkWidget * frame;
+	GtkWidget * image;
+
 	frame = gtk_frame_new(STR_HORIZONTAL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	image = gtk_image_new();
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);
+	block->axis_horizontal = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
 	return frame;
 }
 
+
+#define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
+#define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
 static char STR_VALVE[] = "Магистраль";
 static GtkWidget * create_block_valve(block_controller_s * block)
 {
 	GtkWidget * frame;
+	GtkWidget * image;
+
 	frame = gtk_frame_new(STR_VALVE);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	image = gtk_image_new();
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);
+
+	block->pressure_valve = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
 	return frame;
 }
 
