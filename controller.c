@@ -71,6 +71,13 @@ struct _communication_controller_s
 };
 typedef struct _communication_controller_s communication_controller_s;
 
+enum {
+	V_UP = 0,
+	V_DOWN,
+	V_0000,
+};
+
+
 struct _block_controller_s
 {
 	int stop_show;
@@ -546,7 +553,6 @@ static GtkWidget * create_block_horizontal(block_controller_s * block)
 
 	return frame;
 }
-
 
 #define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
 #define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
