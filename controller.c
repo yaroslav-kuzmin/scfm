@@ -72,9 +72,19 @@ struct _communication_controller_s
 typedef struct _communication_controller_s communication_controller_s;
 
 enum {
-	V_UP = 0,
+	V_0000 = 0,
+	v_0100,
+	v_0200,
+	v_0300,
+	v_0400,
+	v_0500,
+	v_0600,
+	v_0700,
+	v_0800,
+	v_0900,
+	V_UP,
 	V_DOWN,
-	V_0000,
+	AMOUNT_IMAGE_VERTICAL
 };
 
 
@@ -318,10 +328,21 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
-
+static char * STR_IMAGE_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
+static GdkPixbuf * IMAGES_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
 
 static int init_image(block_controller_s * bc)
 {
+	GError * err = NULL;
+	GdkPixbuf * buf;
+
+	STR_IMAGE_VERTICAL[V_0000] = "/image/v0000.png";
+	buf = gdk_pixbuf_new_from_resource(STR_IMAGE_VERTICAL[V_0000],&err);
+	if(buf == NULL){
+		g_warning("Not image : %s",err->message);
+		g_error_free(err);
+	}
+	IMAGES_VERTICAL[V_0000] = buf;
 
 	return SUCCESS;
 }
