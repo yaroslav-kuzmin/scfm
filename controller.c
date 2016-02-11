@@ -323,9 +323,26 @@ static int16_t calculate_angle_tic_vertical(controller_s * controller)
 	state_controller_s * state = controller->state;
 	int16_t angle;
 	uint16_t tic = state->tic_vertical;
+	gdouble rate = config->rate_tic_vertical;
 
+	rate = (gdouble)tic * rate;
 
+	angle =(int16_t)rate;
+	return angle;
+}
+#define MIN_TIC_HORIZONTAL   0
+#define MAX_TIC_HORIZONTAL   60
+static int16_t calculate_angle_tic_horizontal(controller_s * controller)
+{
+	config_controller_s * config = controller->config;
+	state_controller_s * state = controller->state;
+	int16_t angle;
+	uint16_t tic = state->tic_horizontal;
+	gdouble rate = config->rate_tic_horizontal;
 
+	rate = (gdouble)tic * rate;
+
+	angle =(int16_t)rate;
 	return angle;
 }
 /*****************************************************************************/
@@ -943,8 +960,11 @@ static int show_block_controler(gpointer data)
 		return FALSE; /*завершить работу*/
 	}
 	if(c == NULL){
+		/*контролер не выбран*/
 		return FALSE;
 	}
+
+	show_vertical(bc);
 
 	/*state = c->state;*/
 	/*flag = c->config->flag;*/
