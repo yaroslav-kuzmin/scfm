@@ -228,10 +228,10 @@ struct _state_controller_s
 	uint16_t pressure;
 	uint16_t amperage_vertical;
 	uint16_t amperage_horizontal;
-   uint16_t valve;
-   uint16_t tic_valve;
-   uint16_t fire_sensor;
-   uint16_t fire_alarm;
+	uint16_t valve;
+	uint16_t tic_valve;
+	uint16_t fire_sensor;
+	uint16_t fire_alarm;
 };
 typedef struct _state_controller_s state_controller_s;
 

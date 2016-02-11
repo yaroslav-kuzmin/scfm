@@ -104,6 +104,9 @@ enum {
 };
 static char * STR_IMAGE_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
 static GdkPixbuf * IMAGES_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
+static int16_t period_vertical = 10;
+static int16_t min_vertical = 0;
+static int16_t max_vertical = 90;
 
 enum {
 	HORIZONTAL_0000 = 0,
@@ -149,6 +152,7 @@ enum {
 };
 static char * STR_IMAGE_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static GdkPixbuf * IMAGES_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
+static gdouble period_horizontal = 10;
 
 static GdkPixbuf * get_pixbuf(const char * name)
 {
@@ -275,6 +279,55 @@ static int init_image(block_controller_s * bc)
 	return SUCCESS;
 }
 
+static GdkPixbuf * get_image_vertical(int16_t angle)
+{
+	GdkPixbuf * buf = NULL;
+
+	if(angle <= min_vertical){
+		buf = IMAGES_VERTICAL[VERTICAL_DOWN];
+	}
+	else{
+		if(angle >= max_vertical){
+			buf = IMAGES_VERTICAL[VERTICAL_UP];
+		}
+		else{
+			angle = angle / period_vertical;
+			buf = IMAGES_VERTICAL[angle];
+		}
+	}
+	return buf;
+}
+static GdkPixbuf * get_image_horizontal(int16_t angle)
+{
+	GdkPixbuf * buf = NULL;
+
+	if(angle <= min_horizontal){
+		buf = IMAGES_HORIZONTAL[HORIZONTAL_RIGHT];
+	}
+	else{
+		if(angle >= max_horizontal){
+			buf = IMAGES_HORIZONTAL[HORIZONTAL_RIGHT];
+		}
+		else{
+			angle = angle / period_horizontal;
+			buf = IMAGES_HORIZONTAL[angle];
+		}
+	}
+	return buf;
+}
+#define MIN_TIC_VERTICAL  0
+#define MAX_TIC_VERTICAL  30
+static int16_t calculate_angle_tic_vertical(controller_s * controller)
+{
+	config_controller_s * config = controller->config;
+	state_controller_s * state = controller->state;
+	int16_t angle;
+	uint16_t tic = state->tic_vertical;
+
+
+
+	return angle;
+}
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*****************************************************************************/
