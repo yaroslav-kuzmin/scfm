@@ -13,3 +13,4 @@ resource/.obj/base.c
 resource/.obj/base.o
 resource/image.gresource
 doc
+resource/base/tree.xcf

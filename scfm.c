@@ -79,9 +79,10 @@ static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
 static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
 static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
 
-int about_programm(GdkPixbuf * icon)
+int about_programm(void)
 {
 	GtkWidget * dialog = gtk_about_dialog_new();
+	GdkPixbuf * icon = get_default_icon();
 
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog),STR_NAME_PROGRAMM);
 	g_string_printf(pub,"%d.%03d - %x",VERSION_MAJOR,VERSION_MINOR,VERSION_GIT);
@@ -132,7 +133,6 @@ static void destroy_window_main(GtkWidget * w,gpointer ud)
 
 static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpointer ud)
 {
-	generic_s * g = (generic_s*)ud;
 	GdkEventType type = event->type;
 	gint state;
 
@@ -142,7 +142,7 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 		/*g_debug(" key :> %#x",event_key->keyval);*/
 		if( (state & GDK_SHIFT_MASK) && (state & GDK_CONTROL_MASK)){
 			if( event_key->keyval == GDK_KEY_A){
-				about_programm(g->default_icon);
+				about_programm();
 			}
 		}
 	}
@@ -153,7 +153,7 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 #define MIN_SIZE_WIDTH_MAIN_WINDOW        1280
 #define MIN_SIZE_HEIGHT_MAIN_WINDOW       980
 
-GtkWidget * create_main_block(generic_s * g)
+GtkWidget * create_main_block(void)
 {
 	GtkWidget * win_main;
 	GtkAccelGroup * accgro_main;
@@ -169,7 +169,7 @@ GtkWidget * create_main_block(generic_s * g)
 	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(win_main),MIN_SIZE_WIDTH_MAIN_WINDOW,MIN_SIZE_HEIGHT_MAIN_WINDOW);
 	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
-	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),g);
+	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
 
 	accgro_main = gtk_accel_group_new();
 
@@ -198,7 +198,8 @@ int main(int argc,char * argv[])
 {
 	gtk_init(&argc,&argv);
 
-	create_main_block(init_system());
+	init_system();
+	create_main_block();
 
 	gtk_main();
 

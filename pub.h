@@ -62,16 +62,17 @@
 extern char STR_NAME_PROGRAMM[];
 
 /**************************************/
-struct _generic_s
+enum
 {
-	GString * pub;
-	GdkPixbuf * default_icon;
+	RESOURCE_BASE = 1,
+	RESOURCE_IMAGE,
+	AMOUNT_RESOURCE
 };
-typedef struct _generic_s generic_s;
 
 /**************************************/
 
-enum{
+enum
+{
 	MODE_NOT_WORK = 0,
 	MODE_CONTROL_ON,
 	MODE_CONTROL_OFF,
@@ -103,7 +104,8 @@ extern GdkRGBA color_lite_green;
 
 /**************************************/
 #define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
-enum{
+enum
+{
 	COLUMN_TABLE_OBJECT_NUMBER = 0,
 	COLUMN_TABLE_OBJECT_NAME,
 	COLUMN_TABLE_OBJECT_TYPE,
@@ -120,16 +122,9 @@ struct _object_s
 };
 typedef struct _object_s object_s;
 /**************************************/
-/*Основное дерево */
-enum{
-	COLUMN_NAME_TREE = 0,  /*имя обеъкта*/
-	COLUMN_POINT_TREE,     /*указатель на обект*/
-	AMOUNT_COLUMN_TREE
-};
 
-/**************************************/
-
-enum{
+enum
+{
 	COLUMN_TABLE_GROUP_NUMBER = 0,
 	COLUMN_TABLE_GROUP_IMAGE,
 	COLUMN_TABLE_GROUP_AMOUNT
@@ -141,7 +136,8 @@ struct _group_s
 typedef struct _group_s group_s;
 /**************************************/
 
-enum{
+enum
+{
 	COLUMN_TABLE_VIDEOCAMERA_NUMBER = 0,
 	COLUMN_TABLE_VIDEOCAMERA_PROTOCOL,
 	COLUMN_TABLE_VIDEOCAMERA_ADDRESS,
@@ -159,7 +155,8 @@ struct _videocamera_s
 typedef struct _videocamera_s videocamera_s;
 
 /**************************************/
-enum{
+enum
+{
 	COLUMN_TABLE_CONTROLLER_NUMBER = 0,
 	COLUMN_TABLE_CONTROLLER_TYPE_LINK,
 	COLUMN_TABLE_CONTROLLER_ID,
@@ -252,8 +249,9 @@ struct _controller_s
 };
 typedef struct _controller_s controller_s;
 /**************************************/
-
-enum{
+/*комманды контроллера*/
+enum
+{
 	COMMAND_EMPTY=0,
 	COMMAND_STOP,
 	COMMAND_UP,
@@ -264,3 +262,4 @@ enum{
 };
 #endif
 
+/**************************************/

@@ -52,7 +52,7 @@ int set_flag_save_config(void);
 
 int set_mode_work(int mode,GtkWidget * w);
 
-generic_s * init_system(void);
+int init_system(void);
 int deinit_system(void);
 
 int dialog_error(char * message);
@@ -62,6 +62,8 @@ int set_size_font(GtkWidget * w,int size);
 
 GDateTime * current_date_time(void);
 
-GdkPixbuf * get_resource_image(const char * name_resource);
+GdkPixbuf * get_resource_image(int res,const char * name_resource);
+
+GdkPixbuf * get_default_icon(void);
 #endif
 

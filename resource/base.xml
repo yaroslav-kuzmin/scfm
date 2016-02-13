@@ -46,5 +46,8 @@
 <gresources>
 	<gresource prefix="/base">
 		<file>scfm.png</file>
+		<file>tree_red.png</file>
+		<file>tree_yellow.png</file>
+		<file>tree_green.png</file>
 	</gresource>
 </gresources>

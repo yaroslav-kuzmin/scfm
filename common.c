@@ -56,7 +56,6 @@
 /*    Общие переменые                                                        */
 /*****************************************************************************/
 
-generic_s generic;
 GString * pub = NULL;
 
 GKeyFile * system_config = NULL;
@@ -280,6 +279,7 @@ static int deinit_config(void)
 /*****************************************************************************/
 static char STR_RESOURCE_DIR[] = "resource"G_DIR_SEPARATOR_S;
 static char STR_RESOURCE_EXT[] = ".gresource";
+static char STR_RESOURCE_BASE[] = "base";
 static char STR_RESOURCE_IMAGE[] = "image";
 static GString * name_resource_image = NULL;
 
@@ -323,11 +323,22 @@ static int deinit_resource(void)
 	return SUCCESS;
 }
 
-GdkPixbuf * get_resource_image(const char * name_resource)
+GdkPixbuf * get_resource_image(int res,const char * name_resource)
 {
 	GError * err = NULL;
 	GdkPixbuf * image;
-	g_string_printf(pub,"/%s/",STR_RESOURCE_IMAGE);
+
+	switch(res){
+		case RESOURCE_BASE:
+			g_string_printf(pub,"/%s/",STR_RESOURCE_BASE);
+			break;
+		case RESOURCE_IMAGE:
+			g_string_printf(pub,"/%s/",STR_RESOURCE_IMAGE);
+			break;
+		default:
+			g_string_printf(pub,"/%s/",STR_RESOURCE_BASE);
+			break;
+	}
 	g_string_append(pub,name_resource);
 	image = gdk_pixbuf_new_from_resource(pub->str,&err);
 	if(image == NULL){
@@ -336,6 +347,7 @@ GdkPixbuf * get_resource_image(const char * name_resource)
 	}
 	return image;
 }
+
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
@@ -397,19 +409,17 @@ static int check_system(void)
 	return SUCCESS;
 }
 
-static char RESOURCE_DEFAULT_ICON[] = "/base/scfm.png";
-
-generic_s * init_system(void)
+static char RESOURCE_DEFAULT_ICON[] = "scfm.png";
+static GdkPixbuf * default_icon = NULL;
+GdkPixbuf * get_default_icon(void)
 {
-	GdkPixbuf * default_icon = NULL;
+	return default_icon;
+}
+
+int init_system(void)
+{
 	/*создание постояных блоков*/
 	pub = g_string_new(NULL);
-	generic.pub = pub;
-	default_icon = gdk_pixbuf_new_from_resource(RESOURCE_DEFAULT_ICON,NULL);
-	if(default_icon != NULL){
-		gtk_window_set_default_icon(default_icon);
-	}
-	generic.default_icon = default_icon;
 
 	/*проверка системных файлов*/
 	check_system();
@@ -425,7 +435,12 @@ generic_s * init_system(void)
 	init_all_controllers();
 	init_kernel();
 
-	return &generic;
+	default_icon = get_resource_image(RESOURCE_BASE,RESOURCE_DEFAULT_ICON);
+	if(default_icon != NULL){
+		gtk_window_set_default_icon(default_icon);
+	}
+
+	return SUCCESS;
 }
 
 int deinit_system(void)
@@ -442,7 +457,7 @@ int deinit_system(void)
 	deinit_config();
 	g_string_free(pub,TRUE);
 	g_string_free(work_catalog,TRUE);
-	g_object_unref(generic.default_icon);
+	g_object_unref(default_icon);
 	return SUCCESS;
 }
 
