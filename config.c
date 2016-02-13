@@ -56,7 +56,8 @@
 /*    локальные переменые                                                    */
 /*****************************************************************************/
 /*Основное дерево */
-enum{
+enum
+{
 	COLUMN_NAME_TREE = 0,  /*имя обеъкта*/
 	COLUMN_POINT_TREE,     /*указатель на обект*/
 	AMOUNT_COLUMN_TREE
@@ -87,6 +88,52 @@ typedef struct _block_config_s block_config_s;
 /*****************************************************************************/
 /*    локальные функции                                                      */
 /*****************************************************************************/
+
+static char STR_TREE_VIEW_COLUMN_NAME[] = "Наименования";
+
+#define WIDTH_COLUMN_TREE             100
+static int width_column_tree = WIDTH_COLUMN_TREE;
+
+static int tree_add_column(GtkTreeView * treeview)
+{
+	GtkCellRenderer * render;
+	GtkTreeViewColumn * column;
+
+	render = gtk_cell_renderer_text_new();
+	g_object_set(render,"editable",FALSE,NULL);
+	g_object_set(render,"width",width_column_tree,NULL);
+	g_object_set(render,"size",15000,NULL); /*размер шрифта*/
+
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN_NAME);
+	gtk_tree_view_column_pack_start(column,render,TRUE);
+	gtk_tree_view_column_set_attributes(column,render,"text",COLUMN_NAME_TREE,NULL);
+	gtk_tree_view_column_set_sizing (column,GTK_TREE_VIEW_COLUMN_FIXED);
+
+	gtk_tree_view_append_column(treeview,column);
+
+	return SUCCESS;
+}
+
+int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object)
+{
+	GSList * list = NULL;
+	GtkTreeIter child_iter;
+
+	list = object->list;
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter
+		,COLUMN_NAME_TREE,o->name
+		,COLUMN_POINT_TREE,o,-1);
+		if(o->type == TYPE_GROUP){
+			fill_treeview_group(tree_model,&child_iter,o);
+		}
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
+}
 
 static char STR_ROOT_TREE[] = "основа";
 
@@ -274,7 +321,8 @@ static GtkWidget * create_block_tree(block_config_s * config)
 	return frame;
 }
 
-enum{
+enum
+{
 	COLUMN_COMBOBOX_NAME = 0,
 	COLUMN_COMBOBOX_TYPE,
 	COLUMN_AMOUNT_COMBOBOX

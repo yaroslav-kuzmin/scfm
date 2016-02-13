@@ -82,14 +82,16 @@ struct _block_controller_s
 	GdkPixbuf * buf_axis_vertical;
 	GtkImage * axis_horizontal;
 	GdkPixbuf * buf_axis_horizontal;
-	GtkImage * pressure_valve;
+	GtkImage * pipe;
+	GdkPixbuf * buf_pipe;
 };
 typedef struct _block_controller_s block_controller_s;
 
 /*****************************************************************************/
 /* Функции работы с изображениями                                            */
 /*****************************************************************************/
-enum {
+enum
+{
 	VERTICAL_0000 = 0,
 	VERTICAL_0100,
 	VERTICAL_0200,
@@ -110,7 +112,8 @@ static int16_t period_vertical = 10;
 static int16_t min_vertical = 0;
 static int16_t max_vertical = 90;
 
-enum {
+enum
+{
 	HORIZONTAL_0000 = 0,
 	HORIZONTAL_0100,
 	HORIZONTAL_0200,
@@ -157,6 +160,24 @@ static GdkPixbuf * IMAGES_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static gdouble period_horizontal = 10;
 static int16_t min_horizontal = 0;
 static int16_t max_horizontal = 360;
+
+enum
+{
+	PRESSURE_NORM = 0,
+	PRESSURE_NOTNORM,
+	AMOUNT_PRESSURE
+};
+static char * STR_IMAGES_PRESSURE[AMOUNT_PRESSURE] = {0};
+static GdkPixbuf * IMAGES_PRESSURE[AMOUNT_PRESSURE] = {0};
+
+enum
+{
+	VALVE_OPEN = 0,
+	VALVE_CLOSE,
+	AMOUNT_VALVE
+};
+static char * STR_IMAGES_VALVE[AMOUNT_VALVE] = {0};
+static GdkPixbuf * IMAGES_VALVE[AMOUNT_VALVE] = {0};
 
 static int init_image(block_controller_s * bc)
 {
@@ -268,6 +289,16 @@ static int init_image(block_controller_s * bc)
 	IMAGES_HORIZONTAL[HORIZONTAL_RIGHT] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_RIGHT]);
 	IMAGES_HORIZONTAL[HORIZONTAL_LEFT]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_LEFT]);
 
+	STR_IMAGES_PRESSURE[PRESSURE_NORM] = "pressure_norm.png";
+	STR_IMAGES_PRESSURE[PRESSURE_NOTNORM] = "pressure_notnorm.png";
+	IMAGES_PRESSURE[PRESSURE_NORM] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_PRESSURE[PRESSURE_NORM]);
+	IMAGES_PRESSURE[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_PRESSURE[PRESSURE_NOTNORM]);
+
+	STR_IMAGES_VALVE[VALVE_OPEN] = "valve_open.png";
+	STR_IMAGES_VALVE[VALVE_CLOSE] = "valve_close.png";
+	IMAGES_VALVE[VALVE_OPEN] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_VALVE[VALVE_OPEN]);
+	IMAGES_VALVE[VALVE_CLOSE] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_VALVE[VALVE_CLOSE]);
+
 	return SUCCESS;
 }
 
@@ -307,6 +338,41 @@ static GdkPixbuf * get_image_horizontal(int16_t angle)
 	}
 	return buf;
 }
+
+static GdkPixbuf * get_image_pressure(int pressure)
+{
+	GdkPixbuf * buf;
+	switch(pressure){
+		case PRESSURE_NORM:
+			buf = IMAGES_PRESSURE[PRESSURE_NORM];
+			break;
+		case PRESSURE_NOTNORM:
+			buf = IMAGES_PRESSURE[PRESSURE_NOTNORM];
+			break;
+		default:
+			buf = IMAGES_PRESSURE[PRESSURE_NOTNORM];
+			break;
+	}
+	return buf;
+}
+
+static GdkPixbuf * get_image_valve(int valve)
+{
+	GdkPixbuf * buf;
+	switch(valve){
+		case VALVE_OPEN:
+			buf = IMAGES_VALVE[VALVE_OPEN];
+			break;
+		case VALVE_CLOSE:
+			buf = IMAGES_VALVE[VALVE_CLOSE];
+			break;
+		default:
+			buf = IMAGES_VALVE[VALVE_CLOSE];
+			break;
+	}
+	return buf;
+}
+
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
 #define MIN_VERTICAL_ANGLE    0
@@ -362,6 +428,17 @@ static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 	}
 
 	return angle;
+}
+
+static int get_state_valve(state_controller_s * state)
+{
+	int valve = VALVE_OPEN;
+	return valve;
+}
+
+static int16_t calculate_pressure(controller_s * controller)
+{
+	return PRESSURE_NORM;
 }
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
@@ -625,6 +702,25 @@ static int show_horizontal(block_controller_s * bc)
 	return SUCCESS;
 }
 
+static int show_pipe(block_controller_s * bc)
+{
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
+	GdkPixbuf * buf = bc->buf_pipe;
+	GtkImage * image = bc->pipe;
+	int pressure = calculate_pressure(controller);
+	int valve = get_state_valve(controller->state);
+	GdkPixbuf * pressure_image = get_image_pressure(pressure);
+	GdkPixbuf * valve_image = get_image_valve(valve);
+	int width = gdk_pixbuf_get_width(pressure_image);
+	int height = gdk_pixbuf_get_height(pressure_image);
+	g_debug(" w : %d | h : %d",width,height);
+	/*TODO маштабирование */
+	gdk_pixbuf_copy_area(pressure_image,0,0,width,height,buf,0,0);
+	gdk_pixbuf_copy_area(valve_image,width,0,width,height,buf,width,0);
+	gtk_image_set_from_pixbuf(image,buf);
+	return SUCCESS;
+}
 static int show_block_controler(gpointer data)
 {
 	/*GtkLabel * label;*/
@@ -643,6 +739,7 @@ static int show_block_controler(gpointer data)
 	}
 	show_vertical(bc);
 	show_horizontal(bc);
+	show_pipe(bc);
 	/*state = c->state;*/
 	/*flag = c->config->flag;*/
 
@@ -890,20 +987,24 @@ static GtkWidget * create_block_horizontal(block_controller_s * block)
 
 #define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
 #define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
-static char STR_VALVE[] = "Магистраль";
-static GtkWidget * create_block_valve(block_controller_s * block)
+static char STR_PIPE[] = "Магистраль";
+static char STR_IMAGE_PIPE[] = "pipe.png";
+static GtkWidget * create_block_pipe(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
+	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(STR_VALVE);
+	frame = gtk_frame_new(STR_PIPE);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	image = gtk_image_new();
+	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_PIPE);
+	block->buf_pipe = buf;
+	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);
-
-	block->pressure_valve = GTK_IMAGE(image);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	block->pipe = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -960,7 +1061,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 
 	block_vertical = create_block_vertical(block);
 	block_horizontal = create_block_horizontal(block);
-	block_valve = create_block_valve(block);
+	block_valve = create_block_pipe(block);
 	block_fire_sensor = create_block_fire_sensor(block);
 	block_fire_alarm = create_block_fire_alarm(block);
 

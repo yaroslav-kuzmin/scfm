@@ -85,10 +85,6 @@
 		<file>h3500.png</file>
 		<file>h3600.png</file>
 		<file>h3600p.png</file>
-		<file>pressure_norm_valve_close.png</file>
-		<file>pressure_norm_valve_open.png</file>
-		<file>pressure_notnorm_valve_close.png</file>
-		<file>pressure_notnorm_valve_open.png</file>
 		<file>vbase.png</file>
 		<file>v0000.png</file>
 		<file>v0000p.png</file>
@@ -102,5 +98,10 @@
 		<file>v0800.png</file>
 		<file>v0900.png</file>
 		<file>v0900p.png</file>
+		<file>pipe.png</file>
+		<file>pressure_norm.png</file>
+		<file>pressure_notnorm.png</file>
+		<file>valve_open.png</file>
+		<file>valve_close.png</file>
 	</gresource>
 </gresources>

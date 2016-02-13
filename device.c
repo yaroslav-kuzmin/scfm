@@ -318,7 +318,6 @@ int check_config_controller(config_controller_s * config_c,config_controller_s *
 	return SUCCESS;
 }
 
-
 char * get_name_controller(config_controller_s * config)
 {
 	uint16_t name_robot;

@@ -53,7 +53,8 @@
 /*    Общие переменые                                                        */
 /*****************************************************************************/
 /*Основное дерево */
-enum{
+enum
+{
 	COLUMN_NAME_TREE = 0,  /*имя обеъкта*/
 	COLUMN_POINT_TREE,     /*указатель на обект*/
 	COLUMN_IMAGE_TREE,     /*указатель на рисунок*/
@@ -75,9 +76,9 @@ static char STR_TREE_VIEW_COLUMN_STATE[] = "C";
 static char STR_TREE_VIEW_COLUMN_NAME[] = "Наименования";
 
 #define WIDTH_COLUMN_TREE             100
-int width_column_tree = WIDTH_COLUMN_TREE;
+static int width_column_tree = WIDTH_COLUMN_TREE;
 
-int tree_add_column(block_tree_s * bt)
+static int tree_add_column(block_tree_s * bt)
 {
 	GtkTreeView * treeview = bt->view;
 	GtkCellRenderer * render;
@@ -109,7 +110,7 @@ int tree_add_column(block_tree_s * bt)
 	return SUCCESS;
 }
 
-int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object,GdkPixbuf * image)
+static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object,GdkPixbuf * image)
 {
 	GSList * list = NULL;
 	GtkTreeIter child_iter;
