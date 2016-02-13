@@ -79,7 +79,9 @@ struct _block_controller_s
 	GtkLabel * name;
 
 	GtkImage * axis_vertical;
+	GdkPixbuf * buf_axis_vertical;
 	GtkImage * axis_horizontal;
+	GdkPixbuf * buf_axis_horizontal;
 	GtkImage * pressure_valve;
 };
 typedef struct _block_controller_s block_controller_s;
@@ -153,6 +155,8 @@ enum {
 static char * STR_IMAGE_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static GdkPixbuf * IMAGES_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static gdouble period_horizontal = 10;
+static int16_t min_horizontal = 0;
+static int16_t max_horizontal = 360;
 
 static GdkPixbuf * get_pixbuf(const char * name)
 {
@@ -168,7 +172,7 @@ static GdkPixbuf * get_pixbuf(const char * name)
 
 static int init_image(block_controller_s * bc)
 {
-	GdkPixbuf * buf;
+	/*TODO высвободить память из буфферов*/
 
 	STR_IMAGE_VERTICAL[VERTICAL_0000] = "/image/v0000.png";
 	STR_IMAGE_VERTICAL[VERTICAL_0100] = "/image/v0100.png";
@@ -315,8 +319,10 @@ static GdkPixbuf * get_image_horizontal(int16_t angle)
 	}
 	return buf;
 }
-#define MIN_TIC_VERTICAL  0
-#define MAX_TIC_VERTICAL  30
+#define MIN_VERTICAL_TIC      0
+#define MAX_VERTICAL_TIC      30
+#define MIN_VERTICAL_ANGLE    0
+#define MAX_VERTICAL_ANGLE    90
 static int16_t calculate_angle_tic_vertical(controller_s * controller)
 {
 	config_controller_s * config = controller->config;
@@ -325,13 +331,27 @@ static int16_t calculate_angle_tic_vertical(controller_s * controller)
 	uint16_t tic = state->tic_vertical;
 	gdouble rate = config->rate_tic_vertical;
 
-	rate = (gdouble)tic * rate;
-
+	if(tic > MAX_VERTICAL_TIC){
+		tic = MAX_VERTICAL_TIC;
+	}
+	angle = (int16_t)tic;
+	/*angle -= (MAX_VERTICAL_TIC >> 1);*/ /*Угол от -90 до 90*/
+	rate = (gdouble)angle * rate;
 	angle =(int16_t)rate;
+	/*если коэффициент не корректный*/
+	if(angle < MIN_VERTICAL_ANGLE){
+		angle = MIN_VERTICAL_ANGLE;
+	}
+	if(angle > MAX_VERTICAL_ANGLE){
+		angle = MAX_VERTICAL_ANGLE;
+	}
+
 	return angle;
 }
-#define MIN_TIC_HORIZONTAL   0
-#define MAX_TIC_HORIZONTAL   60
+#define MIN_HORIZONTAL_TIC      0
+#define MAX_HORIZONTAL_TIC      60
+#define MIN_HORIZONTAL_ANGLE    0
+#define MAX_HORIZONTAL_ANGLE    360
 static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 {
 	config_controller_s * config = controller->config;
@@ -340,9 +360,19 @@ static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 	uint16_t tic = state->tic_horizontal;
 	gdouble rate = config->rate_tic_horizontal;
 
+	if(tic > MAX_HORIZONTAL_TIC){
+		tic = MAX_HORIZONTAL_TIC;
+	}
 	rate = (gdouble)tic * rate;
-
 	angle =(int16_t)rate;
+	/*если коэффициент не корректный*/
+	if(angle < MIN_HORIZONTAL_ANGLE){
+		angle = MIN_HORIZONTAL_ANGLE;
+	}
+	if(angle > MAX_HORIZONTAL_ANGLE){
+		angle = MAX_HORIZONTAL_ANGLE;
+	}
+
 	return angle;
 }
 /*****************************************************************************/
@@ -385,7 +415,7 @@ static int disconnect_controller(controller_s * controller)
 	return link_disconnect_controller(link);
 }
 
-uint32_t debug_id = 0;
+/*uint32_t debug_id = 0;*/
 /* функция  потока комуникации с контролерами */
 static gpointer controllers_communication(gpointer ud)
 {
@@ -411,6 +441,7 @@ static gpointer controllers_communication(gpointer ud)
 				/*TODO сделать реконнект*/
 				/*g_debug("reconnect");*/
 			}
+			g_debug("read controller");
 			control = controller->control;
 			queue = control->command;
 			g_mutex_lock(&(cc->m_control));
@@ -449,8 +480,8 @@ static gpointer controllers_communication(gpointer ud)
 			list = g_slist_next(list);
 		}
 #endif
-		debug_id ++;
-		g_debug("state controller : %d",debug_id);
+		/*debug_id ++;*/
+		/*g_debug("state controller : %d",debug_id);*/
 		/*TODO сделать возможное в реальном режиме менять таймаут*/
 		g_usleep(cc->timeout_current);
 		g_mutex_lock(&(cc->m_flag));
@@ -571,6 +602,65 @@ int deinit_all_controllers(void)
 
 /*****************************************************************************/
 /* Блок отображение основного окна управления контролером                    */
+/*****************************************************************************/
+
+/* Функции отрисовки по таймеру*/
+static int show_vertical(block_controller_s * bc)
+{
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
+	GdkPixbuf * buf = bc->buf_axis_vertical;
+	GtkImage * image = bc->axis_vertical;
+	int16_t angle = calculate_angle_tic_vertical(controller);
+	GdkPixbuf * angle_image = 	get_image_vertical(angle);
+	int width = gdk_pixbuf_get_width(buf);
+	int height = gdk_pixbuf_get_height(buf);
+	/*TODO маштабирование */
+	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
+	gtk_image_set_from_pixbuf(image,buf);
+	return SUCCESS;
+}
+
+static int show_horizontal(block_controller_s * bc)
+{
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
+	GdkPixbuf * buf = bc->buf_axis_horizontal;
+	GtkImage * image = bc->axis_horizontal;
+	int16_t angle = calculate_angle_tic_horizontal(controller);
+	GdkPixbuf * angle_image = 	get_image_horizontal(angle);
+	int width = gdk_pixbuf_get_width(buf);
+	int height = gdk_pixbuf_get_height(buf);
+	/*TODO маштабирование */
+	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
+	gtk_image_set_from_pixbuf(image,buf);
+	return SUCCESS;
+}
+
+static int show_block_controler(gpointer data)
+{
+	/*GtkLabel * label;*/
+	block_controller_s * bc = (block_controller_s *)data;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	/*state_controller_s * state;*/
+	/*uint64_t flag;*/
+
+	if(bc->stop_show == OK ){
+		return FALSE; /*завершить работу*/
+	}
+	if(c == NULL){
+		/*контролер не выбран*/
+		return FALSE;
+	}
+	show_vertical(bc);
+	show_horizontal(bc);
+	/*state = c->state;*/
+	/*flag = c->config->flag;*/
+
+	return TRUE; /* продолжаем работу */
+}
+
 /*****************************************************************************/
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -756,17 +846,22 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
 static char STR_VERTICAL[] = "Вертикальная Ось";
+static char STR_IMAGE_BASE_VERTICAL[] = "/image/vbase.png";
 static GtkWidget * create_block_vertical(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
+	GdkPixbuf * buf;
 
 	frame = gtk_frame_new(STR_VERTICAL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	image = gtk_image_new();
+	buf = get_pixbuf(STR_IMAGE_BASE_VERTICAL);
+	block->buf_axis_vertical = buf;
+	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);
+	/*TODO маштабирование */
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
 	block->axis_vertical = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
@@ -779,17 +874,22 @@ static GtkWidget * create_block_vertical(block_controller_s * block)
 #define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
 static char STR_HORIZONTAL[] = "Горизонтальная Ось";
+static char STR_IMAGE_BASE_HORIZONTAL[] = "/image/hbase.png";
 static GtkWidget * create_block_horizontal(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
+	GdkPixbuf * buf;
 
 	frame = gtk_frame_new(STR_HORIZONTAL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	image = gtk_image_new();
+	buf = get_pixbuf(STR_IMAGE_BASE_HORIZONTAL);
+	block->buf_axis_horizontal = buf;
+	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
 	block->axis_horizontal = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
@@ -944,32 +1044,6 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
 	return frame;
-}
-
-/*        функция отображения по таймеру        */
-static int show_block_controler(gpointer data)
-{
-	/*GtkLabel * label;*/
-	block_controller_s * bc = (block_controller_s *)data;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	/*state_controller_s * state;*/
-	/*uint64_t flag;*/
-
-	if(bc->stop_show == OK ){
-		return FALSE; /*завершить работу*/
-	}
-	if(c == NULL){
-		/*контролер не выбран*/
-		return FALSE;
-	}
-
-	show_vertical(bc);
-
-	/*state = c->state;*/
-	/*flag = c->config->flag;*/
-
-	return TRUE; /* продолжаем работу */
 }
 
 static block_controller_s block_controller;

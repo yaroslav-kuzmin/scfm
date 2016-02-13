@@ -129,11 +129,7 @@ static int fill_treeview(GtkTreeView * treeview)
 
 static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeViewColumn *column,gpointer ud)
 {
-	g_debug("row_activated_tree_view");
-}
-
-static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
-{
+#if 1
 	int rc;
 	object_s * object;
 	GtkTreeModel * model;
@@ -148,6 +144,31 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	if(object != NULL){
 		select_object(object);
 	}
+#else
+	g_debug("row_activated_tree_view");
+#endif
+}
+
+static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
+{
+#if 0
+	int rc;
+	object_s * object;
+	GtkTreeModel * model;
+	GtkTreeIter iter;
+	GtkTreeSelection * select = gtk_tree_view_get_selection(tv);
+	rc = gtk_tree_selection_get_selected(select,&model,&iter);
+	if(rc != TRUE){
+		return;
+	}
+	gtk_tree_model_get(model,&iter,COLUMN_POINT_TREE,&object,-1);
+
+	if(object != NULL){
+		select_object(object);
+	}
+#else
+	g_debug("cursor_changed_tree_view");
+#endif
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */

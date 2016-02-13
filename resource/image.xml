@@ -45,6 +45,7 @@
 
 <gresources>
 	<gresource prefix="/image">
+		<file>hbase.png</file>
 		<file>h0000.png</file>
 		<file>h0000p.png</file>
 		<file>h0100.png</file>
@@ -88,6 +89,7 @@
 		<file>pressure_norm_valve_open.png</file>
 		<file>pressure_notnorm_valve_close.png</file>
 		<file>pressure_notnorm_valve_open.png</file>
+		<file>vbase.png</file>
 		<file>v0000.png</file>
 		<file>v0000p.png</file>
 		<file>v0100.png</file>
