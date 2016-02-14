@@ -175,6 +175,7 @@ enum
 	COLUMN_TABLE_CONTROLLER_TIC_HORIZONTAL,
 	COLUMN_TABLE_CONTROLLER_ENCODER_HORIZONTAL,
 	COLUMN_TABLE_CONTROLLER_AMPERAGE_HORIZONTAL,
+	COLUMN_TABLE_CONTROLLER_PRESSURE,
 	COLUMN_TABLE_CONTROLLER_VALVE_ANALOG,
 	COLUMN_TABLE_CONTROLLER_AMOUNT
 };
@@ -211,6 +212,7 @@ struct _config_controller_s
 	double rate_tic_horizontal;
 	double rate_encoder_horizontal;
 	double rate_amperage_horizontal;
+	double rate_pressure;
 	double rate_valve_analog;
 };
 typedef struct _config_controller_s config_controller_s;

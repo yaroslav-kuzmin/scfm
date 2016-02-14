@@ -1238,15 +1238,17 @@ controller_s * init_controller(uint32_t number)
 
 	communication_controller.list = g_slist_append(communication_controller.list,controller);
 
-	g_debug(" :> %d",controller->config->type);
-	g_debug(" :> %#lx",controller->config->flag);
-	g_debug(" :> %f",controller->config->rate_tic_vertical);
-	g_debug(" :> %f",controller->config->rate_encoder_vertical);
-	g_debug(" :> %f",controller->config->rate_amperage_vertical);
-	g_debug(" :> %f",controller->config->rate_tic_horizontal);
-	g_debug(" :> %f",controller->config->rate_encoder_horizontal);
-	g_debug(" :> %f",controller->config->rate_amperage_horizontal);
-	g_debug(" :> %f",controller->config->rate_valve_analog);
+	g_debug(" %s ",controller->name);
+	g_debug("type               :> %d",controller->config->type);
+	g_debug("flag               :> %#lx",controller->config->flag);
+	g_debug("tic vertical       :> %g",controller->config->rate_tic_vertical);
+	g_debug("encoder vertical   :> %g",controller->config->rate_encoder_vertical);
+	g_debug("amprage vertical   :> %g",controller->config->rate_amperage_vertical);
+	g_debug("ti horizontal      :> %g",controller->config->rate_tic_horizontal);
+	g_debug("encoder horizontal :> %g",controller->config->rate_encoder_horizontal);
+	g_debug("amprage horizontal :> %g",controller->config->rate_amperage_horizontal);
+	g_debug("pressure           :> %g",controller->config->rate_pressure);
+	g_debug("valve              :> %g",controller->config->rate_valve_analog);
 
 	return controller;
 }

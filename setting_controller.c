@@ -46,7 +46,6 @@
 
 #include "pub.h"
 #include "common.h"
-/*#include "database.h"*/
 #include "device.h"
 
 /*****************************************************************************/
@@ -67,7 +66,7 @@
 #define BIT_TIC_HORIZONTAL             0x0000000000000400L
 #define BIT_ENCODER_HORIZONTAL         0x0000000000000800L
 #define BIT_AMPERAGE_HORIZONTAL        0x0000000000001000L
-#define BIT_CONSOLE_SINGLY             0x0000000000002000L
+#define BIT_PRESSURE                   0x0000000000002000L
 #define BIT_CONSOLE                    0x0000000000004000L
 #define BIT_POST                       0x0000000000008000L
 #define BIT_SENSOR_FIRE_DRY            0x0000000000010000L
@@ -158,9 +157,9 @@
 #define SET_AMPERAGE_HORIZONTAL(f)     (f | BIT_AMPERAGE_HORIZONTAL)
 #define UNSET_AMPERAGE_HORIZONTAL(f)   (f & (ALL_BIT^BIT_AMPERAGE_HORIZONTAL))
 #define AMPERAGE_HORIZONTAL(f)         (f & BIT_AMPERAGE_HORIZONTAL)
-#define SET_CONSOLE_SINGLY(f)          (f | BIT_CONSOLE_SINGLY)
-#define UNSET_CONSOLE_SINGLY(f)        (f & (ALL_BIT^BIT_CONSOLE_SINGLY))
-#define CONSOLE_SINGLY(f)              (f & BIT_CONSOLE_SINGLY)
+#define SET_PRESSURE(f)                (f | BIT_PRESSURE)
+#define UNSET_PRESSURE(f)              (f & (ALL_BIT^BIT_PRESSURE))
+#define PRESSURE(f)                    (f & BIT_PRESSURE)
 #define SET_CONSOLE(f)                 (f | BIT_CONSOLE)
 #define UNSET_CONSOLE(f)               (f & (ALL_BIT^BIT_CONSOLE))
 #define CONSOLE(f)                     (f & BIT_CONSOLE)
@@ -334,7 +333,8 @@ struct _block_info_controller_s
 	GtkEntryBuffer * buf_encoder_horizontal;
 	GtkWidget * box_amperage_horizontal;
 	GtkEntryBuffer * buf_amperage_horizontal;
-	GtkWidget * box_console_singly;
+	GtkWidget * box_pressure;
+	GtkEntryBuffer * buf_pressure;
 	GtkWidget * box_console;
 	GtkWidget * box_post;
 	GtkWidget * box_sensor_fire_dry;
@@ -525,8 +525,8 @@ static int fill_block_info(block_setting_controller_s * bsc)
 	else{
 		gtk_widget_hide(box);
 	}
-	box = block_info->box_console_singly;
-	if(CONSOLE_SINGLY(flag)){
+	box = block_info->box_pressure;
+	if(PRESSURE(flag)){
 		gtk_widget_show(box);
 	}
 	else{
@@ -893,6 +893,11 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 	rate = g_strtod(str,NULL);
 	config->rate_amperage_horizontal = rate;
 
+	buf = block_info->buf_pressure;
+	str = gtk_entry_buffer_get_text(buf);
+	rate = g_strtod(str,NULL);
+	config->rate_pressure = rate;
+
 	buf = block_info->buf_valve_analog;
 	str = gtk_entry_buffer_get_text(buf);
 	rate = g_strtod(str,NULL);
@@ -917,9 +922,9 @@ static char STR_LIMIT_HORIZONTAL[]     = "Концевики горизонта�
 static char STR_TIC_HORIZONTAL[]       = "Датчик импульсов горизонтальной оси";
 static char STR_ENCODER_HORIZONTAL[]   = "Энкодер горизонтальной оси";
 static char STR_AMPERAGE_HORIZONTAL[]  = "Датчик тока горизонтальной оси";
-static char STR_CONSOLE_SINGLY[]       = "Пульт ПДУ-П (отдельно)";
-static char STR_CONSOLE[]              = "Пульт ПДУ-П (на панели шкафа)";
-static char STR_POST[]                 = "Пост ПДУ";
+static char STR_PRESSURE[]             = "Датчик давления";
+static char STR_CONSOLE[]              = "Пульт ПДУ-П";
+static char STR_POST[]                 = "Пост ПДУ с пультом ПДУ-П";
 static char STR_SENSOR_FIRE_DRY[]      = "Датчик пламени (сухой контакт)";
 static char STR_SENSOR_FIRE_485[]      = "Датчик пламени (интерфейс RS-485)";
 static char STR_SENSOR_FIRE_ETHERNET[] = "Датчик пламени (интерфейс Ethernet)";
@@ -991,12 +996,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_NAME);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	label = gtk_label_new(STR_NAME_DEFAULT);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1008,7 +1011,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ENGINE_VERTICAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1020,31 +1022,28 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ENGINE_HORIZONTAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 	block_info->box_engine_horizontal = box;
 
-	/*Актуатор Распыление*/
+	/*Актуатор распыление*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ACTUATOR_SPRAY);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 	block_info->box_actuator_spray = box;
 
-	/*Актуатор распыл*/
+	/*Актуатор расход*/
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ACTUATOR_RATE);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1056,7 +1055,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ACTUATOR_VEIL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1068,7 +1066,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_LIMIT_VERTICAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1080,18 +1077,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_TIC_VERTICAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_tic_vertical = box;
 	block_info->buf_tic_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1100,18 +1094,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ENCODER_VERTICAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_encoder_vertical = box;
 	block_info->buf_encoder_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1120,18 +1111,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_AMPERAGE_VERTICAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_amperage_vertical = box;
 	block_info->buf_amperage_vertical = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1140,12 +1128,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_LIMIT_HORIZONTAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_limit_horizontal = box;
 
 	/*Датчик импульсов горизонтальной оси*/
@@ -1153,18 +1139,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_TIC_HORIZONTAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_tic_horizontal = box;
 	block_info->buf_tic_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1173,18 +1156,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_ENCODER_HORIZONTAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_encoder_horizontal = box;
 	block_info->buf_encoder_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1193,45 +1173,44 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_AMPERAGE_HORIZONTAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_amperage_horizontal = box;
 	block_info->buf_amperage_horizontal = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
-	/*Пулт ПДУ-П отдельно */
+	/*Датчик давления */
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
-	label = gtk_label_new(STR_CONSOLE_SINGLY);
+	label = gtk_label_new(STR_PRESSURE);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
-	block_info->box_console_singly = box;
+	/*TODO настройки ввода*/
+	entry = gtk_entry_new();
+	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
+	gtk_widget_show(entry);
+	block_info->box_pressure = box;
+	block_info->buf_pressure = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
 	/*Пульт ПДУ */
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_CONSOLE);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_console = box;
 
 	/*Пост ПДУ*/
@@ -1239,12 +1218,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_POST);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_post = box;
 
 	/*Датчик пламени сухой контакт*/
@@ -1252,12 +1229,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_SENSOR_FIRE_DRY);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_sensor_fire_dry = box;
 
 	/*Датчик пламени RS-485*/
@@ -1265,12 +1240,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_SENSOR_FIRE_485);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_sensor_fire_485 = box;
 
 	/*датчик пламени Ethernet*/
@@ -1278,12 +1251,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_SENSOR_FIRE_ETHERNET);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_sensor_fire_ethernet = box;
 
 	/*Датчик суой контакт RS-485*/
@@ -1291,12 +1262,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_SENSOR_DRY_485);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_sensor_dry_485 = box;
 
 	/*Датчик сухой контакт Ethernet*/
@@ -1304,12 +1273,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_SENSOR_DRY_ETHERNER);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_sensor_dry_etherner = box;
 
 	/*Заслонка сухой контакт*/
@@ -1317,12 +1284,10 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_VALVE_DRY);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	block_info->box_valve_dry = box;
 
 	/*Заслонка с управлением*/
@@ -1330,18 +1295,15 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_VALVE_ANALOG);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-
 	/*TODO настройки ввода*/
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	gtk_widget_show(entry);
-
 	block_info->box_valve_analog = box;
 	block_info->buf_valve_analog = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
@@ -1350,7 +1312,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_VALVE_LIMIT);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1362,7 +1323,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_VALVE_FEEDBACK);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1374,7 +1334,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_CAM_ANALOG_DC);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1386,7 +1345,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_CAM_DIGITAL_DC);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1398,7 +1356,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_CAM_DIGITAL_POE);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1410,7 +1367,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_01);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1422,7 +1378,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_02);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1434,7 +1389,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_03);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1446,7 +1400,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_04);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1458,7 +1411,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_05);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1470,7 +1422,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_06);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1482,7 +1433,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_07);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1494,7 +1444,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_08);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1506,7 +1455,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_09);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1518,7 +1466,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_10);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1530,7 +1477,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_11);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1542,7 +1488,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_12);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1554,7 +1499,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_13);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1566,7 +1510,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_14);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1578,7 +1521,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_15);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1590,7 +1532,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_FIRE_ALARM_16);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1602,7 +1543,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_01_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1614,7 +1554,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_01_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1626,7 +1565,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_02_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1638,7 +1576,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_02_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1650,7 +1587,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_03_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1662,7 +1598,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_03_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1674,7 +1609,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_04_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1686,7 +1620,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_04_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1698,7 +1631,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_05_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1710,7 +1642,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_05_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1722,7 +1653,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_06_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1734,7 +1664,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_06_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1746,7 +1675,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_07_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1758,7 +1686,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_07_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1770,7 +1697,6 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_08_STATE_0);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
@@ -1782,13 +1708,11 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-
 	label = gtk_label_new(STR_DEVICE_08_STATE_1);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 	block_info->box_device_08_state_1 = box;
-
 
 	gtk_container_add(GTK_CONTAINER(scrwin),box_main);
 

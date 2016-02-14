@@ -102,8 +102,9 @@ static int create_table_controller(void)
 	g_string_append(pub,"(number INTEGER PRIMARY KEY \
 ,type_link,id,address,port,device,baud,parity,data_bit,stop_bit \
 ,type,flag \
-,tic_vertical,encoder_vertical,amperage_vertical,tic_horizontal,encoder_horizontal,amperage_horizontal \
-,valve_analog)");
+,tic_vertical FLOAT,encoder_vertical FLOAT,amperage_vertical FLOAT \
+,tic_horizontal FLOAT,encoder_horizontal FLOAT,amperage_horizontal FLOAT\
+,pressure FLOAT,valve_analog FLOAT)");
 	return query_simple(pub);
 }
 static int delete_table_object(int number)
@@ -224,10 +225,12 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 {
 	link_s * link = controller->link;
 	config_controller_s * config = controller->config;
+	double temp;
 	g_string_printf(pub,"INSERT INTO ");
 	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
+/*
 	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d,\'%s\',%d,%d,%d,%d \
-,%d,%lld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
+,%d,%lld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
 	                      ,number
 	                      ,link->type,link->id,link->address,link->port
 	                      ,link->device,link->baud,link->parity,link->data_bit,link->stop_bit
@@ -238,8 +241,30 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 	                      ,config->rate_tic_horizontal
 	                      ,config->rate_encoder_horizontal
 	                      ,config->rate_amperage_horizontal
+	                      ,config->rate_pressure
 	                      ,config->rate_valve_analog);
-	return query_simple(pub);
+*/
+	g_string_append_printf(pub," VALUES (%d,",number);
+	g_string_append_printf(pub,"%d,%d,",link->type,link->id);
+	g_string_append_printf(pub,"%s,%d,",link->address,link->port);
+	g_string_append_printf(pub,"%s,%d,%d,%d,%d,",link->device,link->baud,link->parity,link->data_bit,link->stop_bit);
+	g_string_append_printf(pub,"%d,%ld,",config->type,config->flag);
+
+	g_string_append_printf(pub,"%f,",config->rate_tic_vertical);
+	g_string_append_printf(pub,"%f,",config->rate_encoder_vertical);
+	g_string_append_printf(pub,"%f,",config->rate_amperage_vertical);
+	g_string_append_printf(pub,"%f,",config->rate_tic_horizontal);
+	g_string_append_printf(pub,"%f,",config->rate_encoder_horizontal);
+	g_string_append_printf(pub,"%f,",config->rate_amperage_horizontal);
+	g_string_append_printf(pub,"%f,",config->rate_pressure);
+	g_string_append_printf(pub,"%f)",config->rate_valve_analog);
+	g_debug(":> %s",pub->str);
+	temp = 0.256;
+	g_string_printf(pub,":: %f : %f",temp,config->rate_pressure);
+	printf(":> %s\n",pub->str);
+	printf(":> %f : %f\n",temp,config->rate_pressure);
+	/*return query_simple(pub);*/
+	return FAILURE;
 }
 
 static int del_table_controller(uint32_t number)
@@ -472,6 +497,8 @@ int read_database_controller(uint32_t number,controller_s * controller)
 	int amount_column = 0;
 	const char * address;
 	const char * device;
+	double temp;
+	const char * str;
 
 	g_string_printf(pub,"SELECT * FROM ");
 	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
@@ -524,6 +551,16 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		controller->config->rate_tic_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_TIC_HORIZONTAL);
 		controller->config->rate_encoder_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_ENCODER_HORIZONTAL);
 		controller->config->rate_amperage_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_AMPERAGE_HORIZONTAL);
+
+		/*controller->config->rate_pressure = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);*/
+		temp = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
+		g_debug("temp :> %f : %g",temp,temp);
+		str = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
+		g_debug("str :> %s",str);
+		temp = g_strtod(str,NULL);
+		g_debug("temp :> %f : %g",temp,temp);
+		controller->config->rate_pressure = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
+
 		controller->config->rate_valve_analog = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_VALVE_ANALOG);
 	}
 	sqlite3_finalize(stmt);
