@@ -52,18 +52,18 @@
 /*****************************************************************************/
 
 static sqlite3 * database = NULL;
-
+static GString * query = NULL;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
 
-static int query_simple(GString * query)
+static int query_simple(GString * q)
 {
 	int rc;
 	char * error_message = NULL;
-	rc = sqlite3_exec(database,query->str,NULL,NULL, &error_message);
+	rc = sqlite3_exec(database,q->str,NULL,NULL, &error_message);
 	if( rc != SQLITE_OK){
-		g_critical("SQL error : %s : %s!",query->str,error_message);
+		g_critical("SQL error : %s : %s!",q->str,error_message);
 		sqlite3_free(error_message);
 		return FAILURE;
 	}
@@ -72,46 +72,46 @@ static int query_simple(GString * query)
 
 static int create_table_object(int number)
 {
-	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,name,type INTEGER)");
-	return query_simple(pub);
+	g_string_printf(query,"CREATE TABLE ");
+	g_string_append_printf(query,FORAMT_NAME_TABLE_OBJECT,number);
+	g_string_append(query,"(number INTEGER PRIMARY KEY,name,type INTEGER)");
+	return query_simple(query);
 }
 static char STR_NAME_TABLE_GROUP[] = "[group]";
 static int create_table_group(void)
 {
-	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_GROUP);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,image)");
-	return query_simple(pub);
+	g_string_printf(query,"CREATE TABLE ");
+	g_string_append(query,STR_NAME_TABLE_GROUP);
+	g_string_append(query,"(number INTEGER PRIMARY KEY,image)");
+	return query_simple(query);
 }
 static char STR_NAME_TABLE_VIDEOCAMERA[] = "[videocamera]";
 static int create_table_videocamera(void)
 {
-	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY,protocol,address,port,access)");
-	return query_simple(pub);
+	g_string_printf(query,"CREATE TABLE ");
+	g_string_append(query,STR_NAME_TABLE_VIDEOCAMERA);
+	g_string_append(query,"(number INTEGER PRIMARY KEY,protocol,address,port,access)");
+	return query_simple(query);
 }
 
 static char STR_NAME_TABLE_CONTROLLER[] = "[controller]";
 static int create_table_controller(void)
 {
-	g_string_printf(pub,"CREATE TABLE ");
-	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append(pub,"(number INTEGER PRIMARY KEY \
+	g_string_printf(query,"CREATE TABLE ");
+	g_string_append(query,STR_NAME_TABLE_CONTROLLER);
+	g_string_append(query,"(number INTEGER PRIMARY KEY \
 ,type_link,id,address,port,device,baud,parity,data_bit,stop_bit \
 ,type,flag \
 ,tic_vertical FLOAT,encoder_vertical FLOAT,amperage_vertical FLOAT \
 ,tic_horizontal FLOAT,encoder_horizontal FLOAT,amperage_horizontal FLOAT\
 ,pressure FLOAT,valve_analog FLOAT)");
-	return query_simple(pub);
+	return query_simple(query);
 }
 static int delete_table_object(int number)
 {
-	g_string_printf(pub,"DROP TABLE ");
-	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
-	return query_simple(pub);
+	g_string_printf(query,"DROP TABLE ");
+	g_string_append_printf(query,FORAMT_NAME_TABLE_OBJECT,number);
+	return query_simple(query);
 }
 
 static int create_total_table(void)
@@ -156,19 +156,19 @@ static int create_default_database(GString * name)
 
 static int add_info_object_table(uint32_t number_group,uint32_t number_object,char *name,uint8_t type)
 {
-	g_string_printf(pub,"INSERT INTO ");
-	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number_group);
-	g_string_append(pub," VALUES (");
-	g_string_append_printf(pub,"%d,\'%s\',%d)",number_object,name,type);
-	return query_simple(pub);
+	g_string_printf(query,"INSERT INTO ");
+	g_string_append_printf(query,FORAMT_NAME_TABLE_OBJECT,number_group);
+	g_string_append(query," VALUES (");
+	g_string_append_printf(query,"%d,\'%s\',%d)",number_object,name,type);
+	return query_simple(query);
 }
 
 static int del_info_object_table(uint32_t number_group,uint32_t number_object)
 {
-	g_string_printf(pub,"DELETE FROM ");
-	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number_group);
-	g_string_append_printf(pub," WHERE number=%d",number_object);
-	return query_simple(pub);
+	g_string_printf(query,"DELETE FROM ");
+	g_string_append_printf(query,FORAMT_NAME_TABLE_OBJECT,number_group);
+	g_string_append_printf(query," WHERE number=%d",number_object);
+	return query_simple(query);
 }
 
 static int add_table_group(uint32_t number,group_s * group)
@@ -180,11 +180,11 @@ static int add_table_group(uint32_t number,group_s * group)
 		return rc;
 	}
 
-	g_string_printf(pub,"INSERT INTO ");
-	g_string_append(pub,STR_NAME_TABLE_GROUP);
-	g_string_append_printf(pub," VALUES (%d,\'%s\')",number,group->image);
+	g_string_printf(query,"INSERT INTO ");
+	g_string_append(query,STR_NAME_TABLE_GROUP);
+	g_string_append_printf(query," VALUES (%d,\'%s\')",number,group->image);
 
-	return query_simple(pub);
+	return query_simple(query);
 }
 
 static int del_table_group(uint32_t number)
@@ -196,84 +196,93 @@ static int del_table_group(uint32_t number)
 		return rc;
 	}
 
-	g_string_printf(pub,"DELETE FROM ");
-	g_string_append(pub,STR_NAME_TABLE_GROUP);
-	g_string_append_printf(pub," WHERE number=%d",number);
+	g_string_printf(query,"DELETE FROM ");
+	g_string_append(query,STR_NAME_TABLE_GROUP);
+	g_string_append_printf(query," WHERE number=%d",number);
 
-	return query_simple(pub);
+	return query_simple(query);
 }
 
 static int add_table_videcamera(uint32_t n,videocamera_s * v)
 {
-	g_string_printf(pub,"INSERT INTO ");
-	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
-	g_string_append_printf(pub," VALUES (%d,\'%s\',\'%s\',%d,\'%s\')"
+	g_string_printf(query,"INSERT INTO ");
+	g_string_append(query,STR_NAME_TABLE_VIDEOCAMERA);
+	g_string_append_printf(query," VALUES (%d,\'%s\',\'%s\',%d,\'%s\')"
 	                      ,n,v->protocol,v->address,v->port,v->access);
-	return query_simple(pub);
+	return query_simple(query);
 }
 
 static int del_table_videcamera(uint32_t number)
 {
-	g_string_printf(pub,"DELETE FROM ");
-	g_string_append(pub,STR_NAME_TABLE_VIDEOCAMERA);
-	g_string_append_printf(pub," WHERE number=%d",number);
+	g_string_printf(query,"DELETE FROM ");
+	g_string_append(query,STR_NAME_TABLE_VIDEOCAMERA);
+	g_string_append_printf(query," WHERE number=%d",number);
 
-	return query_simple(pub);
+	return query_simple(query);
 }
-
+/*проверка на локализацию формата double*/
+static int check_dot(char * string)
+{
+	char c;
+	for(;;){
+		c = *string;
+		if(c == 0){
+			break;
+		}
+		if(c == ','){
+			c = '.';
+			*string = c;
+		}
+		string ++;
+	}
+	return SUCCESS;
+}
 static int add_table_controller(uint32_t number,controller_s * controller)
 {
 	link_s * link = controller->link;
 	config_controller_s * config = controller->config;
-	double temp;
-	g_string_printf(pub,"INSERT INTO ");
-	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-/*
-	g_string_append_printf(pub," VALUES (%d,%d,%d,\'%s\',%d,\'%s\',%d,%d,%d,%d \
-,%d,%lld,\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\',\'%f\')"
-	                      ,number
-	                      ,link->type,link->id,link->address,link->port
-	                      ,link->device,link->baud,link->parity,link->data_bit,link->stop_bit
-	                      ,config->type,config->flag
-	                      ,config->rate_tic_vertical
-	                      ,config->rate_encoder_vertical
-	                      ,config->rate_amperage_vertical
-	                      ,config->rate_tic_horizontal
-	                      ,config->rate_encoder_horizontal
-	                      ,config->rate_amperage_horizontal
-	                      ,config->rate_pressure
-	                      ,config->rate_valve_analog);
-*/
-	g_string_append_printf(pub," VALUES (%d,",number);
-	g_string_append_printf(pub,"%d,%d,",link->type,link->id);
-	g_string_append_printf(pub,"%s,%d,",link->address,link->port);
-	g_string_append_printf(pub,"%s,%d,%d,%d,%d,",link->device,link->baud,link->parity,link->data_bit,link->stop_bit);
-	g_string_append_printf(pub,"%d,%ld,",config->type,config->flag);
-
-	g_string_append_printf(pub,"%f,",config->rate_tic_vertical);
-	g_string_append_printf(pub,"%f,",config->rate_encoder_vertical);
-	g_string_append_printf(pub,"%f,",config->rate_amperage_vertical);
-	g_string_append_printf(pub,"%f,",config->rate_tic_horizontal);
-	g_string_append_printf(pub,"%f,",config->rate_encoder_horizontal);
-	g_string_append_printf(pub,"%f,",config->rate_amperage_horizontal);
-	g_string_append_printf(pub,"%f,",config->rate_pressure);
-	g_string_append_printf(pub,"%f)",config->rate_valve_analog);
-	g_debug(":> %s",pub->str);
-	temp = 0.256;
-	g_string_printf(pub,":: %f : %f",temp,config->rate_pressure);
-	printf(":> %s\n",pub->str);
-	printf(":> %f : %f\n",temp,config->rate_pressure);
-	/*return query_simple(pub);*/
-	return FAILURE;
+	g_string_printf(query,"INSERT INTO ");
+	g_string_append(query,STR_NAME_TABLE_CONTROLLER);
+	g_string_append_printf(query," VALUES (%d,",number);
+	g_string_append_printf(query,"%d,%d,",link->type,link->id);
+	g_string_append_printf(query,"\'%s\',%d,",link->address,link->port);
+	g_string_append_printf(query,"\'%s\',%d,%d,%d,%d,",link->device,link->baud,link->parity,link->data_bit,link->stop_bit);
+	g_string_append_printf(query,"%d,%ld,",config->type,config->flag);
+	g_string_printf(pub,"%g",config->rate_tic_vertical);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_encoder_vertical);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_amperage_vertical);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_tic_horizontal);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_encoder_horizontal);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_amperage_horizontal);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_pressure);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s,",pub->str);
+	g_string_printf(pub,"%g",config->rate_valve_analog);
+	check_dot(pub->str);
+	g_string_append_printf(query,"%s",pub->str);
+	g_string_append_printf(query,")");
+	return query_simple(query);
 }
 
 static int del_table_controller(uint32_t number)
 {
-	g_string_printf(pub,"DELETE FROM ");
-	g_string_append(pub,STR_NAME_TABLE_CONTROLLER);
-	g_string_append_printf(pub," WHERE number=%d",number);
+	g_string_printf(query,"DELETE FROM ");
+	g_string_append(query,STR_NAME_TABLE_CONTROLLER);
+	g_string_append_printf(query," WHERE number=%d",number);
 
-	return query_simple(pub);
+	return query_simple(query);
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
@@ -284,13 +293,13 @@ void* prepare_group_database(uint32_t number)
 	int rc;
 	sqlite3_stmt * stmt;
 
-	g_string_printf(pub,"SELECT * FROM ");
-	g_string_append_printf(pub,FORAMT_NAME_TABLE_OBJECT,number);
+	g_string_printf(query,"SELECT * FROM ");
+	g_string_append_printf(query,FORAMT_NAME_TABLE_OBJECT,number);
 
-	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1) ,&stmt,NULL);
+	rc = sqlite3_prepare_v2(database,query->str,(query->len+1) ,&stmt,NULL);
 	if(rc != SQLITE_OK){
 		const char * error_message = sqlite3_errmsg(database);
-		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		g_critical("SQL prepare_v2 : %s : %s\n",query->str,error_message);
 		return NULL;
 	}
 	return (void*)stmt;
@@ -398,13 +407,13 @@ int read_database_group(uint32_t number,group_s * group)
 	int amount_column = 0;
 	const char * image;
 
-	g_string_printf(pub,"SELECT * FROM ");
-	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_GROUP,number);
+	g_string_printf(query,"SELECT * FROM ");
+	g_string_append_printf(query,"%s WHERE number=%d",STR_NAME_TABLE_GROUP,number);
 
-	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	rc = sqlite3_prepare_v2(database,query->str,(query->len+1),&stmt,NULL);
 	if(rc != SQLITE_OK){
 		const char * error_message = sqlite3_errmsg(database);
-		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		g_critical("SQL prepare_v2 : %s : %s\n",query->str,error_message);
 		return FAILURE;
 	}
 
@@ -446,13 +455,13 @@ int read_database_videocamera(uint32_t number,videocamera_s * videocamera)
 	const char * address;
 	const char * access;
 
-	g_string_printf(pub,"SELECT * FROM ");
-	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_VIDEOCAMERA,number);
+	g_string_printf(query,"SELECT * FROM ");
+	g_string_append_printf(query,"%s WHERE number=%d",STR_NAME_TABLE_VIDEOCAMERA,number);
 
-	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	rc = sqlite3_prepare_v2(database,query->str,(query->len+1),&stmt,NULL);
 	if(rc != SQLITE_OK){
 		const char * error_message = sqlite3_errmsg(database);
-		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		g_critical("SQL prepare_v2 : %s : %s\n",query->str,error_message);
 		return FAILURE;
 	}
 
@@ -500,13 +509,13 @@ int read_database_controller(uint32_t number,controller_s * controller)
 	double temp;
 	const char * str;
 
-	g_string_printf(pub,"SELECT * FROM ");
-	g_string_append_printf(pub,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
+	g_string_printf(query,"SELECT * FROM ");
+	g_string_append_printf(query,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
 
-	rc = sqlite3_prepare_v2(database,pub->str,(pub->len+1),&stmt,NULL);
+	rc = sqlite3_prepare_v2(database,query->str,(query->len+1),&stmt,NULL);
 	if(rc != SQLITE_OK){
 		const char * error_message = sqlite3_errmsg(database);
-		g_critical("SQL prepare_v2 : %s : %s\n",pub->str,error_message);
+		g_critical("SQL prepare_v2 : %s : %s\n",query->str,error_message);
 		return FAILURE;
 	}
 
@@ -611,6 +620,7 @@ int check_database(GString * work_catalog)
 int init_database(GString * work_catalog)
 {
 	int rc;
+	query = g_string_new(NULL);
 
 	check_database(work_catalog);
 
@@ -628,6 +638,7 @@ int deinit_database(void)
 	if(database != NULL){
 		sqlite3_close(database);
 	}
+	g_string_free(query,TRUE);
 	return SUCCESS;
 }
 /*****************************************************************************/
