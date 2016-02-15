@@ -714,6 +714,7 @@ static int show_pipe(block_controller_s * bc)
 	GdkPixbuf * valve_image = get_image_valve(valve);
 	int width = gdk_pixbuf_get_width(pressure_image);
 	int height = gdk_pixbuf_get_height(pressure_image);
+
 	g_debug(" w : %d | h : %d",width,height);
 	/*TODO маштабирование */
 	gdk_pixbuf_copy_area(pressure_image,0,0,width,height,buf,0,0);
@@ -721,6 +722,7 @@ static int show_pipe(block_controller_s * bc)
 	gtk_image_set_from_pixbuf(image,buf);
 	return SUCCESS;
 }
+
 static int show_block_controler(gpointer data)
 {
 	/*GtkLabel * label;*/
