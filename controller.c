@@ -669,7 +669,7 @@ int deinit_all_controllers(void)
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
 
-/* Функции отрисовки по таймеру*/
+/***** Функции отрисовки информации по таймеру *******************************/
 static int show_vertical(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
@@ -757,7 +757,171 @@ static int show_block_controler(gpointer data)
 	return TRUE; /* продолжаем работу */
 }
 
-/*****************************************************************************/
+/***** Функции отображение информации ****************************************/
+
+#define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
+static char STR_VERTICAL[] = "Вертикальная Ось";
+static char STR_IMAGE_BASE_VERTICAL[] = "vbase.png";
+static GtkWidget * create_block_vertical(block_controller_s * block)
+{
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(STR_VERTICAL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_VERTICAL);
+	block->buf_axis_vertical = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование */
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
+	block->axis_vertical = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+	return frame;
+}
+
+#define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
+static char STR_HORIZONTAL[] = "Горизонтальная Ось";
+static char STR_IMAGE_BASE_HORIZONTAL[] = "hbase.png";
+static GtkWidget * create_block_horizontal(block_controller_s * block)
+{
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(STR_HORIZONTAL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_HORIZONTAL);
+	block->buf_axis_horizontal = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
+	block->axis_horizontal = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
+}
+
+#define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
+#define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
+static char STR_PIPE[] = "Магистраль";
+static char STR_IMAGE_PIPE[] = "pipe.png";
+static GtkWidget * create_block_pipe(block_controller_s * block)
+{
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(STR_PIPE);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_PIPE);
+	block->buf_pipe = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	block->pipe = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
+}
+
+static char STR_FIRE_SENSOR[] = "Датчик Пламени";
+static GtkWidget * create_block_fire_sensor(block_controller_s * block)
+{
+	GtkWidget * frame;
+	frame = gtk_frame_new(STR_FIRE_SENSOR);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(frame);
+	return frame;
+}
+
+static char STR_FIRE_ALARM[] = "Пожарная Сигнализация";
+static GtkWidget * create_block_fire_alarm(block_controller_s * block)
+{
+	GtkWidget * frame;
+	frame = gtk_frame_new(STR_FIRE_ALARM);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_show(frame);
+	return frame;
+}
+
+static char STR_STATE[] = "Информация";
+static GtkWidget * create_block_state(block_controller_s * block)
+{
+	GtkWidget * frame;
+	GtkWidget * grid;
+	GtkWidget * label_name;
+	GtkWidget * block_vertical;
+	GtkWidget * block_horizontal;
+	GtkWidget * block_pipe;
+	GtkWidget * block_fire_sensor;
+	GtkWidget * block_fire_alarm;
+
+	frame = gtk_frame_new(STR_STATE);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
+
+
+	label_name = gtk_label_new("Нет подключения к контролеру!");
+	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+	block->name = GTK_LABEL(label_name);
+
+	block_vertical = create_block_vertical(block);
+	block_horizontal = create_block_horizontal(block);
+	block_pipe = create_block_pipe(block);
+	block_fire_sensor = create_block_fire_sensor(block);
+	block_fire_alarm = create_block_fire_alarm(block);
+
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+
+	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
+	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_pipe      ,0,2,2,1);
+	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
+	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+	gtk_widget_show(label_name);
+
+	return frame;
+}
+
+/***** Функции отображения системы управления ********************************/
+
+static GtkWidget * create_block_valve(block_controller_s * bc)
+{
+	GtkWidget * grid;
+	grid = gtk_grid_new();
+	gtk_widget_show(grid);
+	return grid;
+}
+
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -939,212 +1103,91 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	g_debug("release left");
 }
 
-#define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
-#define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
-static char STR_VERTICAL[] = "Вертикальная Ось";
-static char STR_IMAGE_BASE_VERTICAL[] = "vbase.png";
-static GtkWidget * create_block_vertical(block_controller_s * block)
+static GtkWidget * create_block_lafet(block_controller_s * bc)
 {
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new(STR_VERTICAL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_VERTICAL);
-	block->buf_axis_vertical = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование */
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	block->axis_vertical = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-	return frame;
-}
-
-#define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
-#define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
-static char STR_HORIZONTAL[] = "Горизонтальная Ось";
-static char STR_IMAGE_BASE_HORIZONTAL[] = "hbase.png";
-static GtkWidget * create_block_horizontal(block_controller_s * block)
-{
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new(STR_HORIZONTAL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_HORIZONTAL);
-	block->buf_axis_horizontal = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	block->axis_horizontal = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-
-#define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
-#define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
-static char STR_PIPE[] = "Магистраль";
-static char STR_IMAGE_PIPE[] = "pipe.png";
-static GtkWidget * create_block_pipe(block_controller_s * block)
-{
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new(STR_PIPE);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_PIPE);
-	block->buf_pipe = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	block->pipe = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-
-static char STR_FIRE_SENSOR[] = "Датчик Пламени";
-static GtkWidget * create_block_fire_sensor(block_controller_s * block)
-{
-	GtkWidget * frame;
-	frame = gtk_frame_new(STR_FIRE_SENSOR);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_show(frame);
-	return frame;
-}
-
-static char STR_FIRE_ALARM[] = "Пожарная Сигнализация";
-static GtkWidget * create_block_fire_alarm(block_controller_s * block)
-{
-	GtkWidget * frame;
-	frame = gtk_frame_new(STR_FIRE_ALARM);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_show(frame);
-	return frame;
-}
-
-static char STR_STATE[] = "Информация";
-static GtkWidget * create_block_state(block_controller_s * block)
-{
-	GtkWidget * frame;
 	GtkWidget * grid;
-	GtkWidget * label_name;
-	GtkWidget * block_vertical;
-	GtkWidget * block_horizontal;
-	GtkWidget * block_valve;
-	GtkWidget * block_fire_sensor;
-	GtkWidget * block_fire_alarm;
-
-	frame = gtk_frame_new(STR_STATE);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
 	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
-
-
-	label_name = gtk_label_new("Нет подключения к контролеру!");
-	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
-	block->name = GTK_LABEL(label_name);
-
-	block_vertical = create_block_vertical(block);
-	block_horizontal = create_block_horizontal(block);
-	block_valve = create_block_pipe(block);
-	block_fire_sensor = create_block_fire_sensor(block);
-	block_fire_alarm = create_block_fire_alarm(block);
-
-	gtk_container_add(GTK_CONTAINER(frame),grid);
-
-	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
-	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_valve      ,0,2,2,1);
-	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
-	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
-
-	gtk_widget_show(frame);
 	gtk_widget_show(grid);
-	gtk_widget_show(label_name);
+	return grid;
+}
 
-	return frame;
+static GtkWidget * create_block_actuator(block_controller_s * bc)
+{
+	GtkWidget * grid;
+	grid = gtk_grid_new();
+	gtk_widget_show(grid);
+	return grid;
+}
+
+static GtkWidget * create_block_oscillation(block_controller_s * bc)
+{
+	GtkWidget * grid;
+	grid = gtk_grid_new();
+	gtk_widget_show(grid);
+	return grid;
 }
 
 static char STR_CONTROL[] = "Управление";
 static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * frame;
-	GtkWidget * grid;
-	GtkWidget * but_up;
-	GtkWidget * but_down;
-	GtkWidget * but_right;
-	GtkWidget * but_left;
+	GtkWidget * box;
+	GtkWidget * block_valve;
+	GtkWidget * block_lafet;
+	GtkWidget * block_actuator;
+	GtkWidget * block_oscillation;
 
 	frame = gtk_frame_new(STR_CONTROL);
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_END,FALSE,FALSE);
 
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-#if 1
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+  	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_valve = create_block_valve(bc);
+	block_lafet = create_block_lafet(bc);
+	block_actuator = create_block_actuator(bc);
+	block_oscillation = create_block_oscillation(bc);
+
+#if 0
 	but_up = gtk_button_new_with_label("ВВЕРХ");
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
 	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
-
 	but_down = gtk_button_new_with_label("ВНИЗ");
 	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
 	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
-
 	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
 	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
-
 	but_left = gtk_button_new_with_label("ВЛЕВО");
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
-
-#endif
-	gtk_container_add(GTK_CONTAINER(frame),grid);
-
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
+#endif
+	gtk_container_add(GTK_CONTAINER(frame),box);
+	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
 
 	gtk_widget_show(frame);
-	gtk_widget_show(grid);
-
+	gtk_widget_show(box);
+#if 0
 	gtk_widget_show(but_up);
 	gtk_widget_show(but_down);
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
+#endif
 	return frame;
 }
+
+/*****************************************************************************/
 
 static block_controller_s block_controller;
 
@@ -1189,8 +1232,7 @@ int select_block_controller(controller_s * controller)
 }
 
 /* 1000 миллесекунд == 1 секунде */
-#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду*/
-
+#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
 GtkWidget * create_block_controller(void)
 {
 	GtkWidget * box;
