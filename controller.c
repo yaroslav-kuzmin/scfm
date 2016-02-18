@@ -913,12 +913,38 @@ static GtkWidget * create_block_state(block_controller_s * block)
 }
 
 /***** Функции отображения системы управления ********************************/
-
+static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
+static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
+gdouble min_valve = 0;
+gdouble max_valve = 4000;
+gdouble step_valve = 10;
+static char STR_NAME_VALVE[] = "Заслонка";
 static GtkWidget * create_block_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
+	GtkWidget * label;
+	GtkWidget * but;
+	GtkWidget * scale;
+
 	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	label = gtk_label_new(STR_NAME_VALVE);
+
+	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
+	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
+
+	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but  ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);
+
 	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(but);
+	gtk_widget_show(scale);
+
 	return grid;
 }
 
@@ -1103,19 +1129,63 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	g_debug("release left");
 }
 
+static char STR_NAME_LAFET_UP[] = "ВВЕРХ";
+static char STR_NAME_LAFET_DOWN[] = "ВНИЗ";
+static char STR_NAME_LAFET_RIGHT[] = "ВПРАВО";
+static char STR_NAME_LAFET_LEFT[] = "ВЛЕВО";
 static GtkWidget * create_block_lafet(block_controller_s * bc)
 {
 	GtkWidget * grid;
+	GtkWidget * but_up;
+	GtkWidget * but_down;
+	GtkWidget * but_right;
+	GtkWidget * but_left;
+
 	grid = gtk_grid_new();
+
+	but_up = gtk_button_new_with_label(STR_NAME_LAFET_UP);
+	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
+	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
+
+	but_down = gtk_button_new_with_label(STR_NAME_LAFET_DOWN);
+	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
+	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
+
+	but_right = gtk_button_new_with_label(STR_NAME_LAFET_RIGHT);
+	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
+	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
+	but_left = gtk_button_new_with_label(STR_NAME_LAFET_LEFT);
+	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
+	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
+
+	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
+
 	gtk_widget_show(grid);
+	gtk_widget_show(but_up);
+	gtk_widget_show(but_down);
+	gtk_widget_show(but_right);
+	gtk_widget_show(but_left);
+
 	return grid;
 }
 
+static char STR_NAME_ACTUATOR_
 static GtkWidget * create_block_actuator(block_controller_s * bc)
 {
 	GtkWidget * grid;
+
 	grid = gtk_grid_new();
+
+
 	gtk_widget_show(grid);
+
 	return grid;
 }
 
@@ -1148,28 +1218,6 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	block_actuator = create_block_actuator(bc);
 	block_oscillation = create_block_oscillation(bc);
 
-#if 0
-	but_up = gtk_button_new_with_label("ВВЕРХ");
-	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
-	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
-	but_down = gtk_button_new_with_label("ВНИЗ");
-	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
-	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
-	but_right = gtk_button_new_with_label("ВПРАВО");
-	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
-	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
-	but_left = gtk_button_new_with_label("ВЛЕВО");
-	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
-	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
-	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
-#endif
 	gtk_container_add(GTK_CONTAINER(frame),box);
 	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
@@ -1179,10 +1227,6 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	gtk_widget_show(frame);
 	gtk_widget_show(box);
 #if 0
-	gtk_widget_show(but_up);
-	gtk_widget_show(but_down);
-	gtk_widget_show(but_right);
-	gtk_widget_show(but_left);
 #endif
 	return frame;
 }
