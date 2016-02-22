@@ -935,6 +935,7 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
+	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but  ,0,1,1,1);
@@ -1176,15 +1177,45 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	return grid;
 }
 
-static char STR_NAME_ACTUATOR_
+static char STR_NAME_ACTUATOR_SPRAY[] = "Распыл";
+gdouble min_spray = 0;
+gdouble max_spray = 100;
+gdouble step_spray = 1;
+static char STR_NAME_ACTUATOR_RATE[] = "Литраж";
+gdouble min_rate = 0;
+gdouble max_rate = 100;
+gdouble step_rate = 1;
 static GtkWidget * create_block_actuator(block_controller_s * bc)
 {
 	GtkWidget * grid;
+	GtkWidget * label_spray;
+	GtkWidget * scale_spray;
+	GtkWidget * label_rate;
+	GtkWidget * scale_rate;
 
 	grid = gtk_grid_new();
 
+	label_spray = gtk_label_new(STR_NAME_ACTUATOR_SPRAY);
+	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
+	scale_spray = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_spray,max_spray,step_spray);
+	layout_widget(scale_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	label_rate = gtk_label_new(STR_NAME_ACTUATOR_RATE);
+	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	scale_rate = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_rate,max_rate,step_rate);
+	layout_widget(scale_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	gtk_grid_attach(GTK_GRID(grid),label_spray,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale_spray,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_rate ,2,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale_rate ,3,0,1,1);
 
 	gtk_widget_show(grid);
+	gtk_widget_show(label_spray);
+	gtk_widget_show(scale_spray);
+	gtk_widget_show(label_rate);
+	gtk_widget_show(scale_rate);
 
 	return grid;
 }
@@ -1226,8 +1257,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 	gtk_widget_show(frame);
 	gtk_widget_show(box);
-#if 0
-#endif
+
 	return frame;
 }
 
