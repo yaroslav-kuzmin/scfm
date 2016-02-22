@@ -915,9 +915,9 @@ static GtkWidget * create_block_state(block_controller_s * block)
 /***** Функции отображения системы управления ********************************/
 static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
 static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
-gdouble min_valve = 0;
-gdouble max_valve = 4000;
-gdouble step_valve = 10;
+static gdouble min_valve = 0;
+static gdouble max_valve = 4000;
+static gdouble step_valve = 10;
 static char STR_NAME_VALVE[] = "Заслонка";
 static GtkWidget * create_block_valve(block_controller_s * bc)
 {
@@ -1178,13 +1178,13 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 }
 
 static char STR_NAME_ACTUATOR_SPRAY[] = "Распыл";
-gdouble min_spray = 0;
-gdouble max_spray = 100;
-gdouble step_spray = 1;
+static gdouble min_spray = 0;
+static gdouble max_spray = 100;
+static gdouble step_spray = 1;
 static char STR_NAME_ACTUATOR_RATE[] = "Литраж";
-gdouble min_rate = 0;
-gdouble max_rate = 100;
-gdouble step_rate = 1;
+static gdouble min_rate = 0;
+static gdouble max_rate = 100;
+static gdouble step_rate = 1;
 static GtkWidget * create_block_actuator(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -1207,9 +1207,9 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	layout_widget(scale_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	gtk_grid_attach(GTK_GRID(grid),label_spray,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),scale_spray,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),label_rate ,2,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),scale_rate ,3,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale_spray,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),label_rate ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale_rate ,1,1,1,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label_spray);
@@ -1220,10 +1220,16 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	return grid;
 }
 
+static STR_NAME_OSCILLATION_VERTICAL[] = "Вертикальная";
+static STR_NAME_OSCILLATION_HORIZONTAL[] = "Горизонтальная";
+static STR_NAME_OSCILLATION_SAW[] = "Пила";
+static STR_NAME_OSCILLATION_STEP[] = "Ступенька";
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
 {
 	GtkWidget * grid;
+
 	grid = gtk_grid_new();
+
 	gtk_widget_show(grid);
 	return grid;
 }
