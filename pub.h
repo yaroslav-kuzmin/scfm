@@ -417,6 +417,7 @@ typedef struct _videocamera_s videocamera_s;
 #define UNSET_RESERVE_3(f)             (f & (ALL_BIT^BIT_RESERVE_3))
 #define RESERVE_3(f)                   (f & BIT_RESERVE_3)
 
+#define AMOUNT_FIRE_SENSOR      16
 
 enum
 {

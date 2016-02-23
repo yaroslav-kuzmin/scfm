@@ -846,22 +846,66 @@ static GtkWidget * create_block_pipe(block_controller_s * block)
 }
 
 static char STR_FIRE_SENSOR[] = "Датчик Пламени";
+static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";
+static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
 {
 	GtkWidget * frame;
+	GtkWidget * grid;
+	GtkWidget * label;
+
 	frame = gtk_frame_new(STR_FIRE_SENSOR);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	label = gtk_label_new(STR_FIRE_SENSOR_NORM);
+	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
+
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+
 	return frame;
+}
+
+static GtkWidget * create_block_fire_alarm_one(uint16_t number)
+{
+	GtkWidget * label;
+	g_string_printf(pub,"%02d НОРМА",number);
+	label = gtk_label_new(pub->str);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	return label;
 }
 
 static char STR_FIRE_ALARM[] = "Пожарная Сигнализация";
 static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 {
+	int i;
 	GtkWidget * frame;
+	GtkWidget * box;
+	GtkWidget * block_fire_alarm;
+
 	frame = gtk_frame_new(STR_FIRE_ALARM);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	for(i = 0;i < AMOUNT_FIRE_SENSOR;i++){
+		block_fire_alarm = create_block_fire_alarm_one(i+1);
+		gtk_box_pack_start(GTK_BOX(box),block_fire_alarm,TRUE,TRUE,0);
+		gtk_widget_show(block_fire_alarm);
+	}
+
+	gtk_container_add(GTK_CONTAINER(frame),box);
+
 	gtk_widget_show(frame);
+	gtk_widget_show(box);
 	return frame;
 }
 
@@ -883,7 +927,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
 
 
 	label_name = gtk_label_new("Нет подключения к контролеру!");
