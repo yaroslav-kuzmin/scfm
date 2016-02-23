@@ -1220,17 +1220,64 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	return grid;
 }
 
-static STR_NAME_OSCILLATION_VERTICAL[] = "Вертикальная";
-static STR_NAME_OSCILLATION_HORIZONTAL[] = "Горизонтальная";
-static STR_NAME_OSCILLATION_SAW[] = "Пила";
-static STR_NAME_OSCILLATION_STEP[] = "Ступенька";
+static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s*)ud;*/
+}
+static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s*)ud;*/
+}
+static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s*)ud;*/
+}
+static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s*)ud;*/
+}
+
+static char STR_NAME_OSCILLATION_VERTICAL[] = "Вертикальная";
+static char STR_NAME_OSCILLATION_HORIZONTAL[] = "Горизонтальная";
+static char STR_NAME_OSCILLATION_SAW[] = "Пила";
+static char STR_NAME_OSCILLATION_STEP[] = "Ступенька";
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
 {
 	GtkWidget * grid;
+	GtkWidget * but_vertical;
+	GtkWidget * but_horizontal;
+	GtkWidget * but_saw;
+	GtkWidget * but_step;
 
 	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	but_vertical = gtk_radio_button_new_with_label(NULL,STR_NAME_OSCILLATION_VERTICAL);
+	g_signal_connect(but_vertical,"clicked",G_CALLBACK(clicked_button_oscillation_vertical),bc);
+
+	but_horizontal = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
+	                                                            ,STR_NAME_OSCILLATION_HORIZONTAL);
+	g_signal_connect(but_horizontal,"clicked",G_CALLBACK(clicked_button_oscillation_horizontal),bc);
+
+	but_saw = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
+	                                                     ,STR_NAME_OSCILLATION_SAW);
+	g_signal_connect(but_saw,"clicked",G_CALLBACK(clicked_button_oscillation_saw),bc);
+
+	but_step = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
+	                                                      ,STR_NAME_OSCILLATION_STEP);
+	g_signal_connect(but_step,"clicked",G_CALLBACK(clicked_button_oscillation_step),bc);
+
+	gtk_grid_attach(GTK_GRID(grid),but_vertical  ,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_horizontal,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_saw       ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_step      ,1,1,1,1);
 
 	gtk_widget_show(grid);
+	gtk_widget_show(but_vertical);
+	gtk_widget_show(but_horizontal);
+	gtk_widget_show(but_saw);
+	gtk_widget_show(but_step);
+
 	return grid;
 }
 

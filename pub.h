@@ -47,6 +47,7 @@
 #include <stdint.h>
 #include <gtk/gtk.h>
 
+/*****************************************************************************/
 #define SUCCESS           0
 #define FAILURE          -1
 
@@ -102,7 +103,7 @@ extern GdkRGBA color_lite_blue;
 extern GdkRGBA color_lite_red;
 extern GdkRGBA color_lite_green;
 
-/**************************************/
+/*****************************************************************************/
 #define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
 enum
 {
@@ -121,7 +122,7 @@ struct _object_s
 	GSList * list;
 };
 typedef struct _object_s object_s;
-/**************************************/
+/*****************************************************************************/
 
 enum
 {
@@ -134,7 +135,7 @@ struct _group_s
 	char * image;
 };
 typedef struct _group_s group_s;
-/**************************************/
+/*****************************************************************************/
 
 enum
 {
@@ -154,7 +155,269 @@ struct _videocamera_s
 };
 typedef struct _videocamera_s videocamera_s;
 
-/**************************************/
+/*****************************************************************************/
+/*   КОНТРОЛЛЕР  */
+
+#define ALL_BIT                        0xFFFFFFFFFFFFFFFFL
+#define BIT_ENGINE_VERTICAL            0x0000000000000001L
+#define BIT_ENGINE_HORIZONTAL          0x0000000000000002L
+#define BIT_ACTUATOR_SPRAY             0x0000000000000004L
+#define BIT_ACTUATOR_RATE              0x0000000000000008L
+#define BIT_ACTUATOR_VEIL              0x0000000000000010L
+#define BIT_LIMIT_VERTICAL             0x0000000000000020L
+#define BIT_TIC_VERTICAL               0x0000000000000040L
+#define BIT_ENCODER_VERTICAL           0x0000000000000080L
+#define BIT_AMPERAGE_VERTICAL          0x0000000000000100L
+#define BIT_LIMIT_HORIZONTAL           0x0000000000000200L
+#define BIT_TIC_HORIZONTAL             0x0000000000000400L
+#define BIT_ENCODER_HORIZONTAL         0x0000000000000800L
+#define BIT_AMPERAGE_HORIZONTAL        0x0000000000001000L
+#define BIT_PRESSURE                   0x0000000000002000L
+#define BIT_CONSOLE                    0x0000000000004000L
+#define BIT_POST                       0x0000000000008000L
+#define BIT_SENSOR_FIRE_DRY            0x0000000000010000L
+#define BIT_SENSOR_FIRE_485            0x0000000000020000L
+#define BIT_SENSOR_FIRE_ETHERNET       0x0000000000040000L
+#define BIT_SENSOR_DRY_485             0x0000000000080000L
+#define BIT_SENSOR_DRY_ETHERNER        0x0000000000100000L
+#define BIT_VALVE_DRY                  0x0000000000200000L
+#define BIT_VALVE_ANALOG               0x0000000000400000L
+#define BIT_VALVE_LIMIT                0x0000000000800000L
+#define BIT_VALVE_FEEDBACK             0x0000000001000000L
+#define BIT_CAM_ANALOG_DC              0x0000000002000000L
+#define BIT_CAM_DIGITAL_DC             0x0000000004000000L
+#define BIT_CAM_DIGITAL_POE            0x0000000008000000L
+#define BIT_FIRE_ALARM_01              0x0000000010000000L
+#define BIT_FIRE_ALARM_02              0x0000000020000000L
+#define BIT_FIRE_ALARM_03              0x0000000040000000L
+#define BIT_FIRE_ALARM_04              0x0000000080000000L
+#define BIT_FIRE_ALARM_05              0x0000000100000000L
+#define BIT_FIRE_ALARM_06              0x0000000200000000L
+#define BIT_FIRE_ALARM_07              0x0000000400000000L
+#define BIT_FIRE_ALARM_08              0x0000000800000000L
+#define BIT_FIRE_ALARM_09              0x0000001000000000L
+#define BIT_FIRE_ALARM_10              0x0000002000000000L
+#define BIT_FIRE_ALARM_11              0x0000004000000000L
+#define BIT_FIRE_ALARM_12              0x0000008000000000L
+#define BIT_FIRE_ALARM_13              0x0000010000000000L
+#define BIT_FIRE_ALARM_14              0x0000020000000000L
+#define BIT_FIRE_ALARM_15              0x0000040000000000L
+#define BIT_FIRE_ALARM_16              0x0000080000000000L
+#define BIT_DEVICE_01_STATE_0          0x0000100000000000L
+#define BIT_DEVICE_01_STATE_1          0x0000200000000000L
+#define BIT_DEVICE_02_STATE_0          0x0000400000000000L
+#define BIT_DEVICE_02_STATE_1          0x0000800000000000L
+#define BIT_DEVICE_03_STATE_0          0x0001000000000000L
+#define BIT_DEVICE_03_STATE_1          0x0002000000000000L
+#define BIT_DEVICE_04_STATE_0          0x0004000000000000L
+#define BIT_DEVICE_04_STATE_1          0x0008000000000000L
+#define BIT_DEVICE_05_STATE_0          0x0010000000000000L
+#define BIT_DEVICE_05_STATE_1          0x0020000000000000L
+#define BIT_DEVICE_06_STATE_0          0x0040000000000000L
+#define BIT_DEVICE_06_STATE_1          0x0080000000000000L
+#define BIT_DEVICE_07_STATE_0          0x0100000000000000L
+#define BIT_DEVICE_07_STATE_1          0x0200000000000000L
+#define BIT_DEVICE_08_STATE_0          0x0400000000000000L
+#define BIT_DEVICE_08_STATE_1          0x0800000000000000L
+#define BIT_RESERVE_0                  0x1000000000000000L
+#define BIT_RESERVE_1                  0x2000000000000000L
+#define BIT_RESERVE_2                  0x4000000000000000L
+#define BIT_RESERVE_3                  0x8000000000000000L
+
+#define SET_ENGINE_VERTICAL(f)         (f | BIT_ENGINE_VERTICAL)
+#define UNSET_ENGINE_VERTICAL(f)       (f & (ALL_BIT^BIT_ENGINE_VERTICAL))
+#define ENGINE_VERTICAL(f)             (f & BIT_ENGINE_VERTICAL)
+#define SET_ENGINE_HORIZONTAL(f)       (f | BIT_ENGINE_HORIZONTAL)
+#define UNSET_ENGINE_HORIZONTAL(f)     (f & (ALL_BIT^BIT_ENGINE_HORIZONTAL))
+#define ENGINE_HORIZONTAL(f)           (f & BIT_ENGINE_HORIZONTAL)
+#define SET_ACTUATOR_SPRAY(f)          (f | BIT_ACTUATOR_SPRAY)
+#define UNSET_ACTUATOR_SPRAY(f)        (f & (ALL_BIT^BIT_ACTUATOR_SPRAY))
+#define ACTUATOR_SPRAY(f)              (f & BIT_ACTUATOR_SPRAY)
+#define SET_ACTUATOR_RATE(f)           (f | BIT_ACTUATOR_RATE)
+#define UNSET_ACTUATOR_RATE(f)         (f & (ALL_BIT^BIT_ACTUATOR_RATE))
+#define ACTUATOR_RATE(f)               (f & BIT_ACTUATOR_RATE)
+#define SET_ACTUATOR_VEIL(f)           (f | BIT_ACTUATOR_VEIL)
+#define UNSET_ACTUATOR_VEIL(f)         (f & (ALL_BIT^BIT_ACTUATOR_VEIL))
+#define ACTUATOR_VEIL(f)               (f & BIT_ACTUATOR_VEIL)
+#define SET_LIMIT_VERTICAL(f)          (f | BIT_LIMIT_VERTICAL)
+#define UNSET_LIMIT_VERTICAL(f)        (f & (ALL_BIT^BIT_LIMIT_VERTICAL))
+#define LIMIT_VERTICAL(f)              (f & BIT_LIMIT_VERTICAL)
+#define SET_TIC_VERTICAL(f)            (f | BIT_TIC_VERTICAL)
+#define UNSET_TIC_VERTICAL(f)          (f & (ALL_BIT^BIT_TIC_VERTICAL))
+#define TIC_VERTICAL(f)                (f & BIT_TIC_VERTICAL)
+#define SET_ENCODER_VERTICAL(f)        (f | BIT_ENCODER_VERTICAL)
+#define UNSET_ENCODER_VERTICAL(f)      (f & (ALL_BIT^BIT_ENCODER_VERTICAL))
+#define ENCODER_VERTICAL(f)            (f & BIT_ENCODER_VERTICAL)
+#define SET_AMPERAGE_VERTICAL(f)       (f | BIT_AMPERAGE_VERTICAL)
+#define UNSET_AMPERAGE_VERTICAL(f)     (f & (ALL_BIT^BIT_AMPERAGE_VERTICAL))
+#define AMPERAGE_VERTICAL(f)           (f & BIT_AMPERAGE_VERTICAL)
+#define SET_LIMIT_HORIZONTAL(f)        (f | BIT_LIMIT_HORIZONTAL)
+#define UNSET_LIMIT_HORIZONTAL(f)      (f & (ALL_BIT^BIT_LIMIT_HORIZONTAL))
+#define LIMIT_HORIZONTAL(f)            (f & BIT_LIMIT_HORIZONTAL)
+#define SET_TIC_HORIZONTAL(f)          (f | BIT_TIC_HORIZONTAL)
+#define UNSET_TIC_HORIZONTAL(f)        (f & (ALL_BIT^BIT_TIC_HORIZONTAL))
+#define TIC_HORIZONTAL(f)              (f & BIT_TIC_HORIZONTAL)
+#define SET_ENCODER_HORIZONTAL(f)      (f | BIT_ENCODER_HORIZONTAL)
+#define UNSET_ENCODER_HORIZONTAL(f)    (f & (ALL_BIT^BIT_ENCODER_HORIZONTAL))
+#define ENCODER_HORIZONTAL(f)          (f & BIT_ENCODER_HORIZONTAL)
+#define SET_AMPERAGE_HORIZONTAL(f)     (f | BIT_AMPERAGE_HORIZONTAL)
+#define UNSET_AMPERAGE_HORIZONTAL(f)   (f & (ALL_BIT^BIT_AMPERAGE_HORIZONTAL))
+#define AMPERAGE_HORIZONTAL(f)         (f & BIT_AMPERAGE_HORIZONTAL)
+#define SET_PRESSURE(f)                (f | BIT_PRESSURE)
+#define UNSET_PRESSURE(f)              (f & (ALL_BIT^BIT_PRESSURE))
+#define PRESSURE(f)                    (f & BIT_PRESSURE)
+#define SET_CONSOLE(f)                 (f | BIT_CONSOLE)
+#define UNSET_CONSOLE(f)               (f & (ALL_BIT^BIT_CONSOLE))
+#define CONSOLE(f)                     (f & BIT_CONSOLE)
+#define SET_POST(f)                    (f | BIT_POST)
+#define UNSET_POST(f)                  (f & (ALL_BIT^BIT_POST))
+#define POST(f)                        (f & BIT_POST)
+#define SET_SENSOR_FIRE_DRY(f)         (f | BIT_SENSOR_FIRE_DRY)
+#define UNSET_SENSOR_FIRE_DRY(f)       (f & (ALL_BIT^BIT_SENSOR_FIRE_DRY))
+#define SENSOR_FIRE_DRY(f)             (f & BIT_SENSOR_FIRE_DRY)
+#define SET_SENSOR_FIRE_485(f)         (f | BIT_SENSOR_FIRE_485)
+#define UNSET_SENSOR_FIRE_485(f)       (f & (ALL_BIT^BIT_SENSOR_FIRE_485))
+#define SENSOR_FIRE_485(f)             (f & BIT_SENSOR_FIRE_485)
+#define SET_SENSOR_FIRE_ETHERNET(f)    (f | BIT_SENSOR_FIRE_ETHERNET)
+#define UNSET_SENSOR_FIRE_ETHERNET(f)  (f & (ALL_BIT^BIT_SENSOR_FIRE_ETHERNET))
+#define SENSOR_FIRE_ETHERNET(f)        (f & BIT_SENSOR_FIRE_ETHERNET)
+#define SET_SENSOR_DRY_485(f)          (f | BIT_SENSOR_DRY_485)
+#define UNSET_SENSOR_DRY_485(f)        (f & (ALL_BIT^BIT_SENSOR_DRY_485))
+#define SENSOR_DRY_485(f)              (f & BIT_SENSOR_DRY_485)
+#define SET_SENSOR_DRY_ETHERNET(f)     (f | BIT_SENSOR_DRY_ETHERNER)
+#define UNSET_SENSOR_DRY_ETHERNET(f)   (f & (ALL_BIT^BIT_SENSOR_DRY_ETHERNER))
+#define SENSOR_DRY_ETHERNET(f)         (f & BIT_SENSOR_DRY_ETHERNER)
+#define SET_VALVE_DRY(f)               (f | BIT_VALVE_DRY)
+#define UNSET_VALVE_DRY(f)             (f & (ALL_BIT^BIT_VALVE_DRY))
+#define VALVE_DRY(f)                   (f & BIT_VALVE_DRY)
+#define SET_VALVE_ANALOG(f)            (f | BIT_VALVE_ANALOG)
+#define UNSET_VALVE_ANALOG(f)          (f & (ALL_BIT^BIT_VALVE_ANALOG))
+#define VALVE_ANALOG(f)                (f & BIT_VALVE_ANALOG)
+#define SET_VALVE_LIMIT(f)             (f | BIT_VALVE_LIMIT)
+#define UNSET_VALVE_LIMIT(f)           (f & (ALL_BIT^BIT_VALVE_LIMIT))
+#define VALVE_LIMIT(f)                 (f & BIT_VALVE_LIMIT)
+#define SET_VALVE_FEEDBACK(f)          (f | BIT_VALVE_FEEDBACK)
+#define UNSET_VALVE_FEEDBACK(f)        (f & (ALL_BIT^BIT_VALVE_FEEDBACK))
+#define VALVE_FEEDBACK(f)              (f & BIT_VALVE_FEEDBACK)
+#define SET_CAM_ANALOG_DC(f)           (f | BIT_CAM_ANALOG_DC)
+#define UNSET_CAM_ANALOG_DC(f)         (f & (ALL_BIT^BIT_CAM_ANALOG_DC))
+#define CAM_ANALOG_DC(f)               (f & BIT_CAM_ANALOG_DC)
+#define SET_CAM_DIGITAL_DC(f)          (f | BIT_CAM_DIGITAL_DC)
+#define UNSET_CAM_DIGITAL_DC(f)        (f & (ALL_BIT^BIT_CAM_DIGITAL_DC))
+#define CAM_DIGITAL_DC(f)              (f & BIT_CAM_DIGITAL_DC)
+#define SET_CAM_DIGITAL_POE(f)         (f | BIT_CAM_DIGITAL_POE)
+#define UNSET_CAM_DIGITAL_POE(f)       (f & (ALL_BIT^BIT_CAM_DIGITAL_POE))
+#define CAM_DIGITAL_POE(f)             (f & BIT_CAM_DIGITAL_POE)
+#define SET_FIRE_ALARM_01(f)           (f | BIT_FIRE_ALARM_01)
+#define UNSET_FIRE_ALARM_01(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_01))
+#define FIRE_ALARM_01(f)               (f & BIT_FIRE_ALARM_01)
+#define SET_FIRE_ALARM_02(f)           (f | BIT_FIRE_ALARM_02)
+#define UNSET_FIRE_ALARM_02(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_02))
+#define FIRE_ALARM_02(f)               (f & BIT_FIRE_ALARM_02)
+#define SET_FIRE_ALARM_03(f)           (f | BIT_FIRE_ALARM_03)
+#define UNSET_FIRE_ALARM_03(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_03))
+#define FIRE_ALARM_03(f)               (f & BIT_FIRE_ALARM_03)
+#define SET_FIRE_ALARM_04(f)           (f | BIT_FIRE_ALARM_04)
+#define UNSET_FIRE_ALARM_04(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_04))
+#define FIRE_ALARM_04(f)               (f & BIT_FIRE_ALARM_04)
+#define SET_FIRE_ALARM_05(f)           (f | BIT_FIRE_ALARM_05)
+#define UNSET_FIRE_ALARM_05(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_05))
+#define FIRE_ALARM_05(f)               (f & BIT_FIRE_ALARM_05)
+#define SET_FIRE_ALARM_06(f)           (f | BIT_FIRE_ALARM_06)
+#define UNSET_FIRE_ALARM_06(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_06))
+#define FIRE_ALARM_06(f)               (f & BIT_FIRE_ALARM_06)
+#define SET_FIRE_ALARM_07(f)           (f | BIT_FIRE_ALARM_07)
+#define UNSET_FIRE_ALARM_07(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_07))
+#define FIRE_ALARM_07(f)               (f & BIT_FIRE_ALARM_07)
+#define SET_FIRE_ALARM_08(f)           (f | BIT_FIRE_ALARM_08)
+#define UNSET_FIRE_ALARM_08(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_08))
+#define FIRE_ALARM_08(f)               (f & BIT_FIRE_ALARM_08)
+#define SET_FIRE_ALARM_09(f)           (f | BIT_FIRE_ALARM_09)
+#define UNSET_FIRE_ALARM_09(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_09))
+#define FIRE_ALARM_09(f)               (f & BIT_FIRE_ALARM_09)
+#define SET_FIRE_ALARM_10(f)           (f | BIT_FIRE_ALARM_10)
+#define UNSET_FIRE_ALARM_10(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_10))
+#define FIRE_ALARM_10(f)               (f & BIT_FIRE_ALARM_10)
+#define SET_FIRE_ALARM_11(f)           (f | BIT_FIRE_ALARM_11)
+#define UNSET_FIRE_ALARM_11(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_11))
+#define FIRE_ALARM_11(f)               (f & BIT_FIRE_ALARM_11)
+#define SET_FIRE_ALARM_12(f)           (f | BIT_FIRE_ALARM_12)
+#define UNSET_FIRE_ALARM_12(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_12))
+#define FIRE_ALARM_12(f)               (f & BIT_FIRE_ALARM_12)
+#define SET_FIRE_ALARM_13(f)           (f | BIT_FIRE_ALARM_13)
+#define UNSET_FIRE_ALARM_13(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_13))
+#define FIRE_ALARM_13(f)               (f & BIT_FIRE_ALARM_13)
+#define SET_FIRE_ALARM_14(f)           (f | BIT_FIRE_ALARM_14)
+#define UNSET_FIRE_ALARM_14(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_14))
+#define FIRE_ALARM_14(f)               (f & BIT_FIRE_ALARM_14)
+#define SET_FIRE_ALARM_15(f)           (f | BIT_FIRE_ALARM_15)
+#define UNSET_FIRE_ALARM_15(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_15))
+#define FIRE_ALARM_15(f)               (f & BIT_FIRE_ALARM_15)
+#define SET_FIRE_ALARM_16(f)           (f | BIT_FIRE_ALARM_16)
+#define UNSET_FIRE_ALARM_16(f)         (f & (ALL_BIT^BIT_FIRE_ALARM_16))
+#define FIRE_ALARM_16(f)               (f & BIT_FIRE_ALARM_16)
+#define SET_DEVICE_01_STATE_0(f)       (f | BIT_DEVICE_01_STATE_0)
+#define UNSET_DEVICE_01_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_01_STATE_0))
+#define DEVICE_01_STATE_0(f)           (f & BIT_DEVICE_01_STATE_0)
+#define SET_DEVICE_01_STATE_1(f)       (f | BIT_DEVICE_01_STATE_1)
+#define UNSET_DEVICE_01_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_01_STATE_1))
+#define DEVICE_01_STATE_1(f)           (f & BIT_DEVICE_01_STATE_1)
+#define SET_DEVICE_02_STATE_0(f)       (f | BIT_DEVICE_02_STATE_0)
+#define UNSET_DEVICE_02_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_02_STATE_0))
+#define DEVICE_02_STATE_0(f)           (f & BIT_DEVICE_02_STATE_0)
+#define SET_DEVICE_02_STATE_1(f)       (f | BIT_DEVICE_02_STATE_1)
+#define UNSET_DEVICE_02_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_02_STATE_1))
+#define DEVICE_02_STATE_1(f)           (f & BIT_DEVICE_02_STATE_1)
+#define SET_DEVICE_03_STATE_0(f)       (f | BIT_DEVICE_03_STATE_0)
+#define UNSET_DEVICE_03_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_03_STATE_0))
+#define DEVICE_03_STATE_0(f)           (f & BIT_DEVICE_03_STATE_0)
+#define SET_DEVICE_03_STATE_1(f)       (f | BIT_DEVICE_03_STATE_1)
+#define UNSET_DEVICE_03_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_03_STATE_1))
+#define DEVICE_03_STATE_1(f)           (f & BIT_DEVICE_03_STATE_1)
+#define SET_DEVICE_04_STATE_0(f)       (f | BIT_DEVICE_04_STATE_0)
+#define UNSET_DEVICE_04_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_04_STATE_0))
+#define DEVICE_04_STATE_0(f)           (f & BIT_DEVICE_04_STATE_0)
+#define SET_DEVICE_04_STATE_1(f)       (f | BIT_DEVICE_04_STATE_1)
+#define UNSET_DEVICE_04_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_04_STATE_1))
+#define DEVICE_04_STATE_1(f)           (f & BIT_DEVICE_04_STATE_1)
+#define SET_DEVICE_05_STATE_0(f)       (f | BIT_DEVICE_05_STATE_0)
+#define UNSET_DEVICE_05_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_05_STATE_0))
+#define DEVICE_05_STATE_0(f)           (f & BIT_DEVICE_05_STATE_0)
+#define SET_DEVICE_05_STATE_1(f)       (f | BIT_DEVICE_05_STATE_1)
+#define UNSET_DEVICE_05_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_05_STATE_1))
+#define DEVICE_05_STATE_1(f)           (f & BIT_DEVICE_05_STATE_1)
+#define SET_DEVICE_06_STATE_0(f)       (f | BIT_DEVICE_06_STATE_0)
+#define UNSET_DEVICE_06_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_06_STATE_0))
+#define DEVICE_06_STATE_0(f)           (f & BIT_DEVICE_06_STATE_0)
+#define SET_DEVICE_06_STATE_1(f)       (f | BIT_DEVICE_06_STATE_1)
+#define UNSET_DEVICE_06_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_06_STATE_1))
+#define DEVICE_06_STATE_1(f)           (f & BIT_DEVICE_06_STATE_1)
+#define SET_DEVICE_07_STATE_0(f)       (f | BIT_DEVICE_07_STATE_0)
+#define UNSET_DEVICE_07_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_07_STATE_0))
+#define DEVICE_07_STATE_0(f)           (f & BIT_DEVICE_07_STATE_0)
+#define SET_DEVICE_07_STATE_1(f)       (f | BIT_DEVICE_07_STATE_1)
+#define UNSET_DEVICE_07_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_07_STATE_1))
+#define DEVICE_07_STATE_1(f)           (f & BIT_DEVICE_07_STATE_1)
+#define SET_DEVICE_08_STATE_0(f)       (f | BIT_DEVICE_08_STATE_0)
+#define UNSET_DEVICE_08_STATE_0(f)     (f & (ALL_BIT^BIT_DEVICE_08_STATE_0))
+#define DEVICE_08_STATE_0(f)           (f & BIT_DEVICE_08_STATE_0)
+#define SET_DEVICE_08_STATE_1(f)       (f | BIT_DEVICE_08_STATE_1)
+#define UNSET_DEVICE_08_STATE_1(f)     (f & (ALL_BIT^BIT_DEVICE_08_STATE_1))
+#define DEVICE_08_STATE_1(f)           (f & BIT_DEVICE_08_STATE_1)
+#define SET_RESERVE_0(f)               (f | BIT_RESERVE_0)
+#define UNSET_RESERVE_0(f)             (f & (ALL_BIT^BIT_RESERVE_0))
+#define RESERVE_0(f)                   (f & BIT_RESERVE_0)
+#define SET_RESERVE_1(f)               (f | BIT_RESERVE_1)
+#define UNSET_RESERVE_1(f)             (f & (ALL_BIT^BIT_RESERVE_1))
+#define RESERVE_1(f)                   (f & BIT_RESERVE_1)
+#define SET_RESERVE_2(f)               (f | BIT_RESERVE_2)
+#define UNSET_RESERVE_2(f)             (f & (ALL_BIT^BIT_RESERVE_2))
+#define RESERVE_2(f)                   (f & BIT_RESERVE_2)
+#define SET_RESERVE_3(f)               (f | BIT_RESERVE_3)
+#define UNSET_RESERVE_3(f)             (f & (ALL_BIT^BIT_RESERVE_3))
+#define RESERVE_3(f)                   (f & BIT_RESERVE_3)
+
+
 enum
 {
 	COLUMN_TABLE_CONTROLLER_NUMBER = 0,
@@ -264,4 +527,4 @@ enum
 };
 #endif
 
-/**************************************/
+/*****************************************************************************/
