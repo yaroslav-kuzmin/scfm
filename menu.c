@@ -45,6 +45,7 @@
 
 #include "pub.h"
 #include "common.h"
+#include "bridge.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -54,6 +55,11 @@
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
+static void activate_menu_bridge_view(GtkMenuItem * b,gpointer ud)
+{
+	create_windows_bridge();
+}
+
 static int mode_control = MODE_CONTROL_OFF;
 static void activate_menu_job_control(GtkMenuItem * b,gpointer ud)
 {
@@ -78,9 +84,34 @@ static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)
 	GtkWidget * w = (GtkWidget *)ud;
 	gtk_widget_destroy(w);
 }
+
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
+
+static char STR_BRIDGE[] = "Мост";
+static char STR_BRIDGE_VIEW[] = "Включить";
+
+static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_accgro)
+{
+	GtkWidget * menite_bridge;
+	GtkWidget * men_bridge;
+	GtkWidget * menite_view;
+
+	menite_bridge = gtk_menu_item_new_with_label(STR_BRIDGE);
+	men_bridge = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menite_bridge),men_bridge);
+
+	menite_view = gtk_menu_item_new_with_label(STR_BRIDGE_VIEW);
+	g_signal_connect(menite_view,"activate",G_CALLBACK(activate_menu_bridge_view),NULL);
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_bridge),menite_view);
+
+	gtk_widget_show(menite_bridge);
+	gtk_widget_show(men_bridge);
+	gtk_widget_show(menite_view);
+
+	return menite_bridge;
+}
 
 static char STR_MENU_JOB[] = "Работа";
 static char STR_MENU_JOB_CONTROL[] = "Управление";
@@ -136,12 +167,16 @@ GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 {
 	GtkWidget * menbar_main;
 	GtkWidget * menite_job;
+	GtkWidget * menite_bridge;
 
 	menbar_main = gtk_menu_bar_new();
 	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 
 	menite_job = create_menu_job(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
+
+	menite_bridge = create_menu_bridge(win_main,main_accgro);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_bridge);
 
 	gtk_widget_show(menbar_main);
 	return menbar_main;

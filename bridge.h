@@ -44,6 +44,7 @@
 #ifndef BRIDGE_H
 #define BRIDGE_H
 
+int create_windows_bridge(void);
 
 #endif
 
