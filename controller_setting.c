@@ -648,8 +648,6 @@ static int check_rate_controller(block_info_controller_s * block_info,config_con
 }
 
 static block_info_controller_s block_info_controller;
-static char STR_NAME[]                 = "Наименование : ";
-static char STR_NAME_DEFAULT[]         = "Нет информации";
 static char STR_ENGINE_VERTICAL[]      = "Двигатель вертикальной оси";
 static char STR_ENGINE_HORIZONTAL[]    = "Двигатель горизонтальной оси";
 static char STR_ACTUATOR_SPRAY[]       = "Актуатор (Распыл)";
@@ -737,11 +735,11 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
-	label = gtk_label_new(STR_NAME);
+	label = gtk_label_new("Наименование : ");
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
-	label = gtk_label_new(STR_NAME_DEFAULT);
+	label = gtk_label_new("Нет информации");
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
@@ -1793,7 +1791,6 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 	return box;
 }
 
-static char STR_NAME_ID[] = "Номер контролера";
 static char STR_NAME_TCP_ADDRESS[] = "Адрес";
 static char STR_DEFAULT_TCP_ADDRESS[] = "127.0.0.1";
 static char STR_NAME_TCP_PORT[] = "Порт";
@@ -1810,7 +1807,7 @@ static GtkWidget * create_block_find_type_tcp(block_setting_controller_s * bsc)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_id = create_block_entry(STR_NAME_ID,&buf);
+	block_id = create_block_entry("Номер контролера",&buf);
 	gtk_entry_buffer_set_text(buf,"2",-1);
 	bsc->tcp_id = buf;
 	block_address = create_block_entry(STR_NAME_TCP_ADDRESS,&buf);
@@ -1853,7 +1850,7 @@ static GtkWidget * create_block_find_type_uart(block_setting_controller_s * bsc)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_id = create_block_entry(STR_NAME_ID,&buf);
+	block_id = create_block_entry("Номер контролера",&buf);
 	gtk_entry_buffer_set_text(buf,"2",-1);
 	bsc->uart_id = buf;
 	block_device = create_block_entry(STR_NAME_UART_DEVICE,&buf);
@@ -1939,6 +1936,8 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 	return box;
 }
 static block_setting_controller_s block_setting_controller;
+
+static char STR_NAME_DEFAULT[] = "НЕТ ИНФОРМАЦИИ";
 
 GtkWidget * create_block_setting_controller(void)
 {

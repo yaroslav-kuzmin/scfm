@@ -846,7 +846,7 @@ static GtkWidget * create_block_pipe(block_controller_s * block)
 }
 
 static char STR_FIRE_SENSOR[] = "Датчик Пламени";
-static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";
+/*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
 static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
 {
@@ -958,7 +958,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 
 /***** Функции отображения системы управления ********************************/
 static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
-static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
+/*static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";*/
 static gdouble min_valve = 0;
 static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
@@ -1325,7 +1325,6 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	return grid;
 }
 
-static char STR_CONTROL[] = "Управление";
 static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * frame;
@@ -1335,7 +1334,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	GtkWidget * block_actuator;
 	GtkWidget * block_oscillation;
 
-	frame = gtk_frame_new(STR_CONTROL);
+	frame = gtk_frame_new("Управление");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_END,FALSE,FALSE);
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);

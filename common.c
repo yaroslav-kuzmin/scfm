@@ -67,6 +67,16 @@ char STR_GROUP_GLOBAL[] = "global";
 /*****************************************************************************/
 /*****************************************************************************/
 
+int dialog_info(char * message)
+{
+	GtkWidget * md_err;
+	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
+	gtk_dialog_run(GTK_DIALOG(md_err));
+	gtk_widget_destroy(md_err);
+	g_info("%s",message);
+	return FAILURE;
+}
+
 int dialog_error(char * message)
 {
 	GtkWidget * md_err;

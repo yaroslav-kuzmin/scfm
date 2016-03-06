@@ -55,6 +55,7 @@ int set_mode_work(int mode,GtkWidget * w);
 int init_system(void);
 int deinit_system(void);
 
+int dialog_info(char * message);
 int dialog_error(char * message);
 
 int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve);
