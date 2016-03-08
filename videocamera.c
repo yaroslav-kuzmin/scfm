@@ -204,11 +204,6 @@ int del_property_videocamera(videocamera_s * property)
 	return SUCCESS;
 }
 
-static char STR_NAME_PROTOCOL[] = "протокол :";
-static char STR_NAME_ADDRES[] = "адрес :";
-static char STR_NAME_PORT[] = "порт :";
-static char STR_NAME_ACCESS[] = "доступ :";
-
 GtkWidget * create_block_setting_videocamera(void)
 {
 	GtkWidget * box;
@@ -221,13 +216,13 @@ GtkWidget * create_block_setting_videocamera(void)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_protocol = create_block_entry(STR_NAME_PROTOCOL,&buf);
+	block_protocol = create_block_entry("протокол :",&buf);
 	block_setting_videocamera.protocol = buf;
-	block_addres = create_block_entry(STR_NAME_ADDRES,&buf);
+	block_addres = create_block_entry("адрес :",&buf);
 	block_setting_videocamera.address = buf;
-	block_port = create_block_entry(STR_NAME_PORT,&buf);
+	block_port = create_block_entry("порт :",&buf);
 	block_setting_videocamera.port = buf;
-	block_access = create_block_entry(STR_NAME_ACCESS,&buf);
+	block_access = create_block_entry("доступ :",&buf);
 	block_setting_videocamera.access = buf;
 
 	gtk_box_pack_start(GTK_BOX(box),block_protocol,TRUE,TRUE,0);

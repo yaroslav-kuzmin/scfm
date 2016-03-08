@@ -350,6 +350,7 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 			break;
 	}
 	g_string_append(pub,name_resource);
+	g_string_append(pub,".png");
 	image = gdk_pixbuf_new_from_resource(pub->str,&err);
 	if(image == NULL){
 		g_warning("Несмог загрузить рисунок : %s",err->message);
@@ -419,7 +420,7 @@ static int check_system(void)
 	return SUCCESS;
 }
 
-static char RESOURCE_DEFAULT_ICON[] = "scfm.png";
+static char RESOURCE_DEFAULT_ICON[] = "scfm";
 static GdkPixbuf * default_icon = NULL;
 GdkPixbuf * get_default_icon(void)
 {

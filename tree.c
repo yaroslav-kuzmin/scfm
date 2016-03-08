@@ -72,11 +72,6 @@ typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
 /*    Локальные функции                                                      */
 /*****************************************************************************/
-static char STR_TREE_VIEW_COLUMN_STATE[] = "C";
-static char STR_TREE_VIEW_COLUMN_NAME[] = "Наименования";
-
-#define WIDTH_COLUMN_TREE             100
-static int width_column_tree = WIDTH_COLUMN_TREE;
 
 static int tree_add_column(block_tree_s * bt)
 {
@@ -87,7 +82,7 @@ static int tree_add_column(block_tree_s * bt)
 	render = gtk_cell_renderer_pixbuf_new();
 	/*column = gtk_tree_view_column_new_with_attributes("С",render,"pixbuf",COLUMN_IMAGE_TREE,NULL);*/
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN_STATE);
+	gtk_tree_view_column_set_title(column,"С");
 	gtk_tree_view_column_pack_start(column,render,TRUE);
 	gtk_tree_view_column_set_attributes(column,render,"pixbuf",COLUMN_IMAGE_TREE,NULL);
 	gtk_tree_view_column_set_sizing (GTK_TREE_VIEW_COLUMN (column), GTK_TREE_VIEW_COLUMN_FIXED);
@@ -96,11 +91,11 @@ static int tree_add_column(block_tree_s * bt)
 
 	render = gtk_cell_renderer_text_new();
 	g_object_set(render,"editable",FALSE,NULL);
-	g_object_set(render,"width",width_column_tree,NULL);
+	g_object_set(render,"width",100,NULL);
 	g_object_set(render,"size",15000,NULL); /*размер шрифта*/
 
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN_NAME);
+	gtk_tree_view_column_set_title(column,"Наименования");
 	gtk_tree_view_column_pack_start(column,render,TRUE);
 	gtk_tree_view_column_set_attributes(column,render,"text",COLUMN_NAME_TREE,NULL);
 	gtk_tree_view_column_set_sizing (column,GTK_TREE_VIEW_COLUMN_FIXED);
@@ -203,9 +198,9 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 #endif
 }
 
-static char STR_IMAGE_NORM[] = "tree_green.png";
-static char STR_IMAGE_ERROR[] = "tree_red.png";
-static char STR_IMAGE_WAIT[] = "tree_yellow.png";
+static char STR_IMAGE_NORM[] = "tree_green";
+static char STR_IMAGE_ERROR[] = "tree_red";
+static char STR_IMAGE_WAIT[] = "tree_yellow";
 
 static int init_image(block_tree_s * bt)
 {
@@ -237,10 +232,6 @@ int reread_tree(void)
 	return SUCCESS;
 }
 
-static char STR_TREE_FRAME[] = "Объекты";
-#define DEFAULT_WIDTH_TREE       200
-#define DEFAULT_HEIGHT_TREE      400
-
 GtkWidget * create_block_tree_object(void)
 {
 	GtkWidget * frame;
@@ -250,9 +241,9 @@ GtkWidget * create_block_tree_object(void)
 
 	init_image(&block_tree);
 
-	frame = gtk_frame_new(STR_TREE_FRAME);
+	frame = gtk_frame_new("Объекты");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_TREE,-1);
+	gtk_widget_set_size_request(frame,200,-1);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);

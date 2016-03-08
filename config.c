@@ -89,11 +89,6 @@ typedef struct _block_config_s block_config_s;
 /*    локальные функции                                                      */
 /*****************************************************************************/
 
-static char STR_TREE_VIEW_COLUMN_NAME[] = "Наименования";
-
-#define WIDTH_COLUMN_TREE             100
-static int width_column_tree = WIDTH_COLUMN_TREE;
-
 static int tree_add_column(GtkTreeView * treeview)
 {
 	GtkCellRenderer * render;
@@ -101,11 +96,11 @@ static int tree_add_column(GtkTreeView * treeview)
 
 	render = gtk_cell_renderer_text_new();
 	g_object_set(render,"editable",FALSE,NULL);
-	g_object_set(render,"width",width_column_tree,NULL);
+	g_object_set(render,"width",100,NULL);
 	g_object_set(render,"size",15000,NULL); /*размер шрифта*/
 
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,STR_TREE_VIEW_COLUMN_NAME);
+	gtk_tree_view_column_set_title(column,"Наименования");
 	gtk_tree_view_column_pack_start(column,render,TRUE);
 	gtk_tree_view_column_set_attributes(column,render,"text",COLUMN_NAME_TREE,NULL);
 	gtk_tree_view_column_set_sizing (column,GTK_TREE_VIEW_COLUMN_FIXED);
@@ -280,9 +275,8 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	}
 }
 
-static char STR_TREE_FRAME[] = "Группы";
-GtkTreeIter iter = {0};
-GtkTreeIter iter_parent = {0};
+static GtkTreeIter iter = {0};
+static GtkTreeIter iter_parent = {0};
 static GtkWidget * create_block_tree(block_config_s * config)
 {
 	GtkWidget * frame;
@@ -291,7 +285,7 @@ static GtkWidget * create_block_tree(block_config_s * config)
 
 	GtkTreeStore * model;
 
-	frame = gtk_frame_new(STR_TREE_FRAME);
+	frame = gtk_frame_new("Группы");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
@@ -432,13 +426,12 @@ static GtkWidget * create_setting_unknown(void)
 }
 
 
-static char STR_SETTING[] = "Свойства";
 static GtkWidget * create_block_setting(block_config_s * config)
 {
 	GtkWidget * frame;
 	GtkWidget * grid;
 
-	frame = gtk_frame_new(STR_SETTING);
+	frame = gtk_frame_new("Свойства");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	grid = gtk_grid_new();
@@ -552,9 +545,6 @@ exit_clicked_button_del:
 	del_object_treeview(config);
 }
 
-static char STR_BUTTON_ADD[] = "добавить";
-static char STR_BUTTON_DEL[] = "удалить";
-
 static GtkWidget * create_block_button(block_config_s * config)
 {
 	GtkWidget * box;
@@ -564,11 +554,11 @@ static GtkWidget * create_block_button(block_config_s * config)
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
 
-	but_add = gtk_button_new_with_label(STR_BUTTON_ADD);
+	but_add = gtk_button_new_with_label("добавить");
 	layout_widget(but_add,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 	g_signal_connect(but_add,"clicked",G_CALLBACK(clicked_button_add),config);
 
-	but_del = gtk_button_new_with_label(STR_BUTTON_DEL);
+	but_del = gtk_button_new_with_label("удалить");
 	layout_widget(but_del,GTK_ALIGN_END,GTK_ALIGN_CENTER,TRUE,FALSE);
 	g_signal_connect(but_del,"clicked",G_CALLBACK(clicked_button_del),config);
 
@@ -581,10 +571,6 @@ static GtkWidget * create_block_button(block_config_s * config)
 
 	return box;
 }
-
-static char STR_NAME_GROUP[] = "Группа";
-static char STR_NAME_OBJECT[] = "Название";
-static char STR_TYPE_OBJECT[] = "Тип";
 
 static GtkWidget * create_block_option(block_config_s * config)
 {
@@ -605,21 +591,21 @@ static GtkWidget * create_block_option(block_config_s * config)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	lab_name_group = gtk_label_new(STR_NAME_GROUP);
+	lab_name_group = gtk_label_new("Группа");
 	layout_widget(lab_name_group,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 
 	lab_select = gtk_label_new(STR_ROOT_TREE);
 	layout_widget(lab_select,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
 	config->select_group = GTK_LABEL(lab_select);
 
-	lab_name_object = gtk_label_new(STR_NAME_OBJECT);
+	lab_name_object = gtk_label_new("Название");
 	layout_widget(lab_name_object,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 
 	ent_name_object = gtk_entry_new();
 	layout_widget(ent_name_object,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
 	config->name = gtk_entry_get_buffer(GTK_ENTRY(ent_name_object));
 
-	lab_name_type = gtk_label_new(STR_TYPE_OBJECT);
+	lab_name_type = gtk_label_new("Тип");
 	layout_widget(lab_name_type,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
 	combox = create_combobox(config);
 
@@ -647,8 +633,6 @@ static GtkWidget * create_block_option(block_config_s * config)
 	return grid;
 }
 
-static char STR_FRAME_CONFIG[] = "Конфигурирование";
-
 static GtkWidget * create_block_config(block_config_s * config)
 {
 	GtkWidget * frame;
@@ -657,7 +641,7 @@ static GtkWidget * create_block_config(block_config_s * config)
 	GtkWidget * block_tree;
 	GtkWidget * block_option;
 
-	frame = gtk_frame_new(STR_FRAME_CONFIG);
+	frame = gtk_frame_new("Конфигурирование");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -721,12 +705,8 @@ static void destroy_window_config(GtkWidget * w,gpointer ud)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-#define CONFIG_BLOCK_SPACING   5
-static char STR_CONFIG_EXIT[] = "выход";
-static config_window_s config_window;
 
-#define MIN_WIDTH_WIN_CONFIG      500
-#define MIN_HEIGHT_WIN_CONFIG     500
+static config_window_s config_window;
 
 static block_config_s total_config = {0};
 
@@ -741,11 +721,11 @@ int create_window_config(GtkWidget * win_main)
 	config_window.main = win_main;
 	win_config = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	config_window.config = win_config;
-	gtk_container_set_border_width(GTK_CONTAINER(win_config),CONFIG_BLOCK_SPACING);
+	gtk_container_set_border_width(GTK_CONTAINER(win_config),5);
 	gtk_window_set_title(GTK_WINDOW(win_config),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_config),TRUE);
 	gtk_window_set_position (GTK_WINDOW(win_config),GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(win_config),MIN_WIDTH_WIN_CONFIG,MIN_HEIGHT_WIN_CONFIG);
+	gtk_window_set_default_size(GTK_WINDOW(win_config),500,500);
 	g_signal_connect(win_config,"destroy",G_CALLBACK(destroy_window_config),&config_window);
 	g_signal_connect(win_config,"key-press-event",G_CALLBACK(key_press_event_window_config),&config_window);
 
@@ -754,7 +734,7 @@ int create_window_config(GtkWidget * win_main)
 
 	block_config = create_block_config(&total_config);
 
-	exit = gtk_button_new_with_label(STR_CONFIG_EXIT);
+	exit = gtk_button_new_with_label("ВЫХОД");
 	layout_widget(exit,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(exit,"clicked",G_CALLBACK(clicked_button_exit),&config_window);
 

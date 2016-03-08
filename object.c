@@ -107,11 +107,10 @@ static int change_object(block_object_s * block_object,int type)
 	return SUCCESS;
 }
 
-static char STR_BLOCK_EMPTY[] = "Выберите объект отображения";
 static GtkWidget * create_block_empty(void)
 {
 	GtkWidget * label;
-	label = gtk_label_new(STR_BLOCK_EMPTY);
+	label = gtk_label_new("Выберите объект отображения");
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_show(label);
 	return label;

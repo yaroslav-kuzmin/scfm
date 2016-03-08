@@ -106,7 +106,6 @@ enum
 	VERTICAL_DOWN,
 	AMOUNT_IMAGE_VERTICAL
 };
-static char * STR_IMAGE_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
 static GdkPixbuf * IMAGES_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
 static int16_t period_vertical = 10;
 static int16_t min_vertical = 0;
@@ -155,7 +154,6 @@ enum
 	HORIZONTAL_LEFT,
 	AMOUNT_IMAGE_HORIZONTAL
 };
-static char * STR_IMAGE_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static GdkPixbuf * IMAGES_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
 static gdouble period_horizontal = 10;
 static int16_t min_horizontal = 0;
@@ -167,7 +165,6 @@ enum
 	PRESSURE_NOTNORM,
 	AMOUNT_PRESSURE
 };
-static char * STR_IMAGES_PRESSURE[AMOUNT_PRESSURE] = {0};
 static GdkPixbuf * IMAGES_PRESSURE[AMOUNT_PRESSURE] = {0};
 
 enum
@@ -176,128 +173,70 @@ enum
 	VALVE_CLOSE,
 	AMOUNT_VALVE
 };
-static char * STR_IMAGES_VALVE[AMOUNT_VALVE] = {0};
 static GdkPixbuf * IMAGES_VALVE[AMOUNT_VALVE] = {0};
 
 static int init_image(block_controller_s * bc)
 {
 	/*TODO высвободить память из буфферов*/
 
-	STR_IMAGE_VERTICAL[VERTICAL_0000] = "v0000.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0100] = "v0100.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0200] = "v0200.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0300] = "v0300.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0400] = "v0400.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0500] = "v0500.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0600] = "v0600.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0700] = "v0700.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0800] = "v0800.png";
-	STR_IMAGE_VERTICAL[VERTICAL_0900] = "v0900.png";
-	STR_IMAGE_VERTICAL[VERTICAL_UP]   = "v0900p.png";
-	STR_IMAGE_VERTICAL[VERTICAL_DOWN] = "v0000p.png";
+	IMAGES_VERTICAL[VERTICAL_0000] = get_resource_image(RESOURCE_IMAGE,"v0000");
+	IMAGES_VERTICAL[VERTICAL_0100] = get_resource_image(RESOURCE_IMAGE,"v0100");
+	IMAGES_VERTICAL[VERTICAL_0200] = get_resource_image(RESOURCE_IMAGE,"v0200");
+	IMAGES_VERTICAL[VERTICAL_0300] = get_resource_image(RESOURCE_IMAGE,"v0300");
+	IMAGES_VERTICAL[VERTICAL_0400] = get_resource_image(RESOURCE_IMAGE,"v0400");
+	IMAGES_VERTICAL[VERTICAL_0500] = get_resource_image(RESOURCE_IMAGE,"v0500");
+	IMAGES_VERTICAL[VERTICAL_0600] = get_resource_image(RESOURCE_IMAGE,"v0600");
+	IMAGES_VERTICAL[VERTICAL_0700] = get_resource_image(RESOURCE_IMAGE,"v0700");
+	IMAGES_VERTICAL[VERTICAL_0800] = get_resource_image(RESOURCE_IMAGE,"v0800");
+	IMAGES_VERTICAL[VERTICAL_0900] = get_resource_image(RESOURCE_IMAGE,"v0900");
+	IMAGES_VERTICAL[VERTICAL_UP]   = get_resource_image(RESOURCE_IMAGE,"v0900p");
+	IMAGES_VERTICAL[VERTICAL_DOWN] = get_resource_image(RESOURCE_IMAGE,"v0000p");
 
-	IMAGES_VERTICAL[VERTICAL_0000] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0000]);
-	IMAGES_VERTICAL[VERTICAL_0100] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0100]);
-	IMAGES_VERTICAL[VERTICAL_0200] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0200]);
-	IMAGES_VERTICAL[VERTICAL_0300] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0300]);
-	IMAGES_VERTICAL[VERTICAL_0400] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0400]);
-	IMAGES_VERTICAL[VERTICAL_0500] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0500]);
-	IMAGES_VERTICAL[VERTICAL_0600] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0600]);
-	IMAGES_VERTICAL[VERTICAL_0700] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0700]);
-	IMAGES_VERTICAL[VERTICAL_0800] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0800]);
-	IMAGES_VERTICAL[VERTICAL_0900] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_0900]);
-	IMAGES_VERTICAL[VERTICAL_UP]   = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_UP]);
-	IMAGES_VERTICAL[VERTICAL_DOWN] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_VERTICAL[VERTICAL_DOWN]);
+	IMAGES_HORIZONTAL[HORIZONTAL_0000]  = get_resource_image(RESOURCE_IMAGE,"h0000");
+	IMAGES_HORIZONTAL[HORIZONTAL_0100]  = get_resource_image(RESOURCE_IMAGE,"h0100");
+	IMAGES_HORIZONTAL[HORIZONTAL_0200]  = get_resource_image(RESOURCE_IMAGE,"h0200");
+	IMAGES_HORIZONTAL[HORIZONTAL_0300]  = get_resource_image(RESOURCE_IMAGE,"h0300");
+	IMAGES_HORIZONTAL[HORIZONTAL_0400]  = get_resource_image(RESOURCE_IMAGE,"h0400");
+	IMAGES_HORIZONTAL[HORIZONTAL_0500]  = get_resource_image(RESOURCE_IMAGE,"h0500");
+	IMAGES_HORIZONTAL[HORIZONTAL_0600]  = get_resource_image(RESOURCE_IMAGE,"h0600");
+	IMAGES_HORIZONTAL[HORIZONTAL_0700]  = get_resource_image(RESOURCE_IMAGE,"h0700");
+	IMAGES_HORIZONTAL[HORIZONTAL_0800]  = get_resource_image(RESOURCE_IMAGE,"h0800");
+	IMAGES_HORIZONTAL[HORIZONTAL_0900]  = get_resource_image(RESOURCE_IMAGE,"h0900");
+	IMAGES_HORIZONTAL[HORIZONTAL_1000]  = get_resource_image(RESOURCE_IMAGE,"h1000");
+	IMAGES_HORIZONTAL[HORIZONTAL_1100]  = get_resource_image(RESOURCE_IMAGE,"h1100");
+	IMAGES_HORIZONTAL[HORIZONTAL_1200]  = get_resource_image(RESOURCE_IMAGE,"h1200");
+	IMAGES_HORIZONTAL[HORIZONTAL_1300]  = get_resource_image(RESOURCE_IMAGE,"h1300");
+	IMAGES_HORIZONTAL[HORIZONTAL_1400]  = get_resource_image(RESOURCE_IMAGE,"h1400");
+	IMAGES_HORIZONTAL[HORIZONTAL_1500]  = get_resource_image(RESOURCE_IMAGE,"h1500");
+	IMAGES_HORIZONTAL[HORIZONTAL_1600]  = get_resource_image(RESOURCE_IMAGE,"h1600");
+	IMAGES_HORIZONTAL[HORIZONTAL_1700]  = get_resource_image(RESOURCE_IMAGE,"h1700");
+	IMAGES_HORIZONTAL[HORIZONTAL_1800]  = get_resource_image(RESOURCE_IMAGE,"h1800");
+	IMAGES_HORIZONTAL[HORIZONTAL_1900]  = get_resource_image(RESOURCE_IMAGE,"h1900");
+	IMAGES_HORIZONTAL[HORIZONTAL_2000]  = get_resource_image(RESOURCE_IMAGE,"h2000");
+	IMAGES_HORIZONTAL[HORIZONTAL_2100]  = get_resource_image(RESOURCE_IMAGE,"h2100");
+	IMAGES_HORIZONTAL[HORIZONTAL_2200]  = get_resource_image(RESOURCE_IMAGE,"h2200");
+	IMAGES_HORIZONTAL[HORIZONTAL_2300]  = get_resource_image(RESOURCE_IMAGE,"h2300");
+	IMAGES_HORIZONTAL[HORIZONTAL_2400]  = get_resource_image(RESOURCE_IMAGE,"h2400");
+	IMAGES_HORIZONTAL[HORIZONTAL_2500]  = get_resource_image(RESOURCE_IMAGE,"h2500");
+	IMAGES_HORIZONTAL[HORIZONTAL_2600]  = get_resource_image(RESOURCE_IMAGE,"h2600");
+	IMAGES_HORIZONTAL[HORIZONTAL_2700]  = get_resource_image(RESOURCE_IMAGE,"h2700");
+	IMAGES_HORIZONTAL[HORIZONTAL_2800]  = get_resource_image(RESOURCE_IMAGE,"h2800");
+	IMAGES_HORIZONTAL[HORIZONTAL_2900]  = get_resource_image(RESOURCE_IMAGE,"h2900");
+	IMAGES_HORIZONTAL[HORIZONTAL_3000]  = get_resource_image(RESOURCE_IMAGE,"h3000");
+	IMAGES_HORIZONTAL[HORIZONTAL_3100]  = get_resource_image(RESOURCE_IMAGE,"h3100");
+	IMAGES_HORIZONTAL[HORIZONTAL_3200]  = get_resource_image(RESOURCE_IMAGE,"h3200");
+	IMAGES_HORIZONTAL[HORIZONTAL_3300]  = get_resource_image(RESOURCE_IMAGE,"h3300");
+	IMAGES_HORIZONTAL[HORIZONTAL_3400]  = get_resource_image(RESOURCE_IMAGE,"h3400");
+	IMAGES_HORIZONTAL[HORIZONTAL_3500]  = get_resource_image(RESOURCE_IMAGE,"h3500");
+	IMAGES_HORIZONTAL[HORIZONTAL_3600]  = get_resource_image(RESOURCE_IMAGE,"h3600");
+	IMAGES_HORIZONTAL[HORIZONTAL_RIGHT] = get_resource_image(RESOURCE_IMAGE,"h0000p");
+	IMAGES_HORIZONTAL[HORIZONTAL_LEFT]  = get_resource_image(RESOURCE_IMAGE,"h3600p");
 
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0000]  = "h0000.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0100]  = "h0100.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0200]  = "h0200.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0300]  = "h0300.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0400]  = "h0400.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0500]  = "h0500.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0600]  = "h0600.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0700]  = "h0700.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0800]  = "h0800.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_0900]  = "h0900.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1000]  = "h1000.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1100]  = "h1100.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1200]  = "h1200.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1300]  = "h1300.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1400]  = "h1400.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1500]  = "h1500.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1600]  = "h1600.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1700]  = "h1700.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1800]  = "h1800.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_1900]  = "h1900.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2000]  = "h2000.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2100]  = "h2100.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2200]  = "h2200.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2300]  = "h2300.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2400]  = "h2400.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2500]  = "h2500.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2600]  = "h2600.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2700]  = "h2700.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2800]  = "h2800.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_2900]  = "h2900.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3000]  = "h3000.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3100]  = "h3100.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3200]  = "h3200.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3300]  = "h3300.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3400]  = "h3400.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3500]  = "h3500.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_3600]  = "h3600.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_RIGHT] = "h0000p.png";
-	STR_IMAGE_HORIZONTAL[HORIZONTAL_LEFT]  = "h3600p.png";
+	IMAGES_PRESSURE[PRESSURE_NORM] = get_resource_image(RESOURCE_IMAGE,"pressure_norm");
+	IMAGES_PRESSURE[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,"pressure_notnorm");
 
-	IMAGES_HORIZONTAL[HORIZONTAL_0000]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0000]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0100]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0100]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0200]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0200]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0300]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0300]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0400]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0400]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0500]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0500]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0600]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0600]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0700]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0700]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0800]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0800]);
-	IMAGES_HORIZONTAL[HORIZONTAL_0900]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_0900]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1000]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1000]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1100]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1100]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1200]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1200]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1300]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1300]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1400]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1400]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1500]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1500]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1600]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1600]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1700]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1700]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1800]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1800]);
-	IMAGES_HORIZONTAL[HORIZONTAL_1900]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_1900]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2000]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2000]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2100]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2100]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2200]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2200]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2300]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2300]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2400]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2400]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2500]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2500]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2600]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2600]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2700]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2700]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2800]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2800]);
-	IMAGES_HORIZONTAL[HORIZONTAL_2900]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_2900]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3000]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3000]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3100]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3100]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3200]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3200]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3300]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3300]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3400]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3400]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3500]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3500]);
-	IMAGES_HORIZONTAL[HORIZONTAL_3600]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_3600]);
-	IMAGES_HORIZONTAL[HORIZONTAL_RIGHT] = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_RIGHT]);
-	IMAGES_HORIZONTAL[HORIZONTAL_LEFT]  = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_HORIZONTAL[HORIZONTAL_LEFT]);
-
-	STR_IMAGES_PRESSURE[PRESSURE_NORM] = "pressure_norm.png";
-	STR_IMAGES_PRESSURE[PRESSURE_NOTNORM] = "pressure_notnorm.png";
-	IMAGES_PRESSURE[PRESSURE_NORM] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_PRESSURE[PRESSURE_NORM]);
-	IMAGES_PRESSURE[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_PRESSURE[PRESSURE_NOTNORM]);
-
-	STR_IMAGES_VALVE[VALVE_OPEN] = "valve_open.png";
-	STR_IMAGES_VALVE[VALVE_CLOSE] = "valve_close.png";
-	IMAGES_VALVE[VALVE_OPEN] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_VALVE[VALVE_OPEN]);
-	IMAGES_VALVE[VALVE_CLOSE] = get_resource_image(RESOURCE_IMAGE,STR_IMAGES_VALVE[VALVE_CLOSE]);
+	IMAGES_VALVE[VALVE_OPEN] = get_resource_image(RESOURCE_IMAGE,"valve_open");
+	IMAGES_VALVE[VALVE_CLOSE] = get_resource_image(RESOURCE_IMAGE,"valve_close");
 
 	return SUCCESS;
 }
@@ -761,18 +700,17 @@ static int show_block_controler(gpointer data)
 
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
-static char STR_VERTICAL[] = "Вертикальная Ось";
-static char STR_IMAGE_BASE_VERTICAL[] = "vbase.png";
+
 static GtkWidget * create_block_vertical(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(STR_VERTICAL);
+	frame = gtk_frame_new("Вертикальная Ось");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_VERTICAL);
+	buf = get_resource_image(RESOURCE_IMAGE,"vbase");
 	block->buf_axis_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -789,18 +727,16 @@ static GtkWidget * create_block_vertical(block_controller_s * block)
 
 #define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
-static char STR_HORIZONTAL[] = "Горизонтальная Ось";
-static char STR_IMAGE_BASE_HORIZONTAL[] = "hbase.png";
 static GtkWidget * create_block_horizontal(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(STR_HORIZONTAL);
+	frame = gtk_frame_new("Горизонтальная Ось");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_BASE_HORIZONTAL);
+	buf = get_resource_image(RESOURCE_IMAGE,"hbase");
 	block->buf_axis_horizontal = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -818,18 +754,16 @@ static GtkWidget * create_block_horizontal(block_controller_s * block)
 
 #define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
 #define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
-static char STR_PIPE[] = "Магистраль";
-static char STR_IMAGE_PIPE[] = "pipe.png";
 static GtkWidget * create_block_pipe(block_controller_s * block)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(STR_PIPE);
+	frame = gtk_frame_new("Магистраль");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,STR_IMAGE_PIPE);
+	buf = get_resource_image(RESOURCE_IMAGE,"pipe");
 	block->buf_pipe = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -845,7 +779,6 @@ static GtkWidget * create_block_pipe(block_controller_s * block)
 	return frame;
 }
 
-static char STR_FIRE_SENSOR[] = "Датчик Пламени";
 /*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
 static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
@@ -854,7 +787,7 @@ static GtkWidget * create_block_fire_sensor(block_controller_s * block)
 	GtkWidget * grid;
 	GtkWidget * label;
 
-	frame = gtk_frame_new(STR_FIRE_SENSOR);
+	frame = gtk_frame_new("Датчик Пламени");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	grid = gtk_grid_new();
@@ -882,7 +815,6 @@ static GtkWidget * create_block_fire_alarm_one(uint16_t number)
 	return label;
 }
 
-static char STR_FIRE_ALARM[] = "Пожарная Сигнализация";
 static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 {
 	int i;
@@ -890,7 +822,7 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	GtkWidget * box;
 	GtkWidget * block_fire_alarm;
 
-	frame = gtk_frame_new(STR_FIRE_ALARM);
+	frame = gtk_frame_new("Пожарная Сигнализация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -909,7 +841,6 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	return frame;
 }
 
-static char STR_STATE[] = "Информация";
 static GtkWidget * create_block_state(block_controller_s * block)
 {
 	GtkWidget * frame;
@@ -921,7 +852,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	GtkWidget * block_fire_sensor;
 	GtkWidget * block_fire_alarm;
 
-	frame = gtk_frame_new(STR_STATE);
+	frame = gtk_frame_new("Информация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	grid = gtk_grid_new();
@@ -962,7 +893,6 @@ static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
 static gdouble min_valve = 0;
 static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
-static char STR_NAME_VALVE[] = "Заслонка";
 static GtkWidget * create_block_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -973,7 +903,7 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	label = gtk_label_new(STR_NAME_VALVE);
+	label = gtk_label_new("Заслонка");
 
 	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
@@ -1174,10 +1104,6 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	g_debug("release left");
 }
 
-static char STR_NAME_LAFET_UP[] = "ВВЕРХ";
-static char STR_NAME_LAFET_DOWN[] = "ВНИЗ";
-static char STR_NAME_LAFET_RIGHT[] = "ВПРАВО";
-static char STR_NAME_LAFET_LEFT[] = "ВЛЕВО";
 static GtkWidget * create_block_lafet(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -1188,21 +1114,22 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 
 	grid = gtk_grid_new();
 
-	but_up = gtk_button_new_with_label(STR_NAME_LAFET_UP);
+	but_up = gtk_button_new_with_label("ВВЕРХ");
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
 	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
 
-	but_down = gtk_button_new_with_label(STR_NAME_LAFET_DOWN);
+	but_down = gtk_button_new_with_label("ВНИЗ");
 	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
 	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
 
-	but_right = gtk_button_new_with_label(STR_NAME_LAFET_RIGHT);
+	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
 	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
-	but_left = gtk_button_new_with_label(STR_NAME_LAFET_LEFT);
+
+	but_left = gtk_button_new_with_label("ВЛЕВО");
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
@@ -1221,11 +1148,9 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	return grid;
 }
 
-static char STR_NAME_ACTUATOR_SPRAY[] = "Распыл";
 static gdouble min_spray = 0;
 static gdouble max_spray = 100;
 static gdouble step_spray = 1;
-static char STR_NAME_ACTUATOR_RATE[] = "Литраж";
 static gdouble min_rate = 0;
 static gdouble max_rate = 100;
 static gdouble step_rate = 1;
@@ -1239,13 +1164,13 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 
 	grid = gtk_grid_new();
 
-	label_spray = gtk_label_new(STR_NAME_ACTUATOR_SPRAY);
+	label_spray = gtk_label_new("Распыл");
 	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
 	scale_spray = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_spray,max_spray,step_spray);
 	layout_widget(scale_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	label_rate = gtk_label_new(STR_NAME_ACTUATOR_RATE);
+	label_rate = gtk_label_new("Литраж");
 	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	scale_rate = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_rate,max_rate,step_rate);
 	layout_widget(scale_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1281,10 +1206,6 @@ static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
 	/*block_controller_s * bc = (block_controller_s*)ud;*/
 }
 
-static char STR_NAME_OSCILLATION_VERTICAL[] = "Вертикальная";
-static char STR_NAME_OSCILLATION_HORIZONTAL[] = "Горизонтальная";
-static char STR_NAME_OSCILLATION_SAW[] = "Пила";
-static char STR_NAME_OSCILLATION_STEP[] = "Ступенька";
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -1296,19 +1217,19 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	but_vertical = gtk_radio_button_new_with_label(NULL,STR_NAME_OSCILLATION_VERTICAL);
+	but_vertical = gtk_radio_button_new_with_label(NULL,"Вертикальная");
 	g_signal_connect(but_vertical,"clicked",G_CALLBACK(clicked_button_oscillation_vertical),bc);
 
 	but_horizontal = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                            ,STR_NAME_OSCILLATION_HORIZONTAL);
+	                                                            ,"Горизонтальная");
 	g_signal_connect(but_horizontal,"clicked",G_CALLBACK(clicked_button_oscillation_horizontal),bc);
 
 	but_saw = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                     ,STR_NAME_OSCILLATION_SAW);
+	                                                     ,"Пила");
 	g_signal_connect(but_saw,"clicked",G_CALLBACK(clicked_button_oscillation_saw),bc);
 
 	but_step = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                      ,STR_NAME_OSCILLATION_STEP);
+	                                                      ,"Ступенька");
 	g_signal_connect(but_step,"clicked",G_CALLBACK(clicked_button_oscillation_step),bc);
 
 	gtk_grid_attach(GTK_GRID(grid),but_vertical  ,0,0,1,1);

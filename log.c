@@ -304,9 +304,6 @@ int deinit_logging(void)
 }
 
 /*****************************************************************************/
-#define DEFAULT_SIZE_HEIGHT_VIEW_LOG      150
-static int size_height_view_log = DEFAULT_SIZE_HEIGHT_VIEW_LOG;
-static char STR_LOG_FRAME[] = "Журнал";
 
 GtkWidget * create_block_log(void)
 {
@@ -314,7 +311,7 @@ GtkWidget * create_block_log(void)
 	GtkWidget * log;
 	GtkTextBuffer * buf = logging.view_buf;
 
-	frame = gtk_frame_new(STR_LOG_FRAME);
+	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),3);
 
@@ -322,7 +319,7 @@ GtkWidget * create_block_log(void)
 	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
 	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
-	gtk_widget_set_size_request(log,-1,size_height_view_log);
+	gtk_widget_set_size_request(log,-1,150);
 
 	gtk_container_add(GTK_CONTAINER(frame),log);
 

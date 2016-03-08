@@ -72,17 +72,30 @@ struct _cell_s
 
 	link_s * link;
 
-	uint16_t b_register;
-	uint16_t a_register;
-	modbus_mapping_t * mb_mapping;
+	uint16_t begin_reg;
+	uint16_t amount_reg;
+	modbus_mapping_t * mapp_reg;
+
+	uint8_t * query;
+	uint8_t query_func;
+	uint16_t query_reg;
+	uint16_t query_amount_reg;
+	uint16_t query_amount;
+
+	GString * buf;
 };
 typedef struct _cell_s cell_s;
 struct _block_bridge_s
 {
 	int connect;
 	cell_s * cell[AMOUNT_CELL];
+
 	GThread * t_bridge;
 	GMutex m_bridge;
+	int exit;
+
+	GtkTextBuffer * text_buf;
+	GString * buf;
 };
 typedef struct _block_bridge_s block_bridge_s;
 
@@ -104,12 +117,12 @@ static GtkWidget * create_block_state_input(char * name,uint16_t len,char * str_
 	gtk_widget_set_size_request(label,len,-1);
 
 	entry_buff = gtk_entry_buffer_new(str_default,-1);
-	gtk_entry_buffer_set_max_length(GTK_ENTRY_BUFFER(entry_buff),size_buff);
+	gtk_entry_buffer_set_max_length(entry_buff,size_buff);
 	entry = gtk_entry_new_with_buffer(entry_buff);
 	gtk_entry_set_max_length(GTK_ENTRY(entry),size_buff);
 	gtk_entry_set_width_chars(GTK_ENTRY(entry),size_buff);
 	layout_widget(entry,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,TRUE);
-	*buff = GTK_ENTRY_BUFFER(entry_buff);
+	*buff = entry_buff;
 
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
@@ -341,9 +354,9 @@ static int fill_state(cell_s * cell)
 	if(rc == FAILURE){
 		goto exit_fill_srate_error;
 	}
-	cell->b_register = begin_register;
-	cell->a_register = amount_register;
-	cell->mb_mapping = NULL;
+	cell->begin_reg = begin_register;
+	cell->amount_reg = amount_register;
+	cell->mapp_reg = NULL;
 	link->connect = NULL;
 	link->id = id;
 	link->type = TYPE_LINK_UART;
@@ -366,8 +379,8 @@ static int connect_bridge(block_bridge_s * bb)
 	cell_s * cell_server = bb->cell[CELL_SERVER];
 	cell_s * cell_client = bb->cell[CELL_CLIENT];
 	link_s * link;
-	uint16_t begin_registers = cell_server->b_register;
-	uint16_t amount_registers = cell_server->a_register;
+	uint16_t begin_registers = cell_server->begin_reg;
+	uint16_t amount_registers = cell_server->amount_reg;
 
 	link = cell_server->link;
 	rc = link_connect_controller(link);
@@ -381,7 +394,11 @@ static int connect_bridge(block_bridge_s * bb)
 		link_disconnect_controller(link);
 		return FAILURE;
 	}
-	cell_server->mb_mapping = modbus_mapping_new(0,0,begin_registers + amount_registers,0);
+	cell_server->mapp_reg = modbus_mapping_new(0,0,begin_registers + amount_registers,0);
+	cell_server->query = g_malloc0(MODBUS_RTU_MAX_ADU_LENGTH);
+
+	cell_server->buf = g_string_new(NULL);
+	cell_client->buf = g_string_new(NULL);
 
 	return SUCCESS;
 }
@@ -395,8 +412,191 @@ static int disconnect_bridge(block_bridge_s * bb)
 	link = cell_client->link;
 	link_disconnect_controller(link);
 
+	modbus_mapping_free(cell_server->mapp_reg);
+	g_free(cell_server->query);
+
+	g_string_free(cell_server->buf,TRUE);
+	g_string_free(cell_client->buf,TRUE);
 	return SUCCESS;
 }
+/*****************************************************************************/
+/******* функции потока проброса                                       *******/
+/*****************************************************************************/
+static uint64_t position = 0;
+
+#define MODBUS_CLOSE       -1
+#define MODBUS_INCORRECT   -2
+#define MODBUS_CORRECT      0
+static int server_check_register(uint16_t s_reg,uint16_t s_amount_reg,uint16_t d_reg,uint16_t d_amount_reg)
+{
+	uint32_t s_check;
+	uint32_t d_check;
+
+	s_check = (uint32_t)s_reg + (uint32_t)s_amount_reg;
+	d_check = (uint32_t)d_reg + (uint32_t)d_amount_reg;
+
+	if(s_reg > d_reg){
+		return MODBUS_INCORRECT;
+	}
+	if(s_amount_reg < d_amount_reg){
+		return MODBUS_INCORRECT;
+	}
+	if(s_check < d_check){
+		return MODBUS_INCORRECT;
+	}
+	return MODBUS_CORRECT;
+}
+#define READ_HOLDING_REGISTERS     3
+#define WRITE_SINGLE_REGISTER      6
+static int server_receive(cell_s * server)
+{
+	int rc;
+	modbus_t * ctx_server = server->link->connect;
+	uint8_t modbus_function;
+	uint16_t modbus_register;
+	uint16_t modbus_amount;
+	uint8_t * query = server->query;
+	uint16_t header_length = modbus_get_header_length(ctx_server);
+	modbus_mapping_t * mb_mapping = server->mapp_reg;
+
+	rc = modbus_receive(ctx_server,query);
+	if(rc == -1){
+		g_warning("Клиент закрыл соединение");
+		return MODBUS_CLOSE;
+	}
+	server->query_amount = rc;
+
+	modbus_function = query[header_length];
+	if(modbus_function != READ_HOLDING_REGISTERS){
+		if(modbus_function != WRITE_SINGLE_REGISTER){
+			g_warning("Номер функции некорректный : %d",modbus_function);
+			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
+			if(rc == -1){
+				g_warning("Клиент закрыл соединение");
+  				return MODBUS_INCORRECT;
+			}
+		}
+	}
+	server->query_func = modbus_function;
+
+	modbus_register = query[header_length+1];
+	modbus_register <<= 8;
+	modbus_register += query[header_length+2];
+	modbus_amount = query[header_length+3];
+	modbus_amount <<= 8;
+	modbus_amount += query[header_length+4];
+
+	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
+	if(rc == MODBUS_INCORRECT){
+		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
+		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
+		if(rc == -1){
+			g_warning("Клиент закрыл соединение");
+  			return MODBUS_CLOSE;
+		}
+	}
+	server->query_reg = modbus_register;
+	server->query_amount_reg = modbus_amount;
+	position ++;
+	g_string_printf(server->buf,"[%05ld] server : | %d | %#x .%d\n",position,modbus_function,modbus_register,modbus_amount);
+
+	return MODBUS_CORRECT;
+}
+static int server_mapping(cell_s * server,uint16_t *dest)
+{
+	uint16_t i;
+	uint16_t reg = server->query_reg;
+	uint16_t amount = server->query_amount_reg;
+	modbus_mapping_t * mb = server->mapp_reg;
+
+	for(i = 0;i < amount;i++,reg ++){
+		mb->tab_registers[reg] = dest[i];
+	}
+	return MODBUS_CORRECT;
+}
+static int server_reply(cell_s * server)
+{
+	int rc;
+	modbus_t * ctx = server->link->connect;
+	uint8_t * query = server->query;
+	uint16_t amount = server->query_amount;
+	modbus_mapping_t * mb_mapping = server->mapp_reg;
+
+	rc = modbus_reply(ctx,query,amount,mb_mapping);
+	if(rc == -1){
+		g_warning("Клиент разорвал соединение");
+		return MODBUS_CLOSE;
+	}
+	return MODBUS_CORRECT;
+}
+
+static gpointer work_bridge(gpointer ud)
+{
+	int i;
+	int rc;
+	block_bridge_s * bb = (block_bridge_s*)ud;
+	cell_s * cell_server = bb->cell[CELL_SERVER];
+	cell_s * cell_client = bb->cell[CELL_CLIENT];
+	modbus_t * ctx_client = cell_client->link->connect;
+	uint16_t * dest = cell_client->link->dest;
+
+	for(;;){
+		g_mutex_lock(&(bb->m_bridge));
+		if(bb->exit == OK){
+			g_mutex_unlock(&(bb->m_bridge));
+			return NULL;
+		}
+		g_mutex_unlock(&(bb->m_bridge));
+
+		rc = server_receive(cell_server);
+		if(rc == MODBUS_CLOSE){
+			bb->connect = NOT_OK;
+			return NULL;
+		}
+		if(rc == MODBUS_INCORRECT){
+			goto reply_continue;
+		}
+
+		if( cell_server->query_func == READ_HOLDING_REGISTERS){
+			rc = modbus_read_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,dest);
+			if(rc == -1){
+				g_warning("Сервер разорвал соединение");
+				bb->connect = NOT_OK;
+				return NULL;
+			}
+			position ++;
+			g_string_printf(cell_client->buf,"[%05ld] client : 3 | ",position);
+			for(i =0;i< rc;i++){
+				g_string_append_printf(cell_client->buf,"%#x ",dest[i]);
+			}
+			g_string_append(cell_client->buf,"\n");
+			server_mapping(cell_server,dest);
+		}
+		if( cell_server->query_func == WRITE_SINGLE_REGISTER){
+			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_amount_reg);
+			if(rc == -1){
+				g_warning("Сервер разорвал соединение");
+				bb->connect = NOT_OK;
+				return NULL;
+			}
+			position ++;
+			g_string_printf(cell_client->buf,"[%05ld] client : 6 | 1\n",position);
+		}
+reply_continue:
+		rc = server_reply(cell_server);
+		if(rc == MODBUS_CLOSE){
+			bb->connect = NOT_OK;
+			return NULL;
+		}
+		g_mutex_lock(&(bb->m_bridge));
+		g_string_append(bb->buf,cell_server->buf->str);
+		g_string_append(bb->buf,cell_client->buf->str);
+		g_mutex_unlock(&(bb->m_bridge));
+
+	}
+	return NULL;
+}
+/*****************************************************************************/
 static char STR_CONTROL_CONNECT[] = "Подключить";
 static char STR_CONTROL_DISCONNECT[] = "Отключить";
 static void clicked_button_connect(GtkButton * b,gpointer ud)
@@ -407,7 +607,7 @@ static void clicked_button_connect(GtkButton * b,gpointer ud)
 	cell_s * cell_client = bb->cell[CELL_CLIENT];
 
 	if(bb->connect != OK){
-
+		disconnect_bridge(bb);
 		rc = fill_state(cell_server);
 		if(rc != SUCCESS){
 			dialog_info("Не корректные данные сервера");
@@ -424,6 +624,7 @@ static void clicked_button_connect(GtkButton * b,gpointer ud)
 			return ;
 		}
 		/*запуск потока проброса*/
+		bb->exit = NOT_OK;
 		g_mutex_init(&(bb->m_bridge));
 		bb->t_bridge = g_thread_new("bridge",work_bridge,bb);
 
@@ -431,9 +632,14 @@ static void clicked_button_connect(GtkButton * b,gpointer ud)
 		bb->connect = OK;
 	}
 	else{
+		g_mutex_lock(&(bb->m_bridge));
+		bb->exit = OK;
+		g_mutex_unlock(&(bb->m_bridge));
+		/*Завершение потока*/
+		g_thread_join(bb->t_bridge);
+		g_mutex_clear(&(bb->m_bridge));
 
 		bb->connect = NOT_OK;
-
 		disconnect_bridge(bb);
 		gtk_button_set_label(b,STR_CONTROL_CONNECT);
 	}
@@ -458,16 +664,58 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 
 /*****************************************************************************/
 
+static int flush_info_bridge(gpointer ud)
+{
+	block_bridge_s * bb = (block_bridge_s*)ud;
+	GtkTextBuffer * text_buf = bb->text_buf;
+	GString * buf;
+
+	if(bb->connect == OK){
+		g_mutex_lock(&(bb->m_bridge));
+		buf = bb->buf;
+		gtk_text_buffer_insert_at_cursor(text_buf,buf->str,-1);
+		g_string_erase(buf,0,-1);
+		g_mutex_unlock(&(bb->m_bridge));
+	}
+	return TRUE;
+}
+
+#define DEFAULT_TIMEOUT_FLUSH_INFO_BRIDGE       500
+static int timeout_flush_info_bridge = DEFAULT_TIMEOUT_FLUSH_INFO_BRIDGE;
+
+static void realize_block_info(GtkWidget * w,gpointer ud)
+{
+	g_timeout_add(timeout_flush_info_bridge,flush_info_bridge,ud);
+}
 static GtkWidget * create_block_info(block_bridge_s * bb)
 {
-	GtkWidget * grid;
-	grid = gtk_grid_new();
-	gtk_widget_show(grid);
-	return grid;
+	GtkWidget * frame;
+	GtkWidget * log;
+	GtkTextBuffer * text_buf;
+
+	frame = gtk_frame_new("Сообщения");
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0.5,1);
+
+	text_buf = gtk_text_buffer_new(NULL);
+	bb->text_buf = text_buf;
+	bb->buf = g_string_new("Начало\n");
+
+	log = gtk_text_view_new_with_buffer(text_buf);
+	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
+	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
+	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
+
+	gtk_container_add(GTK_CONTAINER(frame),log);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(log);
+
+	return frame;
 }
 /*****************************************************************************/
-static block_bridge_s block_bridge;
-static GtkWidget * create_block_bridge()
+static GtkWidget * create_block_bridge(block_bridge_s * bb)
 {
 	GtkWidget * frame;
 	GtkWidget * box;
@@ -475,10 +723,10 @@ static GtkWidget * create_block_bridge()
 	GtkWidget * info;
 	GtkWidget * control;
 
-	block_bridge.cell[CELL_SERVER] = g_malloc0(sizeof(cell_s));
-	block_bridge.cell[CELL_CLIENT] = g_malloc0(sizeof(cell_s));
-	block_bridge.cell[CELL_SERVER]->link = g_malloc0(sizeof(link_s));
-	block_bridge.cell[CELL_CLIENT]->link = g_malloc0(sizeof(link_s));
+	bb->cell[CELL_SERVER] = g_malloc0(sizeof(cell_s));
+	bb->cell[CELL_CLIENT] = g_malloc0(sizeof(cell_s));
+	bb->cell[CELL_SERVER]->link = g_malloc0(sizeof(link_s));
+	bb->cell[CELL_CLIENT]->link = g_malloc0(sizeof(link_s));
 
 	frame = gtk_frame_new("МОСТ");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -488,9 +736,9 @@ static GtkWidget * create_block_bridge()
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
-	state = create_block_state(&block_bridge);
-	control = create_block_control(&block_bridge);
-	info = create_block_info(&block_bridge);
+	state = create_block_state(bb);
+	control = create_block_control(bb);
+	info = create_block_info(bb);
 
 	gtk_container_add(GTK_CONTAINER(frame),box);
 	gtk_box_pack_start(GTK_BOX(box),state,FALSE,TRUE,0);
@@ -524,11 +772,12 @@ static void destroy_window_bridge(GtkWidget * w,gpointer ud)
 {
 }
 
+static block_bridge_s block_bridge;
 int create_windows_bridge(void)
 {
 	GtkWidget * win_bridge;
 	GtkWidget * box;
-	GtkWidget * block_bridge;
+	GtkWidget * block;
 	GtkWidget * exit;
 
 	win_bridge = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -543,14 +792,14 @@ int create_windows_bridge(void)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_bridge = create_block_bridge();
+	block = create_block_bridge(&block_bridge);
 
 	exit = gtk_button_new_with_label("ВЫХОД");
 	layout_widget(exit,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(exit,"clicked",G_CALLBACK(clicked_button_exit),win_bridge);
 
 	gtk_container_add(GTK_CONTAINER(win_bridge),box);
-	gtk_box_pack_start(GTK_BOX(box),block_bridge,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),exit,FALSE,TRUE,5);
 
 	gtk_widget_show(win_bridge);

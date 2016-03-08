@@ -70,12 +70,11 @@ typedef struct _all_group_s all_group_s;
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
-static char STR_SCHEMA_GROUP[] = "Схема группы";
 static void clicked_button_open_file(GtkButton * b,gpointer * ud)
 {
 	int rc;
 	GtkEntryBuffer * buf = (GtkEntryBuffer*)ud;
-	GtkWidget * dialog = gtk_file_chooser_dialog_new(STR_SCHEMA_GROUP
+	GtkWidget * dialog = gtk_file_chooser_dialog_new("Схема группы"
 	                     ,NULL,GTK_FILE_CHOOSER_ACTION_OPEN
 	                     ,"Открыть",GTK_RESPONSE_OK
 	                     ,"Закрыть",GTK_RESPONSE_CLOSE,NULL);
@@ -125,10 +124,6 @@ int del_property_group(group_s * property)
 	return SUCCESS;
 }
 
-static char STR_NAME_FILE[] = "имя файла";
-static char STR_ADD_GROUP[] = "открыть файл";
-/*static group_s group;*/
-
 GtkWidget * create_block_setting_group(void)
 {
 	GtkWidget * grid;
@@ -141,14 +136,14 @@ GtkWidget * create_block_setting_group(void)
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	label = gtk_label_new(STR_NAME_FILE);
+	label = gtk_label_new("имя файла");
 	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
 	entry = gtk_entry_new();
 	layout_widget(entry,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
 	block_setting_group.image = buf;
-	button = gtk_button_new_with_label(STR_ADD_GROUP);
+	button = gtk_button_new_with_label("открыть файл");
 	layout_widget(button,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(button,"clicked",G_CALLBACK(clicked_button_open_file),buf);
 
