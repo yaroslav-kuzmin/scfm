@@ -303,6 +303,7 @@ static int check_resource(GString * catalog)
 	rc = g_file_test(name_resource_image->str,G_FILE_TEST_IS_REGULAR);
 	if(rc == FALSE){
 		/*TODO создавать ресурс image*/
+
 		return FAILURE;
 	}
 	return SUCCESS;
