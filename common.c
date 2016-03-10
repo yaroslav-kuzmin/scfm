@@ -307,6 +307,7 @@ static int check_resource(GString * catalog)
 		g_warning("Нет файла : %s",name_resource_image->str);
 		return FAILURE;
 	}
+	g_warning("Файл ресурсов : %s",name_resource_image->str);
 	return SUCCESS;
 }
 
