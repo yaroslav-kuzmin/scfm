@@ -296,6 +296,7 @@ static GString * name_resource_image = NULL;
 static int check_resource(GString * catalog)
 {
 	int rc;
+
 	name_resource_image = g_string_new(catalog->str);
 	g_string_append(name_resource_image,STR_RESOURCE_DIR);
 	g_string_append(name_resource_image,STR_RESOURCE_IMAGE);
@@ -303,7 +304,7 @@ static int check_resource(GString * catalog)
 	rc = g_file_test(name_resource_image->str,G_FILE_TEST_IS_REGULAR);
 	if(rc == FALSE){
 		/*TODO создавать ресурс image*/
-
+		g_warning("Нет файла : %s",name_resource_image->str);
 		return FAILURE;
 	}
 	return SUCCESS;
@@ -413,11 +414,11 @@ static int check_system(void)
 			g_error("%s",pub->str);
 		}
 	}
-
+	
 	check_config(work_catalog);
 	check_logging(work_catalog);
 	check_resource(work_catalog);
-
+	
 	return SUCCESS;
 }
 
