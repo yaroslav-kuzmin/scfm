@@ -247,7 +247,7 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 	g_string_append_printf(query,"%d,%d,",link->type,link->id);
 	g_string_append_printf(query,"\'%s\',%d,",link->address,link->port);
 	g_string_append_printf(query,"\'%s\',%d,%d,%d,%d,",link->device,link->baud,link->parity,link->data_bit,link->stop_bit);
-	g_string_append_printf(query,"%d,%ld,",config->type,config->flag);
+	g_string_append_printf(query,"%d,%lld,",config->type,config->flag);
 	g_string_printf(pub,"%g",config->rate_tic_vertical);
 	check_dot(pub->str);
 	g_string_append_printf(query,"%s,",pub->str);
