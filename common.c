@@ -51,6 +51,7 @@
 #include "group.h"
 #include "videocamera.h"
 #include "controller.h"
+#include "object.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -371,6 +372,7 @@ int set_mode_work(int mode,GtkWidget * win_main)
 	mode_work = mode;
 	switch(mode_work){
 		case MODE_CONTROL_OFF:
+			select_object(NULL);
 		case MODE_CONTROL_ON:
 			control_controllers(mode_work);
 			break;

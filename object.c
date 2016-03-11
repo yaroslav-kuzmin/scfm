@@ -97,6 +97,7 @@ static int change_object(block_object_s * block_object,int type)
 			gtk_widget_hide(block_object->videocamera);
 			gtk_widget_show(block_object->controller);
 			break;
+		case TYPE_UNKNOWN:	
 		default:
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
@@ -155,15 +156,19 @@ int select_object(object_s * object)
 	int rc;
 	GtkWidget * child;
 	GtkWidget * label;
-	
+
 	if(object == NULL){
+		change_object(&block_object,TYPE_UNKNOWN);
 		return FAILURE;
 	}
+
 	rc = get_mode_work();
 	if(rc != MODE_CONTROL_ON){
 		g_info("Нет режима управления!");
+		change_object(&block_object,TYPE_UNKNOWN);
 		return SUCCESS;
 	}
+
 	rc = gtk_notebook_get_current_page(block_object.notebook);
 	if(rc == -1){
 		return FAILURE;
@@ -175,7 +180,7 @@ int select_object(object_s * object)
 	label = gtk_notebook_get_tab_label(block_object.notebook,child);
 	gtk_label_set_text(GTK_LABEL(label),object->name);
 
-	
+
 	select_block_controller(NULL);
 	switch(object->type){
 		case TYPE_GROUP:
