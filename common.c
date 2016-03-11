@@ -386,8 +386,8 @@ int set_mode_work(int mode,GtkWidget * win_main)
 
 #ifdef G_OS_WIN32
 static const char STR_HOME_PATH[] = "HOME";
-static char STR_HOME_PATH[] = "APPDATA";
-static char STR_HOME_PATH[] = "USERPROFILE";
+/*static char STR_HOME_PATH[] = "APPDATA";*/
+/*static char STR_HOME_PATH[] = "USERPROFILE";*/
 #endif
 #ifdef G_OS_UNIX
 static const char STR_HOME_PATH[] = "HOME";
