@@ -308,22 +308,28 @@ int deinit_logging(void)
 GtkWidget * create_block_log(void)
 {
 	GtkWidget * frame;
+	GtkWidget * scrwin;
 	GtkWidget * log;
 	GtkTextBuffer * buf = logging.view_buf;
 
 	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),3);
+	gtk_widget_set_size_request(frame,-1,200);
+
+	scrwin = gtk_scrolled_window_new(NULL,NULL);
+	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	log = gtk_text_view_new_with_buffer(buf);
 	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
 	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
-	gtk_widget_set_size_request(log,-1,150);
 
-	gtk_container_add(GTK_CONTAINER(frame),log);
+	gtk_container_add(GTK_CONTAINER(frame),scrwin);
+	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
 	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
 	gtk_widget_show(log);
 	return frame;
 }
