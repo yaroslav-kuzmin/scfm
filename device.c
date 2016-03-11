@@ -180,7 +180,7 @@ static int connect_tcp(link_s * link)
 
 	rc = modbus_connect(ctx);
 	if(rc == -1){
-		g_warning("Несмог подключится к : %d",id);
+		g_info("Несмог подключится к : %d",id);
 		modbus_free(ctx);
 		return FAILURE;
 	}
@@ -211,7 +211,7 @@ static int connect_uart(link_s * link)
 
 	rc = modbus_connect(ctx);
 	if(rc == -1){
-		g_warning("Несмог подключится к : %d",id);
+		g_info("Несмог подключится к : %d",id);
 		modbus_free(ctx);
 		return FAILURE;
 	}

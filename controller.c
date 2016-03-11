@@ -391,18 +391,18 @@ static int connect_controller(controller_s * controller)
 	state_controller_s * state = controller->state;
 
 	if(link->connect != NULL){
-		g_warning("Контролер подключен!");
+		g_info("Контролер уже подключен : %s",controller->name);
 		return SUCCESS;
 	}
 	rc = check_link_controller(link,&check,state);
 	if(rc == FAILURE){
-		g_warning("Нет подключения к контроллеру!");
+		g_info("Нет подключения к контроллеру : %s",controller->name);
 		return rc;
 	}
 	rc = check_config_controller(&check,config);
 	if(rc == FAILURE){
 		/*TODO перезапись базы данных*/
-		g_warning("Данные из контроллера не совпадают с данными из базы данных!");
+		g_info("Данные из контроллера %s не совпадают с данными из базы данных!",controller->name);
 		link_disconnect_controller(link);
 		return rc;
 	}
@@ -413,7 +413,7 @@ static int disconnect_controller(controller_s * controller)
 {
 	link_s * link = controller->link;
 	if(link->connect == NULL){
-		g_warning("Контролер не подключен!");
+		g_info("Контролер не подключен : %s",controller->name);
 		return FAILURE;
 	}
 	return link_disconnect_controller(link);
@@ -509,7 +509,7 @@ static int control_controllers_on(communication_controller_s * cc)
 	}
 
 	if(cc->tid != NULL){
-		g_warning("Поток коммуникации уже запущен!");
+		g_info("Поток коммуникации уже запущен!");
 		return FAILURE;
 	}
 
@@ -518,9 +518,6 @@ static int control_controllers_on(communication_controller_s * cc)
 		rc = connect_controller(controller);
 		if(rc == SUCCESS){
 			g_info("Подключился к %s",controller->name);
-		}
-		else{
-			g_info("Несмог подключится к %s",controller->name);
 		}
 		list = g_slist_next(list);
 	}
@@ -933,7 +930,7 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	uint64_t command = COMMAND_UP;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -956,7 +953,7 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	uint64_t command = COMMAND_STOP;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -979,7 +976,7 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	uint64_t command = COMMAND_DOWN;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1001,7 +998,7 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	uint64_t command = COMMAND_STOP;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1024,7 +1021,7 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	uint64_t command = COMMAND_RIGHT;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1046,7 +1043,7 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	uint64_t command = COMMAND_STOP;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1069,7 +1066,7 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	uint64_t command = COMMAND_LEFT;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1091,7 +1088,7 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	uint64_t command = COMMAND_STOP;
 
 	if( c == NULL){
-		g_warning("Не выбран контролер");
+		g_info("Не выбран контролер");
 		return;
 	}
 	control = c->control;
@@ -1297,7 +1294,7 @@ int select_block_controller(controller_s * controller)
 	}
 
 	if(tid == NULL){
-		g_warning("Нет подключения!");
+		g_info("Нет подключения!");
 		cc->current = NULL;
 		return FAILURE;
 	}
@@ -1382,7 +1379,8 @@ controller_s * init_controller(uint32_t number)
 
 	communication_controller.list = g_slist_append(communication_controller.list,controller);
 
-	g_debug(" %s ",controller->name);
+	g_info(" %s ",controller->name);
+#if 0
 	g_debug("type               :> %d",controller->config->type);
 	g_debug("flag               :> %#lx",controller->config->flag);
 	g_debug("tic vertical       :> %g",controller->config->rate_tic_vertical);
@@ -1393,7 +1391,7 @@ controller_s * init_controller(uint32_t number)
 	g_debug("amprage horizontal :> %g",controller->config->rate_amperage_horizontal);
 	g_debug("pressure           :> %g",controller->config->rate_pressure);
 	g_debug("valve              :> %g",controller->config->rate_valve_analog);
-
+#endif
 	return controller;
 }
 /*Высвобождение памяти   */

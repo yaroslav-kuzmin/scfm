@@ -316,7 +316,7 @@ static int init_resource(void)
 	GError * err = NULL;
 	resource_image = g_resource_load(name_resource_image->str,&err);
 	if(resource_image == NULL){
-		g_warning("Нет ресурсов : %s : %s",name_resource_image->str,err->message);
+		g_warning("Нет ресурсов : %s",err->message);
 		g_error_free(err);
 		return FAILURE;
 	}
@@ -386,8 +386,8 @@ int set_mode_work(int mode,GtkWidget * win_main)
 
 #ifdef G_OS_WIN32
 static const char STR_HOME_PATH[] = "HOME";
-/*static char STR_HOME_PATH[] = "APPDATA";*/
-/*static char STR_HOME_PATH[] = "USERPROFILE";*/
+static char STR_HOME_PATH[] = "APPDATA";
+static char STR_HOME_PATH[] = "USERPROFILE";
 #endif
 #ifdef G_OS_UNIX
 static const char STR_HOME_PATH[] = "HOME";
@@ -451,6 +451,11 @@ int init_system(void)
 	if(default_icon != NULL){
 		gtk_window_set_default_icon(default_icon);
 	}
+
+	g_info(" HOME DIR :> %s",g_get_home_dir());
+	g_info(" HOME DIR :> %s",g_getenv("HOME"));
+	g_info(" HOME DIR :> %s",g_getenv("APPDATA"));
+	g_info(" HOME DIR :> %s",g_getenv("USERPROFILE"));
 
 	return SUCCESS;
 }
