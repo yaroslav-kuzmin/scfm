@@ -385,12 +385,12 @@ int set_mode_work(int mode,GtkWidget * win_main)
 }
 
 #ifdef G_OS_WIN32
-static const char STR_HOME_PATH[] = "HOME";
+/*static const char STR_HOME_PATH[] = "HOME";*/
 /*static char STR_HOME_PATH[] = "APPDATA";*/
 /*static char STR_HOME_PATH[] = "USERPROFILE";*/
 #endif
 #ifdef G_OS_UNIX
-static const char STR_HOME_PATH[] = "HOME";
+/*static const char STR_HOME_PATH[] = "HOME";*/
 #endif
 
 static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S;
@@ -399,7 +399,7 @@ static GString * work_catalog = NULL;
 static int check_system(void)
 {
  	int rc;
-	const char * str = g_getenv(STR_HOME_PATH);/*g_get_home_dir();*/
+	const char * str = g_get_home_dir();
 
 	work_catalog = g_string_new(str);
 	g_string_append(work_catalog,STR_WORK_CATALOG);
@@ -451,12 +451,12 @@ int init_system(void)
 	if(default_icon != NULL){
 		gtk_window_set_default_icon(default_icon);
 	}
-
+#if 0
 	g_info(" HOME DIR :> %s",g_get_home_dir());
 	g_info(" HOME DIR :> %s",g_getenv("HOME"));
 	g_info(" HOME DIR :> %s",g_getenv("APPDATA"));
 	g_info(" HOME DIR :> %s",g_getenv("USERPROFILE"));
-
+#endif
 	return SUCCESS;
 }
 
