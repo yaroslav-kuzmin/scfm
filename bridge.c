@@ -690,12 +690,17 @@ static void realize_block_info(GtkWidget * w,gpointer ud)
 static GtkWidget * create_block_info(block_bridge_s * bb)
 {
 	GtkWidget * frame;
+	GtkWidget * scrwin;
 	GtkWidget * log;
 	GtkTextBuffer * text_buf;
 
 	frame = gtk_frame_new("Сообщения");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_frame_set_label_align(GTK_FRAME(frame),0.5,1);
+	gtk_widget_set_size_request(frame,-1,200);
+
+	scrwin = gtk_scrolled_window_new(NULL,NULL);
+	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	text_buf = gtk_text_buffer_new(NULL);
 	bb->text_buf = text_buf;
@@ -707,9 +712,11 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
 	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
 
-	gtk_container_add(GTK_CONTAINER(frame),log);
+	gtk_container_add(GTK_CONTAINER(frame),scrwin);
+	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
 	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
 	gtk_widget_show(log);
 
 	return frame;
