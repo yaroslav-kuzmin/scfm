@@ -81,17 +81,16 @@ static int change_object(block_object_s * block_object,int type)
 		case TYPE_GROUP:
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->videocamera);
-			gtk_widget_show(block_object->group);
 			gtk_widget_hide(block_object->controller);
+			gtk_widget_show(block_object->group);
 			break;
 		case TYPE_VIDEOCAMERA:
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->group);
-			gtk_widget_show(block_object->videocamera);
 			gtk_widget_hide(block_object->controller);
+			gtk_widget_show(block_object->videocamera);
 			break;
 		case TYPE_CONTROLLERE:
-			/*TODO если нет подключения то неотобпажать*/
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
@@ -101,8 +100,8 @@ static int change_object(block_object_s * block_object,int type)
 		default:
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
-			gtk_widget_show(block_object->empty);
 			gtk_widget_hide(block_object->controller);
+			gtk_widget_show(block_object->empty);
 			break;
 	}
 	return SUCCESS;
