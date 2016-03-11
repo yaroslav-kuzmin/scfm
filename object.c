@@ -97,7 +97,7 @@ static int change_object(block_object_s * block_object,int type)
 			gtk_widget_hide(block_object->videocamera);
 			gtk_widget_show(block_object->controller);
 			break;
-		case TYPE_UNKNOWN:	
+		case TYPE_UNKNOWN:
 		default:
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
