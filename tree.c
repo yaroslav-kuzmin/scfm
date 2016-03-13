@@ -64,9 +64,7 @@ enum
 struct _block_tree_s
 {
 	GtkTreeView * view;
-	GdkPixbuf * image_norm;
-	GdkPixbuf * image_error;
-	GdkPixbuf * image_wait;
+	GdkPixbuf * image[AMOUNT_STATUS];
 };
 typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
@@ -133,7 +131,7 @@ static int fill_treeview(block_tree_s * bt)
 	GtkTreeModel * tree_model;
 	GtkTreeIter tree_iter;
 	GSList * list;
-	GdkPixbuf * image = bt->image_wait;
+	GdkPixbuf * image = bt->image[STATUS_WAIT];
 
 	select =	gtk_tree_view_get_selection (treeview);
 	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
@@ -198,26 +196,62 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 #endif
 }
 
-static char STR_IMAGE_NORM[] = "tree_green";
-static char STR_IMAGE_ERROR[] = "tree_red";
-static char STR_IMAGE_WAIT[] = "tree_yellow";
 
 static int init_image(block_tree_s * bt)
 {
 	GdkPixbuf * buf;
-	buf = get_resource_image(RESOURCE_BASE,STR_IMAGE_NORM);
-	bt->image_norm = buf;
-	buf = get_resource_image(RESOURCE_BASE,STR_IMAGE_ERROR);
-	bt->image_error = buf;
-	buf = get_resource_image(RESOURCE_BASE,STR_IMAGE_WAIT);
-	bt->image_wait = buf;
+	buf = get_resource_image(RESOURCE_BASE,"tree_green");
+	bt->image[STATUS_NORM] = buf;
+	buf = get_resource_image(RESOURCE_BASE,"tree_red");
+	bt->image[STATUS_ERROR] = buf;
+	buf = get_resource_image(RESOURCE_BASE,"tree_yellow");
+	bt->image[STATUS_WAIT] = buf;
 
 	return SUCCESS;
+}
+
+static int find_object_tree(GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter,object_s * object)
+{
+	int rc;
+	object_s * check;
+
+	rc = gtk_tree_model_iter_children(model,c_iter,p_iter);
+	for(;rc;){
+		GtkTreeIter cc_iter;
+		gtk_tree_model_get(model,c_iter,COLUMN_POINT_TREE,&check,-1);
+		if(check == object){
+			rc = TRUE;
+			break;
+		}
+		rc = find_object_tree(model,&cc_iter,c_iter,object);
+		if(rc){
+			break;
+		}
+		rc = gtk_tree_model_iter_next(model,c_iter);
+	}
+
+	return rc;
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
 block_tree_s block_tree;
+
+int status_tree(object_s * object,int status)
+{
+	int rc;
+	GtkTreeView * tree_view = block_tree.view;
+	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
+	GtkTreeIter iter;
+
+	rc = find_object_tree(tree_model,&iter,NULL,object);
+	if( rc ){
+		GdkPixbuf * image = block_tree.image[status];
+		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&iter,COLUMN_IMAGE_TREE,image,-1);
+	}
+
+	return SUCCESS;
+}
 
 int reread_tree(void)
 {

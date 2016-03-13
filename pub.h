@@ -80,6 +80,13 @@ enum
 	MODE_CONFIG
 };
 
+enum
+{
+	STATUS_NORM = 0,
+	STATUS_ERROR,
+	STATUS_WAIT,
+	AMOUNT_STATUS
+};
 /**************************************/
 
 #define FIRST_NUMBER_GROUP     0
