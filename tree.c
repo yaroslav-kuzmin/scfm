@@ -141,9 +141,9 @@ static int fill_treeview(block_tree_s * bt)
 		object_s * o = (object_s*)list->data;
 		gtk_tree_store_append(GTK_TREE_STORE(tree_model),&tree_iter,NULL);
 		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&tree_iter
-		,COLUMN_NAME_TREE,o->name
-		,COLUMN_POINT_TREE,o
-		,COLUMN_IMAGE_TREE,image,-1);
+		                  ,COLUMN_NAME_TREE,o->name
+		                  ,COLUMN_POINT_TREE,o
+		                  ,COLUMN_IMAGE_TREE,image,-1);
 		if(o->type == TYPE_GROUP){
 			fill_treeview_group(GTK_TREE_STORE(tree_model),&tree_iter,o,image);
 		}
