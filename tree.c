@@ -244,9 +244,32 @@ int status_tree(object_s * object,int status)
 	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
 	GtkTreeIter iter;
 
+	if(object == NULL){
+		return SUCCESS;
+	}
+
 	rc = find_object_tree(tree_model,&iter,NULL,object);
 	if( rc ){
-		GdkPixbuf * image = block_tree.image[status];
+		GdkPixbuf * image;
+
+		switch(object->status){
+			case STATUS_WAIT:
+			case STATUS_ERROR:
+				image = block_tree.image[status];
+				break;
+			case STATUS_NORM:
+				if(object->type != TYPE_GROUP){
+					image = block_tree.image[status];
+				}
+				else{
+					check_status_group()
+				}
+				break;
+			default:
+				image = block_tree.image[STATUS_WAIT];
+				break;
+		}
+
 		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&iter,COLUMN_IMAGE_TREE,image,-1);
 	}
 

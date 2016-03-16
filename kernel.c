@@ -88,6 +88,7 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object
 		object->property = NULL;
 		object->list = NULL;
 		object->parent = parent;
+		object->status = STATUS_WAIT;
 
 		switch(type){
 			case TYPE_GROUP:
