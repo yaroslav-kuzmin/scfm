@@ -698,9 +698,14 @@ static gboolean key_press_event_window_config(GtkWidget * w,GdkEvent  *event,gpo
 static void destroy_window_config(GtkWidget * w,gpointer ud)
 {
 	config_window_s * win = (config_window_s*)ud;
+	/*TODO при выходе из конфигуратора перечитать базу данных*/
+#if 0
 	if(win->main_exit == OK){
 		gtk_widget_destroy(win->main);
 	}
+#else
+	gtk_widget_destroy(win->main);
+#endif
 }
 /*****************************************************************************/
 /*    Общие функции                                                          */

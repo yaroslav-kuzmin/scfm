@@ -45,7 +45,7 @@
 #define CONTROLLER_H
 
 void * new_property_controller(void);
-controller_s * init_controller(uint32_t number);
+controller_s * init_controller(object_s * object);
 
 int del_property_controller(controller_s * controller);
 

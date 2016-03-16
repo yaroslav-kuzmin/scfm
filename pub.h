@@ -119,16 +119,19 @@ enum
 	COLUMN_TABLE_OBJECT_TYPE,
 	COLUMN_TABLE_OBJECT_AMOUNT
 };
+
+typedef struct _object_s object_s;
 struct _object_s
 {
 	uint32_t number;
 	char * name;
 	uint8_t type;
+	int status;
+	object_s * parent;
 
 	void * property;
 	GSList * list;
 };
-typedef struct _object_s object_s;
 /*****************************************************************************/
 
 enum
@@ -139,6 +142,8 @@ enum
 };
 struct _group_s
 {
+	object_s * object;
+
 	char * image;
 };
 typedef struct _group_s group_s;
@@ -155,6 +160,8 @@ enum
 };
 struct _videocamera_s
 {
+	object_s * object;
+
 	char * protocol;
 	char * address;
 	uint32_t port;
@@ -516,6 +523,8 @@ struct _controller_s
 {
 	link_s * link;
 	char * name;
+	object_s * object;
+
 	config_controller_s * config;
 	state_controller_s * state;
 	control_controller_s * control;

@@ -1354,9 +1354,10 @@ GtkWidget * create_block_controller(void)
 /*****************************************************************************/
 
 /*Выделение памяти и считывание из базы данных*/
-controller_s * init_controller(uint32_t number)
+controller_s * init_controller(object_s * object)
 {
 	int rc;
+	uint32_t number = object->number;
 	controller_s * controller = NULL;
 
 	controller = g_slice_alloc0(sizeof(controller_s));
@@ -1378,7 +1379,7 @@ controller_s * init_controller(uint32_t number)
 	controller->name = get_name_controller(controller->config);
 
 	communication_controller.list = g_slist_append(communication_controller.list,controller);
-
+	controller->object = object;
 	g_info(" %s ",controller->name);
 #if 0
 	g_debug("type               :> %d",controller->config->type);

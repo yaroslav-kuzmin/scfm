@@ -49,7 +49,7 @@ int del_property_videocamera(videocamera_s * property);
 
 int init_all_videocameras(void);
 int deinit_all_videcameras(void);
-videocamera_s * init_videocamera(uint32_t number);
+videocamera_s * init_videocamera(object_s * object);
 
 int select_block_videcamera(videocamera_s * videocamera);
 

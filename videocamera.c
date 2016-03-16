@@ -250,9 +250,10 @@ int deinit_all_videcameras(void)
 }
 
 /*TODO считывание данных из базыданных*/
-videocamera_s * init_videocamera(uint32_t number)
+videocamera_s * init_videocamera(object_s * object)
 {
 	int rc;
+	uint32_t number = object->number;
 	videocamera_s * videocamera;
 
 	videocamera = g_slice_alloc0(sizeof(videocamera_s));
@@ -263,6 +264,7 @@ videocamera_s * init_videocamera(uint32_t number)
 		videocamera = NULL;
 	}
 	all_videocamera.list = g_slist_append(all_videocamera.list,videocamera);
+	videocamera->object = object;
 	return videocamera;
 }
 

@@ -506,8 +506,6 @@ int read_database_controller(uint32_t number,controller_s * controller)
 	int amount_column = 0;
 	const char * address;
 	const char * device;
-	double temp;
-	const char * str;
 
 	g_string_printf(query,"SELECT * FROM ");
 	g_string_append_printf(query,"%s WHERE number=%d",STR_NAME_TABLE_CONTROLLER,number);
@@ -560,16 +558,7 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		controller->config->rate_tic_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_TIC_HORIZONTAL);
 		controller->config->rate_encoder_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_ENCODER_HORIZONTAL);
 		controller->config->rate_amperage_horizontal = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_AMPERAGE_HORIZONTAL);
-
-		/*controller->config->rate_pressure = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);*/
-		temp = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
-		g_debug("temp :> %f : %g",temp,temp);
-		str = (const char *)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
-		g_debug("str :> %s",str);
-		temp = g_strtod(str,NULL);
-		g_debug("temp :> %f : %g",temp,temp);
 		controller->config->rate_pressure = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_PRESSURE);
-
 		controller->config->rate_valve_analog = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_VALVE_ANALOG);
 	}
 	sqlite3_finalize(stmt);

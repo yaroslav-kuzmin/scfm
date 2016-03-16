@@ -174,9 +174,10 @@ int deinit_all_groups(void)
 }
 
 /*TODO считывание данных из базыданных*/
-group_s * init_group(uint32_t number)
+group_s * init_group(object_s * object)
 {
 	int rc;
+	uint32_t number = object->number;
 	group_s * group = NULL;
 
 	group = g_slice_alloc0(sizeof(group_s));
@@ -187,6 +188,7 @@ group_s * init_group(uint32_t number)
 		group = NULL;
 	}
 	all_group.list = g_slist_append(all_group.list,group);
+	group->object = object;
 	return group;
 }
 

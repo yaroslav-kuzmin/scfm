@@ -58,7 +58,7 @@
 /*    Локальные функции                                                      */
 /*****************************************************************************/
 
-static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
+static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object_s * parent)
 {
 	int rc;
 	GSList * list = NULL;
@@ -87,17 +87,18 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount)
 		object->name = g_strdup(name);
 		object->property = NULL;
 		object->list = NULL;
+		object->parent = parent;
 
 		switch(type){
 			case TYPE_GROUP:
-				object->list = fill_gslict(number,&amount);
-				object->property = init_group(object->number);
+				object->list = fill_gslict(number,&amount,object);
+				object->property = init_group(object);
 				break;
 			case TYPE_VIDEOCAMERA:
-				object->property = init_videocamera(object->number);
+				object->property = init_videocamera(object);
 				break;
 			case TYPE_CONTROLLERE:
-				object->property = init_controller(object->number);
+				object->property = init_controller(object);
 				break;
 			default:
 				g_slice_free1(sizeof(object_s),object);
@@ -238,7 +239,7 @@ int init_kernel(void)
 	uint32_t number = FIRST_NUMBER_GROUP;
 
 	kernel.type = TYPE_KERNEL;
-	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number);
+	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number,NULL);
 	kernel.number = number;
 	kernel.name = STR_NAME_PROGRAMM;
 	kernel.property = NULL;

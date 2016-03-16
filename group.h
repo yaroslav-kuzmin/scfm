@@ -49,7 +49,7 @@ int del_property_group(group_s * group);
 
 int init_all_groups(void);
 int deinit_all_groups(void);
-group_s * init_group(uint32_t number);
+group_s * init_group(object_s * object);
 
 int select_block_group(group_s * group);
 
