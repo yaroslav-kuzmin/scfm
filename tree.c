@@ -65,6 +65,7 @@ struct _block_tree_s
 {
 	GtkTreeView * view;
 	GdkPixbuf * image[AMOUNT_STATUS];
+	uint32_t timeout_show;
 };
 typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
@@ -102,7 +103,7 @@ static int tree_add_column(block_tree_s * bt)
 
 	return SUCCESS;
 }
-
+/*TODO обеденить функции fill_treeview и fill_treeview_group */
 static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object,GdkPixbuf * image)
 {
 	GSList * list = NULL;
@@ -210,20 +211,27 @@ static int init_image(block_tree_s * bt)
 	return SUCCESS;
 }
 
-static int find_object_tree(GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter,object_s * object)
+/*****************************************************************************/
+/*    Общие функции                                                          */
+/*****************************************************************************/
+static int set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
+{
+	GdkPixbuf * image = bt->image[status];
+	gtk_tree_store_set(GTK_TREE_STORE(tree_model),iter,COLUMN_IMAGE_TREE,image,-1);
+	return SUCCESS;
+}
+static int set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter)
 {
 	int rc;
-	object_s * check;
+	object_s * object;
 
 	rc = gtk_tree_model_iter_children(model,c_iter,p_iter);
 	for(;rc;){
 		GtkTreeIter cc_iter;
-		gtk_tree_model_get(model,c_iter,COLUMN_POINT_TREE,&check,-1);
-		if(check == object){
-			rc = TRUE;
-			break;
-		}
-		rc = find_object_tree(model,&cc_iter,c_iter,object);
+		gtk_tree_model_get(model,c_iter,COLUMN_POINT_TREE,&object,-1);
+		set_status_object(bt,model,c_iter,object->status);
+
+		rc = set_status_all_objects(bt,model,&cc_iter,c_iter);
 		if(rc){
 			break;
 		}
@@ -232,49 +240,67 @@ static int find_object_tree(GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIte
 
 	return rc;
 }
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-block_tree_s block_tree;
-
-int status_tree(object_s * object,int status)
+/*TODO перенести в kernel*/
+static int set_status_list(GSList * list)
 {
 	int rc;
-	GtkTreeView * tree_view = block_tree.view;
-	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
-	GtkTreeIter iter;
+	int status = STATUS_NORM;
 
-	if(object == NULL){
-		return SUCCESS;
-	}
-
-	rc = find_object_tree(tree_model,&iter,NULL,object);
-	if( rc ){
-		GdkPixbuf * image;
-
-		switch(object->status){
-			case STATUS_WAIT:
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		if(o->type == TYPE_GROUP){
+			rc = set_status_list(o->list);
+			o->status = rc;
+		}
+		else{
+			rc = o->status;
+		}
+		switch(rc){
 			case STATUS_ERROR:
-				image = block_tree.image[status];
+				status = rc;
 				break;
+			case STATUS_WAIT:
 			case STATUS_NORM:
-				if(object->type != TYPE_GROUP){
-					image = block_tree.image[status];
-				}
-				else{
-					check_status_group()
-				}
-				break;
 			default:
-				image = block_tree.image[STATUS_WAIT];
 				break;
 		}
-
-		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&iter,COLUMN_IMAGE_TREE,image,-1);
+		list = g_slist_next(list);
 	}
-
-	return SUCCESS;
+	return status;
 }
+
+
+static int show_block_tree(gpointer ud)
+{
+	block_tree_s * bt = (block_tree_s*)ud;
+	int rc;
+	GtkTreeView * tree_view = bt->view;
+	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
+	GtkTreeIter iter;
+/*
+	rc = get_mode_work();
+	if(rc != MODE_CONTROL_ON){
+		return TRUE;
+	}
+*/
+	set_status_list(list_kernel());
+
+	set_status_all_objects(bt,tree_model,&iter,NULL);
+
+	return TRUE;
+}
+
+#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
+
+static void realize_frame_tree_object(GtkWidget * w,gpointer ud)
+{
+	block_tree_s * bt = (block_tree_s*)ud;
+	bt->timeout_show = DEFAULT_TIMEOUT_SHOW;
+	/*запускаем функцию отображения */
+	g_timeout_add(bt->timeout_show,show_block_tree,bt);
+}
+
+block_tree_s block_tree;
 
 int reread_tree(void)
 {
@@ -301,6 +327,7 @@ GtkWidget * create_block_tree_object(void)
 	frame = gtk_frame_new("Объекты");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
 	gtk_widget_set_size_request(frame,200,-1);
+	g_signal_connect(frame,"realize",G_CALLBACK(realize_frame_tree_object),&block_tree);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);

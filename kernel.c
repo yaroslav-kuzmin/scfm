@@ -240,10 +240,12 @@ int init_kernel(void)
 	uint32_t number = FIRST_NUMBER_GROUP;
 
 	kernel.type = TYPE_KERNEL;
-	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number,NULL);
+	kernel.list = fill_gslict(FIRST_NUMBER_GROUP,&number,&kernel);
 	kernel.number = number;
 	kernel.name = STR_NAME_PROGRAMM;
 	kernel.property = NULL;
+	kernel.parent = NULL;
+	kernel.status = STATUS_WAIT;
 
 	return SUCCESS;
 }

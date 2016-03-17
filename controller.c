@@ -444,7 +444,7 @@ static gpointer controllers_communication(gpointer ud)
 			if(rc == FAILURE){
 				/*TODO сделать реконнект*/
 				/*g_debug("reconnect");*/
-				/*controller->object->status = STATUS_ERROR;*/
+				controller->object->status = STATUS_ERROR;
 			}
 			g_debug("read controller");
 			control = controller->control;
@@ -458,6 +458,7 @@ static gpointer controllers_communication(gpointer ud)
 				if(rc == FAILURE){
 					/*TODO сделать реконнект*/
 					/*g_debug("reconnect");*/
+					controller->object->status = STATUS_ERROR;
 				}
 			}
 		}
@@ -520,9 +521,8 @@ static int control_controllers_on(communication_controller_s * cc)
 		rc = connect_controller(controller);
 		if(rc == SUCCESS){
 			g_info("Подключился к %s",controller->name);
-			/*TODO установить статтус */
+			/*TODO установить статус */
 			controller->object->status = STATUS_NORM;
-
 		}
 		list = g_slist_next(list);
 	}

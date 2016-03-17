@@ -44,8 +44,6 @@
 #ifndef TREE_H
 #define TREE_H
 
-int status_tree(object_s * object,int status);
-
 int reread_tree(void);
 
 GtkWidget * create_block_tree_object(void);
