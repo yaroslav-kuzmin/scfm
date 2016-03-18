@@ -665,19 +665,20 @@ static int flush_info_bridge(gpointer ud)
 	block_bridge_s * bb = (block_bridge_s*)ud;
 	GtkTextBuffer * text_buf = bb->text_buf;
 	GString * buf;
-	/*GtkTextIter iter;*/
+	GtkTextIter iter;
 
 	if(bb->connect == OK){
 		/*gtk_text_buffer_get_iter_at_line(text_buf,&iter,0);*/
+		gtk_text_buffer_get_end_iter(text_buf,&iter);
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
-		gtk_text_buffer_set_text(text_buf,buf->str,-1);
+		/*gtk_text_buffer_set_text(text_buf,buf->str,-1);*/
 #if 1
-		/*gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);*/
+		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
 #else
 		gtk_text_buffer_insert_at_cursor(text_buf,buf->str,-1);
 #endif
-		/*g_string_erase(buf,0,-1);*/
+		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
 	}
 	return TRUE;
