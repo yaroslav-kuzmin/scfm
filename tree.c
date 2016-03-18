@@ -273,7 +273,7 @@ static int set_status_list(GSList * list)
 static int show_block_tree(gpointer ud)
 {
 	block_tree_s * bt = (block_tree_s*)ud;
-	int rc;
+	/*int rc;*/
 	GtkTreeView * tree_view = bt->view;
 	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
 	GtkTreeIter iter;

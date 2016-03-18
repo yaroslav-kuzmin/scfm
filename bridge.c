@@ -306,10 +306,11 @@ static int fill_state(cell_s * cell)
 	uint16_t begin_register;
 	uint16_t amount_register;
 
-	str = cell->link->device;
-	if(str != NULL){
-		g_free(str);
-	}
+	/*str = cell->link->device;*/
+	/*if(str != NULL){*/
+		/*g_free(str);*/
+	/*}*/
+
 	str = (char *)gtk_entry_buffer_get_text(cell->device);
 	device = check_uart_device(str);
 	if(device == NULL){
@@ -397,9 +398,6 @@ static int connect_bridge(block_bridge_s * bb)
 	cell_server->mapp_reg = modbus_mapping_new(0,0,begin_registers + amount_registers,0);
 	cell_server->query = g_malloc0(MODBUS_RTU_MAX_ADU_LENGTH);
 
-	cell_server->buf = g_string_new(NULL);
-	cell_client->buf = g_string_new(NULL);
-
 	return SUCCESS;
 }
 static int disconnect_bridge(block_bridge_s * bb)
@@ -415,8 +413,6 @@ static int disconnect_bridge(block_bridge_s * bb)
 	modbus_mapping_free(cell_server->mapp_reg);
 	g_free(cell_server->query);
 
-	g_string_free(cell_server->buf,TRUE);
-	g_string_free(cell_client->buf,TRUE);
 	return SUCCESS;
 }
 /*****************************************************************************/
@@ -498,7 +494,7 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount;
 	position ++;
-	g_string_printf(server->buf,"[%05ld] server : | %d | %#x .%d\n",position,modbus_function,modbus_register,modbus_amount);
+	g_string_printf(server->buf,"[%05ld] server : %02x %04x %04x\n",position,modbus_function,modbus_register,modbus_amount);
 
 	return MODBUS_CORRECT;
 }
@@ -565,9 +561,9 @@ static gpointer work_bridge(gpointer ud)
 				return NULL;
 			}
 			position ++;
-			g_string_printf(cell_client->buf,"[%05ld] client : 3 | ",position);
+			g_string_printf(cell_client->buf,"[%05ld] client : 03 %04x  ",position,cell_server->query_reg);
 			for(i =0;i< rc;i++){
-				g_string_append_printf(cell_client->buf,"%#x ",dest[i]);
+				g_string_append_printf(cell_client->buf,"%04x ",dest[i]);
 			}
 			g_string_append(cell_client->buf,"\n");
 			server_mapping(cell_server,dest);
@@ -580,7 +576,7 @@ static gpointer work_bridge(gpointer ud)
 				return NULL;
 			}
 			position ++;
-			g_string_printf(cell_client->buf,"[%05ld] client : 6 | 1\n",position);
+			g_string_printf(cell_client->buf,"[%05ld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
 reply_continue:
 		rc = server_reply(cell_server);
@@ -734,6 +730,11 @@ static GtkWidget * create_block_bridge(block_bridge_s * bb)
 	bb->cell[CELL_CLIENT] = g_malloc0(sizeof(cell_s));
 	bb->cell[CELL_SERVER]->link = g_malloc0(sizeof(link_s));
 	bb->cell[CELL_CLIENT]->link = g_malloc0(sizeof(link_s));
+	/*TODO высвободить память*/
+	bb->cell[CELL_SERVER]->buf = g_string_new(NULL);
+	bb->cell[CELL_CLIENT]->buf = g_string_new(NULL);
+	/*g_string_free(cell_server->buf,TRUE);*/
+	/*g_string_free(cell_client->buf,TRUE);*/
 
 	frame = gtk_frame_new("МОСТ");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
