@@ -672,7 +672,7 @@ static int flush_info_bridge(gpointer ud)
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
 #if 1
-		gtk_text_buffer_insert(text_buf,&iter,buf->str,1);
+		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
 #else
 		gtk_text_buffer_insert_at_cursor(text_buf,buf->str,-1);
 #endif
