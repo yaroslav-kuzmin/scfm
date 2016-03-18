@@ -665,11 +665,17 @@ static int flush_info_bridge(gpointer ud)
 	block_bridge_s * bb = (block_bridge_s*)ud;
 	GtkTextBuffer * text_buf = bb->text_buf;
 	GString * buf;
+	GtkTextIter iter;
 
 	if(bb->connect == OK){
+		gtk_text_buffer_get_iter_at_offset(text_buf,&iter,0);
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
+#if 1
+		gtk_text_buffer_insert(text_buf,&iter,buf->str,1);
+#else
 		gtk_text_buffer_insert_at_cursor(text_buf,buf->str,-1);
+#endif
 		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
 	}
@@ -701,11 +707,19 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	text_buf = gtk_text_buffer_new(NULL);
 	bb->text_buf = text_buf;
 	bb->buf = g_string_new("Начало\n");
+	gtk_text_buffer_create_tag (text_buf,"blue_foreground","foreground","blue",NULL);
+	gtk_text_buffer_create_tag (text_buf,"red_foreground" ,"foreground","red",NULL);
+	gtk_text_buffer_create_tag (text_buf,"gree_foreground","foreground","green",NULL);
+  gtk_text_buffer_create_tag (text_buf,"blue_background" ,"background","blue", NULL);
+  gtk_text_buffer_create_tag (text_buf,"red_background"  ,"background","red", NULL);
+  gtk_text_buffer_create_tag (text_buf,"green_background","background","green", NULL);
 
 	log = gtk_text_view_new_with_buffer(text_buf);
 	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
 	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(log),FALSE);
+
 	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
