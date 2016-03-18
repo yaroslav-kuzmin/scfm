@@ -671,13 +671,11 @@ static int flush_info_bridge(gpointer ud)
 
 	if(bb->connect == OK){
 		gtk_text_buffer_get_end_iter(text_buf,&iter);
-
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
 		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
 		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
-		gtk_text_view_scroll_to_iter(text_view,&iter,1,TRUE,0.5,1);
 	}
 	return TRUE;
 }
