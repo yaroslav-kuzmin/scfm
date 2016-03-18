@@ -94,6 +94,7 @@ struct _block_bridge_s
 	GMutex m_bridge;
 	int exit;
 
+	GtkTextView * text_view;
 	GtkTextBuffer * text_buf;
 	GString * buf;
 };
@@ -663,23 +664,20 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 static int flush_info_bridge(gpointer ud)
 {
 	block_bridge_s * bb = (block_bridge_s*)ud;
+	GtkTextView * text_view = bb->text_view;
 	GtkTextBuffer * text_buf = bb->text_buf;
 	GString * buf;
 	GtkTextIter iter;
 
 	if(bb->connect == OK){
-		/*gtk_text_buffer_get_iter_at_line(text_buf,&iter,0);*/
 		gtk_text_buffer_get_end_iter(text_buf,&iter);
+
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
-		/*gtk_text_buffer_set_text(text_buf,buf->str,-1);*/
-#if 1
 		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
-#else
-		gtk_text_buffer_insert_at_cursor(text_buf,buf->str,-1);
-#endif
 		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
+		gtk_text_view_scroll_to_iter(text_view,&iter,1,TRUE,0.5,1);
 	}
 	return TRUE;
 }
@@ -721,6 +719,7 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
 	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(log),FALSE);
+	bb->text_view = GTK_TEXT_VIEW(log);
 
 	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
 
