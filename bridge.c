@@ -676,6 +676,7 @@ static int flush_info_bridge(gpointer ud)
 		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
 		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
+
 	}
 	return TRUE;
 }
