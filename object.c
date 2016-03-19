@@ -161,12 +161,14 @@ int select_object(object_s * object)
 		return FAILURE;
 	}
 
+#if !(TEST_INTERFACE)
 	rc = get_mode_work();
 	if(rc != MODE_CONTROL_ON){
 		g_info("Нет режима управления!");
 		change_object(&block_object,TYPE_UNKNOWN);
 		return SUCCESS;
 	}
+#endif
 
 	rc = gtk_notebook_get_current_page(block_object.notebook);
 	if(rc == -1){

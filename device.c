@@ -255,8 +255,8 @@ static uint16_t reg_D200 = 0x10C8;
 static uint16_t VALUE_STOP  = 0x0000;
 static uint16_t VALUE_UP    = 0x0001;
 static uint16_t VALUE_DOWN  = 0x0002;
-static uint16_t VALUE_RIGHT = 0x0004;
-static uint16_t VALUE_LEFT  = 0x0008;
+static uint16_t VALUE_LEFT  = 0x0004;
+static uint16_t VALUE_RIGHT = 0x0008;
 static int set_value_command(uint64_t command,uint16_t * reg,uint16_t * value)
 {
 

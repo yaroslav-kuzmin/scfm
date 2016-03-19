@@ -77,6 +77,7 @@ struct _block_controller_s
 	uint32_t timeout_show;
 	communication_controller_s * communication_controller;
 	GtkLabel * name;
+	GtkWidget * control_console;
 
 	GtkImage * axis_vertical;
 	GdkPixbuf * buf_axis_vertical;
@@ -891,6 +892,31 @@ static GtkWidget * create_block_state(block_controller_s * block)
 }
 
 /***** Функции отображения системы управления ********************************/
+
+static char STR_MODE_AUTO[]   = "Автоматический режим";
+static char STR_MODE_MANUAL[] = "РУчной режим";
+
+static GtkWidget * create_block_control_mode(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * label;
+	/*GtkWidget * but;*/
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
+
+	label = gtk_label_new(STR_MODE_AUTO);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_label_set_xalign(GTK_LABEL(label),0);
+
+	/*but = gtk_button_new_with_label("")*/
+
+	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	return box;
+}
+
 static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
 /*static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";*/
 static gdouble min_valve = 0;
@@ -1139,8 +1165,8 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_right,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_left ,2,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_left ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_right,2,1,1,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(but_up);
@@ -1249,31 +1275,56 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	return grid;
 }
 
-static GtkWidget * create_block_control(block_controller_s * bc)
+static GtkWidget * create_block_control_console(block_controller_s * bc)
 {
-	GtkWidget * frame;
 	GtkWidget * box;
 	GtkWidget * block_valve;
 	GtkWidget * block_lafet;
 	GtkWidget * block_actuator;
 	GtkWidget * block_oscillation;
 
-	frame = gtk_frame_new("Управление");
-	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_END,FALSE,FALSE);
-
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-  	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+  layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	block_valve = create_block_valve(bc);
 	block_lafet = create_block_lafet(bc);
 	block_actuator = create_block_actuator(bc);
 	block_oscillation = create_block_oscillation(bc);
 
-	gtk_container_add(GTK_CONTAINER(frame),box);
 	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+
+	return box;
+}
+static GtkWidget * create_block_control(block_controller_s * bc)
+{
+	GtkWidget * frame;
+	GtkWidget * box;
+	GtkWidget * block_control_mode;
+	GtkWidget * block_control_console;
+
+
+	frame = gtk_frame_new("Управление");
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0.5,1);
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_control_mode = create_block_control_mode(bc);
+
+	block_control_console = create_block_control_console(bc);
+
+	bc->control_console = block_control_console;
+
+	gtk_container_add(GTK_CONTAINER(frame),box);
+
+	gtk_box_pack_start(GTK_BOX(box),block_control_mode,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_control_console,TRUE,TRUE,0);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(box);
@@ -1347,8 +1398,8 @@ GtkWidget * create_block_controller(void)
 
 	frame_control = create_block_control(&block_controller);
 
-	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),frame_control,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,5);
 
 	gtk_widget_show(box);
 
