@@ -79,11 +79,12 @@ static const char STR_EMAIL[] = "kuzmin.yaroslav@gmail.com";
 static const char STR_EMAIL_LABEL[] = "kuzmin.yaroslav@gmail.com";
 static const char * STR_AUTHORS[] = {"Кузьмин Ярослав",NULL};
 
-int about_programm(void)
+static int about_programm(GtkWindow * parent_window)
 {
 	GtkWidget * dialog = gtk_about_dialog_new();
 	GdkPixbuf * icon = get_default_icon();
 
+	gtk_window_set_transient_for(GTK_WINDOW(dialog),parent_window);
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog),STR_NAME_PROGRAMM);
 	g_string_printf(pub,"%d.%03d - %x",VERSION_MAJOR,VERSION_MINOR,VERSION_GIT);
 	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog),pub->str);
@@ -142,14 +143,14 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 		/*g_debug(" key :> %#x",event_key->keyval);*/
 		if( (state & GDK_SHIFT_MASK) && (state & GDK_CONTROL_MASK)){
 			if( event_key->keyval == GDK_KEY_A){
-				about_programm();
+				about_programm(GTK_WINDOW(w));
 			}
 		}
 	}
 	return FALSE;
 }
 
-GtkWidget * create_main_block(void)
+static GtkWidget * create_main_block(void)
 {
 	GtkWidget * win_main;
 	GtkAccelGroup * accgro_main;
@@ -186,6 +187,7 @@ GtkWidget * create_main_block(void)
 
 	gtk_widget_show(win_main);
 	gtk_widget_show(box);
+
 	return win_main;
 }
 
