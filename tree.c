@@ -333,9 +333,11 @@ GtkWidget * create_block_tree_object(void)
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	model = gtk_tree_store_new(AMOUNT_COLUMN_TREE,G_TYPE_STRING,G_TYPE_POINTER,G_TYPE_OBJECT);
+	/*TODO оформление дерева*/
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview),FALSE);
+
+
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),NULL);
 	g_object_unref(model);

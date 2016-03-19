@@ -495,7 +495,7 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount;
 	position ++;
-	g_string_printf(server->buf,"[%05ld] server : %02x %04x %04x\n",position,modbus_function,modbus_register,modbus_amount);
+	g_string_printf(server->buf,"[%05lld] server : %02x %04x %04x\n",position,modbus_function,modbus_register,modbus_amount);
 
 	return MODBUS_CORRECT;
 }
@@ -562,7 +562,7 @@ static gpointer work_bridge(gpointer ud)
 				return NULL;
 			}
 			position ++;
-			g_string_printf(cell_client->buf,"[%05ld] client : 03 %04x  ",position,cell_server->query_reg);
+			g_string_printf(cell_client->buf,"[%05lld] client : 03 %04x  ",position,cell_server->query_reg);
 			for(i =0;i< rc;i++){
 				g_string_append_printf(cell_client->buf,"%04x ",dest[i]);
 			}
@@ -577,7 +577,7 @@ static gpointer work_bridge(gpointer ud)
 				return NULL;
 			}
 			position ++;
-			g_string_printf(cell_client->buf,"[%05ld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
+			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
 reply_continue:
 		rc = server_reply(cell_server);
@@ -664,7 +664,7 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 static int flush_info_bridge(gpointer ud)
 {
 	block_bridge_s * bb = (block_bridge_s*)ud;
-	GtkTextView * text_view = bb->text_view;
+	/*GtkTextView * text_view = bb->text_view;*/
 	GtkTextBuffer * text_buf = bb->text_buf;
 	GString * buf;
 	GtkTextIter iter;

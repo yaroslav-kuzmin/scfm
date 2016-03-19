@@ -99,14 +99,17 @@ int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
 
 int set_size_font(GtkWidget * w,int size)
 {
+	/*TODO настроить через стили*/
+#if 0
 	PangoContext * pancon_info;
 	PangoFontDescription * panfondes_info;
 
 	pancon_info = gtk_widget_get_pango_context(w);
 	panfondes_info = pango_context_get_font_description(pancon_info);
 	pango_font_description_set_size(panfondes_info,size);
-	gtk_widget_override_font(w,panfondes_info);
 
+	gtk_widget_override_font(w,panfondes_info);
+#endif
 	return SUCCESS;
 }
 
@@ -288,23 +291,24 @@ static int deinit_config(void)
 /*****************************************************************************/
 /*  Ресурсы                                                                  */
 /*****************************************************************************/
+
 static char STR_RESOURCE_DIR[] = "resource"G_DIR_SEPARATOR_S;
 static char STR_RESOURCE_EXT[] = ".gresource";
 static char STR_RESOURCE_BASE[] = "base";
 static char STR_RESOURCE_IMAGE[] = "image";
 static GString * name_resource_image = NULL;
 
-static int check_resource(GString * catalog)
+static int check_resource(void)
 {
 	int rc;
-
-	name_resource_image = g_string_new(catalog->str);
+	/*файлы ресурсов находятся в каталоге программы в windows */
+	name_resource_image = g_string_new(NULL);
 	g_string_append(name_resource_image,STR_RESOURCE_DIR);
 	g_string_append(name_resource_image,STR_RESOURCE_IMAGE);
 	g_string_append(name_resource_image,STR_RESOURCE_EXT);
 	rc = g_file_test(name_resource_image->str,G_FILE_TEST_IS_REGULAR);
 	if(rc == FALSE){
-		/*TODO создавать ресурс image*/
+		g_error("Нет файла ресурсов : %s",name_resource_image->str);
 		return FAILURE;
 	}
 	return SUCCESS;
@@ -421,7 +425,7 @@ static int check_system(void)
 
 	check_config(work_catalog);
 	check_logging(work_catalog);
-	check_resource(work_catalog);
+	check_resource();
 
 	return SUCCESS;
 }
