@@ -900,7 +900,7 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * label;
-	/*GtkWidget * but;*/
+	GtkWidget * but;
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
@@ -909,7 +909,7 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label),0);
 
-	/*but = gtk_button_new_with_label("")*/
+	but = gtk_button_new_with_label("")
 
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_widget_show(box);
