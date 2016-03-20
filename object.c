@@ -150,9 +150,9 @@ static int create_block_page(block_object_s * block_object,char * name)
 /*****************************************************************************/
 block_object_s block_object;
 
-int select_object(object_s * object)
+flag_t select_object(object_s * object)
 {
-	int rc;
+	flag_t rc;
 	GtkWidget * child;
 	GtkWidget * label;
 
@@ -172,15 +172,17 @@ int select_object(object_s * object)
 
 	rc = gtk_notebook_get_current_page(block_object.notebook);
 	if(rc == -1){
+		change_object(&block_object,TYPE_UNKNOWN);
 		return FAILURE;
 	}
 	child = gtk_notebook_get_nth_page(block_object.notebook,rc);
 	if(child == NULL){
+		change_object(&block_object,TYPE_UNKNOWN);
 		return FAILURE;
 	}
+
 	label = gtk_notebook_get_tab_label(block_object.notebook,child);
 	gtk_label_set_text(GTK_LABEL(label),object->name);
-
 
 	select_block_controller(NULL);
 	switch(object->type){

@@ -371,7 +371,7 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 /*TODO  нужна не нужна ?*/
 static int mode_work = MODE_NOT_WORK;
 
-int set_mode_work(int mode,GtkWidget * win_main)
+flag_t set_mode_work(int mode,GtkWidget * win_main)
 {
 	mode_work = mode;
 	switch(mode_work){
@@ -389,7 +389,7 @@ int set_mode_work(int mode,GtkWidget * win_main)
 	}
 	return SUCCESS;
 }
-int get_mode_work(void)
+flag_t get_mode_work(void)
 {
 	return mode_work;
 }

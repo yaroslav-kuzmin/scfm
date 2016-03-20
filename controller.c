@@ -52,15 +52,14 @@
 /*****************************************************************************/
 /*    Общие переменые                                                        */
 /*****************************************************************************/
-
+/*структура взаимодействия основного потока и потока взаимодействия с конторллерами*/
+typedef struct _communication_controller_s communication_controller_s;
 struct _communication_controller_s
 {
 	int exit;
 
 	GThread * tid;
-	GMutex m_flag;
-	GMutex m_state;
-	GMutex m_control;
+	GMutex mutex;
 
 	GSList * list;
 	controller_s * current;
@@ -69,14 +68,20 @@ struct _communication_controller_s
 	uint32_t timeout_all;
 	uint32_t timeout_config;
 };
-typedef struct _communication_controller_s communication_controller_s;
 
+
+typedef struct _block_controller_s block_controller_s;
 struct _block_controller_s
 {
-	int stop_show;
-	uint32_t timeout_show;
-	communication_controller_s * communication_controller;
+	/*название блока */
 	GtkLabel * name;
+	/*отображение блока конторллера*/
+	flag_t stop_show;
+	flag_t run_show;
+	uint32_t timeout_show;
+
+	communication_controller_s * communication_controller;
+
 	GtkWidget * control_console;
 
 	GtkImage * axis_vertical;
@@ -86,7 +91,6 @@ struct _block_controller_s
 	GtkImage * pipe;
 	GdkPixbuf * buf_pipe;
 };
-typedef struct _block_controller_s block_controller_s;
 
 /*****************************************************************************/
 /* Функции работы с изображениями                                            */
@@ -435,9 +439,13 @@ static gpointer controllers_communication(gpointer ud)
 	/*GSList * list;*/
 
 	for(;;){
-		g_mutex_lock(&(cc->m_flag));
+		g_mutex_lock(&(cc->mutex));
 		controller = cc->current;
-		g_mutex_unlock(&(cc->m_flag));
+		control = controller->control;
+		queue = control->command;
+		command = POINTER_TO_INT(g_queue_pop_tail(queue));
+		g_mutex_unlock(&(cc->mutex));
+
 		if(controller != NULL){
 			link = controller->link;
 			state = controller->state;
@@ -448,11 +456,6 @@ static gpointer controllers_communication(gpointer ud)
 				controller->object->status = STATUS_ERROR;
 			}
 			g_debug("read controller");
-			control = controller->control;
-			queue = control->command;
-			g_mutex_lock(&(cc->m_control));
-			command = POINTER_TO_INT(g_queue_pop_tail(queue));
-			g_mutex_unlock(&(cc->m_control));
 			if(command != COMMAND_EMPTY){
 				/*g_debug(" :> %ld ",command);*/
 				rc = command_controller(link,command);
@@ -471,7 +474,7 @@ static gpointer controllers_communication(gpointer ud)
 			control = controller->control;
 			g_mutex_lock(&(cc->flag));
 			if(control->select == OK ){
-				g_mutex_unlock(&(cc->m_flag));
+				g_mutex_unlock(&(cc->mutex));
 				link = controller->link;
 				state = controller->state;
 				g_mutex_lock(&(cc->m_state));
@@ -491,18 +494,18 @@ static gpointer controllers_communication(gpointer ud)
 		/*g_debug("state controller : %d",debug_id);*/
 		/*TODO сделать возможное в реальном режиме менять таймаут*/
 		g_usleep(cc->timeout_current);
-		g_mutex_lock(&(cc->m_flag));
+		g_mutex_lock(&(cc->mutex));
 		if(cc->exit == OK){
-			g_mutex_unlock(&(cc->m_flag));
+			g_mutex_unlock(&(cc->mutex));
 			g_thread_exit(cc->tid);
 		}
-		g_mutex_unlock(&(cc->m_flag));
+		g_mutex_unlock(&(cc->mutex));
 	}
 
 	return NULL;
 }
 
-static int control_controllers_on(communication_controller_s * cc)
+static flag_t control_controllers_on(communication_controller_s * cc)
 {
 	int rc;
 	GSList * list = cc->list;
@@ -529,15 +532,13 @@ static int control_controllers_on(communication_controller_s * cc)
 	}
 
 	cc->exit = NOT_OK;
-	g_mutex_init(&(cc->m_flag));
-	g_mutex_init(&(cc->m_state));
-	g_mutex_init(&(cc->m_control));
+	g_mutex_init(&(cc->mutex));
 	cc->tid = g_thread_new("controller",controllers_communication,cc);
 
 	return FAILURE;
 }
 
-static int control_controllers_off(communication_controller_s * cc)
+static flag_t control_controllers_off(communication_controller_s * cc)
 {
 	int rc;
 	GSList * list = cc->list;
@@ -545,9 +546,7 @@ static int control_controllers_off(communication_controller_s * cc)
 	if(cc->tid != NULL){/*поток запущен*/
 		cc->exit = OK;
 		g_thread_join(cc->tid);
-		g_mutex_clear(&(cc->m_flag));
-		g_mutex_clear(&(cc->m_state));
-		g_mutex_clear(&(cc->m_control));
+		g_mutex_clear(&(cc->mutex));
 		cc->tid = NULL;
 	}
 
@@ -570,9 +569,9 @@ static int control_controllers_off(communication_controller_s * cc)
 
 static communication_controller_s communication_controller;
 
-int control_controllers(int mode)
+flag_t control_controllers(flag_t mode)
 {
-	int rc = FAILURE;
+	flag_t rc = FAILURE;
 	switch(mode){
 		case MODE_CONTROL_ON:
 			rc = control_controllers_on(&communication_controller);
@@ -620,10 +619,11 @@ static int show_vertical(block_controller_s * bc)
 	GdkPixbuf * buf = bc->buf_axis_vertical;
 	GtkImage * image = bc->axis_vertical;
 	int16_t angle = calculate_angle_tic_vertical(controller);
-	GdkPixbuf * angle_image = 	get_image_vertical(angle);
+	GdkPixbuf * angle_image = get_image_vertical(angle);
 	int width = gdk_pixbuf_get_width(buf);
 	int height = gdk_pixbuf_get_height(buf);
 	/*TODO маштабирование */
+
 	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
 	gtk_image_set_from_pixbuf(image,buf);
 	return SUCCESS;
@@ -675,9 +675,9 @@ static int show_fire_alarm(block_controller_s * bc)
 	return SUCCESS;
 }
 
-static int show_block_controler(gpointer data)
+static int show_block_controller(gpointer data)
 {
-	/*GtkLabel * label;*/
+ 	/*GtkLabel * label;*/
 	block_controller_s * bc = (block_controller_s *)data;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
@@ -685,10 +685,12 @@ static int show_block_controler(gpointer data)
 	/*uint64_t flag;*/
 
 	if(bc->stop_show == OK ){
+		bc->run_show = NOT_OK;
 		return FALSE; /*завершить работу*/
 	}
 	if(c == NULL){
-		/*контролер не выбран*/
+ 		/*контролер не выбран*/
+		bc->run_show = NOT_OK;
 		return FALSE;
 	}
 	show_vertical(bc);
@@ -867,6 +869,7 @@ static GtkWidget * create_block_state(block_controller_s * block)
 
 	label_name = gtk_label_new("Нет подключения к контролеру!");
 	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+
 	block->name = GTK_LABEL(label_name);
 
 	block_vertical = create_block_vertical(block);
@@ -893,23 +896,23 @@ static GtkWidget * create_block_state(block_controller_s * block)
 
 /***** Функции отображения системы управления ********************************/
 
-static char STR_MODE_AUTO[]   = "Автоматический режим";
-static char STR_MODE_MANUAL[] = "РУчной режим";
+/*static char STR_MODE_AUTO[]   = "Автоматический режим";*/
+static char STR_MODE_MANUAL[] = "РУЧНОЙ РЕЖИМ";
 
 static GtkWidget * create_block_control_mode(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * label;
-	GtkWidget * but;
+	/*GtkWidget * but;*/
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
 
-	label = gtk_label_new(STR_MODE_AUTO);
+	label = gtk_label_new(STR_MODE_MANUAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label),0);
 
-	but = gtk_button_new_with_label("")
+	/*but = gtk_button_new_with_label("")*/
 
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_widget_show(box);
@@ -968,9 +971,9 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press up");
 }
@@ -991,9 +994,9 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release up");
 }
@@ -1014,9 +1017,9 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press down");
 }
@@ -1036,9 +1039,9 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release down");
 }
@@ -1059,9 +1062,9 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press rigth");
 }
@@ -1081,9 +1084,9 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release rigth");
 }
@@ -1104,9 +1107,9 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press left");
 }
@@ -1126,9 +1129,9 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	control = c->control;
 	queue = control->command;
 
-	g_mutex_lock(&(cc->m_control));
+	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command));
-	g_mutex_unlock(&(cc->m_control));
+	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release left");
 }
@@ -1332,6 +1335,14 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	return frame;
 }
 
+static flag_t	changed_block_controller(block_controller_s * bc,config_controller_s * config)
+{
+	/*uint64_t flag = config->flag;*/
+
+	/*TODO отобразить элементы текущего конторллера*/
+
+	return SUCCESS;
+}
 /*****************************************************************************/
 
 static block_controller_s block_controller;
@@ -1344,7 +1355,6 @@ int select_block_controller(controller_s * controller)
 
 
 	if(controller == NULL){
-		/*TODO если таймер запушен то остановить*/
 		block_controller.stop_show = OK;
 		cc->current = NULL;
 		return SUCCESS;
@@ -1356,19 +1366,21 @@ int select_block_controller(controller_s * controller)
 		return FAILURE;
 	}
 
-	g_mutex_lock(&(cc->m_flag));
-	cc->current = controller;
-	g_mutex_unlock(&(cc->m_flag));
+	changed_block_controller(&block_controller,controller->config);
 
+	g_mutex_lock(&(cc->mutex));
 	{
 	GQueue * queue = controller->control->command;
-	g_mutex_lock(&(cc->m_control));
+	cc->current = controller;
 	g_queue_clear(queue);
-	g_mutex_unlock(&(cc->m_control));
 	}
+	g_mutex_unlock(&(cc->mutex));
 
-	block_controller.stop_show = NOT_OK;
-	g_timeout_add(block_controller.timeout_show,show_block_controler,&block_controller);
+	if(block_controller.run_show == NOT_OK){
+		block_controller.run_show = OK;
+		block_controller.stop_show = NOT_OK;
+		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
+	}
 
 	label = block_controller.name;
 	gtk_label_set_text(label,controller->name);

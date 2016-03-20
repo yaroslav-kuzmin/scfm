@@ -62,6 +62,8 @@
 
 #define INT_TO_POINTER(s)  (((gpointer)((uint64_t)(s))))
 #define POINTER_TO_INT(s)  ((uint64_t)(s))
+
+typedef unsigned int   flag_t;
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];

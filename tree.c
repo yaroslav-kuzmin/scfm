@@ -72,7 +72,7 @@ typedef struct _block_tree_s block_tree_s;
 /*    Локальные функции                                                      */
 /*****************************************************************************/
 
-static int tree_add_column(block_tree_s * bt)
+static flag_t tree_add_column(block_tree_s * bt)
 {
 	GtkTreeView * treeview = bt->view;
 	GtkCellRenderer * render;
@@ -104,7 +104,7 @@ static int tree_add_column(block_tree_s * bt)
 	return SUCCESS;
 }
 /*TODO обеденить функции fill_treeview и fill_treeview_group */
-static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object,GdkPixbuf * image)
+static flag_t fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object_s * object,GdkPixbuf * image)
 {
 	GSList * list = NULL;
 	GtkTreeIter child_iter;
@@ -125,7 +125,7 @@ static int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter
 	return SUCCESS;
 }
 
-static int fill_treeview(block_tree_s * bt)
+static flag_t fill_treeview(block_tree_s * bt)
 {
 	GtkTreeView * treeview = bt->view;
 	GtkTreeSelection * select;
@@ -198,7 +198,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 }
 
 
-static int init_image(block_tree_s * bt)
+static flag_t init_image(block_tree_s * bt)
 {
 	GdkPixbuf * buf;
 	buf = get_resource_image(RESOURCE_BASE,"tree_green");
@@ -214,13 +214,13 @@ static int init_image(block_tree_s * bt)
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-static int set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
+static flag_t set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
 {
 	GdkPixbuf * image = bt->image[status];
 	gtk_tree_store_set(GTK_TREE_STORE(tree_model),iter,COLUMN_IMAGE_TREE,image,-1);
 	return SUCCESS;
 }
-static int set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter)
+static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter)
 {
 	int rc;
 	object_s * object;
@@ -241,7 +241,7 @@ static int set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkTree
 	return rc;
 }
 /*TODO перенести в kernel*/
-static int set_status_list(GSList * list)
+static flag_t set_status_list(GSList * list)
 {
 	int rc;
 	int status = STATUS_NORM;
