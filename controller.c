@@ -441,12 +441,12 @@ static gpointer controllers_communication(gpointer ud)
 	for(;;){
 		g_mutex_lock(&(cc->mutex));
 		controller = cc->current;
-		control = controller->control;
-		queue = control->command;
-		command = POINTER_TO_INT(g_queue_pop_tail(queue));
 		g_mutex_unlock(&(cc->mutex));
 
 		if(controller != NULL){
+			control = controller->control;
+			queue = control->command;
+			command = POINTER_TO_INT(g_queue_pop_tail(queue));
 			link = controller->link;
 			state = controller->state;
 			rc = link_state_controller(link,state);
