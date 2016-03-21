@@ -69,6 +69,30 @@ struct _communication_controller_s
 	uint32_t timeout_config;
 };
 
+typedef struct _show_config_s show_config_s;
+struct _show_config_s
+{
+	GtkWidget * engine_vertical;
+	GtkWidget * engine_horizontal;
+};
+
+typedef struct _show_state_s show_state_s;
+struct _show_state_s
+{
+	GtkImage * axis_vertical;
+	GdkPixbuf * buf_axis_vertical;
+	GtkImage * axis_horizontal;
+	GdkPixbuf * buf_axis_horizontal;
+	GtkImage * pipe;
+	GdkPixbuf * buf_pipe;
+};
+
+enum
+{
+	MODE_AUTO=1,
+	MODE_MANUAL,
+	AMOUNT_MODE
+};
 
 typedef struct _block_controller_s block_controller_s;
 struct _block_controller_s
@@ -82,14 +106,12 @@ struct _block_controller_s
 
 	communication_controller_s * communication_controller;
 
+	/*отображение блока управления в разных режимах*/
+	flag_t mode;
 	GtkWidget * control_console;
 
-	GtkImage * axis_vertical;
-	GdkPixbuf * buf_axis_vertical;
-	GtkImage * axis_horizontal;
-	GdkPixbuf * buf_axis_horizontal;
-	GtkImage * pipe;
-	GdkPixbuf * buf_pipe;
+	show_state_s * show_state;
+	show_config_s * show_config;
 };
 
 /*****************************************************************************/
@@ -616,14 +638,13 @@ static int show_vertical(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->buf_axis_vertical;
-	GtkImage * image = bc->axis_vertical;
+	GdkPixbuf * buf = bc->show_state->buf_axis_vertical;
+	GtkImage * image = bc->show_state->axis_vertical;
 	int16_t angle = calculate_angle_tic_vertical(controller);
 	GdkPixbuf * angle_image = get_image_vertical(angle);
 	int width = gdk_pixbuf_get_width(buf);
 	int height = gdk_pixbuf_get_height(buf);
 	/*TODO маштабирование */
-
 	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
 	gtk_image_set_from_pixbuf(image,buf);
 	return SUCCESS;
@@ -633,8 +654,8 @@ static int show_horizontal(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->buf_axis_horizontal;
-	GtkImage * image = bc->axis_horizontal;
+	GdkPixbuf * buf = bc->show_state->buf_axis_horizontal;
+	GtkImage * image = bc->show_state->axis_horizontal;
 	int16_t angle = calculate_angle_tic_horizontal(controller);
 	GdkPixbuf * angle_image = 	get_image_horizontal(angle);
 	int width = gdk_pixbuf_get_width(buf);
@@ -649,8 +670,8 @@ static int show_pipe(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->buf_pipe;
-	GtkImage * image = bc->pipe;
+	GdkPixbuf * buf = bc->show_state->buf_pipe;
+	GtkImage * image = bc->show_state->pipe;
 	int pressure = calculate_pressure(controller);
 	int valve = get_state_valve(controller->state);
 	GdkPixbuf * pressure_image = get_image_pressure(pressure);
@@ -707,7 +728,7 @@ static int show_block_controller(gpointer data)
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
 
-static GtkWidget * create_block_vertical(block_controller_s * block)
+static GtkWidget * create_block_vertical(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
@@ -717,23 +738,24 @@ static GtkWidget * create_block_vertical(block_controller_s * block)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = get_resource_image(RESOURCE_IMAGE,"vbase");
-	block->buf_axis_vertical = buf;
+	bc->show_state->buf_axis_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование */
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	block->axis_vertical = GTK_IMAGE(image);
+	bc->show_state->axis_vertical = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
+	bc->show_config->engine_vertical = image;
 	return frame;
 }
 
 #define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
-static GtkWidget * create_block_horizontal(block_controller_s * block)
+static GtkWidget * create_block_horizontal(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
@@ -743,24 +765,25 @@ static GtkWidget * create_block_horizontal(block_controller_s * block)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = get_resource_image(RESOURCE_IMAGE,"hbase");
-	block->buf_axis_horizontal = buf;
+	bc->show_state->buf_axis_horizontal = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	block->axis_horizontal = GTK_IMAGE(image);
+	bc->show_state->axis_horizontal = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
 
+	bc->show_config->engine_horizontal = image;
 	return frame;
 }
 
 #define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
 #define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
-static GtkWidget * create_block_pipe(block_controller_s * block)
+static GtkWidget * create_block_pipe(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
@@ -770,12 +793,12 @@ static GtkWidget * create_block_pipe(block_controller_s * block)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = get_resource_image(RESOURCE_IMAGE,"pipe");
-	block->buf_pipe = buf;
+	bc->show_state->buf_pipe = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	block->pipe = GTK_IMAGE(image);
+	bc->show_state->pipe = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -847,7 +870,8 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	return frame;
 }
 
-static GtkWidget * create_block_state(block_controller_s * block)
+
+static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * grid;
@@ -866,17 +890,16 @@ static GtkWidget * create_block_state(block_controller_s * block)
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
 
-
 	label_name = gtk_label_new("Нет подключения к контролеру!");
 	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
 
-	block->name = GTK_LABEL(label_name);
+	bc->name = GTK_LABEL(label_name);
 
-	block_vertical = create_block_vertical(block);
-	block_horizontal = create_block_horizontal(block);
-	block_pipe = create_block_pipe(block);
-	block_fire_sensor = create_block_fire_sensor(block);
-	block_fire_alarm = create_block_fire_alarm(block);
+	block_vertical = create_block_vertical(bc);
+	block_horizontal = create_block_horizontal(bc);
+	block_pipe = create_block_pipe(bc);
+	block_fire_sensor = create_block_fire_sensor(bc);
+	block_fire_alarm = create_block_fire_alarm(bc);
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);
 
@@ -1337,14 +1360,146 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 static flag_t	changed_block_controller(block_controller_s * bc,config_controller_s * config)
 {
-	/*uint64_t flag = config->flag;*/
+	show_config_s * show_config = bc->show_config;
+	uint64_t flag = config->flag;
 
-	/*TODO отобразить элементы текущего конторллера*/
+	if(ENGINE_VERTICAL(flag)){
+		gtk_widget_show(show_config->engine_vertical);
+	}
+	else{
+		gtk_widget_hide(show_config->engine_vertical);
+	}
 
+	if(ENGINE_HORIZONTAL(flag)){
+		gtk_widget_show(show_config->engine_horizontal);
+	}
+	else{
+		gtk_widget_hide(show_config->engine_horizontal);
+	}
+#if 0
+	if(ACTUATOR_SPRAY(flag)){
+	}
+	if(ACTUATOR_RATE(flag)){
+	}
+	if(ACTUATOR_VEIL(flag)){
+	}
+	if(LIMIT_VERTICAL(flag)){
+	}
+	if(TIC_VERTICAL(flag)){
+	}
+	if(ENCODER_VERTICAL(flag)){
+	}
+	if(AMPERAGE_VERTICAL(flag)){
+	}
+	if(LIMIT_HORIZONTAL(flag)){
+	}
+	if(TIC_HORIZONTAL(flag)){
+	}
+	if(ENCODER_HORIZONTAL(flag)){
+	}
+	if(AMPERAGE_HORIZONTAL(flag)){
+	}
+	if(PRESSURE(flag)){
+	}
+	if(CONSOLE(flag)){
+	}
+	if(POST(flag)){
+	}
+	if(SENSOR_FIRE_DRY(flag)){
+	}
+	if(SENSOR_FIRE_485(flag)){
+	}
+	if(SENSOR_FIRE_ETHERNET(flag)){
+	}
+	if(SENSOR_DRY_485(flag)){
+	}
+	if(SENSOR_DRY_ETHERNET(flag)){
+	}
+	if(VALVE_DRY(flag)){
+	}
+	if(VALVE_ANALOG(flag)){
+	}
+	if(VALVE_LIMIT(flag)){
+	}
+	if(VALVE_FEEDBACK(flag)){
+	}
+	if(CAM_ANALOG_DC(flag)){
+	}
+	if(CAM_DIGITAL_DC(flag)){
+	}
+	if(CAM_DIGITAL_POE(flag)){
+	}
+	if(FIRE_ALARM_01(flag)){
+	}
+	if(FIRE_ALARM_02(flag)){
+	}
+	if(FIRE_ALARM_03(flag)){
+	}
+	if(FIRE_ALARM_04(flag)){
+	}
+	if(FIRE_ALARM_05(flag)){
+	}
+	if(FIRE_ALARM_06(flag)){
+	}
+	if(FIRE_ALARM_07(flag)){
+	}
+	if(FIRE_ALARM_08(flag)){
+	}
+	if(FIRE_ALARM_09(flag)){
+	}
+	if(FIRE_ALARM_10(flag)){
+	}
+	if(FIRE_ALARM_11(flag)){
+	}
+	if(FIRE_ALARM_12(flag)){
+	}
+	if(FIRE_ALARM_13(flag)){
+	}
+	if(FIRE_ALARM_14(flag)){
+	}
+	if(FIRE_ALARM_15(flag)){
+	}
+	if(FIRE_ALARM_16(flag)){
+	}
+	if(DEVICE_01_STATE_0(flag)){
+	}
+	if(DEVICE_01_STATE_1(flag)){
+	}
+	if(DEVICE_02_STATE_0(flag)){
+	}
+	if(DEVICE_02_STATE_1(flag)){
+	}
+	if(DEVICE_03_STATE_0(flag)){
+	}
+	if(DEVICE_03_STATE_1(flag)){
+	}
+	if(DEVICE_04_STATE_0(flag)){
+	}
+	if(DEVICE_04_STATE_1(flag)){
+	}
+	if(DEVICE_05_STATE_0(flag)){
+	}
+	if(DEVICE_05_STATE_1(flag)){
+	}
+	if(DEVICE_06_STATE_0(flag)){
+	}
+	if(DEVICE_06_STATE_1(flag)){
+	}
+	if(DEVICE_07_STATE_0(flag)){
+	}
+	if(DEVICE_07_STATE_1(flag)){
+	}
+	if(DEVICE_08_STATE_0(flag)){
+	}
+	if(DEVICE_08_STATE_1(flag)){
+	}
+#endif
 	return SUCCESS;
 }
 /*****************************************************************************/
 
+static show_state_s show_state;
+static show_config_s show_config;
 static block_controller_s block_controller;
 
 int select_block_controller(controller_s * controller)
@@ -1397,8 +1552,11 @@ GtkWidget * create_block_controller(void)
 	GtkWidget * frame_control;
 
 	block_controller.stop_show = NOT_OK;
+	block_controller.run_show = NOT_OK;
 	block_controller.timeout_show = DEFAULT_TIMEOUT_SHOW;
 	block_controller.communication_controller = &communication_controller;
+	block_controller.show_state = &show_state;
+	block_controller.show_config = &show_config;
 
 	init_image(&block_controller);
 
