@@ -198,6 +198,8 @@ enum
 {
 	VALVE_OPEN = 0,
 	VALVE_CLOSE,
+	VALVE_OPEN_RUN,
+	VALVE_CLOSE_RUN,
 	AMOUNT_VALVE
 };
 static GdkPixbuf * IMAGES_VALVE[AMOUNT_VALVE] = {0};
@@ -324,16 +326,22 @@ static GdkPixbuf * get_image_pressure(int pressure)
 
 static GdkPixbuf * get_image_valve(int valve)
 {
+	/*valve внем значение регистра  D110 */
+	/*
+	бит 0 - датчик состояния "ОТКРЫТ"
+	бит 1 - датчик состояния "ЗАКРЫТ"
+	бит 2 - состояние привода "ОТКРЫВАЕТ"
+	бит 3 - состояние привода "ЗАКРЫВАЕТ" */
 	GdkPixbuf * buf;
 	switch(valve){
-		case VALVE_OPEN:
+		case 0x0000:
 			buf = IMAGES_VALVE[VALVE_OPEN];
 			break;
-		case VALVE_CLOSE:
-			buf = IMAGES_VALVE[VALVE_CLOSE];
+		case 0x0001:
+		 	buf = IMAGES_VALVE[VALVE_CLOSE];
 			break;
 		default:
-			buf = IMAGES_VALVE[VALVE_CLOSE];
+		 	buf = IMAGES_VALVE[VALVE_CLOSE];
 			break;
 	}
 	return buf;
@@ -399,6 +407,7 @@ static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 static int get_state_valve(state_controller_s * state)
 {
 	int valve = VALVE_OPEN;
+
 	return valve;
 }
 
@@ -668,6 +677,7 @@ static int show_horizontal(block_controller_s * bc)
 
 static int show_pipe(block_controller_s * bc)
 {
+
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
 	GdkPixbuf * buf = bc->show_state->buf_pipe;

@@ -153,10 +153,10 @@ static int set_state_controller(uint16_t * dest,state_controller_s *state)
 	state->pressure            = dest[REG_D105];
 	state->amperage_vertical   = dest[REG_D106];
 	state->amperage_horizontal = dest[REG_D107];
-   state->valve               = dest[REG_D110];
-   state->tic_valve           = dest[REG_D111];
-   state->fire_sensor         = dest[REG_D114];
-   state->fire_alarm          = dest[REG_D116];
+  state->valve               = dest[REG_D110];
+  state->tic_valve           = dest[REG_D111];
+  state->fire_sensor         = dest[REG_D114];
+  state->fire_alarm          = dest[REG_D116];
 
 	return SUCCESS;
 }
