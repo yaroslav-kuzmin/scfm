@@ -103,5 +103,7 @@
 		<file>pressure_notnorm.png</file>
 		<file>valve_open.png</file>
 		<file>valve_close.png</file>
+		<file>valve_open_run.png</file>
+		<file>valve_close_run.png</file>
 	</gresource>
 </gresources>

@@ -243,7 +243,7 @@ int link_disconnect_controller(link_s * link)
 }
 
 static uint16_t reg_D200 = 0x10C8;
-/*static uint16_t reg_D201 = 0x10C9;*/
+static uint16_t reg_D201 = 0x10C9;
 /*static uint16_t reg_D202 = 0x10CA;*/
 /*static uint16_t reg_D203 = 0x10CB;*/
 /*static uint16_t reg_D204 = 0x10CC;*/
@@ -252,41 +252,46 @@ static uint16_t reg_D200 = 0x10C8;
 /*static uint16_t reg_D207 = 0x10CF;*/
 /*static uint16_t reg_D208 = 0x10D0;*/
 
-static uint16_t VALUE_STOP  = 0x0000;
-static uint16_t VALUE_UP    = 0x0001;
-static uint16_t VALUE_DOWN  = 0x0002;
-static uint16_t VALUE_LEFT  = 0x0004;
-static uint16_t VALUE_RIGHT = 0x0008;
-static int set_value_command(uint64_t command,uint16_t * reg,uint16_t * value)
+static uint16_t VALUE_LAFET_STOP  = 0x0000;
+static uint16_t VALUE_LAFET_UP    = 0x0001;
+static uint16_t VALUE_LAFET_DOWN  = 0x0002;
+static uint16_t VALUE_LAFET_LEFT  = 0x0004;
+static uint16_t VALUE_LAFET_RIGHT = 0x0008;
+
+static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 {
 
-	switch(command){
-		case COMMAND_UP:
+	switch(command.part.value){
+		case COMMAND_LAFET_UP:
 			*reg = reg_D200;
-			*value = VALUE_UP;
+			*value = VALUE_LAFET_UP;
 			break;
-		case COMMAND_DOWN:
+		case COMMAND_LAFET_DOWN:
 			*reg = reg_D200;
-			*value = VALUE_DOWN;
+			*value = VALUE_LAFET_DOWN;
 			break;
-		case COMMAND_RIGHT:
+		case COMMAND_LAFET_RIGHT:
 			*reg = reg_D200;
-			*value = VALUE_RIGHT;
+			*value = VALUE_LAFET_RIGHT;
 			break;
-		case COMMAND_LEFT:
+		case COMMAND_LAFET_LEFT:
 			*reg = reg_D200;
-			*value = VALUE_LEFT;
+			*value = VALUE_LAFET_LEFT;
+			break;
+		case COMMAND_LAFET_SPEED_VERTICAL:
+			*reg = reg_D201;
+			*value = command.part.parametr;
 			break;
 		default:
 			/*TODO возможно возврашать ошибку */
 			*reg = reg_D200;
-			*value = VALUE_STOP;
+			*value = VALUE_LAFET_STOP;
 			break;
 	}
 	return SUCCESS;
 }
 
-int command_controller(link_s * link,uint64_t command)
+int command_controller(link_s * link,command_u command)
 {
 	int rc;
 	modbus_t * ctx = (modbus_t*)link->connect;
@@ -399,6 +404,39 @@ int link_state_controller(link_s * link,state_controller_s * state)
 	/*TODO запись чтение в разных потоках */
 	set_state_controller(dest,state);
 	return SUCCESS;
+}
+
+flag_t get_state_valve(state_controller_s * state)
+{
+	/*valve внем значение регистра  D110 */
+	/*
+	бит 0 - датчик состояния "ОТКРЫТ"
+	бит 1 - датчик состояния "ЗАКРЫТ"
+	бит 2 - состояние привода "ОТКРЫВАЕТ"
+	бит 3 - состояние привода "ЗАКРЫВАЕТ" */
+#define BIT_VALVE_OPEN             0x0001
+#define BIT_VALVE_CLOSE            0x0002
+#define BIT_VALVE_OPEN_RUN         0x0004
+#define BIT_VALVE_CLOSE_RUN        0x0008
+#define VALVE_OPEN(b)        (b & BIT_VALVE_OPEN)
+#define VALVE_CLOSE(b)       (b & BIT_VALVE_CLOSE)
+#define VALVE_OPEN_RUN(b)    (b & BIT_VALVE_OPEN_RUN)
+#define VALVE_CLOSE_RUN(b)   (b & BIT_VALVE_CLOSE_RUN)
+	uint16_t bit_valve = state->valve;
+
+	if(VALVE_OPEN(bit_valve)){
+		return STATE_VALVE_OPEN;
+	}
+	if(VALVE_CLOSE(bit_valve)){
+		return STATE_VALVE_CLOSE;
+	}
+	if(VALVE_OPEN_RUN(bit_valve)){
+		return STATE_VALVE_OPEN_RUN;
+	}
+	if(VALVE_CLOSE_RUN(bit_valve)){
+		return STATE_VALVE_CLOSE_RUN;
+	}
+	return STATE_VALVE_CLOSE;
 }
 
 static uint16_t reg_D300 = 0x112C;

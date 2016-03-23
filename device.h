@@ -44,14 +44,15 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-int command_controller(link_s * link,uint64_t command);
-int check_config_controller(config_controller_s * config_c,config_controller_s * config_d);
+flag_t command_controller(link_s * link,command_u command);
+flag_t check_config_controller(config_controller_s * config_c,config_controller_s * config_d);
 char * get_name_controller(config_controller_s * config);
-int link_state_controller(link_s * link,state_controller_s * state);
-int link_config_controller(link_s * link,config_controller_s * config);
-int link_connect_controller(link_s * link);
-int link_disconnect_controller(link_s * link);
-int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
+flag_t get_state_valve(state_controller_s * state);
+flag_t link_state_controller(link_s * link,state_controller_s * state);
+flag_t link_config_controller(link_s * link,config_controller_s * config);
+flag_t link_connect_controller(link_s * link);
+flag_t link_disconnect_controller(link_s * link);
+flag_t check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
 
 #endif
 

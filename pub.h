@@ -501,6 +501,15 @@ struct _config_controller_s
 };
 typedef struct _config_controller_s config_controller_s;
 
+enum
+{
+	STATE_VALVE_OPEN=0,
+	STATE_VALVE_OPEN_RUN,
+	STATE_VALVE_CLOSE,
+	STATE_VALVE_CLOSE_RUN,
+	AMOUNT_STATE_VALVE
+};
+
 struct _state_controller_s
 {
 	uint16_t lafet;
@@ -538,14 +547,50 @@ struct _controller_s
 typedef struct _controller_s controller_s;
 /**************************************/
 /*комманды контроллера*/
+typedef struct _command_part_s command_part_s;
+struct _command_part_s
+{
+	uint16_t value;
+	uint16_t parametr;
+	uint16_t reserve_0;
+	uint16_t reserve_1;
+};
+typedef union _command_u command_u;
+union _command_u
+{
+	uint64_t all;
+	command_part_s part;
+};
+
 enum
 {
 	COMMAND_EMPTY=0,
-	COMMAND_STOP,
-	COMMAND_UP,
-	COMMAND_DOWN,
-	COMMAND_RIGHT,
-	COMMAND_LEFT,
+	COMMAND_LAFET_STOP,
+	COMMAND_LAFET_UP,
+	COMMAND_LAFET_DOWN,
+	COMMAND_LAFET_RIGHT,
+	COMMAND_LAFET_LEFT,
+	COMMAND_LAFET_SPEED_VERTICAL,
+	COMMAND_LAFET_SPEED_HORIZONTAL,
+	COMMAND_SPRAY_LESS,
+	COMMAND_SPRAY_MORE,
+	COMMAND_RATE_LESS,
+	COMMAND_RATE_MORE,
+	COMMAND_VEIL_LESS,
+	COMMAND_VEIL_MORE,
+	COMMAND_OSCILLATION_STOP,
+	COMMAND_OSCILLATION_VERTICAL,
+	COMMAND_OSCILLATION_HORIZONTAL,
+	COMMAND_OSCILLATION_SAW,
+	COMMAND_OSCILLATION_STEP,
+	COMMAND_VALVE_STOP,
+	COMMAND_VALVE_OPEN,
+	COMMAND_VALVE_CLOSE,
+	COMMAND_VALVE_POSITION,
+	COMMAND_ALL_DEVICE_STOP,
+	COMMAND_MODE_AUTO,
+	COMMAND_MODE_MANUAL,
+	COMMAND_MODE_CONFIG,
 	AMOUNT_COMMAND
 };
 #endif

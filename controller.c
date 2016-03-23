@@ -190,9 +190,9 @@ enum
 {
 	PRESSURE_NORM = 0,
 	PRESSURE_NOTNORM,
-	AMOUNT_PRESSURE
+	AMOUNT_IMAGE_PRESSURE
 };
-static GdkPixbuf * IMAGES_PRESSURE[AMOUNT_PRESSURE] = {0};
+static GdkPixbuf * IMAGES_PRESSURE[AMOUNT_IMAGE_PRESSURE] = {0};
 
 enum
 {
@@ -200,9 +200,9 @@ enum
 	VALVE_CLOSE,
 	VALVE_OPEN_RUN,
 	VALVE_CLOSE_RUN,
-	AMOUNT_VALVE
+	AMOUNT_IMAGE_VALVE
 };
-static GdkPixbuf * IMAGES_VALVE[AMOUNT_VALVE] = {0};
+static GdkPixbuf * IMAGES_VALVE[AMOUNT_IMAGE_VALVE] = {0};
 
 static int init_image(block_controller_s * bc)
 {
@@ -266,6 +266,8 @@ static int init_image(block_controller_s * bc)
 
 	IMAGES_VALVE[VALVE_OPEN] = get_resource_image(RESOURCE_IMAGE,"valve_open");
 	IMAGES_VALVE[VALVE_CLOSE] = get_resource_image(RESOURCE_IMAGE,"valve_close");
+	IMAGES_VALVE[VALVE_OPEN_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_open_run");
+	IMAGES_VALVE[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
 
 	return SUCCESS;
 }
@@ -324,26 +326,15 @@ static GdkPixbuf * get_image_pressure(int pressure)
 	return buf;
 }
 
-static GdkPixbuf * get_image_valve(int valve)
+static GdkPixbuf * get_image_valve(unsigned int valve)
 {
-	/*valve внем значение регистра  D110 */
-	/*
-	бит 0 - датчик состояния "ОТКРЫТ"
-	бит 1 - датчик состояния "ЗАКРЫТ"
-	бит 2 - состояние привода "ОТКРЫВАЕТ"
-	бит 3 - состояние привода "ЗАКРЫВАЕТ" */
 	GdkPixbuf * buf;
-	switch(valve){
-		case 0x0000:
-			buf = IMAGES_VALVE[VALVE_OPEN];
-			break;
-		case 0x0001:
-		 	buf = IMAGES_VALVE[VALVE_CLOSE];
-			break;
-		default:
-		 	buf = IMAGES_VALVE[VALVE_CLOSE];
-			break;
-	}
+
+	if(valve > AMOUNT_IMAGE_VALVE)
+		valve = VALVE_CLOSE;
+
+	buf = IMAGES_VALVE[valve];
+
 	return buf;
 }
 
@@ -404,13 +395,6 @@ static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 	return angle;
 }
 
-static int get_state_valve(state_controller_s * state)
-{
-	int valve = VALVE_OPEN;
-
-	return valve;
-}
-
 static int16_t calculate_pressure(controller_s * controller)
 {
 	return PRESSURE_NORM;
@@ -466,7 +450,7 @@ static gpointer controllers_communication(gpointer ud)
 	state_controller_s * state;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command;
+	command_u command;
 	/*GSList * list;*/
 
 	for(;;){
@@ -477,7 +461,7 @@ static gpointer controllers_communication(gpointer ud)
 		if(controller != NULL){
 			control = controller->control;
 			queue = control->command;
-			command = POINTER_TO_INT(g_queue_pop_tail(queue));
+			command.all = POINTER_TO_INT(g_queue_pop_tail(queue));
 			link = controller->link;
 			state = controller->state;
 			rc = link_state_controller(link,state);
@@ -487,7 +471,7 @@ static gpointer controllers_communication(gpointer ud)
 				controller->object->status = STATUS_ERROR;
 			}
 			g_debug("read controller");
-			if(command != COMMAND_EMPTY){
+			if(command.all != COMMAND_EMPTY){
 				/*g_debug(" :> %ld ",command);*/
 				rc = command_controller(link,command);
 				if(rc == FAILURE){
@@ -677,13 +661,15 @@ static int show_horizontal(block_controller_s * bc)
 
 static int show_pipe(block_controller_s * bc)
 {
-
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
+
 	GdkPixbuf * buf = bc->show_state->buf_pipe;
 	GtkImage * image = bc->show_state->pipe;
+
 	int pressure = calculate_pressure(controller);
 	int valve = get_state_valve(controller->state);
+
 	GdkPixbuf * pressure_image = get_image_pressure(pressure);
 	GdkPixbuf * valve_image = get_image_valve(valve);
 	int width = gdk_pixbuf_get_width(pressure_image);
@@ -954,7 +940,14 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 }
 
 static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
-/*static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";*/
+static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
+static void clicked_button_valve(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+
+
+}
+
 static gdouble min_valve = 0;
 static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
@@ -972,6 +965,7 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 
 	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_valve),bc);
 
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -995,7 +989,8 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_UP;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_UP;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1005,7 +1000,7 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press up");
@@ -1018,7 +1013,8 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_STOP;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_STOP;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1028,7 +1024,7 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release up");
@@ -1041,7 +1037,8 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_DOWN;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_DOWN;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1051,7 +1048,7 @@ static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer u
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press down");
@@ -1063,7 +1060,8 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_STOP;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_STOP;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1073,7 +1071,7 @@ static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release down");
@@ -1086,7 +1084,8 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_RIGHT;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_RIGHT;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1096,7 +1095,7 @@ static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer 
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press rigth");
@@ -1108,7 +1107,8 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_STOP;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_STOP;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1118,7 +1118,7 @@ static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointe
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release rigth");
@@ -1131,7 +1131,8 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_LEFT;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_LEFT;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1141,7 +1142,7 @@ static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer u
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("press left");
@@ -1153,7 +1154,8 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	controller_s * c = cc->current;
 	control_controller_s * control;
 	GQueue * queue;
-	uint64_t command = COMMAND_STOP;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_STOP;
 
 	if( c == NULL){
 		g_info("Не выбран контролер");
@@ -1163,7 +1165,7 @@ static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer
 	queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
 	g_debug("release left");
