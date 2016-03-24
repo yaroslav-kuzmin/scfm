@@ -982,28 +982,30 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	return grid;
 }
 
-static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+static flag_t push_command_queue(controller_s * controller,command_u command)
 {
-	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
-	command_u command = {0};
-	command.part.value = COMMAND_LAFET_UP;
-
-	if( c == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-	control = c->control;
-	queue = control->command;
+	control_controller_s * control = controller->control;
+	GQueue * queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
 	g_queue_push_head(queue,INT_TO_POINTER(command.all));
 	g_mutex_unlock(&(cc->mutex));
 
-	g_debug("press up");
+	return SUCCESS;
+}
+
+static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * c = cc->current;
+	command_u command = {0};
+	command.part.value = COMMAND_LAFET_UP;
+	if( c == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(c,command);
 }
 /*TODO  одна функция отпускания клавиши команда одна */
 static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1011,23 +1013,13 @@ static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer u
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_STOP;
-
 	if( c == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("release up");
+	push_command_queue(c,command);
 }
 
 static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1519,7 +1511,6 @@ int select_block_controller(controller_s * controller)
 	communication_controller_s * cc = block_controller.communication_controller;
 	GtkLabel * label;
 	GThread * tid = cc->tid;
-
 
 	if(controller == NULL){
 		block_controller.stop_show = OK;

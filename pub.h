@@ -146,13 +146,13 @@ enum
 	COLUMN_TABLE_GROUP_IMAGE,
 	COLUMN_TABLE_GROUP_AMOUNT
 };
+typedef struct _group_s group_s;
 struct _group_s
 {
 	object_s * object;
 
 	char * image;
 };
-typedef struct _group_s group_s;
 /*****************************************************************************/
 
 enum
@@ -164,6 +164,7 @@ enum
 	COLUMN_TABLE_VIDEOCAMERA_ACCESS,
 	COLUMN_TABLE_VIDEOCAMERA_AMOUNT
 };
+typedef struct _videocamera_s videocamera_s;
 struct _videocamera_s
 {
 	object_s * object;
@@ -173,7 +174,6 @@ struct _videocamera_s
 	uint32_t port;
 	char * access;
 };
-typedef struct _videocamera_s videocamera_s;
 
 /*****************************************************************************/
 /*   КОНТРОЛЛЕР  */
@@ -467,6 +467,7 @@ enum
 #define TYPE_LINK_UART        0x01
 #define TYPE_LINK_TCP         0x02
 extern char STR_EMPTY[];
+typedef struct _link_s link_s;
 struct _link_s
 {
 	void * connect;
@@ -483,8 +484,8 @@ struct _link_s
 	uint8_t data_bit;
 	uint8_t stop_bit;
 };
-typedef struct _link_s link_s;
 
+typedef struct _config_controller_s config_controller_s;
 struct _config_controller_s
 {
 	uint32_t type;
@@ -499,7 +500,6 @@ struct _config_controller_s
 	double rate_pressure;
 	double rate_valve_analog;
 };
-typedef struct _config_controller_s config_controller_s;
 
 enum
 {
@@ -510,6 +510,7 @@ enum
 	AMOUNT_STATE_VALVE
 };
 
+typedef struct _state_controller_s state_controller_s;
 struct _state_controller_s
 {
 	uint16_t lafet;
@@ -525,15 +526,15 @@ struct _state_controller_s
 	uint16_t fire_sensor;
 	uint16_t fire_alarm;
 };
-typedef struct _state_controller_s state_controller_s;
 
+typedef struct _control_controller_s control_controller_s;
 struct _control_controller_s
 {
 	GQueue * command;
 };
-typedef struct _control_controller_s control_controller_s;
 #define MIN_ID     1
 #define MAX_ID     247
+typedef struct _controller_s controller_s;
 struct _controller_s
 {
 	link_s * link;
@@ -544,7 +545,6 @@ struct _controller_s
 	state_controller_s * state;
 	control_controller_s * control;
 };
-typedef struct _controller_s controller_s;
 /**************************************/
 /*комманды контроллера*/
 typedef struct _command_part_s command_part_s;
