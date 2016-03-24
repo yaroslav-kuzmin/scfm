@@ -244,23 +244,59 @@ int link_disconnect_controller(link_s * link)
 
 static uint16_t reg_D200 = 0x10C8;
 static uint16_t reg_D201 = 0x10C9;
-/*static uint16_t reg_D202 = 0x10CA;*/
-/*static uint16_t reg_D203 = 0x10CB;*/
-/*static uint16_t reg_D204 = 0x10CC;*/
-/*static uint16_t reg_D205 = 0x10CD;*/
-/*static uint16_t reg_D206 = 0x10CE;*/
-/*static uint16_t reg_D207 = 0x10CF;*/
-/*static uint16_t reg_D208 = 0x10D0;*/
+static uint16_t reg_D202 = 0x10CA;
+static uint16_t reg_D203 = 0x10CB;
+static uint16_t reg_D204 = 0x10CC;
+static uint16_t reg_D205 = 0x10CD;
+/*static uint16_t reg_D206 = 0x10CE; РЕЗЕРВ*/
+static uint16_t reg_D207 = 0x10CF;
+static uint16_t reg_D208 = 0x10D0;
 
 static uint16_t VALUE_LAFET_STOP  = 0x0000;
 static uint16_t VALUE_LAFET_UP    = 0x0001;
 static uint16_t VALUE_LAFET_DOWN  = 0x0002;
 static uint16_t VALUE_LAFET_LEFT  = 0x0004;
 static uint16_t VALUE_LAFET_RIGHT = 0x0008;
+static uint16_t VALUE_SPRAY_LESS  = 0x0010;
+static uint16_t VALUE_SPRAY_MORE  = 0x0020;
+static uint16_t VALUE_RATE_LESS   = 0x0040;
+static uint16_t VALUE_RATE_MORE   = 0x0080;
+static uint16_t VALUE_VEIL_LESS   = 0x0100;
+static uint16_t VALUE_VEIL_MORE   = 0x0200;
+static uint16_t VALUE_OSCILLATION_STOP       = 0x0000;
+static uint16_t VALUE_OSCILLATION_VERTICAL   = 0x0001;
+static uint16_t VALUE_OSCILLATION_HORIZONTAL = 0x0002;
+static uint16_t VALUE_OSCILLATION_SAW        = 0x0004;
+static uint16_t VALUE_OSCILLATION_STEP       = 0x0008;
+static uint16_t VALUE_VALVE_STOP       = 0x0000;
+static uint16_t VALUE_VALVE_OPEN       = 0x0001;
+static uint16_t VALUE_VALVE_CLOSE      = 0x0002;
+static uint16_t VALUE_ALL_DEVICE_STOP      = 0x0000;
+/*
+static uint16_t VALUE_DEVICE_1_STATE_0     = 0x0001;
+static uint16_t VALUE_DEVICE_1_STATE_1     = 0x0002;
+static uint16_t VALUE_DEVICE_2_STATE_0     = 0x0004;
+static uint16_t VALUE_DEVICE_2_STATE_1     = 0x0008;
+static uint16_t VALUE_DEVICE_3_STATE_0     = 0x0010;
+static uint16_t VALUE_DEVICE_3_STATE_1     = 0x0020;
+static uint16_t VALUE_DEVICE_4_STATE_0     = 0x0040;
+static uint16_t VALUE_DEVICE_4_STATE_1     = 0x0080;
+static uint16_t VALUE_DEVICE_5_STATE_0     = 0x0100;
+static uint16_t VALUE_DEVICE_5_STATE_1     = 0x0200;
+static uint16_t VALUE_DEVICE_6_STATE_0     = 0x0400;
+static uint16_t VALUE_DEVICE_6_STATE_1     = 0x0800;
+static uint16_t VALUE_DEVICE_7_STATE_0     = 0x1000;
+static uint16_t VALUE_DEVICE_7_STATE_1     = 0x2000;
+static uint16_t VALUE_DEVICE_8_STATE_0     = 0x4000;
+static uint16_t VALUE_DEVICE_8_STATE_1     = 0x8000;
+*/
+/*static uint16_t VALUE_MODE_EMPTY  = 0x0000;*/
+static uint16_t VALUE_MODE_AUTO   = 0x0001;
+static uint16_t VALUE_MODE_MANUAL = 0x0002;
+static uint16_t VALUE_MODE_CONFIG = 0x0004;
 
 static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 {
-
 	switch(command.part.value){
 		case COMMAND_LAFET_UP:
 			*reg = reg_D200;
@@ -281,6 +317,86 @@ static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 		case COMMAND_LAFET_SPEED_VERTICAL:
 			*reg = reg_D201;
 			*value = command.part.parametr;
+			break;
+		case COMMAND_LAFET_SPEED_HORIZONTAL:
+			*reg = reg_D202;
+			*value = command.part.parametr;
+			break;
+		case COMMAND_SPRAY_LESS:
+			*reg = reg_D200;
+			*value = VALUE_SPRAY_LESS;
+			break;
+		case COMMAND_SPRAY_MORE:
+			*reg = reg_D200;
+			*value = VALUE_SPRAY_MORE;
+			break;
+		case COMMAND_RATE_LESS:
+			*reg = reg_D200;
+			*value = VALUE_RATE_LESS;
+			break;
+		case COMMAND_RATE_MORE:
+			*reg = reg_D200;
+			*value = VALUE_RATE_MORE;
+			break;
+		case COMMAND_VEIL_LESS:
+			*reg = reg_D200;
+			*value = VALUE_VEIL_LESS;
+			break;
+		case COMMAND_VEIL_MORE:
+			*reg = reg_D200;
+			*value = VALUE_VEIL_MORE;
+			break;
+		case COMMAND_OSCILLATION_STOP:
+			*reg = reg_D203;
+			*value = VALUE_OSCILLATION_STOP;
+			break;
+		case COMMAND_OSCILLATION_VERTICAL:
+			*reg = reg_D203;
+			*value = VALUE_OSCILLATION_VERTICAL;
+			break;
+		case COMMAND_OSCILLATION_HORIZONTAL:
+			*reg = reg_D203;
+			*value = VALUE_OSCILLATION_HORIZONTAL;
+			break;
+		case COMMAND_OSCILLATION_SAW:
+			*reg = reg_D203;
+			*value = VALUE_OSCILLATION_SAW;
+			break;
+		case COMMAND_OSCILLATION_STEP:
+			*reg = reg_D203;
+			*value = VALUE_OSCILLATION_STEP;
+			break;
+		case COMMAND_VALVE_STOP:
+			*reg = reg_D204;
+			*value = VALUE_VALVE_STOP;
+			break;
+		case COMMAND_VALVE_OPEN:
+			*reg = reg_D204;
+			*value = VALUE_VALVE_OPEN;
+			break;
+		case COMMAND_VALVE_CLOSE:
+			*reg = reg_D204;
+			*value = VALUE_VALVE_CLOSE;
+			break;
+		case COMMAND_VALVE_POSITION:
+			*reg = reg_D205;
+			*value = command.part.parametr;
+			break;
+		case COMMAND_ALL_DEVICE_STOP:
+			*reg = reg_D207;
+			*value = VALUE_ALL_DEVICE_STOP;
+			break;
+		case COMMAND_MODE_AUTO:
+			*reg = reg_D208;
+			*value = VALUE_MODE_AUTO;
+			break;
+		case COMMAND_MODE_MANUAL:
+			*reg = reg_D208;
+			*value = VALUE_MODE_MANUAL;
+			break;
+		case COMMAND_MODE_CONFIG:
+			*reg = reg_D208;
+			*value = VALUE_MODE_CONFIG;
 			break;
 		default:
 			/*TODO возможно возврашать ошибку */

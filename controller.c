@@ -94,6 +94,11 @@ enum
 	AMOUNT_MODE
 };
 
+typedef struct _state_interface_s state_interface_s;
+struct _state_interface_s
+{
+	flag_t but_valve;
+};
 typedef struct _block_controller_s block_controller_s;
 struct _block_controller_s
 {
@@ -112,6 +117,7 @@ struct _block_controller_s
 
 	show_state_s * show_state;
 	show_config_s * show_config;
+	state_interface_s * state;
 };
 
 /*****************************************************************************/
@@ -457,11 +463,12 @@ static gpointer controllers_communication(gpointer ud)
 		g_mutex_lock(&(cc->mutex));
 		controller = cc->current;
 		g_mutex_unlock(&(cc->mutex));
-
 		if(controller != NULL){
 			control = controller->control;
 			queue = control->command;
+			g_mutex_lock(&(cc->mutex));
 			command.all = POINTER_TO_INT(g_queue_pop_tail(queue));
+			g_mutex_unlock(&(cc->mutex));
 			link = controller->link;
 			state = controller->state;
 			rc = link_state_controller(link,state);
@@ -915,6 +922,18 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 
 /***** Функции отображения системы управления ********************************/
 
+static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command)
+{
+	control_controller_s * control = controller->control;
+	GQueue * queue = control->command;
+
+	g_mutex_lock(&(cc->mutex));
+	g_queue_push_head(queue,INT_TO_POINTER(command.all));
+	g_mutex_unlock(&(cc->mutex));
+
+	return SUCCESS;
+}
+
 /*static char STR_MODE_AUTO[]   = "Автоматический режим";*/
 static char STR_MODE_MANUAL[] = "РУЧНОЙ РЕЖИМ";
 
@@ -943,14 +962,52 @@ static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
 static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
 static void clicked_button_valve(GtkButton * b,gpointer ud)
 {
-	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	char * name;
 
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return ;
+	}
 
+	if(bc->state->but_valve == STATE_VALVE_CLOSE){
+		command.part.value = COMMAND_VALVE_OPEN;
+		bc->state->but_valve = STATE_VALVE_OPEN;
+		name = STR_NAME_BUTTON_VALVE_CLOSE;
+	}
+	else{
+		command.part.value = COMMAND_VALVE_CLOSE;
+		bc->state->but_valve = STATE_VALVE_CLOSE;
+		name = STR_NAME_BUTTON_VALVE_OPEN;
+	}
+	push_command_queue(communication_controller,controller,command);
+	gtk_button_set_label(b,name);
 }
 
 static gdouble min_valve = 0;
 static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
+static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	double valve_d = v;
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return FALSE;
+	}
+
+	push_command_queue(communication_controller,controller,command);
+	gtk_range_set_value(r,valve_d);
+	return TRUE;
+}
+
 static GtkWidget * create_block_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -966,9 +1023,13 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_valve),bc);
+	bc->state->but_valve = STATE_VALVE_CLOSE;
 
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_scale_set_digits(GTK_SCALE(scale),0); /*колличество знаков после запятой*/
+	gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);
+	g_signal_connect(scale,"change-value",G_CALLBACK(change_value_scale_valve),bc);
 
 	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but  ,0,1,1,1);
@@ -982,185 +1043,83 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	return grid;
 }
 
-static flag_t push_command_queue(controller_s * controller,command_u command)
-{
-	control_controller_s * control = controller->control;
-	GQueue * queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	return SUCCESS;
-}
-
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_UP;
-	if( c == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-	push_command_queue(c,command);
-}
-/*TODO  одна функция отпускания клавиши команда одна */
-static void button_release_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
-{
-	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	command_u command = {0};
-	command.part.value = COMMAND_LAFET_STOP;
-	if( c == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-	push_command_queue(c,command);
-}
 
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(communication_controller,controller,command);
+}
 static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_DOWN;
 
-	if( c == NULL){
+	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("press down");
-}
-static void button_release_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
-{
-	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
-	command_u command = {0};
-	command.part.value = COMMAND_LAFET_STOP;
-
-	if( c == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("release down");
+	push_command_queue(communication_controller,controller,command);
 }
 
 static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_RIGHT;
 
-	if( c == NULL){
+	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("press rigth");
-}
-static void button_release_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
-{
-	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
-	command_u command = {0};
-	command.part.value = COMMAND_LAFET_STOP;
-
-	if( c == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("release rigth");
+	push_command_queue(communication_controller,controller,command);
 }
 
 static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_LEFT;
 
-	if( c == NULL){
+	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("press left");
+	push_command_queue(communication_controller,controller,command);
 }
-static void button_release_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+
+static void button_release_event_button_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	control_controller_s * control;
-	GQueue * queue;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
 	command_u command = {0};
 	command.part.value = COMMAND_LAFET_STOP;
 
-	if( c == NULL){
+	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
-	control = c->control;
-	queue = control->command;
-
-	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
-	g_mutex_unlock(&(cc->mutex));
-
-	g_debug("release left");
+	push_command_queue(communication_controller,controller,command);
 }
 
 static GtkWidget * create_block_lafet(block_controller_s * bc)
@@ -1176,22 +1135,22 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	but_up = gtk_button_new_with_label("ВВЕРХ");
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
-	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_up),bc);
+	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
 
 	but_down = gtk_button_new_with_label("ВНИЗ");
 	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
-	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_down),bc);
+	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
 
 	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
-	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_right),bc);
+	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
 
 	but_left = gtk_button_new_with_label("ВЛЕВО");
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
-	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_left),bc);
+	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
 
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
@@ -1204,7 +1163,7 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
 
-	return grid;
+ 	return grid;
 }
 
 static gdouble min_spray = 0;
@@ -1225,7 +1184,6 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 
 	label_spray = gtk_label_new("Распыл");
 	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-
 	scale_spray = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_spray,max_spray,step_spray);
 	layout_widget(scale_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
@@ -1250,19 +1208,63 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 
 static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
 {
-	/*block_controller_s * bc = (block_controller_s*)ud;*/
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
+	command_u command = {0};
+	command.part.value = COMMAND_OSCILLATION_VERTICAL;
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(communication_controller,controller,command);
 }
 static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
 {
-	/*block_controller_s * bc = (block_controller_s*)ud;*/
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
+	command_u command = {0};
+	command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(communication_controller,controller,command);
 }
 static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
 {
-	/*block_controller_s * bc = (block_controller_s*)ud;*/
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
+	command_u command = {0};
+	command.part.value = COMMAND_OSCILLATION_SAW;
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(communication_controller,controller,command);
 }
 static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
 {
-	/*block_controller_s * bc = (block_controller_s*)ud;*/
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+
+	command_u command = {0};
+	command.part.value = COMMAND_OSCILLATION_STEP;
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	push_command_queue(communication_controller,controller,command);
 }
 
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
@@ -1504,6 +1506,7 @@ static flag_t	changed_block_controller(block_controller_s * bc,config_controller
 
 static show_state_s show_state;
 static show_config_s show_config;
+static state_interface_s state_interface;
 static block_controller_s block_controller;
 
 int select_block_controller(controller_s * controller)
@@ -1550,7 +1553,7 @@ int select_block_controller(controller_s * controller)
 #define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
 GtkWidget * create_block_controller(void)
 {
-	GtkWidget * box;
+ 	GtkWidget * box;
 	GtkWidget * frame_state;
 	GtkWidget * frame_control;
 
@@ -1560,6 +1563,7 @@ GtkWidget * create_block_controller(void)
 	block_controller.communication_controller = &communication_controller;
 	block_controller.show_state = &show_state;
 	block_controller.show_config = &show_config;
+	block_controller.state = &state_interface;
 
 	init_image(&block_controller);
 
