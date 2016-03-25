@@ -69,20 +69,15 @@ struct _communication_controller_s
 	uint32_t timeout_config;
 };
 
-typedef struct _show_config_s show_config_s;
-struct _show_config_s
-{
-	GtkWidget * engine_vertical;
-	GtkWidget * engine_horizontal;
-};
-
 typedef struct _show_state_s show_state_s;
 struct _show_state_s
 {
 	GtkImage * axis_vertical;
 	GdkPixbuf * buf_axis_vertical;
+
 	GtkImage * axis_horizontal;
 	GdkPixbuf * buf_axis_horizontal;
+
 	GtkImage * pipe;
 	GdkPixbuf * buf_pipe;
 };
@@ -94,11 +89,19 @@ enum
 	AMOUNT_MODE
 };
 
-typedef struct _state_interface_s state_interface_s;
-struct _state_interface_s
+typedef struct _show_control_s show_control_s;
+struct _show_control_s
 {
+	/*лафет*/
+	GtkButton * but_up;
+	GtkButton * but_down;
+
 	flag_t but_valve;
+
+	flag_t mode;
+	GtkWidget * console;
 };
+
 typedef struct _block_controller_s block_controller_s;
 struct _block_controller_s
 {
@@ -109,15 +112,13 @@ struct _block_controller_s
 	flag_t run_show;
 	uint32_t timeout_show;
 
+	/**/
 	communication_controller_s * communication_controller;
 
 	/*отображение блока управления в разных режимах*/
-	flag_t mode;
-	GtkWidget * control_console;
 
-	show_state_s * show_state;
-	show_config_s * show_config;
-	state_interface_s * state;
+	show_state_s * state;
+	show_control_s * control;
 };
 
 /*****************************************************************************/
@@ -137,16 +138,9 @@ enum
 	VERTICAL_0900,
 	VERTICAL_UP,
 	VERTICAL_DOWN,
-	AMOUNT_IMAGE_VERTICAL
-};
-static GdkPixbuf * IMAGES_VERTICAL[AMOUNT_IMAGE_VERTICAL] = {0};
-static int16_t period_vertical = 10;
-static int16_t min_vertical = 0;
-static int16_t max_vertical = 90;
-
-enum
-{
-	HORIZONTAL_0000 = 0,
+	VERTICAL_NO_ENGINE, /*Нет двигателя */
+	VERTICAL_NO_CONNECT, /*Нет сигнала*/
+	HORIZONTAL_0000,
 	HORIZONTAL_0100,
 	HORIZONTAL_0200,
 	HORIZONTAL_0300,
@@ -185,95 +179,94 @@ enum
 	HORIZONTAL_3600,
 	HORIZONTAL_RIGHT,
 	HORIZONTAL_LEFT,
-	AMOUNT_IMAGE_HORIZONTAL
+	HORIZONTAL_NO_ENGINE,  /*нет двигателя*/
+	HORIZONTAL_NO_CONNECT,  /*нет сигнала*/
+	PRESSURE_NORM,
+	PRESSURE_NOTNORM,
+	VALVE_OPEN,
+	VALVE_CLOSE,
+	VALVE_OPEN_RUN,
+	VALVE_CLOSE_RUN,
+ 	AMOUNT_IMAGE_STATE
 };
-static GdkPixbuf * IMAGES_HORIZONTAL[AMOUNT_IMAGE_HORIZONTAL] = {0};
+
+static GdkPixbuf * images_state[AMOUNT_IMAGE_STATE] = {0};
+static int16_t period_vertical = 10;
+static int16_t min_vertical = 0;
+static int16_t max_vertical = 90;
 static gdouble period_horizontal = 10;
 static int16_t min_horizontal = 0;
 static int16_t max_horizontal = 360;
 
-enum
-{
-	PRESSURE_NORM = 0,
-	PRESSURE_NOTNORM,
-	AMOUNT_IMAGE_PRESSURE
-};
-static GdkPixbuf * IMAGES_PRESSURE[AMOUNT_IMAGE_PRESSURE] = {0};
-
-enum
-{
-	VALVE_OPEN = 0,
-	VALVE_CLOSE,
-	VALVE_OPEN_RUN,
-	VALVE_CLOSE_RUN,
-	AMOUNT_IMAGE_VALVE
-};
-static GdkPixbuf * IMAGES_VALVE[AMOUNT_IMAGE_VALVE] = {0};
 
 static int init_image(block_controller_s * bc)
 {
 	/*TODO высвободить память из буфферов*/
 
-	IMAGES_VERTICAL[VERTICAL_0000] = get_resource_image(RESOURCE_IMAGE,"v0000");
-	IMAGES_VERTICAL[VERTICAL_0100] = get_resource_image(RESOURCE_IMAGE,"v0100");
-	IMAGES_VERTICAL[VERTICAL_0200] = get_resource_image(RESOURCE_IMAGE,"v0200");
-	IMAGES_VERTICAL[VERTICAL_0300] = get_resource_image(RESOURCE_IMAGE,"v0300");
-	IMAGES_VERTICAL[VERTICAL_0400] = get_resource_image(RESOURCE_IMAGE,"v0400");
-	IMAGES_VERTICAL[VERTICAL_0500] = get_resource_image(RESOURCE_IMAGE,"v0500");
-	IMAGES_VERTICAL[VERTICAL_0600] = get_resource_image(RESOURCE_IMAGE,"v0600");
-	IMAGES_VERTICAL[VERTICAL_0700] = get_resource_image(RESOURCE_IMAGE,"v0700");
-	IMAGES_VERTICAL[VERTICAL_0800] = get_resource_image(RESOURCE_IMAGE,"v0800");
-	IMAGES_VERTICAL[VERTICAL_0900] = get_resource_image(RESOURCE_IMAGE,"v0900");
-	IMAGES_VERTICAL[VERTICAL_UP]   = get_resource_image(RESOURCE_IMAGE,"v0900p");
-	IMAGES_VERTICAL[VERTICAL_DOWN] = get_resource_image(RESOURCE_IMAGE,"v0000p");
+	images_state[VERTICAL_0000]       = get_resource_image(RESOURCE_IMAGE,"v0000");
+	images_state[VERTICAL_0100]       = get_resource_image(RESOURCE_IMAGE,"v0100");
+	images_state[VERTICAL_0200]       = get_resource_image(RESOURCE_IMAGE,"v0200");
+	images_state[VERTICAL_0300]       = get_resource_image(RESOURCE_IMAGE,"v0300");
+	images_state[VERTICAL_0400]       = get_resource_image(RESOURCE_IMAGE,"v0400");
+	images_state[VERTICAL_0500]       = get_resource_image(RESOURCE_IMAGE,"v0500");
+	images_state[VERTICAL_0600]       = get_resource_image(RESOURCE_IMAGE,"v0600");
+	images_state[VERTICAL_0700]       = get_resource_image(RESOURCE_IMAGE,"v0700");
+	images_state[VERTICAL_0800]       = get_resource_image(RESOURCE_IMAGE,"v0800");
+	images_state[VERTICAL_0900]       = get_resource_image(RESOURCE_IMAGE,"v0900");
+	images_state[VERTICAL_UP]         = get_resource_image(RESOURCE_IMAGE,"v0900p");
+	images_state[VERTICAL_DOWN]       = get_resource_image(RESOURCE_IMAGE,"v0000p");
+	images_state[VERTICAL_NO_ENGINE]  = get_resource_image(RESOURCE_IMAGE,"vxxxx");
+	images_state[VERTICAL_NO_CONNECT] = get_resource_image(RESOURCE_IMAGE,"vbase");
 
-	IMAGES_HORIZONTAL[HORIZONTAL_0000]  = get_resource_image(RESOURCE_IMAGE,"h0000");
-	IMAGES_HORIZONTAL[HORIZONTAL_0100]  = get_resource_image(RESOURCE_IMAGE,"h0100");
-	IMAGES_HORIZONTAL[HORIZONTAL_0200]  = get_resource_image(RESOURCE_IMAGE,"h0200");
-	IMAGES_HORIZONTAL[HORIZONTAL_0300]  = get_resource_image(RESOURCE_IMAGE,"h0300");
-	IMAGES_HORIZONTAL[HORIZONTAL_0400]  = get_resource_image(RESOURCE_IMAGE,"h0400");
-	IMAGES_HORIZONTAL[HORIZONTAL_0500]  = get_resource_image(RESOURCE_IMAGE,"h0500");
-	IMAGES_HORIZONTAL[HORIZONTAL_0600]  = get_resource_image(RESOURCE_IMAGE,"h0600");
-	IMAGES_HORIZONTAL[HORIZONTAL_0700]  = get_resource_image(RESOURCE_IMAGE,"h0700");
-	IMAGES_HORIZONTAL[HORIZONTAL_0800]  = get_resource_image(RESOURCE_IMAGE,"h0800");
-	IMAGES_HORIZONTAL[HORIZONTAL_0900]  = get_resource_image(RESOURCE_IMAGE,"h0900");
-	IMAGES_HORIZONTAL[HORIZONTAL_1000]  = get_resource_image(RESOURCE_IMAGE,"h1000");
-	IMAGES_HORIZONTAL[HORIZONTAL_1100]  = get_resource_image(RESOURCE_IMAGE,"h1100");
-	IMAGES_HORIZONTAL[HORIZONTAL_1200]  = get_resource_image(RESOURCE_IMAGE,"h1200");
-	IMAGES_HORIZONTAL[HORIZONTAL_1300]  = get_resource_image(RESOURCE_IMAGE,"h1300");
-	IMAGES_HORIZONTAL[HORIZONTAL_1400]  = get_resource_image(RESOURCE_IMAGE,"h1400");
-	IMAGES_HORIZONTAL[HORIZONTAL_1500]  = get_resource_image(RESOURCE_IMAGE,"h1500");
-	IMAGES_HORIZONTAL[HORIZONTAL_1600]  = get_resource_image(RESOURCE_IMAGE,"h1600");
-	IMAGES_HORIZONTAL[HORIZONTAL_1700]  = get_resource_image(RESOURCE_IMAGE,"h1700");
-	IMAGES_HORIZONTAL[HORIZONTAL_1800]  = get_resource_image(RESOURCE_IMAGE,"h1800");
-	IMAGES_HORIZONTAL[HORIZONTAL_1900]  = get_resource_image(RESOURCE_IMAGE,"h1900");
-	IMAGES_HORIZONTAL[HORIZONTAL_2000]  = get_resource_image(RESOURCE_IMAGE,"h2000");
-	IMAGES_HORIZONTAL[HORIZONTAL_2100]  = get_resource_image(RESOURCE_IMAGE,"h2100");
-	IMAGES_HORIZONTAL[HORIZONTAL_2200]  = get_resource_image(RESOURCE_IMAGE,"h2200");
-	IMAGES_HORIZONTAL[HORIZONTAL_2300]  = get_resource_image(RESOURCE_IMAGE,"h2300");
-	IMAGES_HORIZONTAL[HORIZONTAL_2400]  = get_resource_image(RESOURCE_IMAGE,"h2400");
-	IMAGES_HORIZONTAL[HORIZONTAL_2500]  = get_resource_image(RESOURCE_IMAGE,"h2500");
-	IMAGES_HORIZONTAL[HORIZONTAL_2600]  = get_resource_image(RESOURCE_IMAGE,"h2600");
-	IMAGES_HORIZONTAL[HORIZONTAL_2700]  = get_resource_image(RESOURCE_IMAGE,"h2700");
-	IMAGES_HORIZONTAL[HORIZONTAL_2800]  = get_resource_image(RESOURCE_IMAGE,"h2800");
-	IMAGES_HORIZONTAL[HORIZONTAL_2900]  = get_resource_image(RESOURCE_IMAGE,"h2900");
-	IMAGES_HORIZONTAL[HORIZONTAL_3000]  = get_resource_image(RESOURCE_IMAGE,"h3000");
-	IMAGES_HORIZONTAL[HORIZONTAL_3100]  = get_resource_image(RESOURCE_IMAGE,"h3100");
-	IMAGES_HORIZONTAL[HORIZONTAL_3200]  = get_resource_image(RESOURCE_IMAGE,"h3200");
-	IMAGES_HORIZONTAL[HORIZONTAL_3300]  = get_resource_image(RESOURCE_IMAGE,"h3300");
-	IMAGES_HORIZONTAL[HORIZONTAL_3400]  = get_resource_image(RESOURCE_IMAGE,"h3400");
-	IMAGES_HORIZONTAL[HORIZONTAL_3500]  = get_resource_image(RESOURCE_IMAGE,"h3500");
-	IMAGES_HORIZONTAL[HORIZONTAL_3600]  = get_resource_image(RESOURCE_IMAGE,"h3600");
-	IMAGES_HORIZONTAL[HORIZONTAL_RIGHT] = get_resource_image(RESOURCE_IMAGE,"h0000p");
-	IMAGES_HORIZONTAL[HORIZONTAL_LEFT]  = get_resource_image(RESOURCE_IMAGE,"h3600p");
+	images_state[HORIZONTAL_0000]       = get_resource_image(RESOURCE_IMAGE,"h0000");
+	images_state[HORIZONTAL_0100]       = get_resource_image(RESOURCE_IMAGE,"h0100");
+	images_state[HORIZONTAL_0200]       = get_resource_image(RESOURCE_IMAGE,"h0200");
+	images_state[HORIZONTAL_0300]       = get_resource_image(RESOURCE_IMAGE,"h0300");
+	images_state[HORIZONTAL_0400]       = get_resource_image(RESOURCE_IMAGE,"h0400");
+	images_state[HORIZONTAL_0500]       = get_resource_image(RESOURCE_IMAGE,"h0500");
+	images_state[HORIZONTAL_0600]       = get_resource_image(RESOURCE_IMAGE,"h0600");
+	images_state[HORIZONTAL_0700]       = get_resource_image(RESOURCE_IMAGE,"h0700");
+	images_state[HORIZONTAL_0800]       = get_resource_image(RESOURCE_IMAGE,"h0800");
+	images_state[HORIZONTAL_0900]       = get_resource_image(RESOURCE_IMAGE,"h0900");
+	images_state[HORIZONTAL_1000]       = get_resource_image(RESOURCE_IMAGE,"h1000");
+	images_state[HORIZONTAL_1100]       = get_resource_image(RESOURCE_IMAGE,"h1100");
+	images_state[HORIZONTAL_1200]       = get_resource_image(RESOURCE_IMAGE,"h1200");
+	images_state[HORIZONTAL_1300]       = get_resource_image(RESOURCE_IMAGE,"h1300");
+	images_state[HORIZONTAL_1400]       = get_resource_image(RESOURCE_IMAGE,"h1400");
+	images_state[HORIZONTAL_1500]       = get_resource_image(RESOURCE_IMAGE,"h1500");
+	images_state[HORIZONTAL_1600]       = get_resource_image(RESOURCE_IMAGE,"h1600");
+	images_state[HORIZONTAL_1700]       = get_resource_image(RESOURCE_IMAGE,"h1700");
+	images_state[HORIZONTAL_1800]       = get_resource_image(RESOURCE_IMAGE,"h1800");
+	images_state[HORIZONTAL_1900]       = get_resource_image(RESOURCE_IMAGE,"h1900");
+	images_state[HORIZONTAL_2000]       = get_resource_image(RESOURCE_IMAGE,"h2000");
+	images_state[HORIZONTAL_2100]       = get_resource_image(RESOURCE_IMAGE,"h2100");
+	images_state[HORIZONTAL_2200]       = get_resource_image(RESOURCE_IMAGE,"h2200");
+	images_state[HORIZONTAL_2300]       = get_resource_image(RESOURCE_IMAGE,"h2300");
+	images_state[HORIZONTAL_2400]       = get_resource_image(RESOURCE_IMAGE,"h2400");
+	images_state[HORIZONTAL_2500]       = get_resource_image(RESOURCE_IMAGE,"h2500");
+	images_state[HORIZONTAL_2600]       = get_resource_image(RESOURCE_IMAGE,"h2600");
+	images_state[HORIZONTAL_2700]       = get_resource_image(RESOURCE_IMAGE,"h2700");
+	images_state[HORIZONTAL_2800]       = get_resource_image(RESOURCE_IMAGE,"h2800");
+	images_state[HORIZONTAL_2900]       = get_resource_image(RESOURCE_IMAGE,"h2900");
+	images_state[HORIZONTAL_3000]       = get_resource_image(RESOURCE_IMAGE,"h3000");
+	images_state[HORIZONTAL_3100]       = get_resource_image(RESOURCE_IMAGE,"h3100");
+	images_state[HORIZONTAL_3200]       = get_resource_image(RESOURCE_IMAGE,"h3200");
+	images_state[HORIZONTAL_3300]       = get_resource_image(RESOURCE_IMAGE,"h3300");
+	images_state[HORIZONTAL_3400]       = get_resource_image(RESOURCE_IMAGE,"h3400");
+	images_state[HORIZONTAL_3500]       = get_resource_image(RESOURCE_IMAGE,"h3500");
+	images_state[HORIZONTAL_3600]       = get_resource_image(RESOURCE_IMAGE,"h3600");
+	images_state[HORIZONTAL_RIGHT]      = get_resource_image(RESOURCE_IMAGE,"h0000p");
+	images_state[HORIZONTAL_LEFT]       = get_resource_image(RESOURCE_IMAGE,"h3600p");
+	images_state[HORIZONTAL_NO_ENGINE]  = get_resource_image(RESOURCE_IMAGE,"hxxxx");
+	images_state[HORIZONTAL_NO_CONNECT] = get_resource_image(RESOURCE_IMAGE,"hbase");
 
-	IMAGES_PRESSURE[PRESSURE_NORM] = get_resource_image(RESOURCE_IMAGE,"pressure_norm");
-	IMAGES_PRESSURE[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,"pressure_notnorm");
+	images_state[PRESSURE_NORM]    = get_resource_image(RESOURCE_IMAGE,"pressure_norm");
+	images_state[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,"pressure_notnorm");
 
-	IMAGES_VALVE[VALVE_OPEN] = get_resource_image(RESOURCE_IMAGE,"valve_open");
-	IMAGES_VALVE[VALVE_CLOSE] = get_resource_image(RESOURCE_IMAGE,"valve_close");
-	IMAGES_VALVE[VALVE_OPEN_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_open_run");
-	IMAGES_VALVE[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
+	images_state[VALVE_OPEN]      = get_resource_image(RESOURCE_IMAGE,"valve_open");
+	images_state[VALVE_CLOSE]     = get_resource_image(RESOURCE_IMAGE,"valve_close");
+	images_state[VALVE_OPEN_RUN]  = get_resource_image(RESOURCE_IMAGE,"valve_open_run");
+	images_state[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
 
 	return SUCCESS;
 }
@@ -283,34 +276,36 @@ static GdkPixbuf * get_image_vertical(int16_t angle)
 	GdkPixbuf * buf = NULL;
 
 	if(angle <= min_vertical){
-		buf = IMAGES_VERTICAL[VERTICAL_DOWN];
+		buf = images_state[VERTICAL_DOWN];
 	}
 	else{
 		if(angle >= max_vertical){
-			buf = IMAGES_VERTICAL[VERTICAL_UP];
+			buf = images_state[VERTICAL_UP];
 		}
 		else{
 			angle = angle / period_vertical;
-			buf = IMAGES_VERTICAL[angle];
+			angle = angle + VERTICAL_0000;
+			buf = images_state[angle];
 		}
 	}
 	return buf;
 }
 static GdkPixbuf * get_image_horizontal(int16_t angle)
 {
-	GdkPixbuf * buf = NULL;
+ 	GdkPixbuf * buf = NULL;
 
 	if(angle <= min_horizontal){
-		buf = IMAGES_HORIZONTAL[HORIZONTAL_RIGHT];
+		buf = images_state[HORIZONTAL_RIGHT];
 	}
 	else{
 		if(angle >= max_horizontal){
-			buf = IMAGES_HORIZONTAL[HORIZONTAL_RIGHT];
+			buf = images_state[HORIZONTAL_RIGHT];
 		}
 		else{
 			angle = angle / period_horizontal;
-			buf = IMAGES_HORIZONTAL[angle];
-		}
+			angle = angle + HORIZONTAL_0000;
+ 			buf = images_state[angle];
+ 		}
 	}
 	return buf;
 }
@@ -320,14 +315,14 @@ static GdkPixbuf * get_image_pressure(int pressure)
 	GdkPixbuf * buf;
 	switch(pressure){
 		case PRESSURE_NORM:
-			buf = IMAGES_PRESSURE[PRESSURE_NORM];
-			break;
+			buf = images_state[PRESSURE_NORM];
+	 		break;
 		case PRESSURE_NOTNORM:
-			buf = IMAGES_PRESSURE[PRESSURE_NOTNORM];
+			buf = images_state[PRESSURE_NOTNORM];
 			break;
 		default:
-			buf = IMAGES_PRESSURE[PRESSURE_NOTNORM];
-			break;
+			buf = images_state[PRESSURE_NOTNORM];
+ 			break;
 	}
 	return buf;
 }
@@ -336,10 +331,24 @@ static GdkPixbuf * get_image_valve(unsigned int valve)
 {
 	GdkPixbuf * buf;
 
-	if(valve > AMOUNT_IMAGE_VALVE)
-		valve = VALVE_CLOSE;
-
-	buf = IMAGES_VALVE[valve];
+	switch(valve){
+		case STATE_VALVE_OPEN:
+			buf = images_state[VALVE_OPEN];
+			break;
+		case STATE_VALVE_CLOSE:
+			buf = images_state[VALVE_CLOSE];
+			break;
+		case STATE_VALVE_OPEN_RUN:
+			buf = images_state[VALVE_OPEN_RUN];
+			break;
+		case STATE_VALVE_CLOSE_RUN:
+			buf = images_state[VALVE_CLOSE_RUN];
+			break;
+		default:
+			/*TODO поставить отдельный рисунок на ошибку*/
+			buf = images_state[VALVE_CLOSE];
+			break;
+	}
 
 	return buf;
 }
@@ -371,6 +380,11 @@ static int16_t calculate_angle_tic_vertical(controller_s * controller)
 		angle = MAX_VERTICAL_ANGLE;
 	}
 
+ 	return angle;
+}
+static int16_t calculate_angle_encoder_vertical(controller_s * controller)
+{
+	int16_t angle = 0;
 	return angle;
 }
 #define MIN_HORIZONTAL_TIC      0
@@ -405,6 +419,7 @@ static int16_t calculate_pressure(controller_s * controller)
 {
 	return PRESSURE_NORM;
 }
+
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*****************************************************************************/
@@ -521,7 +536,7 @@ static gpointer controllers_communication(gpointer ud)
 			g_mutex_unlock(&(cc->mutex));
 			g_thread_exit(cc->tid);
 		}
-		g_mutex_unlock(&(cc->mutex));
+	 	g_mutex_unlock(&(cc->mutex));
 	}
 
 	return NULL;
@@ -634,19 +649,42 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 
 /***** Функции отрисовки информации по таймеру *******************************/
+static flag_t set_image(GtkImage * image,GdkPixbuf * buf_des,GdkPixbuf * buf_src)
+{
+	int width = gdk_pixbuf_get_width(buf_des);
+	int height = gdk_pixbuf_get_height(buf_des);
+	gdk_pixbuf_copy_area(buf_src,0,0,width,height,buf_des,0,0);
+
+	gtk_image_set_from_pixbuf(image,buf_des);
+	return SUCCESS;
+}
+
 static int show_vertical(block_controller_s * bc)
 {
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->show_state->buf_axis_vertical;
-	GtkImage * image = bc->show_state->axis_vertical;
-	int16_t angle = calculate_angle_tic_vertical(controller);
-	GdkPixbuf * angle_image = get_image_vertical(angle);
-	int width = gdk_pixbuf_get_width(buf);
-	int height = gdk_pixbuf_get_height(buf);
-	/*TODO маштабирование */
-	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
-	gtk_image_set_from_pixbuf(image,buf);
+	/*TODO запись информации в другом потоке*/
+	controller_s * controller = bc->communication_controller->current;
+	uint64_t flag = controller->config->flag;
+	show_state_s * state = bc->state;
+	int16_t angle = 0;
+	GdkPixbuf * angle_image;
+
+	if(!ENGINE_VERTICAL(flag)){
+		return SUCCESS;
+	}
+
+	if(TIC_VERTICAL(flag)){
+		angle = calculate_angle_tic_vertical(controller);
+	}
+	else{
+		if(ENCODER_VERTICAL(flag)){
+			angle = calculate_angle_encoder_vertical(controller);
+		}
+	}
+
+	angle_image = get_image_vertical(angle);
+
+	set_image(state->axis_vertical,state->buf_axis_vertical,angle_image);
+
 	return SUCCESS;
 }
 
@@ -654,8 +692,8 @@ static int show_horizontal(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->show_state->buf_axis_horizontal;
-	GtkImage * image = bc->show_state->axis_horizontal;
+	GdkPixbuf * buf = bc->state->buf_axis_horizontal;
+	GtkImage * image = bc->state->axis_horizontal;
 	int16_t angle = calculate_angle_tic_horizontal(controller);
 	GdkPixbuf * angle_image = 	get_image_horizontal(angle);
 	int width = gdk_pixbuf_get_width(buf);
@@ -670,9 +708,8 @@ static int show_pipe(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
-
-	GdkPixbuf * buf = bc->show_state->buf_pipe;
-	GtkImage * image = bc->show_state->pipe;
+	GdkPixbuf * buf = bc->state->buf_pipe;
+	GtkImage * image = bc->state->pipe;
 
 	int pressure = calculate_pressure(controller);
 	int valve = get_state_valve(controller->state);
@@ -740,19 +777,19 @@ static GtkWidget * create_block_vertical(block_controller_s * bc)
 	frame = gtk_frame_new("Вертикальная Ось");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,"vbase");
-	bc->show_state->buf_axis_vertical = buf;
+	buf = images_state[VERTICAL_NO_CONNECT];
+	bc->state->buf_axis_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование */
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	bc->show_state->axis_vertical = GTK_IMAGE(image);
+	bc->state->axis_vertical = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
-	bc->show_config->engine_vertical = image;
+
 	return frame;
 }
 
@@ -767,20 +804,19 @@ static GtkWidget * create_block_horizontal(block_controller_s * bc)
 	frame = gtk_frame_new("Горизонтальная Ось");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,"hbase");
-	bc->show_state->buf_axis_horizontal = buf;
+	buf = images_state[HORIZONTAL_NO_CONNECT];
+	bc->state->buf_axis_horizontal = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	bc->show_state->axis_horizontal = GTK_IMAGE(image);
+	bc->state->axis_horizontal = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
 
-	bc->show_config->engine_horizontal = image;
 	return frame;
 }
 
@@ -796,12 +832,12 @@ static GtkWidget * create_block_pipe(block_controller_s * bc)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = get_resource_image(RESOURCE_IMAGE,"pipe");
-	bc->show_state->buf_pipe = buf;
+	bc->state->buf_pipe = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	bc->show_state->pipe = GTK_IMAGE(image);
+	bc->state->pipe = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -880,10 +916,10 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	GtkWidget * grid;
 	GtkWidget * label_name;
 	GtkWidget * block_vertical;
-	GtkWidget * block_horizontal;
-	GtkWidget * block_pipe;
-	GtkWidget * block_fire_sensor;
-	GtkWidget * block_fire_alarm;
+	/*GtkWidget * block_horizontal;*/
+	/*GtkWidget * block_pipe;*/
+	/*GtkWidget * block_fire_sensor;*/
+	/*GtkWidget * block_fire_alarm;*/
 
 	frame = gtk_frame_new("Информация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -899,20 +935,23 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	bc->name = GTK_LABEL(label_name);
 
 	block_vertical = create_block_vertical(bc);
+#if 0
 	block_horizontal = create_block_horizontal(bc);
 	block_pipe = create_block_pipe(bc);
 	block_fire_sensor = create_block_fire_sensor(bc);
 	block_fire_alarm = create_block_fire_alarm(bc);
+#endif
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);
 
 	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
 	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
+#if 0
 	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_pipe      ,0,2,2,1);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
-
+#endif
 	gtk_widget_show(frame);
 	gtk_widget_show(grid);
 	gtk_widget_show(label_name);
@@ -921,6 +960,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 }
 
 /***** Функции отображения системы управления ********************************/
+
 
 static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command)
 {
@@ -973,14 +1013,14 @@ static void clicked_button_valve(GtkButton * b,gpointer ud)
 		return ;
 	}
 
-	if(bc->state->but_valve == STATE_VALVE_CLOSE){
+	if(bc->control->but_valve == STATE_VALVE_CLOSE){
 		command.part.value = COMMAND_VALVE_OPEN;
-		bc->state->but_valve = STATE_VALVE_OPEN;
+		bc->control->but_valve = STATE_VALVE_OPEN;
 		name = STR_NAME_BUTTON_VALVE_CLOSE;
 	}
 	else{
 		command.part.value = COMMAND_VALVE_CLOSE;
-		bc->state->but_valve = STATE_VALVE_CLOSE;
+		bc->control->but_valve = STATE_VALVE_CLOSE;
 		name = STR_NAME_BUTTON_VALVE_OPEN;
 	}
 	push_command_queue(communication_controller,controller,command);
@@ -1023,7 +1063,7 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_valve),bc);
-	bc->state->but_valve = STATE_VALVE_CLOSE;
+	bc->control->but_valve = STATE_VALVE_CLOSE;
 
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1043,6 +1083,11 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	return grid;
 }
 
+static flag_t set_button_not_active(GtkButton * but)
+{
+	return SUCCESS;
+}
+
 static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -1056,6 +1101,7 @@ static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
+
 	push_command_queue(communication_controller,controller,command);
 }
 static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1127,8 +1173,8 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	GtkWidget * grid;
 	GtkWidget * but_up;
 	GtkWidget * but_down;
-	GtkWidget * but_right;
-	GtkWidget * but_left;
+	/*GtkWidget * but_right;*/
+	/*GtkWidget * but_left;*/
 
 	grid = gtk_grid_new();
 
@@ -1136,12 +1182,15 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
 	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	bc->control->but_up = GTK_BUTTON(but_up);
 
 	but_down = gtk_button_new_with_label("ВНИЗ");
 	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
 	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	bc->control->but_down = GTK_BUTTON(but_down);
 
+#if 0
 	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
@@ -1151,17 +1200,21 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+#endif
 
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
+#if 0
 	gtk_grid_attach(GTK_GRID(grid),but_left ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_right,2,1,1,1);
-
+#endif
 	gtk_widget_show(grid);
 	gtk_widget_show(but_up);
 	gtk_widget_show(but_down);
+#if 0
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
+#endif
 
  	return grid;
 }
@@ -1310,28 +1363,32 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 static GtkWidget * create_block_control_console(block_controller_s * bc)
 {
 	GtkWidget * box;
-	GtkWidget * block_valve;
 	GtkWidget * block_lafet;
-	GtkWidget * block_actuator;
-	GtkWidget * block_oscillation;
+	/*GtkWidget * block_valve;*/
+	/*GtkWidget * block_actuator;*/
+	/*GtkWidget * block_oscillation;*/
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
   layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_valve = create_block_valve(bc);
 	block_lafet = create_block_lafet(bc);
+#if 0
+	block_valve = create_block_valve(bc);
 	block_actuator = create_block_actuator(bc);
 	block_oscillation = create_block_oscillation(bc);
+#endif
 
-	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
+#if 0
+	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
-
+#endif
 	gtk_widget_show(box);
 
 	return box;
 }
+
 static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * frame;
@@ -1351,8 +1408,6 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 	block_control_console = create_block_control_console(bc);
 
-	bc->control_console = block_control_console;
-
 	gtk_container_add(GTK_CONTAINER(frame),box);
 
 	gtk_box_pack_start(GTK_BOX(box),block_control_mode,TRUE,TRUE,0);
@@ -1364,25 +1419,24 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	return frame;
 }
 
-static flag_t	changed_block_controller(block_controller_s * bc,config_controller_s * config)
+static flag_t	changed_block_controller(block_controller_s * bc,config_controller_s * controller_config,state_controller_s * controller_state)
 {
-	show_config_s * show_config = bc->show_config;
-	uint64_t flag = config->flag;
+	show_control_s * control = bc->control;
+	show_state_s * state = bc->state;
+	uint64_t flag = controller_config->flag;
 
-	if(ENGINE_VERTICAL(flag)){
-		gtk_widget_show(show_config->engine_vertical);
-	}
-	else{
-		gtk_widget_hide(show_config->engine_vertical);
+	if(!ENGINE_VERTICAL(flag)){
+		set_button_not_active(control->but_up);
+		set_button_not_active(control->but_down);
+		state->buf_axis_vertical = images_state[VERTICAL_NO_ENGINE];
+		gtk_image_set_from_pixbuf(state->axis_vertical,state->buf_axis_vertical);
 	}
 
-	if(ENGINE_HORIZONTAL(flag)){
-		gtk_widget_show(show_config->engine_horizontal);
-	}
-	else{
-		gtk_widget_hide(show_config->engine_horizontal);
-	}
 #if 0
+	if(ENGINE_HORIZONTAL(flag)){
+	}
+	else{
+	}
 	if(ACTUATOR_SPRAY(flag)){
 	}
 	if(ACTUATOR_RATE(flag)){
@@ -1505,8 +1559,7 @@ static flag_t	changed_block_controller(block_controller_s * bc,config_controller
 /*****************************************************************************/
 
 static show_state_s show_state;
-static show_config_s show_config;
-static state_interface_s state_interface;
+static show_control_s show_control;
 static block_controller_s block_controller;
 
 int select_block_controller(controller_s * controller)
@@ -1527,7 +1580,7 @@ int select_block_controller(controller_s * controller)
 		return FAILURE;
 	}
 
-	changed_block_controller(&block_controller,controller->config);
+	changed_block_controller(&block_controller,controller->config,controller->state);
 
 	g_mutex_lock(&(cc->mutex));
 	{
@@ -1561,9 +1614,8 @@ GtkWidget * create_block_controller(void)
 	block_controller.run_show = NOT_OK;
 	block_controller.timeout_show = DEFAULT_TIMEOUT_SHOW;
 	block_controller.communication_controller = &communication_controller;
-	block_controller.show_state = &show_state;
-	block_controller.show_config = &show_config;
-	block_controller.state = &state_interface;
+	block_controller.state = &show_state;
+	block_controller.control = &show_control;
 
 	init_image(&block_controller);
 
