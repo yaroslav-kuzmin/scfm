@@ -76,7 +76,7 @@ static void activate_menu_job_control(GtkMenuItem * b,gpointer ud)
 static void activate_menu_job_config(GtkMenuItem * b,gpointer ud)
 {
 	GtkWidget * w = (GtkWidget *)ud;
-	set_mode_work(MODE_CONFIG,w);
+	set_mode_work(MODE_CONFIGURATION,w);
 }
 
 static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)

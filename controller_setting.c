@@ -1494,7 +1494,7 @@ void * new_property_controller(void)
 	controller->config = config;
 	controller->state = state;
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->control->command = g_queue_new();
+	controller->control->command.all = COMMAND_EMPTY;
 
 	return controller;
 }

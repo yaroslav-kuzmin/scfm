@@ -380,7 +380,7 @@ flag_t set_mode_work(int mode,GtkWidget * win_main)
 		case MODE_CONTROL_ON:
 			control_controllers(mode_work);
 			break;
-		case MODE_CONFIG:
+		case MODE_CONFIGURATION:
 			create_window_config(win_main);
 			break;
 		default:

@@ -83,7 +83,7 @@ enum
 	MODE_NOT_WORK = 0,
 	MODE_CONTROL_ON,
 	MODE_CONTROL_OFF,
-	MODE_CONFIG
+	MODE_CONFIGURATION
 };
 
 enum
@@ -501,12 +501,14 @@ struct _config_controller_s
 	double rate_valve_analog;
 };
 
+
 enum
 {
 	STATE_VALVE_OPEN=0,
 	STATE_VALVE_OPEN_RUN,
 	STATE_VALVE_CLOSE,
 	STATE_VALVE_CLOSE_RUN,
+	STATE_VALVE_ERROR,
 	AMOUNT_STATE_VALVE
 };
 
@@ -527,41 +529,7 @@ struct _state_controller_s
 	uint16_t fire_alarm;
 };
 
-typedef struct _control_controller_s control_controller_s;
-struct _control_controller_s
-{
-	GQueue * command;
-};
-#define MIN_ID     1
-#define MAX_ID     247
-typedef struct _controller_s controller_s;
-struct _controller_s
-{
-	link_s * link;
-	char * name;
-	object_s * object;
-
-	config_controller_s * config;
-	state_controller_s * state;
-	control_controller_s * control;
-};
-/**************************************/
 /*комманды контроллера*/
-typedef struct _command_part_s command_part_s;
-struct _command_part_s
-{
-	uint16_t value;
-	uint16_t parametr;
-	uint16_t reserve_0;
-	uint16_t reserve_1;
-};
-typedef union _command_u command_u;
-union _command_u
-{
-	uint64_t all;
-	command_part_s part;
-};
-
 enum
 {
 	COMMAND_EMPTY=0,
@@ -593,6 +561,41 @@ enum
 	COMMAND_MODE_CONFIG,
 	AMOUNT_COMMAND
 };
-#endif
 
+typedef struct _command_part_s command_part_s;
+struct _command_part_s
+{
+	uint16_t value;
+	uint16_t parametr;
+	uint16_t reserve_0;
+	uint16_t reserve_1;
+};
+typedef union _command_u command_u;
+union _command_u
+{
+	uint64_t all;
+	command_part_s part;
+};
+typedef struct _control_controller_s control_controller_s;
+struct _control_controller_s
+{
+	command_u	command;
+};
+
+
+#define MIN_ID     1
+#define MAX_ID     247
+typedef struct _controller_s controller_s;
+struct _controller_s
+{
+	link_s * link;
+	char * name;
+	object_s * object;
+
+	config_controller_s * config;
+	state_controller_s * state;
+	control_controller_s * control;
+};
+/**************************************/
+#endif
 /*****************************************************************************/

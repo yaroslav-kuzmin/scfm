@@ -43,6 +43,7 @@
 
 /*****************************************************************************/
 #include <gio/gio.h>
+#include <string.h>
 
 #include "pub.h"
 #include "common.h"
@@ -78,14 +79,15 @@ struct _show_state_s
 	GtkImage * axis_horizontal;
 	GdkPixbuf * buf_axis_horizontal;
 
-	GtkImage * pipe;
-	GdkPixbuf * buf_pipe;
+	GtkImage * valve;
+	GdkPixbuf * buf_valve;
 };
 
 enum
 {
 	MODE_AUTO=1,
 	MODE_MANUAL,
+	MODE_CONFIG,
 	AMOUNT_MODE
 };
 
@@ -95,8 +97,10 @@ struct _show_control_s
 	/*лафет*/
 	GtkButton * but_up;
 	GtkButton * but_down;
+	GtkButton * but_right;
+	GtkButton * but_left;
 
-	flag_t but_valve;
+	GtkButton * but_valve;
 
 	flag_t mode;
 	GtkWidget * console;
@@ -187,6 +191,7 @@ enum
 	VALVE_CLOSE,
 	VALVE_OPEN_RUN,
 	VALVE_CLOSE_RUN,
+	VALVE_ERROR,
  	AMOUNT_IMAGE_STATE
 };
 
@@ -267,6 +272,7 @@ static int init_image(block_controller_s * bc)
 	images_state[VALVE_CLOSE]     = get_resource_image(RESOURCE_IMAGE,"valve_close");
 	images_state[VALVE_OPEN_RUN]  = get_resource_image(RESOURCE_IMAGE,"valve_open_run");
 	images_state[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
+	images_state[VALVE_ERROR]     = get_resource_image(RESOURCE_IMAGE,"valve_error");
 
 	return SUCCESS;
 }
@@ -357,10 +363,8 @@ static GdkPixbuf * get_image_valve(unsigned int valve)
 #define MAX_VERTICAL_TIC      30
 #define MIN_VERTICAL_ANGLE    0
 #define MAX_VERTICAL_ANGLE    90
-static int16_t calculate_angle_tic_vertical(controller_s * controller)
+static int16_t calculate_angle_tic_vertical(state_controller_s * state,config_controller_s * config)
 {
-	config_controller_s * config = controller->config;
-	state_controller_s * state = controller->state;
 	int16_t angle;
 	uint16_t tic = state->tic_vertical;
 	gdouble rate = config->rate_tic_vertical;
@@ -382,7 +386,7 @@ static int16_t calculate_angle_tic_vertical(controller_s * controller)
 
  	return angle;
 }
-static int16_t calculate_angle_encoder_vertical(controller_s * controller)
+static int16_t calculate_angle_encoder_vertical(state_controller_s * state,config_controller_s * config)
 {
 	int16_t angle = 0;
 	return angle;
@@ -391,10 +395,8 @@ static int16_t calculate_angle_encoder_vertical(controller_s * controller)
 #define MAX_HORIZONTAL_TIC      60
 #define MIN_HORIZONTAL_ANGLE    0
 #define MAX_HORIZONTAL_ANGLE    360
-static int16_t calculate_angle_tic_horizontal(controller_s * controller)
+static int16_t calculate_angle_tic_horizontal(state_controller_s * state,config_controller_s * config)
 {
-	config_controller_s * config = controller->config;
-	state_controller_s * state = controller->state;
 	int16_t angle;
 	uint16_t tic = state->tic_horizontal;
 	gdouble rate = config->rate_tic_horizontal;
@@ -415,7 +417,12 @@ static int16_t calculate_angle_tic_horizontal(controller_s * controller)
 	return angle;
 }
 
-static int16_t calculate_pressure(controller_s * controller)
+static int16_t calculate_angle_encoder_horizontal(state_controller_s * state,config_controller_s * config)
+{
+	int16_t angle = 0;
+	return angle;
+}
+static int16_t calculate_pressure(state_controller_s * state,config_controller_s * config)
 {
 	return PRESSURE_NORM;
 }
@@ -460,6 +467,11 @@ static int disconnect_controller(controller_s * controller)
 	return link_disconnect_controller(link);
 }
 
+static flag_t copy_state(state_controller_s * des,state_controller_s * src)
+{
+	memmove(des,src,sizeof(state_controller_s));
+	return SUCCESS;
+}
 /*uint32_t debug_id = 0;*/
 /* функция  потока комуникации с контролерами */
 static gpointer controllers_communication(gpointer ud)
@@ -468,9 +480,7 @@ static gpointer controllers_communication(gpointer ud)
 	communication_controller_s * cc = (communication_controller_s *)ud;
 	controller_s * controller;
 	link_s * link;
-	state_controller_s * state;
-	control_controller_s * control;
-	GQueue * queue;
+	state_controller_s state;
 	command_u command;
 	/*GSList * list;*/
 
@@ -479,30 +489,31 @@ static gpointer controllers_communication(gpointer ud)
 		controller = cc->current;
 		g_mutex_unlock(&(cc->mutex));
 		if(controller != NULL){
-			control = controller->control;
-			queue = control->command;
-			g_mutex_lock(&(cc->mutex));
-			command.all = POINTER_TO_INT(g_queue_pop_tail(queue));
-			g_mutex_unlock(&(cc->mutex));
 			link = controller->link;
-			state = controller->state;
-			rc = link_state_controller(link,state);
+			rc = link_state_controller(link,&state);
 			if(rc == FAILURE){
 				/*TODO сделать реконнект*/
-				/*g_debug("reconnect");*/
 				controller->object->status = STATUS_ERROR;
 			}
-			g_debug("read controller");
-			if(command.all != COMMAND_EMPTY){
-				/*g_debug(" :> %ld ",command);*/
-				rc = command_controller(link,command);
-				if(rc == FAILURE){
-					/*TODO сделать реконнект*/
-					/*g_debug("reconnect");*/
-					controller->object->status = STATUS_ERROR;
+			else{
+				g_debug("read controller");
+				g_mutex_lock(&(cc->mutex));
+				copy_state(controller->state,&state);
+				command = controller->control->command;
+				g_mutex_unlock(&(cc->mutex));
+				if(command.all != COMMAND_EMPTY){
+					/*g_debug(" :> %ld ",command);*/
+					rc = command_controller(link,command);
+					if(rc == FAILURE){
+						/*TODO сделать реконнект*/
+						controller->object->status = STATUS_ERROR;
+					}
+					g_mutex_lock(&(cc->mutex));
+					controller->control->command.all = COMMAND_EMPTY;
+					g_mutex_unlock(&(cc->mutex));
 				}
-			}
-		}
+			} /*else*/
+		} /*if(controller != NULL)*/
 #if 0
 		/*проверка всех */
 		list = ac->list;
@@ -538,7 +549,7 @@ static gpointer controllers_communication(gpointer ud)
 		}
 	 	g_mutex_unlock(&(cc->mutex));
 	}
-
+	cc->tid = NULL;
 	return NULL;
 }
 
@@ -659,51 +670,56 @@ static flag_t set_image(GtkImage * image,GdkPixbuf * buf_des,GdkPixbuf * buf_src
 	return SUCCESS;
 }
 
-static int show_vertical(block_controller_s * bc)
+static int show_vertical(show_state_s * show_state,show_control_s * show_controls
+                        ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
-	/*TODO запись информации в другом потоке*/
-	controller_s * controller = bc->communication_controller->current;
-	uint64_t flag = controller->config->flag;
-	show_state_s * state = bc->state;
+	uint64_t flag = controller_config->flag;
 	int16_t angle = 0;
 	GdkPixbuf * angle_image;
 
 	if(!ENGINE_VERTICAL(flag)){
 		return SUCCESS;
 	}
-
 	if(TIC_VERTICAL(flag)){
-		angle = calculate_angle_tic_vertical(controller);
+		angle = calculate_angle_tic_vertical(controller_state,controller_config);
 	}
 	else{
 		if(ENCODER_VERTICAL(flag)){
-			angle = calculate_angle_encoder_vertical(controller);
+			angle = calculate_angle_encoder_vertical(controller_state,controller_config);
+		}
+	}
+	angle_image = get_image_vertical(angle);
+	set_image(show_state->axis_vertical,show_state->buf_axis_vertical,angle_image);
+
+	return SUCCESS;
+}
+
+static int show_horizontal(show_state_s * show_state,show_control_s * show_controls
+                          ,state_controller_s * controller_state,config_controller_s * controller_config)
+{
+	uint64_t flag = controller_config->flag;
+	int16_t angle = 0;
+	GdkPixbuf * angle_image;
+
+	if(!ENGINE_HORIZONTAL(flag)){
+		return SUCCESS;
+	}
+	if(TIC_HORIZONTAL(flag)){
+		angle = calculate_angle_tic_horizontal(controller_state,controller_config);
+	}
+	else{
+		if(ENCODER_HORIZONTAL(flag)){
+			angle = calculate_angle_encoder_horizontal(controller_state,controller_config);
 		}
 	}
 
-	angle_image = get_image_vertical(angle);
-
-	set_image(state->axis_vertical,state->buf_axis_vertical,angle_image);
+	angle_image = get_image_horizontal(angle);
+	set_image(show_state->axis_horizontal,show_state->buf_axis_horizontal,angle_image);
 
 	return SUCCESS;
 }
 
-static int show_horizontal(block_controller_s * bc)
-{
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->state->buf_axis_horizontal;
-	GtkImage * image = bc->state->axis_horizontal;
-	int16_t angle = calculate_angle_tic_horizontal(controller);
-	GdkPixbuf * angle_image = 	get_image_horizontal(angle);
-	int width = gdk_pixbuf_get_width(buf);
-	int height = gdk_pixbuf_get_height(buf);
-	/*TODO маштабирование */
-	gdk_pixbuf_copy_area(angle_image,0,0,width,height,buf,0,0);
-	gtk_image_set_from_pixbuf(image,buf);
-	return SUCCESS;
-}
-
+#if 0
 static int show_pipe(block_controller_s * bc)
 {
 	communication_controller_s * cc = bc->communication_controller;
@@ -735,31 +751,41 @@ static int show_fire_alarm(block_controller_s * bc)
 {
 	return SUCCESS;
 }
-
+#endif
 static int show_block_controller(gpointer data)
 {
  	/*GtkLabel * label;*/
 	block_controller_s * bc = (block_controller_s *)data;
 	communication_controller_s * cc = bc->communication_controller;
-	controller_s * c = cc->current;
-	/*state_controller_s * state;*/
-	/*uint64_t flag;*/
+	controller_s * controller = cc->current;
+
+	state_controller_s state;
 
 	if(bc->stop_show == OK ){
 		bc->run_show = NOT_OK;
 		return FALSE; /*завершить работу*/
 	}
-	if(c == NULL){
+	if(controller == NULL){
  		/*контролер не выбран*/
 		bc->run_show = NOT_OK;
 		return FALSE;
 	}
-	show_vertical(bc);
-	show_horizontal(bc);
+	if(cc->tid == NULL){
+		/*поток не запушен*/
+		bc->run_show = NOT_OK;
+		return FALSE;
+	}
+	g_mutex_lock(&(cc->mutex));
+	copy_state(&state,controller->state);
+	g_mutex_unlock(&(cc->mutex));
+
+	show_vertical(bc->state,bc->control,&state,controller->config);
+	show_horizontal(bc->state,bc->control,&state,controller->config);
+#if 0
 	show_pipe(bc);
 	show_file_sensor(bc);
 	show_fire_alarm(bc);
-
+#endif
 	return TRUE; /* продолжаем работу */
 }
 
@@ -768,7 +794,7 @@ static int show_block_controller(gpointer data)
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
 
-static GtkWidget * create_block_vertical(block_controller_s * bc)
+static GtkWidget * create_block_state_vertical(show_state_s * state)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
@@ -778,12 +804,12 @@ static GtkWidget * create_block_vertical(block_controller_s * bc)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = images_state[VERTICAL_NO_CONNECT];
-	bc->state->buf_axis_vertical = buf;
+	state->buf_axis_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование */
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	bc->state->axis_vertical = GTK_IMAGE(image);
+	state->axis_vertical = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -795,7 +821,7 @@ static GtkWidget * create_block_vertical(block_controller_s * bc)
 
 #define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
-static GtkWidget * create_block_horizontal(block_controller_s * bc)
+static GtkWidget * create_block_state_horizontal(show_state_s * state)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
@@ -805,12 +831,12 @@ static GtkWidget * create_block_horizontal(block_controller_s * bc)
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = images_state[HORIZONTAL_NO_CONNECT];
-	bc->state->buf_axis_horizontal = buf;
+	state->buf_axis_horizontal = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	bc->state->axis_horizontal = GTK_IMAGE(image);
+	state->axis_horizontal = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -820,24 +846,22 @@ static GtkWidget * create_block_horizontal(block_controller_s * bc)
 	return frame;
 }
 
-#define DEFAULT_SIZE_WIDTH_PRESSURE_VALVE    600
-#define DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE   100
-static GtkWidget * create_block_pipe(block_controller_s * bc)
+static GtkWidget * create_block_state_valve(show_state_s * state)
 {
 	GtkWidget * frame;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new("Магистраль");
+	frame = gtk_frame_new("Задвижка");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = get_resource_image(RESOURCE_IMAGE,"pipe");
-	bc->state->buf_pipe = buf;
+	buf = images_state[VALVE_ERROR];
+	state->buf_valve = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	bc->state->pipe = GTK_IMAGE(image);
+	state->valve = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -916,8 +940,8 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	GtkWidget * grid;
 	GtkWidget * label_name;
 	GtkWidget * block_vertical;
-	/*GtkWidget * block_horizontal;*/
-	/*GtkWidget * block_pipe;*/
+	GtkWidget * block_horizontal;
+	GtkWidget * block_valve;
 	/*GtkWidget * block_fire_sensor;*/
 	/*GtkWidget * block_fire_alarm;*/
 
@@ -934,10 +958,10 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 
 	bc->name = GTK_LABEL(label_name);
 
-	block_vertical = create_block_vertical(bc);
+	block_vertical = create_block_state_vertical(bc->state);
+	block_horizontal = create_block_state_horizontal(bc->state);
+	block_valve = create_block_state_valve(bc->state);
 #if 0
-	block_horizontal = create_block_horizontal(bc);
-	block_pipe = create_block_pipe(bc);
 	block_fire_sensor = create_block_fire_sensor(bc);
 	block_fire_alarm = create_block_fire_alarm(bc);
 #endif
@@ -946,9 +970,9 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 
 	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
 	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
-#if 0
 	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_pipe      ,0,2,2,1);
+	gtk_grid_attach(GTK_GRID(grid),block_valve      ,0,2,2,1);
+#if 0
 	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
 #endif
@@ -965,10 +989,11 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command)
 {
 	control_controller_s * control = controller->control;
-	GQueue * queue = control->command;
 
 	g_mutex_lock(&(cc->mutex));
-	g_queue_push_head(queue,INT_TO_POINTER(command.all));
+	if(control->command.all == COMMAND_EMPTY){
+		control->command = command;
+	}
 	g_mutex_unlock(&(cc->mutex));
 
 	return SUCCESS;
@@ -983,6 +1008,7 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	GtkWidget * label;
 	/*GtkWidget * but;*/
 
+	bc->control->mode = MODE_MANUAL;
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
 
@@ -1003,16 +1029,25 @@ static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
 static void clicked_button_valve(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
-	command_u command = {0};
-	char * name;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
+	state_controller_s state;
+	flag_t flag;
+	/*command_u command = {0};*/
+	/*char * name;*/
 
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return ;
 	}
 
+	g_mutex_lock(&(cc->mutex));
+	copy_state(&state,controller->state);
+	g_mutex_unlock(&(cc->mutex));
+
+	flag = get_state_valve(&state);
+	--
+#if 0
 	if(bc->control->but_valve == STATE_VALVE_CLOSE){
 		command.part.value = COMMAND_VALVE_OPEN;
 		bc->control->but_valve = STATE_VALVE_OPEN;
@@ -1025,6 +1060,7 @@ static void clicked_button_valve(GtkButton * b,gpointer ud)
 	}
 	push_command_queue(communication_controller,controller,command);
 	gtk_button_set_label(b,name);
+#endif
 }
 
 static gdouble min_valve = 0;
@@ -1048,12 +1084,12 @@ static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,
 	return TRUE;
 }
 
-static GtkWidget * create_block_valve(block_controller_s * bc)
+static GtkWidget * create_block_control_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
 	GtkWidget * label;
 	GtkWidget * but;
-	GtkWidget * scale;
+	/*GtkWidget * scale;*/
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1063,22 +1099,22 @@ static GtkWidget * create_block_valve(block_controller_s * bc)
 	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_valve),bc);
-	bc->control->but_valve = STATE_VALVE_CLOSE;
-
+	bc->control->but_valve = GTK_BUTTON(but);
+#if 0
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_scale_set_digits(GTK_SCALE(scale),0); /*колличество знаков после запятой*/
 	gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);
 	g_signal_connect(scale,"change-value",G_CALLBACK(change_value_scale_valve),bc);
-
+#endif
 	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but  ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);
+	/*gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);*/
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
 	gtk_widget_show(but);
-	gtk_widget_show(scale);
+	/*gtk_widget_show(scale);*/
 
 	return grid;
 }
@@ -1168,13 +1204,13 @@ static void button_release_event_button_stop(GtkButton * b,GdkEvent * e,gpointer
 	push_command_queue(communication_controller,controller,command);
 }
 
-static GtkWidget * create_block_lafet(block_controller_s * bc)
+static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 {
 	GtkWidget * grid;
 	GtkWidget * but_up;
 	GtkWidget * but_down;
-	/*GtkWidget * but_right;*/
-	/*GtkWidget * but_left;*/
+	GtkWidget * but_right;
+	GtkWidget * but_left;
 
 	grid = gtk_grid_new();
 
@@ -1190,31 +1226,28 @@ static GtkWidget * create_block_lafet(block_controller_s * bc)
 	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
 	bc->control->but_down = GTK_BUTTON(but_down);
 
-#if 0
 	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
 	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	bc->control->but_right = GTK_BUTTON(but_right);
 
 	but_left = gtk_button_new_with_label("ВЛЕВО");
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
-#endif
+	bc->control->but_left = GTK_BUTTON(but_left);
 
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_down ,1,2,1,1);
-#if 0
 	gtk_grid_attach(GTK_GRID(grid),but_left ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_right,2,1,1,1);
-#endif
+
 	gtk_widget_show(grid);
 	gtk_widget_show(but_up);
 	gtk_widget_show(but_down);
-#if 0
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
-#endif
 
  	return grid;
 }
@@ -1364,23 +1397,23 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_lafet;
-	/*GtkWidget * block_valve;*/
+	GtkWidget * block_valve;
 	/*GtkWidget * block_actuator;*/
 	/*GtkWidget * block_oscillation;*/
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
   layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_lafet = create_block_lafet(bc);
+	block_lafet = create_block_control_lafet(bc);
+	block_valve = create_block_control_valve(bc);
 #if 0
-	block_valve = create_block_valve(bc);
 	block_actuator = create_block_actuator(bc);
 	block_oscillation = create_block_oscillation(bc);
 #endif
 
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
-#if 0
 	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
+#if 0
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
 #endif
@@ -1419,7 +1452,9 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	return frame;
 }
 
-static flag_t	changed_block_controller(block_controller_s * bc,config_controller_s * controller_config,state_controller_s * controller_state)
+static flag_t	changed_block_controller(block_controller_s * bc
+                                      ,config_controller_s * controller_config
+                                      ,state_controller_s * controller_state)
 {
 	show_control_s * control = bc->control;
 	show_state_s * state = bc->state;
@@ -1432,11 +1467,14 @@ static flag_t	changed_block_controller(block_controller_s * bc,config_controller
 		gtk_image_set_from_pixbuf(state->axis_vertical,state->buf_axis_vertical);
 	}
 
+	if(!ENGINE_HORIZONTAL(flag)){
+		set_button_not_active(control->but_left);
+		set_button_not_active(control->but_right);
+		state->buf_axis_vertical = images_state[HORIZONTAL_NO_ENGINE];
+		gtk_image_set_from_pixbuf(state->axis_horizontal,state->buf_axis_horizontal);
+	}
+
 #if 0
-	if(ENGINE_HORIZONTAL(flag)){
-	}
-	else{
-	}
 	if(ACTUATOR_SPRAY(flag)){
 	}
 	if(ACTUATOR_RATE(flag)){
@@ -1566,32 +1604,30 @@ int select_block_controller(controller_s * controller)
 {
 	communication_controller_s * cc = block_controller.communication_controller;
 	GtkLabel * label;
-	GThread * tid = cc->tid;
 
-	if(controller == NULL){
-		block_controller.stop_show = OK;
-		cc->current = NULL;
-		return SUCCESS;
-	}
-
-	if(tid == NULL){
+	if(cc->tid == NULL){
 		g_info("Нет подключения!");
 		cc->current = NULL;
 		return FAILURE;
 	}
 
+	if(controller == NULL){
+		block_controller.stop_show = OK;
+		g_mutex_lock(&(cc->mutex));
+		cc->current = NULL;
+		g_mutex_unlock(&(cc->mutex));
+		return SUCCESS;
+	}
+
 	changed_block_controller(&block_controller,controller->config,controller->state);
 
 	g_mutex_lock(&(cc->mutex));
-	{
-	GQueue * queue = controller->control->command;
+	controller->control->command.all = COMMAND_EMPTY;
 	cc->current = controller;
-	g_queue_clear(queue);
-	}
 	g_mutex_unlock(&(cc->mutex));
 
 	if(block_controller.run_show == NOT_OK){
-		block_controller.run_show = OK;
+	 	block_controller.run_show = OK;
 		block_controller.stop_show = NOT_OK;
 		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
 	}
@@ -1651,7 +1687,7 @@ controller_s * init_controller(object_s * object)
 	controller->config = g_slice_alloc0(sizeof(config_controller_s));
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->control->command = g_queue_new();
+	controller->control->command.all =  COMMAND_EMPTY;
 	/*память для обектов выделяется при чтении из базыданых*/
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
@@ -1689,7 +1725,6 @@ int del_property_controller(controller_s * property)
 	config_controller_s * config;
 	state_controller_s * state;
 	control_controller_s * control;
-	GQueue * queue;
 
 	if(property == NULL){
 		return SUCCESS;
@@ -1708,8 +1743,6 @@ int del_property_controller(controller_s * property)
 	state = property->state;
 	g_slice_free1(sizeof(state_controller_s),state);
 	control = property->control;
-	queue = control->command;
-	g_queue_free(queue);
 	g_slice_free1(sizeof(control_controller_s),control);
 
 	g_slice_free1(sizeof(controller_s),property);
