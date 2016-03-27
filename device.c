@@ -153,6 +153,7 @@ static int set_state_controller(uint16_t * dest,state_controller_s *state)
 	state->pressure            = dest[REG_D105];
 	state->amperage_vertical   = dest[REG_D106];
 	state->amperage_horizontal = dest[REG_D107];
+	state->work                = dest[REG_D108];
   state->valve               = dest[REG_D110];
   state->tic_valve           = dest[REG_D111];
   state->fire_sensor         = dest[REG_D114];
@@ -257,12 +258,13 @@ static uint16_t VALUE_LAFET_UP    = 0x0001;
 static uint16_t VALUE_LAFET_DOWN  = 0x0002;
 static uint16_t VALUE_LAFET_LEFT  = 0x0004;
 static uint16_t VALUE_LAFET_RIGHT = 0x0008;
-static uint16_t VALUE_SPRAY_LESS  = 0x0010;
-static uint16_t VALUE_SPRAY_MORE  = 0x0020;
-static uint16_t VALUE_RATE_LESS   = 0x0040;
-static uint16_t VALUE_RATE_MORE   = 0x0080;
-static uint16_t VALUE_VEIL_LESS   = 0x0100;
-static uint16_t VALUE_VEIL_MORE   = 0x0200;
+static uint16_t VALUE_ACTUATOR_STOP = 0x0000;
+static uint16_t VALUE_SPRAY_LESS    = 0x0010;
+static uint16_t VALUE_SPRAY_MORE    = 0x0020;
+static uint16_t VALUE_RATE_LESS     = 0x0040;
+static uint16_t VALUE_RATE_MORE     = 0x0080;
+static uint16_t VALUE_VEIL_LESS     = 0x0100;
+static uint16_t VALUE_VEIL_MORE     = 0x0200;
 static uint16_t VALUE_OSCILLATION_STOP       = 0x0000;
 static uint16_t VALUE_OSCILLATION_VERTICAL   = 0x0001;
 static uint16_t VALUE_OSCILLATION_HORIZONTAL = 0x0002;
@@ -321,6 +323,10 @@ static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 		case COMMAND_LAFET_SPEED_HORIZONTAL:
 			*reg = reg_D202;
 			*value = command.part.parametr;
+			break;
+		case COMMAND_ACTUATOT_STOP:
+			*reg = reg_D200;
+			*value = VALUE_ACTUATOR_STOP;
 			break;
 		case COMMAND_SPRAY_LESS:
 			*reg = reg_D200;
@@ -552,7 +558,7 @@ flag_t get_state_valve(state_controller_s * state)
 	if(VALVE_CLOSE_RUN(bit_valve)){
 		return STATE_VALVE_CLOSE_RUN;
 	}
-	return STATE_VALVE_CLOSE;
+	return STATE_VALVE_ERROR;
 }
 
 static uint16_t reg_D300 = 0x112C;

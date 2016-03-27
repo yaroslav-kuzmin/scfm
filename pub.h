@@ -523,6 +523,7 @@ struct _state_controller_s
 	uint16_t pressure;
 	uint16_t amperage_vertical;
 	uint16_t amperage_horizontal;
+	uint16_t work;
 	uint16_t valve;
 	uint16_t tic_valve;
 	uint16_t fire_sensor;
@@ -540,6 +541,7 @@ enum
 	COMMAND_LAFET_LEFT,
 	COMMAND_LAFET_SPEED_VERTICAL,
 	COMMAND_LAFET_SPEED_HORIZONTAL,
+	COMMAND_ACTUATOT_STOP,
 	COMMAND_SPRAY_LESS,
 	COMMAND_SPRAY_MORE,
 	COMMAND_RATE_LESS,

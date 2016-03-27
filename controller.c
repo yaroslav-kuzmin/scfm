@@ -81,6 +81,9 @@ struct _show_state_s
 
 	GtkImage * valve;
 	GdkPixbuf * buf_valve;
+
+	GtkImage * pressure;
+	GdkPixbuf * buf_pressure;
 };
 
 enum
@@ -100,7 +103,8 @@ struct _show_control_s
 	GtkButton * but_right;
 	GtkButton * but_left;
 
-	GtkButton * but_valve;
+	GtkButton * but_valve_open;
+	GtkButton * but_valve_close;
 
 	flag_t mode;
 	GtkWidget * console;
@@ -128,9 +132,10 @@ struct _block_controller_s
 /*****************************************************************************/
 /* Функции работы с изображениями                                            */
 /*****************************************************************************/
+/*номера рисунков*/
 enum
 {
-	VERTICAL_0000 = 0,
+ 	VERTICAL_0000 = 0,
 	VERTICAL_0100,
 	VERTICAL_0200,
 	VERTICAL_0300,
@@ -185,8 +190,11 @@ enum
 	HORIZONTAL_LEFT,
 	HORIZONTAL_NO_ENGINE,  /*нет двигателя*/
 	HORIZONTAL_NO_CONNECT,  /*нет сигнала*/
-	PRESSURE_NORM,
-	PRESSURE_NOTNORM,
+	PRESSURE_00,
+	PRESSURE_15,
+	PRESSURE_20,
+	PRESSURE_25,
+	PRESSURE_ERROR,
 	VALVE_OPEN,
 	VALVE_CLOSE,
 	VALVE_OPEN_RUN,
@@ -198,7 +206,7 @@ enum
 static GdkPixbuf * images_state[AMOUNT_IMAGE_STATE] = {0};
 static int16_t period_vertical = 10;
 static int16_t min_vertical = 0;
-static int16_t max_vertical = 90;
+static int16_t max_vertical = 90; /*180*/
 static gdouble period_horizontal = 10;
 static int16_t min_horizontal = 0;
 static int16_t max_horizontal = 360;
@@ -265,8 +273,11 @@ static int init_image(block_controller_s * bc)
 	images_state[HORIZONTAL_NO_ENGINE]  = get_resource_image(RESOURCE_IMAGE,"hxxxx");
 	images_state[HORIZONTAL_NO_CONNECT] = get_resource_image(RESOURCE_IMAGE,"hbase");
 
-	images_state[PRESSURE_NORM]    = get_resource_image(RESOURCE_IMAGE,"pressure_norm");
-	images_state[PRESSURE_NOTNORM] = get_resource_image(RESOURCE_IMAGE,"pressure_notnorm");
+	images_state[PRESSURE_00]    = get_resource_image(RESOURCE_IMAGE,"pressure_00");
+	images_state[PRESSURE_15]    = get_resource_image(RESOURCE_IMAGE,"pressure_15");
+	images_state[PRESSURE_20]    = get_resource_image(RESOURCE_IMAGE,"pressure_20");
+	images_state[PRESSURE_25]    = get_resource_image(RESOURCE_IMAGE,"pressure_25");
+	images_state[PRESSURE_ERROR] = get_resource_image(RESOURCE_IMAGE,"pressure_xx");
 
 	images_state[VALVE_OPEN]      = get_resource_image(RESOURCE_IMAGE,"valve_open");
 	images_state[VALVE_CLOSE]     = get_resource_image(RESOURCE_IMAGE,"valve_close");
@@ -274,10 +285,10 @@ static int init_image(block_controller_s * bc)
 	images_state[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
 	images_state[VALVE_ERROR]     = get_resource_image(RESOURCE_IMAGE,"valve_error");
 
-	return SUCCESS;
+ 	return SUCCESS;
 }
 
-static GdkPixbuf * get_image_vertical(int16_t angle)
+static GdkPixbuf * get_image_vertical(uint16_t angle)
 {
 	GdkPixbuf * buf = NULL;
 
@@ -294,7 +305,7 @@ static GdkPixbuf * get_image_vertical(int16_t angle)
 			buf = images_state[angle];
 		}
 	}
-	return buf;
+ 	return buf;
 }
 static GdkPixbuf * get_image_horizontal(int16_t angle)
 {
@@ -316,24 +327,25 @@ static GdkPixbuf * get_image_horizontal(int16_t angle)
 	return buf;
 }
 
-static GdkPixbuf * get_image_pressure(int pressure)
+#define STATE_PRESSURE_ERROR     0xFFFF
+static GdkPixbuf * get_image_pressure(uint16_t pressure)
 {
-	GdkPixbuf * buf;
-	switch(pressure){
-		case PRESSURE_NORM:
-			buf = images_state[PRESSURE_NORM];
-	 		break;
-		case PRESSURE_NOTNORM:
-			buf = images_state[PRESSURE_NOTNORM];
-			break;
-		default:
-			buf = images_state[PRESSURE_NOTNORM];
- 			break;
+	if(pressure == STATE_PRESSURE_ERROR){
+		return images_state[PRESSURE_ERROR];
 	}
-	return buf;
+	if(pressure == 0){
+		return images_state[PRESSURE_00];
+	}
+	if(pressure == 1){
+		return images_state[PRESSURE_15];
+	}
+	if(pressure == 2){
+		return images_state[PRESSURE_20];
+	}
+	return images_state[PRESSURE_25];
 }
 
-static GdkPixbuf * get_image_valve(unsigned int valve)
+static GdkPixbuf * get_image_valve_tic(flag_t valve)
 {
 	GdkPixbuf * buf;
 
@@ -352,30 +364,34 @@ static GdkPixbuf * get_image_valve(unsigned int valve)
 			break;
 		default:
 			/*TODO поставить отдельный рисунок на ошибку*/
-			buf = images_state[VALVE_CLOSE];
+			buf = images_state[VALVE_ERROR];
 			break;
 	}
 
 	return buf;
 }
 
+static GdkPixbuf * get_image_valve_analog(uint16_t valve)
+{
+	return images_state[VALVE_ERROR];
+}
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
 #define MIN_VERTICAL_ANGLE    0
-#define MAX_VERTICAL_ANGLE    90
-static int16_t calculate_angle_tic_vertical(state_controller_s * state,config_controller_s * config)
+#define MAX_VERTICAL_ANGLE    90  /*180*/
+static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_controller_s * config)
 {
-	int16_t angle;
+	uint16_t angle;
 	uint16_t tic = state->tic_vertical;
 	gdouble rate = config->rate_tic_vertical;
 
 	if(tic > MAX_VERTICAL_TIC){
 		tic = MAX_VERTICAL_TIC;
 	}
-	angle = (int16_t)tic;
+	angle = (uint16_t)tic;
 	/*angle -= (MAX_VERTICAL_TIC >> 1);*/ /*Угол от -90 до 90*/
 	rate = (gdouble)angle * rate;
-	angle =(int16_t)rate;
+	angle =(uint16_t)rate;
 	/*если коэффициент не корректный*/
 	if(angle < MIN_VERTICAL_ANGLE){
 		angle = MIN_VERTICAL_ANGLE;
@@ -386,7 +402,7 @@ static int16_t calculate_angle_tic_vertical(state_controller_s * state,config_co
 
  	return angle;
 }
-static int16_t calculate_angle_encoder_vertical(state_controller_s * state,config_controller_s * config)
+static uint16_t calculate_angle_encoder_vertical(state_controller_s * state,config_controller_s * config)
 {
 	int16_t angle = 0;
 	return angle;
@@ -395,9 +411,9 @@ static int16_t calculate_angle_encoder_vertical(state_controller_s * state,confi
 #define MAX_HORIZONTAL_TIC      60
 #define MIN_HORIZONTAL_ANGLE    0
 #define MAX_HORIZONTAL_ANGLE    360
-static int16_t calculate_angle_tic_horizontal(state_controller_s * state,config_controller_s * config)
+static uint16_t calculate_angle_tic_horizontal(state_controller_s * state,config_controller_s * config)
 {
-	int16_t angle;
+	uint16_t angle;
 	uint16_t tic = state->tic_horizontal;
 	gdouble rate = config->rate_tic_horizontal;
 
@@ -405,7 +421,7 @@ static int16_t calculate_angle_tic_horizontal(state_controller_s * state,config_
 		tic = MAX_HORIZONTAL_TIC;
 	}
 	rate = (gdouble)tic * rate;
-	angle =(int16_t)rate;
+	angle =(uint16_t)rate;
 	/*если коэффициент не корректный*/
 	if(angle < MIN_HORIZONTAL_ANGLE){
 		angle = MIN_HORIZONTAL_ANGLE;
@@ -417,14 +433,33 @@ static int16_t calculate_angle_tic_horizontal(state_controller_s * state,config_
 	return angle;
 }
 
-static int16_t calculate_angle_encoder_horizontal(state_controller_s * state,config_controller_s * config)
+static uint16_t calculate_angle_encoder_horizontal(state_controller_s * state,config_controller_s * config)
 {
 	int16_t angle = 0;
 	return angle;
 }
-static int16_t calculate_pressure(state_controller_s * state,config_controller_s * config)
+
+
+static uint16_t calculate_pressure(state_controller_s * state,config_controller_s * config)
 {
-	return PRESSURE_NORM;
+	gdouble rate = config->rate_pressure;
+	uint16_t pressure = state->pressure;
+
+	rate = (gdouble)pressure * rate;
+
+	if(rate < 0){
+		pressure = STATE_PRESSURE_ERROR;
+	}
+	else{
+		if(rate > UINT16_MAX){
+			pressure = STATE_PRESSURE_ERROR;
+		}
+		else{
+			pressure = (uint16_t)rate;
+		}
+	}
+
+	return pressure;
 }
 
 /*****************************************************************************/
@@ -719,29 +754,55 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
-#if 0
-static int show_pipe(block_controller_s * bc)
+static int show_valve(show_state_s * show_state,show_control_s * show_controls
+                     ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * controller = cc->current;
-	GdkPixbuf * buf = bc->state->buf_pipe;
-	GtkImage * image = bc->state->pipe;
+	uint64_t flag = controller_config->flag;
+	GdkPixbuf * image_valve;
 
-	int pressure = calculate_pressure(controller);
-	int valve = get_state_valve(controller->state);
+	if(!VALVE_DRY(flag)){
+		if(!VALVE_ANALOG(flag)){
+			return SUCCESS;
+		}
+	}
 
-	GdkPixbuf * pressure_image = get_image_pressure(pressure);
-	GdkPixbuf * valve_image = get_image_valve(valve);
-	int width = gdk_pixbuf_get_width(pressure_image);
-	int height = gdk_pixbuf_get_height(pressure_image);
+	if(VALVE_LIMIT(flag)){
+		flag_t s = get_state_valve(controller_state);
+		image_valve = get_image_valve_tic(s);
+	}
+	else{
+		if(VALVE_FEEDBACK(flag)){
+			image_valve = get_image_valve_analog(0);
+		}
+		else{
+			image_valve = images_state[VALVE_ERROR];
+		}
+	}
 
-	/*TODO маштабирование */
-	gdk_pixbuf_copy_area(pressure_image ,0,0,width,height,buf,0    ,0);
-	gdk_pixbuf_copy_area(valve_image    ,0,0,width,height,buf,width,0);
-	gtk_image_set_from_pixbuf(image,buf);
+	set_image(show_state->valve,show_state->buf_valve,image_valve);
+
 	return SUCCESS;
 }
 
+static int show_pressure(show_state_s * show_state,show_control_s * show_controls
+                     ,state_controller_s * controller_state,config_controller_s * controller_config)
+{
+ 	uint64_t flag = controller_config->flag;
+	GdkPixbuf * image_pressure;
+	uint16_t pressure;
+
+	if(!PRESSURE(flag)){
+			return SUCCESS;
+	}
+
+	pressure = calculate_pressure(controller_state,controller_config);
+	image_pressure = get_image_pressure(pressure);
+	set_image(show_state->pressure,show_state->buf_pressure,image_pressure);
+
+	return SUCCESS;
+}
+
+#if 0
 static int show_file_sensor(block_controller_s * bc)
 {
 	return SUCCESS;
@@ -781,8 +842,10 @@ static int show_block_controller(gpointer data)
 
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
+	show_valve(bc->state,bc->control,&state,controller->config);
+	show_pressure(bc->state,bc->control,&state,controller->config);
+
 #if 0
-	show_pipe(bc);
 	show_file_sensor(bc);
 	show_fire_alarm(bc);
 #endif
@@ -871,6 +934,31 @@ static GtkWidget * create_block_state_valve(show_state_s * state)
 	return frame;
 }
 
+static GtkWidget * create_block_state_pressure(show_state_s * state)
+{
+ 	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new("Давление");
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = images_state[PRESSURE_ERROR];
+	state->buf_pressure = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	state->pressure = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
+}
+
 /*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
 static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
@@ -933,7 +1021,6 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	return frame;
 }
 
-
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
@@ -942,6 +1029,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	GtkWidget * block_vertical;
 	GtkWidget * block_horizontal;
 	GtkWidget * block_valve;
+	GtkWidget * block_pressure;
 	/*GtkWidget * block_fire_sensor;*/
 	/*GtkWidget * block_fire_alarm;*/
 
@@ -961,6 +1049,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	block_vertical = create_block_state_vertical(bc->state);
 	block_horizontal = create_block_state_horizontal(bc->state);
 	block_valve = create_block_state_valve(bc->state);
+	block_pressure = create_block_state_pressure(bc->state);
 #if 0
 	block_fire_sensor = create_block_fire_sensor(bc);
 	block_fire_alarm = create_block_fire_alarm(bc);
@@ -971,7 +1060,8 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
 	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_valve      ,0,2,2,1);
+	gtk_grid_attach(GTK_GRID(grid),block_valve      ,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_pressure   ,1,2,1,1);
 #if 0
 	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
@@ -1024,43 +1114,36 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	return box;
 }
 
-static char STR_NAME_BUTTON_VALVE_OPEN[] =  "Открыть";
-static char STR_NAME_BUTTON_VALVE_CLOSE[] = "Закрыть";
-static void clicked_button_valve(GtkButton * b,gpointer ud)
+static void clicked_button_valve_open(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * cc = bc->communication_controller;
-	controller_s * controller = cc->current;
-	state_controller_s state;
-	flag_t flag;
-	/*command_u command = {0};*/
-	/*char * name;*/
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
 
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return ;
 	}
+	command.part.value = COMMAND_VALVE_OPEN;
 
-	g_mutex_lock(&(cc->mutex));
-	copy_state(&state,controller->state);
-	g_mutex_unlock(&(cc->mutex));
-
-	flag = get_state_valve(&state);
-	--
-#if 0
-	if(bc->control->but_valve == STATE_VALVE_CLOSE){
-		command.part.value = COMMAND_VALVE_OPEN;
-		bc->control->but_valve = STATE_VALVE_OPEN;
-		name = STR_NAME_BUTTON_VALVE_CLOSE;
-	}
-	else{
-		command.part.value = COMMAND_VALVE_CLOSE;
-		bc->control->but_valve = STATE_VALVE_CLOSE;
-		name = STR_NAME_BUTTON_VALVE_OPEN;
-	}
 	push_command_queue(communication_controller,controller,command);
-	gtk_button_set_label(b,name);
-#endif
+}
+
+static void clicked_button_valve_close(GtkButton * b,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return ;
+	}
+	command.part.value = COMMAND_VALVE_CLOSE;
+
+	push_command_queue(communication_controller,controller,command);
 }
 
 static gdouble min_valve = 0;
@@ -1088,7 +1171,8 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
 	GtkWidget * label;
-	GtkWidget * but;
+	GtkWidget * but_open;
+	GtkWidget * but_close;
 	/*GtkWidget * scale;*/
 
 	grid = gtk_grid_new();
@@ -1096,10 +1180,17 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 
 	label = gtk_label_new("Заслонка");
 
-	but = gtk_button_new_with_label(STR_NAME_BUTTON_VALVE_OPEN);
-	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_valve),bc);
-	bc->control->but_valve = GTK_BUTTON(but);
+	but_open = gtk_button_new_with_label("Открыть");
+	layout_widget(but_open,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_open,"clicked",G_CALLBACK(clicked_button_valve_open),bc);
+	bc->control->but_valve_open = GTK_BUTTON(but_open);
+
+	but_close = gtk_button_new_with_label("Закрыть");
+	layout_widget(but_close,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_close,"clicked",G_CALLBACK(clicked_button_valve_close),bc);
+	bc->control->but_valve_close = GTK_BUTTON(but_close);
+
+	/*TODO управление аналоговой схеме */
 #if 0
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1107,13 +1198,16 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 	gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);
 	g_signal_connect(scale,"change-value",G_CALLBACK(change_value_scale_valve),bc);
 #endif
-	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but  ,0,1,1,1);
+
+	gtk_grid_attach(GTK_GRID(grid),label    ,0,0,2,1);
+	gtk_grid_attach(GTK_GRID(grid),but_open ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_close,1,1,1,1);
 	/*gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);*/
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
-	gtk_widget_show(but);
+	gtk_widget_show(but_open);
+	gtk_widget_show(but_close);
 	/*gtk_widget_show(scale);*/
 
 	return grid;
@@ -1124,83 +1218,69 @@ static flag_t set_button_not_active(GtkButton * but)
 	return SUCCESS;
 }
 
-static void button_press_event_button_up(GtkButton * b,GdkEvent * e,gpointer ud)
+static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
 	command.part.value = COMMAND_LAFET_UP;
-
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
-
 	push_command_queue(communication_controller,controller,command);
 }
-static void button_press_event_button_down(GtkButton * b,GdkEvent * e,gpointer ud)
+static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
 	command.part.value = COMMAND_LAFET_DOWN;
-
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
 	push_command_queue(communication_controller,controller,command);
 }
-
-static void button_press_event_button_right(GtkButton * b,GdkEvent * e,gpointer ud)
+static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
 	command.part.value = COMMAND_LAFET_RIGHT;
-
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
 	push_command_queue(communication_controller,controller,command);
 }
-
-static void button_press_event_button_left(GtkButton * b,GdkEvent * e,gpointer ud)
+static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
 	command.part.value = COMMAND_LAFET_LEFT;
-
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return;
-	}
 	push_command_queue(communication_controller,controller,command);
 }
-
-static void button_release_event_button_stop(GtkButton * b,GdkEvent * e,gpointer ud)
+static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
-	command.part.value = COMMAND_LAFET_STOP;
-
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(communication_controller,controller,command);
 }
 
@@ -1216,26 +1296,26 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 
 	but_up = gtk_button_new_with_label("ВВЕРХ");
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_button_up),bc);
-	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_lafet_up),bc);
+	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_up = GTK_BUTTON(but_up);
 
 	but_down = gtk_button_new_with_label("ВНИЗ");
 	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_button_down),bc);
-	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_lafet_down),bc);
+	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_down = GTK_BUTTON(but_down);
 
 	but_right = gtk_button_new_with_label("ВПРАВО");
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_button_right),bc);
-	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_lafet_right),bc);
+	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_right = GTK_BUTTON(but_right);
 
 	but_left = gtk_button_new_with_label("ВЛЕВО");
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_button_left),bc);
-	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_button_stop),bc);
+	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_lafet_left),bc);
+	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_left = GTK_BUTTON(but_left);
 
 	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
@@ -1252,44 +1332,132 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
  	return grid;
 }
 
-static gdouble min_spray = 0;
-static gdouble max_spray = 100;
-static gdouble step_spray = 1;
-static gdouble min_rate = 0;
-static gdouble max_rate = 100;
-static gdouble step_rate = 1;
+static void button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	command.part.value = COMMAND_SPRAY_LESS;
+	push_command_queue(communication_controller,controller,command);
+}
+static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	command.part.value = COMMAND_SPRAY_MORE;
+	push_command_queue(communication_controller,controller,command);
+}
+static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	command.part.value = COMMAND_RATE_LESS;
+	push_command_queue(communication_controller,controller,command);
+}
+static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	command.part.value = COMMAND_RATE_MORE;
+	push_command_queue(communication_controller,controller,command);
+}
+static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s*)ud;
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return;
+	}
+	command.part.value = COMMAND_ACTUATOT_STOP;
+	push_command_queue(communication_controller,controller,command);
+}
+
 static GtkWidget * create_block_actuator(block_controller_s * bc)
 {
-	GtkWidget * grid;
-	GtkWidget * label_spray;
-	GtkWidget * scale_spray;
-	GtkWidget * label_rate;
-	GtkWidget * scale_rate;
+	GtkWidget * box;
 
-	grid = gtk_grid_new();
+	GtkWidget * grid_spray;
+	GtkWidget * label_spray;
+	GtkWidget * but_spray_less;
+	GtkWidget * but_spray_more;
+
+	GtkWidget * grid_rate;
+	GtkWidget * label_rate;
+	GtkWidget * but_rate_less;
+	GtkWidget * but_rate_more;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+
+	grid_spray = gtk_grid_new();
+	bc->control->actuator_spray = grid_spray;
 
 	label_spray = gtk_label_new("Распыл");
 	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	scale_spray = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_spray,max_spray,step_spray);
-	layout_widget(scale_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	but_spray_less = gtk_button_new_with_label("Уже");
+	g_signal_connect(but_spray_less,"press-event",G_CALLBACK(button_press_event_actuator_spray_less),bc);
+	g_signal_connect(but_spray_less,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	but_spray_more = gtk_button_new_with_label("Шире");
+	g_signal_connect(but_spray_more,"press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
+	g_signal_connect(but_spray_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
 	label_rate = gtk_label_new("Литраж");
 	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	scale_rate = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_rate,max_rate,step_rate);
-	layout_widget(scale_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	gtk_grid_attach(GTK_GRID(grid),label_spray,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),scale_spray,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),label_rate ,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),scale_rate ,1,1,1,1);
+	but_rate_less = gtk_button_new_with_label("Больше");
+	g_signal_connect(but_rate_less,"press-event",G_CALLBACK(button_press_event_actuator_rate_less),bc);
+	g_signal_connect(but_rate_less,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	but_rate_more = gtk_button_new_with_label("Меньше");
+	g_signal_connect(but_rate_more,"press-event",G_CALLBACK(button_press_event_actuator_rate_more),bc);
+	g_signal_connect(but_rate_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
-	gtk_widget_show(grid);
+	gtk_box_pack_start(GTK_BOX(box),grid_spray,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),grid_rate ,TRUE,TRUE,0);
+
+	gtk_grid_attach(GTK_GRID(grid_spray),label_spray   ,0,0,2,1);
+	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_less,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_more,1,1,1,1);
+
+	gtk_grid_attach(GTK_GRID(grid_rate),label_rate   ,0,0,2,1);
+	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_less,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_more,1,1,1,1);
+
+	gtk_widget_show(box);
+	gtk_widget_show(grid_spray);
 	gtk_widget_show(label_spray);
-	gtk_widget_show(scale_spray);
+	gtk_widget_show(but_spray_less);
+	gtk_widget_show(but_spray_more);
+	gtk_widget_show(grid_rate);
 	gtk_widget_show(label_rate);
-	gtk_widget_show(scale_rate);
+	gtk_widget_show(but_rate_less);
+	gtk_widget_show(but_rate_more);
 
-	return grid;
+ 	return grid;
 }
 
 static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
@@ -1406,15 +1574,15 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 
 	block_lafet = create_block_control_lafet(bc);
 	block_valve = create_block_control_valve(bc);
-#if 0
 	block_actuator = create_block_actuator(bc);
+#if 0
 	block_oscillation = create_block_oscillation(bc);
 #endif
 
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
-#if 0
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
+#if 0
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
 #endif
 	gtk_widget_show(box);
@@ -1471,7 +1639,23 @@ static flag_t	changed_block_controller(block_controller_s * bc
 		set_button_not_active(control->but_left);
 		set_button_not_active(control->but_right);
 		state->buf_axis_vertical = images_state[HORIZONTAL_NO_ENGINE];
-		gtk_image_set_from_pixbuf(state->axis_horizontal,state->buf_axis_horizontal);
+	 	gtk_image_set_from_pixbuf(state->axis_horizontal,state->buf_axis_horizontal);
+	}
+
+	if(VALVE_DRY(flag)){
+		gtk_widget_show(GTK_WIDGET(control->but_valve_open));
+	 	gtk_widget_show(GTK_WIDGET(control->but_valve_close));
+	}
+	else{
+		gtk_widget_hide(GTK_WIDGET(control->but_valve_open));
+	 	gtk_widget_hide(GTK_WIDGET(control->but_valve_close));
+	}
+
+	if(PRESSURE(flag)){
+		gtk_widget_show(GTK_WIDGET(state->pressure));
+	}
+	else{
+		gtk_widget_hide(GTK_WIDGET(state->pressure));
 	}
 
 #if 0
@@ -1497,8 +1681,6 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	}
 	if(AMPERAGE_HORIZONTAL(flag)){
 	}
-	if(PRESSURE(flag)){
-	}
 	if(CONSOLE(flag)){
 	}
 	if(POST(flag)){
@@ -1512,8 +1694,6 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	if(SENSOR_DRY_485(flag)){
 	}
 	if(SENSOR_DRY_ETHERNET(flag)){
-	}
-	if(VALVE_DRY(flag)){
 	}
 	if(VALVE_ANALOG(flag)){
 	}
