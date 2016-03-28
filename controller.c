@@ -1437,7 +1437,6 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	g_signal_connect(but_spray_more,"press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
 	g_signal_connect(but_spray_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
-
 	grid_rate = gtk_grid_new();
 	bc->control->actuator_rate = grid_rate;
 
