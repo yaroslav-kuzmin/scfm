@@ -501,7 +501,6 @@ struct _config_controller_s
 	double rate_valve_analog;
 };
 
-
 enum
 {
 	STATE_VALVE_OPEN=0,
@@ -583,7 +582,6 @@ struct _control_controller_s
 {
 	command_u	command;
 };
-
 
 #define MIN_ID     1
 #define MAX_ID     247
