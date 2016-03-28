@@ -1151,6 +1151,7 @@ static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
 static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,gpointer ud)
 {
+#if 0
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
@@ -1164,6 +1165,7 @@ static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,
 
 	push_command_queue(communication_controller,controller,command);
 	gtk_range_set_value(r,valve_d);
+#endif	
 	return TRUE;
 }
 
