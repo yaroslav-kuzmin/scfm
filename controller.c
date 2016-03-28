@@ -1436,11 +1436,11 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	label_spray = gtk_label_new("Распыл");
 	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	but_spray_less = gtk_button_new_with_label("Уже");
-	g_signal_connect(but_spray_less,"press-event",G_CALLBACK(button_press_event_actuator_spray_less),bc);
-	g_signal_connect(but_spray_less,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	g_signal_connect(but_spray_less,"button-press-event",G_CALLBACK(button_press_event_actuator_spray_less),bc);
+	g_signal_connect(but_spray_less,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 	but_spray_more = gtk_button_new_with_label("Шире");
-	g_signal_connect(but_spray_more,"press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
-	g_signal_connect(but_spray_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	g_signal_connect(but_spray_more,"button-press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
+	g_signal_connect(but_spray_more,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
 	grid_rate = gtk_grid_new();
 	bc->control->actuator_rate = grid_rate;
@@ -1448,11 +1448,11 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	label_rate = gtk_label_new("Литраж");
 	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	but_rate_less = gtk_button_new_with_label("Больше");
-	g_signal_connect(but_rate_less,"press-event",G_CALLBACK(button_press_event_actuator_rate_less),bc);
-	g_signal_connect(but_rate_less,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	g_signal_connect(but_rate_less,"button-press-event",G_CALLBACK(button_press_event_actuator_rate_less),bc);
+	g_signal_connect(but_rate_less,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 	but_rate_more = gtk_button_new_with_label("Меньше");
-	g_signal_connect(but_rate_more,"press-event",G_CALLBACK(button_press_event_actuator_rate_more),bc);
-	g_signal_connect(but_rate_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
+	g_signal_connect(but_rate_more,"button-press-event",G_CALLBACK(button_press_event_actuator_rate_more),bc);
+	g_signal_connect(but_rate_more,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
 	gtk_box_pack_start(GTK_BOX(box),grid_spray,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),grid_rate ,TRUE,TRUE,0);
