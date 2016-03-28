@@ -534,10 +534,11 @@ static gpointer controllers_communication(gpointer ud)
 				controller->object->status = STATUS_ERROR;
 			}
 			else{
-				g_debug("read controller");
+				/*g_debug("read controller");*/
 				g_mutex_lock(&(cc->mutex));
 				copy_state(controller->state,&state);
-				command = controller->control->command;
+				command.all = controller->control->command.all;
+				controller->control->command.part.value = COMMAND_EMPTY;
 				g_mutex_unlock(&(cc->mutex));
 				if(command.part.value != COMMAND_EMPTY){
 					/*g_debug(" :> %ld ",command);*/
@@ -546,9 +547,6 @@ static gpointer controllers_communication(gpointer ud)
 						/*TODO сделать реконнект*/
 						controller->object->status = STATUS_ERROR;
 					}
-					g_mutex_lock(&(cc->mutex));
-					controller->control->command.part.value = COMMAND_EMPTY;
-					g_mutex_unlock(&(cc->mutex));
 				}
 			} /*else*/
 		} /*if(controller != NULL)*/
@@ -1097,6 +1095,11 @@ static flag_t push_command_queue(communication_controller_s * cc,controller_s * 
 	return SUCCESS;
 }
 
+static flag_t set_button_not_active(GtkButton * but)
+{
+	return SUCCESS;
+}
+
 /*static char STR_MODE_AUTO[]   = "Автоматический режим";*/
 static char STR_MODE_MANUAL[] = "РУЧНОЙ РЕЖИМ";
 
@@ -1134,7 +1137,6 @@ static void clicked_button_valve_open(GtkButton * b,gpointer ud)
 		return ;
 	}
 	command.part.value = COMMAND_VALVE_OPEN;
-
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
@@ -1150,7 +1152,6 @@ static void clicked_button_valve_close(GtkButton * b,gpointer ud)
 		return ;
 	}
 	command.part.value = COMMAND_VALVE_CLOSE;
-
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
@@ -1221,11 +1222,6 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 	/*gtk_widget_show(scale);*/
 
 	return grid;
-}
-
-static flag_t set_button_not_active(GtkButton * but)
-{
-	return SUCCESS;
 }
 
 static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
