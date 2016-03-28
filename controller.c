@@ -106,6 +106,9 @@ struct _show_control_s
 	GtkButton * but_valve_open;
 	GtkButton * but_valve_close;
 
+	GtkWidget * actuator_spray;
+	GtkWidget * actuator_rate;
+
 	flag_t mode;
 	GtkWidget * console;
 };
@@ -1165,7 +1168,7 @@ static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,
 
 	push_command_queue(communication_controller,controller,command);
 	gtk_range_set_value(r,valve_d);
-#endif	
+#endif
 	return TRUE;
 }
 
@@ -1428,9 +1431,12 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	g_signal_connect(but_spray_more,"press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
 	g_signal_connect(but_spray_more,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
+
+	grid_rate = gtk_grid_new();
+	bc->control->actuator_rate = grid_rate;
+
 	label_rate = gtk_label_new("Литраж");
 	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-
 	but_rate_less = gtk_button_new_with_label("Больше");
 	g_signal_connect(but_rate_less,"press-event",G_CALLBACK(button_press_event_actuator_rate_less),bc);
 	g_signal_connect(but_rate_less,"release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
@@ -1568,7 +1574,7 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	GtkWidget * box;
 	GtkWidget * block_lafet;
 	GtkWidget * block_valve;
-	/*GtkWidget * block_actuator;*/
+	GtkWidget * block_actuator;
 	/*GtkWidget * block_oscillation;*/
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -1660,11 +1666,19 @@ static flag_t	changed_block_controller(block_controller_s * bc
 		gtk_widget_hide(GTK_WIDGET(state->pressure));
 	}
 
-#if 0
 	if(ACTUATOR_SPRAY(flag)){
+		gtk_widget_show(control->actuator_spray);
+	}
+	else{
+		gtk_widget_hide(control->actuator_spray);
 	}
 	if(ACTUATOR_RATE(flag)){
+		gtk_widget_show(control->actuator_rate);
 	}
+	else{
+		gtk_widget_hide(control->actuator_rate);
+	}
+#if 0
 	if(ACTUATOR_VEIL(flag)){
 	}
 	if(LIMIT_VERTICAL(flag)){
