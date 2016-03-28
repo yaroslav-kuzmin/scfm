@@ -1079,13 +1079,18 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 /***** Функции отображения системы управления ********************************/
 
 
-static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command)
+static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command,flag_t rewrite)
 {
 	control_controller_s * control = controller->control;
 
 	g_mutex_lock(&(cc->mutex));
 	if(control->command.part.value == COMMAND_EMPTY){
-		control->command = command;
+		control->command.all = command.all;
+	}
+	else{
+		if(rewrite == OK){
+			control->command.all = command.all;
+		}
 	}
 	g_mutex_unlock(&(cc->mutex));
 
@@ -1130,7 +1135,7 @@ static void clicked_button_valve_open(GtkButton * b,gpointer ud)
 	}
 	command.part.value = COMMAND_VALVE_OPEN;
 
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
 static void clicked_button_valve_close(GtkButton * b,gpointer ud)
@@ -1146,7 +1151,7 @@ static void clicked_button_valve_close(GtkButton * b,gpointer ud)
 	}
 	command.part.value = COMMAND_VALVE_CLOSE;
 
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
 static gdouble min_valve = 0;
@@ -1166,7 +1171,7 @@ static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,
 		return FALSE;
 	}
 
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 	gtk_range_set_value(r,valve_d);
 #endif
 	return TRUE;
@@ -1234,7 +1239,7 @@ static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 		return;
 	}
 	command.part.value = COMMAND_LAFET_UP;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1247,7 +1252,7 @@ static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud
 		return;
 	}
 	command.part.value = COMMAND_LAFET_DOWN;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1260,7 +1265,7 @@ static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer u
 		return;
 	}
 	command.part.value = COMMAND_LAFET_RIGHT;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1273,7 +1278,7 @@ static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud
 		return;
 	}
 	command.part.value = COMMAND_LAFET_LEFT;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1286,7 +1291,7 @@ static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer 
 		return;
 	}
 	command.part.value = COMMAND_LAFET_STOP;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,OK);
 }
 
 static GtkWidget * create_block_control_lafet(block_controller_s * bc)
@@ -1349,7 +1354,7 @@ static void button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gp
 	}
 	g_info(" Распыл уже");
 	command.part.value = COMMAND_SPRAY_LESS;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1363,7 +1368,7 @@ static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gp
 	}
 	g_info(" Распыл шире");
 	command.part.value = COMMAND_SPRAY_MORE;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1377,7 +1382,7 @@ static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpo
 	}
 	g_info(" Расход меньше");
 	command.part.value = COMMAND_RATE_LESS;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1391,7 +1396,7 @@ static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpo
 	}
 	g_info(" Расход больше");
 	command.part.value = COMMAND_RATE_MORE;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1405,7 +1410,7 @@ static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpoint
 	}
 	g_info(" Актуатор стоп");
 	command.part.value = COMMAND_ACTUATOT_STOP;
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,OK);
 }
 
 static GtkWidget * create_block_actuator(block_controller_s * bc)
@@ -1486,7 +1491,7 @@ static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
 {
@@ -1501,7 +1506,7 @@ static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
 {
@@ -1516,7 +1521,7 @@ static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
 {
@@ -1531,7 +1536,7 @@ static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	push_command_queue(communication_controller,controller,command);
+	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
