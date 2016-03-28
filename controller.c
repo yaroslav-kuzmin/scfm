@@ -1466,20 +1466,18 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 
  	return box;
 }
-#if 0
+
 static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
-	command.part.value = COMMAND_OSCILLATION_VERTICAL;
-
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	command.part.value = COMMAND_OSCILLATION_VERTICAL;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
@@ -1487,14 +1485,12 @@ static void clicked_button_oscillation_horizontal(GtkButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
-	command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
-
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
@@ -1502,14 +1498,12 @@ static void clicked_button_oscillation_saw(GtkButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
-	command.part.value = COMMAND_OSCILLATION_SAW;
-
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	command.part.value = COMMAND_OSCILLATION_SAW;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
@@ -1517,14 +1511,12 @@ static void clicked_button_oscillation_step(GtkButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
-
 	command_u command = {0};
-	command.part.value = COMMAND_OSCILLATION_STEP;
-
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	command.part.value = COMMAND_OSCILLATION_STEP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
@@ -1567,14 +1559,13 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	return grid;
 }
-#endif
 static GtkWidget * create_block_control_console(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_lafet;
 	GtkWidget * block_valve;
 	GtkWidget * block_actuator;
-	/*GtkWidget * block_oscillation;*/
+	GtkWidget * block_oscillation;
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
   layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -1582,16 +1573,13 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	block_lafet = create_block_control_lafet(bc);
 	block_valve = create_block_control_valve(bc);
 	block_actuator = create_block_actuator(bc);
-#if 0
 	block_oscillation = create_block_oscillation(bc);
-#endif
 
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
-#if 0
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
-#endif
+
 	gtk_widget_show(box);
 
 	return box;
@@ -1789,6 +1777,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 #endif
 	return SUCCESS;
 }
+
 /*****************************************************************************/
 
 static show_state_s show_state;
@@ -1855,7 +1844,6 @@ GtkWidget * create_block_controller(void)
 	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	frame_state = create_block_state(&block_controller);
-
 	frame_control = create_block_control(&block_controller);
 
 	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,5);
