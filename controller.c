@@ -1457,7 +1457,7 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	gtk_widget_show(but_rate_less);
 	gtk_widget_show(but_rate_more);
 
- 	return grid;
+ 	return box;
 }
 
 static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
