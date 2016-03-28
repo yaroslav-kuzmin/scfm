@@ -959,7 +959,7 @@ static GtkWidget * create_block_state_pressure(show_state_s * state)
 
 	return frame;
 }
-
+#if 0
 /*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
 static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
@@ -1021,7 +1021,7 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	gtk_widget_show(box);
 	return frame;
 }
-
+#endif
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
@@ -1155,12 +1155,12 @@ static void clicked_button_valve_close(GtkButton * b,gpointer ud)
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
+#if 0
 static gdouble min_valve = 0;
 static gdouble max_valve = 4000;
 static gdouble step_valve = 10;
 static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,gpointer ud)
 {
-#if 0
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
@@ -1174,10 +1174,9 @@ static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,
 
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 	gtk_range_set_value(r,valve_d);
-#endif
 	return TRUE;
 }
-
+#endif
 static GtkWidget * create_block_control_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
@@ -1477,7 +1476,7 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 
  	return box;
 }
-
+#if 0
 static void clicked_button_oscillation_vertical(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -1578,7 +1577,7 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	return grid;
 }
-
+#endif
 static GtkWidget * create_block_control_console(block_controller_s * bc)
 {
 	GtkWidget * box;
