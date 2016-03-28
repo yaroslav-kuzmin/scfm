@@ -1233,7 +1233,6 @@ static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Лафет вверх");
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1247,7 +1246,6 @@ static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Лафет вниз");
 	command.part.value = COMMAND_LAFET_DOWN;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1261,7 +1259,6 @@ static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer u
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Лафет вправо");
 	command.part.value = COMMAND_LAFET_RIGHT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1275,7 +1272,6 @@ static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Лафет влево");
 	command.part.value = COMMAND_LAFET_LEFT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1289,7 +1285,6 @@ static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer 
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Лафет стоп");
 	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }
@@ -1352,7 +1347,6 @@ static void button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gp
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Распыл уже");
 	command.part.value = COMMAND_SPRAY_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1366,7 +1360,6 @@ static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gp
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Распыл шире");
 	command.part.value = COMMAND_SPRAY_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1380,7 +1373,6 @@ static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpo
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Расход меньше");
 	command.part.value = COMMAND_RATE_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1394,7 +1386,6 @@ static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpo
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Расход больше");
 	command.part.value = COMMAND_RATE_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1408,7 +1399,6 @@ static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpoint
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" Актуатор стоп");
 	command.part.value = COMMAND_ACTUATOT_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }
