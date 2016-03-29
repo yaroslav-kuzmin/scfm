@@ -357,7 +357,7 @@ int add_object_database(uint32_t number_group,uint32_t number_object,char * name
 				return rc;
 			}
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			rc = add_table_controller(number_object,(controller_s*)property);
 			if(rc != SUCCESS){
 				return rc;
@@ -387,7 +387,7 @@ int del_object_database(uint32_t number_group,uint32_t number_object,uint8_t typ
 				return rc;
 			}
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			rc = del_table_controller(number_object);
 			if(rc != SUCCESS){
 				return rc;

@@ -90,7 +90,7 @@ static int change_object(block_object_s * block_object,int type)
 			gtk_widget_hide(block_object->controller);
 			gtk_widget_show(block_object->videocamera);
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			gtk_widget_hide(block_object->empty);
 			gtk_widget_hide(block_object->group);
 			gtk_widget_hide(block_object->videocamera);
@@ -192,7 +192,7 @@ flag_t select_object(object_s * object)
 		case TYPE_VIDEOCAMERA:
 			select_block_videcamera((videocamera_s*)object->property);
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			select_block_controller((controller_s*)object->property);
 			break;
 		default:

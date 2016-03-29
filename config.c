@@ -341,7 +341,7 @@ static GtkTreeModel * create_model_combobox(void)
 	gtk_list_store_append(model,&iter);
 	gtk_list_store_set(model,&iter
 	                  ,COLUMN_COMBOBOX_NAME,STR_TYPE_CONTROLLER
-	                  ,COLUMN_COMBOBOX_TYPE,TYPE_CONTROLLERE
+	                  ,COLUMN_COMBOBOX_TYPE,TYPE_CONTROLLER
 	                  ,-1);
 	return GTK_TREE_MODEL(model);
 }
@@ -367,7 +367,7 @@ static int select_setting(block_config_s * config)
 			gtk_widget_show(config->setting_videocamera);
 			gtk_widget_hide(config->setting_controller);
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			gtk_widget_hide(config->setting_unknown);
 			gtk_widget_hide(config->setting_group);
 			gtk_widget_hide(config->setting_videocamera);
@@ -467,7 +467,7 @@ static void * new_property(int type)
 		case TYPE_VIDEOCAMERA:
 			property = new_property_videocamera();
 			break;
-		case TYPE_CONTROLLERE:
+		case TYPE_CONTROLLER:
 			property = new_property_controller();
 			break;
 		case TYPE_UNKNOWN:

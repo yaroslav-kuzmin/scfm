@@ -101,7 +101,7 @@ enum
 #define TYPE_KERNEL            0xFF
 #define TYPE_GROUP             0x80
 #define TYPE_VIDEOCAMERA       0x02
-#define TYPE_CONTROLLERE       0x03
+#define TYPE_CONTROLLER        0x03
 
 extern char STR_TYPE_GROUP[];
 extern char STR_TYPE_VIDEOCAMERE[];
@@ -483,6 +483,13 @@ struct _link_s
 	int8_t parity;
 	uint8_t data_bit;
 	uint8_t stop_bit;
+};
+
+enum
+{
+	TYPE_DEVICE_LSD = 0,
+	TYPE_DEVICE_ROBOT,
+	AMOUNT_TYPE_DEVICE
 };
 
 typedef struct _config_controller_s config_controller_s;

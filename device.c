@@ -445,44 +445,62 @@ int check_config_controller(config_controller_s * config_c,config_controller_s *
 	return SUCCESS;
 }
 
+static uint16_t min_type_lsd = 6;
+flag_t get_type_device(config_controller_s * config)
+{
+	flag_t type_device;
+	uint32_t type = config->type;
+	uint16_t type_lsd;
+	type_lsd = type >> AMOUNT_BIT_D300;
+
+	if(type_lsd <= min_type_lsd){
+		type_device = TYPE_DEVICE_LSD;
+	}
+	else{
+		type_device = TYPE_DEVICE_ROBOT;
+	}
+
+	return type_device;
+}
+
 char * get_name_controller(config_controller_s * config)
 {
-	uint16_t name_robot;
-	uint16_t liter_robot;
+	uint16_t name_device;
+	uint16_t liter_device;
 	uint32_t type = config->type;
 
-	name_robot = type >> AMOUNT_BIT_D300;
+	name_device = type >> AMOUNT_BIT_D300;
 	/*Регистр D301 литраж установки */
-	liter_robot = type;
+	liter_device = type;
 
 	/*Регистр D300 названия установки*/
-	switch(name_robot){
+	switch(name_device){
 		case 1:
-			g_string_printf(pub,"ЛСД-С%dУ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ",liter_device);
 			break;
 		case 2:
-			g_string_printf(pub,"ЛСД-С%dУ-Ех",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ-Ех",liter_device);
 			break;
 		case 3:
-			g_string_printf(pub,"ЛСД-С%dУ-ИК",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ-ИК",liter_device);
 			break;
 		case 4:
-			g_string_printf(pub,"ЛСД-С%dУ-Ех-ИК",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ-Ех-ИК",liter_device);
 			break;
 		case 5:
-			g_string_printf(pub,"ЛСД-С%dУ-ТВ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ-ТВ",liter_device);
 			break;
 		case 6:
-			g_string_printf(pub,"ЛСД-С%dУ-Ех-ТВ",liter_robot);
+			g_string_printf(pub,"ЛСД-С%dУ-Ех-ТВ",liter_device);
 			break;
 		case 7:
-			g_string_printf(pub,"ПР-ЛСД-С%dУ-ИК-ТВ",liter_robot);
+			g_string_printf(pub,"ПР-ЛСД-С%dУ-ИК-ТВ",liter_device);
 			break;
 		case 8:
-			g_string_printf(pub,"ПР-ЛСД-С%dУ-Ех-ИК-ТВ",liter_robot);
+			g_string_printf(pub,"ПР-ЛСД-С%dУ-Ех-ИК-ТВ",liter_device);
 			break;
 		default:
-			g_string_printf(pub,"ЛСД-%d",liter_robot);
+			g_string_printf(pub,"ЛСД-%d",liter_device);
 			break;
 	}
 	return g_strdup(pub->str);
