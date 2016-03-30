@@ -1110,12 +1110,14 @@ static char STR_MODE_MANUAL[] = "РУЧНОЙ РЕЖИМ";
 static void button_clicked_control_mode(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	/*communication_controller_s * communication_controller = bc->communication_controller;*/
-	/*controller_s * controller = communication_controller->current;*/
-	/*command_u command = {0};*/
+	communication_controller_s * communication_controller = bc->communication_controller;
+	controller_s * controller = communication_controller->current;
+	command_u command = {0};
 
  	if(bc->type_device == TYPE_DEVICE_LSD){
 		g_info("Режим управления ручной");
+		command.part.value = COMMAND_MODE_MANUAL;
+		push_command_queue(communication_controller,controller,command,NOT_OK);
 		return;
 	}
 
@@ -1503,6 +1505,7 @@ static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
+	g_info(" режим осциляции : %d",bc->control->command.part.value);
 	command.part.value = bc->control->command.part.value;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
@@ -1513,9 +1516,10 @@ static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+	 	g_info("Не выбран контролер");
 		return;
 	}
+	g_info(" режим осциляции : останов");
 	command.part.value = COMMAND_OSCILLATION_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }

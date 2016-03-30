@@ -292,7 +292,7 @@ static uint16_t VALUE_DEVICE_7_STATE_1     = 0x2000;
 static uint16_t VALUE_DEVICE_8_STATE_0     = 0x4000;
 static uint16_t VALUE_DEVICE_8_STATE_1     = 0x8000;
 */
-/*static uint16_t VALUE_MODE_EMPTY  = 0x0000;*/
+static uint16_t VALUE_MODE_STOP  = 0x0000;
 static uint16_t VALUE_MODE_AUTO   = 0x0001;
 static uint16_t VALUE_MODE_MANUAL = 0x0002;
 static uint16_t VALUE_MODE_CONFIG = 0x0004;
@@ -391,6 +391,10 @@ static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 		case COMMAND_ALL_DEVICE_STOP:
 			*reg = reg_D207;
 			*value = VALUE_ALL_DEVICE_STOP;
+			break;
+		case COMMAND_MODE_STOP:
+			*reg = reg_D208;
+			*value = VALUE_MODE_STOP;
 			break;
 		case COMMAND_MODE_AUTO:
 			*reg = reg_D208;
