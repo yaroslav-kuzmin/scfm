@@ -126,12 +126,14 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 
 	menite_control = gtk_menu_item_new_with_label("Управление");
 	g_signal_connect(menite_control,"activate",G_CALLBACK(activate_menu_job_control),win_main);
+
 	gtk_widget_add_accelerator(menite_control,"activate",main_accgro
 	                          ,GDK_KEY_E,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_widget_add_accelerator(menite_control,"activate",main_accgro
 	                          ,0x0065,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_widget_add_accelerator(menite_control,"activate",main_accgro
 	                          ,0x06D5,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_control);
 
 
