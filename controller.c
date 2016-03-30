@@ -113,7 +113,8 @@ struct _show_control_s
 	GtkLabel * lab_console;
 	GtkButton * but_console;
 
-	command_u command;
+	flag_t oscillation_flag;
+	command_u oscillation_command;
 };
 
 typedef struct _block_controller_s block_controller_s;
@@ -1505,9 +1506,11 @@ static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" режим осциляции : %d",bc->control->command.part.value);
-	command.part.value = bc->control->command.part.value;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	if(bc->control->oscillation_flag == COMMAND_OSCILLATION_STOP){
+		command.part.value = bc->control->oscillation_command.part.value;
+		bc->control->oscillation_flag = COMMAND_OSCILLATION_RUN;
+		push_command_queue(communication_controller,controller,command,NOT_OK);
+	}
 }
 static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 {
@@ -1519,29 +1522,29 @@ static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 	 	g_info("Не выбран контролер");
 		return;
 	}
-	g_info(" режим осциляции : останов");
+	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
 	command.part.value = COMMAND_OSCILLATION_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }
 static void button_clicked_oscillation_vertical(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->command.part.value = COMMAND_OSCILLATION_VERTICAL;
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL;
 }
 static void button_clicked_oscillation_horizontal(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
 }
 static void button_clicked_oscillation_saw(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->command.part.value = COMMAND_OSCILLATION_SAW;
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_SAW;
 }
 static void button_clicked_oscillation_step(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->command.part.value = COMMAND_OSCILLATION_STEP;
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STEP;
 }
 
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
@@ -1561,6 +1564,9 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	label = gtk_label_new("Осциляция");
 
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL; /*выбор по умолчанию */
+	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
+
 	but_run = gtk_button_new_with_label("Запустить");
 	g_signal_connect(but_run,"clicked",G_CALLBACK(button_clicked_oscillation_run),bc);
 
@@ -1569,7 +1575,7 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	but_vertical = gtk_radio_button_new_with_label(NULL,"Вертикальная");
 	g_signal_connect(but_vertical,"clicked",G_CALLBACK(button_clicked_oscillation_vertical),bc);
-	bc->control->command.part.value = COMMAND_OSCILLATION_VERTICAL; /*выбор по умолчанию */
+
 
 	but_horizontal = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
 	                                                            ,"Горизонтальная");

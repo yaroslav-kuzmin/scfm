@@ -141,6 +141,10 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 	g_signal_connect(menite_config,"activate",G_CALLBACK(activate_menu_job_config),win_main);
 	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
 	                          ,GDK_KEY_C,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
+	                          ,0x0063,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
+	                          ,0x06D3,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_config);
 
 	menite_s0 = gtk_separator_menu_item_new();
@@ -150,10 +154,11 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 	g_signal_connect(menite_exit,"activate",G_CALLBACK(activate_menu_job_exit),win_main);
 	gtk_widget_add_accelerator(menite_exit,"activate",main_accgro
 	                          ,GDK_KEY_Q,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(menite_exit,"activate",main_accgro
+	                          ,0x0071,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(menite_exit,"activate",main_accgro
+	                          ,0x06CA,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_exit);
-
-	g_info(" Ctrl+E : %#x : %#x",GDK_KEY_E,'E');
-	g_info(" Ctrl+Q : %#x : %#x",GDK_KEY_Q,'Q');
 
 	gtk_widget_show(menite_job);
 	gtk_widget_show(men_job);
