@@ -1565,10 +1565,11 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	g_signal_connect(but_run,"clicked",G_CALLBACK(button_clicked_oscillation_run),bc);
 
 	but_stop = gtk_button_new_with_label("Остановить");
-	g_signal_connect(but_run,"clicked",G_CALLBACK(button_clicked_oscillation_stop),bc);
+	g_signal_connect(but_stop,"clicked",G_CALLBACK(button_clicked_oscillation_stop),bc);
 
 	but_vertical = gtk_radio_button_new_with_label(NULL,"Вертикальная");
 	g_signal_connect(but_vertical,"clicked",G_CALLBACK(button_clicked_oscillation_vertical),bc);
+	bc->control->command.part.value = COMMAND_OSCILLATION_VERTICAL; /*выбор по умолчанию */
 
 	but_horizontal = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
 	                                                            ,"Горизонтальная");
