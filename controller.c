@@ -1137,7 +1137,7 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 
 	label = gtk_label_new(STR_MODE_MANUAL);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_label_set_xalign(GTK_LABEL(label),0);
+	/*gtk_label_set_xalign(GTK_LABEL(label),0);*/
 	bc->control->lab_console = GTK_LABEL(label);
 
 	but = gtk_button_new_with_label("Установить");
