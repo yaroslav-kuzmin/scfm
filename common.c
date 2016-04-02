@@ -377,9 +377,16 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 /*****************************************************************************/
 static GtkCssProvider * css_provider;
 
+flag_t show_widget(GtkWidget * w)
+{
+	GtkStyleContext * style = gtk_widget_get_style_context(w);
+	gtk_style_context_add_provider(style,GTK_STYLE_PROVIDER(css_provider),GTK_STYLE_PROVIDER_PRIORITY_USER+100); /**/
+	gtk_widget_show(w);
+	return SUCCESS;
+}
 static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *section,GError *error,gpointer user_data)
 {
-	g_warning("%s",error->message);
+	g_warning("%s :%s",gtk_css_provider_to_string(provider),error->message);
 }
 
 static flag_t init_style(void)

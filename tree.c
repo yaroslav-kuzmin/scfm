@@ -349,9 +349,9 @@ GtkWidget * create_block_tree_object(void)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
 
-	gtk_widget_show(frame);
-	gtk_widget_show(scrwin);
-	gtk_widget_show(treeview);
+	show_widget(frame);
+	show_widget(scrwin);
+	show_widget(treeview);
 
 	return frame;
 }

@@ -116,6 +116,7 @@ static GtkWidget * create_block_state_input(char * name,uint16_t len,char * str_
 	label = gtk_label_new(name);
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,TRUE);
 	gtk_widget_set_size_request(label,len,-1);
+	gtk_widget_set_name(label,"bridge");
 
 	entry_buff = gtk_entry_buffer_new(str_default,-1);
 	gtk_entry_buffer_set_max_length(entry_buff,size_buff);
@@ -128,9 +129,9 @@ static GtkWidget * create_block_state_input(char * name,uint16_t len,char * str_
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 
-	gtk_widget_show(box);
-	gtk_widget_show(label);
-	gtk_widget_show(entry);
+	show_widget(box);
+	show_widget(label);
+	show_widget(entry);
 	return box;
 }
 
@@ -199,8 +200,8 @@ static GtkWidget * create_block_state_cell(block_bridge_s * bb,int number_cell)
 	gtk_box_pack_start(GTK_BOX(box),block_begin_register,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_amount_register,TRUE,TRUE,0);
 
-	gtk_widget_show(frame);
-	gtk_widget_show(box);
+	show_widget(frame);
+	show_widget(box);
 
 	return frame;
 }
@@ -221,7 +222,7 @@ static GtkWidget * create_block_state(block_bridge_s * bb)
 	gtk_box_pack_start(GTK_BOX(box),block_state_server,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_client,TRUE,TRUE,0);
 
-	gtk_widget_show(box);
+	show_widget(box);
 	return box;
 }
 
@@ -654,8 +655,8 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_connect),bb);
 	bb->connect = NOT_OK;
 	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,0);
-	gtk_widget_show(box);
-	gtk_widget_show(but);
+	show_widget(box);
+	show_widget(but);
 	return box;
 }
 
@@ -725,9 +726,9 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
-	gtk_widget_show(frame);
-	gtk_widget_show(scrwin);
-	gtk_widget_show(log);
+	show_widget(frame);
+	show_widget(scrwin);
+	show_widget(log);
 
 	return frame;
 }
@@ -767,8 +768,8 @@ static GtkWidget * create_block_bridge(block_bridge_s * bb)
 	gtk_box_pack_start(GTK_BOX(box),control,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),info,FALSE,TRUE,0);
 
-	gtk_widget_show(frame);
-	gtk_widget_show(box);
+	show_widget(frame);
+	show_widget(box);
 
 	return frame;
 }
@@ -824,9 +825,9 @@ int create_windows_bridge(void)
 	gtk_box_pack_start(GTK_BOX(box),block,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),exit,FALSE,TRUE,5);
 
-	gtk_widget_show(win_bridge);
-	gtk_widget_show(box);
-	gtk_widget_show(exit);
+	show_widget(win_bridge);
+	show_widget(box);
+	show_widget(exit);
 
 	return SUCCESS;
 }

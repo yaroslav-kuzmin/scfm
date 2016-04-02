@@ -128,9 +128,9 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 
-	gtk_widget_show(box);
-	gtk_widget_show(label);
-	gtk_widget_show(entry);
+	show_widget(box);
+	show_widget(label);
+	show_widget(entry);
 
 	return box;
 }
@@ -230,7 +230,7 @@ GtkWidget * create_block_setting_videocamera(void)
 	gtk_box_pack_start(GTK_BOX(box),block_port,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_access,TRUE,TRUE,0);
 
-	gtk_widget_show(box);
+	show_widget(box);
 
 	return box;
 }
@@ -283,9 +283,9 @@ GtkWidget * create_block_videocamera(void)
 
 	label = gtk_label_new(NULL);
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_show(label);
 	block_videocamera.label = GTK_LABEL(label);
 
+	show_widget(label);
 	return label;
 }
 /*****************************************************************************/

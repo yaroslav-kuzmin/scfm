@@ -123,7 +123,7 @@ static GtkWidget * create_block_job(void)
 
 	gtk_box_pack_start(GTK_BOX(box),block_tree,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_object,TRUE,TRUE,0);
-	gtk_widget_show(box);
+	show_widget(box);
 	return box;
 }
 
@@ -187,8 +187,8 @@ static GtkWidget * create_main_block(void)
 	gtk_container_add(GTK_CONTAINER(win_main),box);
 	gtk_window_add_accel_group(GTK_WINDOW(win_main),accgro_main);
 
-	gtk_widget_show(win_main);
-	gtk_widget_show(box);
+	show_widget(win_main);
+	show_widget(box);
 
 	return win_main;
 }

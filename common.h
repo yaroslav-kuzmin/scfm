@@ -66,5 +66,7 @@ GDateTime * current_date_time(void);
 GdkPixbuf * get_resource_image(int res,const char * name_resource);
 
 GdkPixbuf * get_default_icon(void);
+
+flag_t show_widget(GtkWidget * w);
 #endif
 

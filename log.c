@@ -328,8 +328,8 @@ GtkWidget * create_block_log(void)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
-	gtk_widget_show(frame);
-	gtk_widget_show(scrwin);
-	gtk_widget_show(log);
+	show_widget(frame);
+	show_widget(scrwin);
+	show_widget(log);
 	return frame;
 }
