@@ -71,7 +71,7 @@ extern char STR_NAME_PROGRAMM[];
 /**************************************/
 enum
 {
-	RESOURCE_BASE = 1,
+	RESOURCE_STYLE = 1,
 	RESOURCE_IMAGE,
 	AMOUNT_RESOURCE
 };

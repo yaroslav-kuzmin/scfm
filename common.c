@@ -294,9 +294,10 @@ static int deinit_config(void)
 
 static char STR_RESOURCE_DIR[] = "resource"G_DIR_SEPARATOR_S;
 static char STR_RESOURCE_EXT[] = ".gresource";
-static char STR_RESOURCE_BASE[] = "base";
 static char STR_RESOURCE_IMAGE[] = "image";
+static char STR_RESOURCE_STYLE[] = "style";
 static GString * name_resource_image = NULL;
+static GString * name_resource_style = NULL;
 
 static int check_resource(void)
 {
@@ -311,10 +312,20 @@ static int check_resource(void)
 		g_error("Нет файла ресурсов : %s",name_resource_image->str);
 		return FAILURE;
 	}
+	name_resource_style = g_string_new(NULL);
+	g_string_append(name_resource_style,STR_RESOURCE_DIR);
+	g_string_append(name_resource_style,STR_RESOURCE_STYLE);
+	g_string_append(name_resource_style,STR_RESOURCE_EXT);
+	rc = g_file_test(name_resource_style->str,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		g_error("Нет файла ресурсов : %s",name_resource_style->str);
+		return FAILURE;
+	}
 	return SUCCESS;
 }
 
 static GResource * resource_image;
+static GResource * resource_style;
 
 static int init_resource(void)
 {
@@ -326,7 +337,17 @@ static int init_resource(void)
 		return FAILURE;
 	}
 
+	err = NULL;
+	resource_style = g_resource_load(name_resource_style->str,&err);
+	if(resource_style == NULL){
+		g_warning("Нет ресурсов : %s",err->message);
+		g_error_free(err);
+		return FAILURE;
+	}
+
 	g_resources_register(resource_image);
+	g_resources_register(resource_style);
+
 	return SUCCESS;
 }
 
@@ -335,6 +356,8 @@ static int deinit_resource(void)
 	if(resource_image != NULL){
 		g_resources_unregister(resource_image);
 		g_resource_unref(resource_image);
+		g_resources_unregister(resource_style);
+		g_resource_unref(resource_style);
 	}
 	return SUCCESS;
 }
@@ -345,14 +368,14 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 	GdkPixbuf * image;
 
 	switch(res){
-		case RESOURCE_BASE:
-			g_string_printf(pub,"/%s/",STR_RESOURCE_BASE);
+		case RESOURCE_STYLE:
+			g_string_printf(pub,"/%s/assets/",STR_RESOURCE_STYLE);
 			break;
 		case RESOURCE_IMAGE:
 			g_string_printf(pub,"/%s/",STR_RESOURCE_IMAGE);
 			break;
 		default:
-			g_string_printf(pub,"/%s/",STR_RESOURCE_BASE);
+			g_string_printf(pub,"/%s/assets",STR_RESOURCE_STYLE);
 			break;
 	}
 	g_string_append(pub,name_resource);
@@ -456,7 +479,7 @@ int init_system(void)
 	init_all_controllers();
 	init_kernel();
 
-	default_icon = get_resource_image(RESOURCE_BASE,RESOURCE_DEFAULT_ICON);
+	default_icon = get_resource_image(RESOURCE_STYLE,RESOURCE_DEFAULT_ICON);
 	if(default_icon != NULL){
 		gtk_window_set_default_icon(default_icon);
 	}

@@ -6,11 +6,14 @@
 *.d
 *.mp4
 *.db
+*.gz
+*.tar
 tags
 version.h
 resource/.obj
 resource/.obj/base.c
 resource/.obj/base.o
 resource/image.gresource
+resource/style.gresource
 doc
-resource/base/tree.xcf
+resource/base/*.xcf
