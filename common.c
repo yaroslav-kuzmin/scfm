@@ -68,7 +68,7 @@ char STR_GROUP_GLOBAL[] = "global";
 /*****************************************************************************/
 /*****************************************************************************/
 
-int dialog_info(char * message)
+flag_t dialog_info(char * message)
 {
 	GtkWidget * md_err;
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
@@ -78,7 +78,7 @@ int dialog_info(char * message)
 	return FAILURE;
 }
 
-int dialog_error(char * message)
+flag_t dialog_error(char * message)
 {
 	GtkWidget * md_err;
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
@@ -88,28 +88,12 @@ int dialog_error(char * message)
 	return FAILURE;
 }
 
-int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
+flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
 {
 	gtk_widget_set_halign(w,ha);
 	gtk_widget_set_valign(w,va);
 	gtk_widget_set_hexpand(w,he);
 	gtk_widget_set_vexpand(w,ve);
-	return SUCCESS;
-}
-
-int set_size_font(GtkWidget * w,int size)
-{
-	/*TODO настроить через стили*/
-#if 0
-	PangoContext * pancon_info;
-	PangoFontDescription * panfondes_info;
-
-	pancon_info = gtk_widget_get_pango_context(w);
-	panfondes_info = pango_context_get_font_description(pancon_info);
-	pango_font_description_set_size(panfondes_info,size);
-
-	gtk_widget_override_font(w,panfondes_info);
-#endif
 	return SUCCESS;
 }
 
@@ -124,14 +108,14 @@ GDateTime * current_date_time(void)
 /*  конфиурирование системы                                                  */
 /*****************************************************************************/
 
-static int flag_save_config = NOT_OK;
-int set_flag_save_config(void)
+static flag_t flag_save_config = NOT_OK;
+flag_t set_flag_save_config(void)
 {
 	flag_save_config = OK;
 	return flag_save_config;
 }
 
-static int save_config(GString * name)
+static flag_t save_config(GString * name)
 {
 	int rc;
 	GError * err = NULL;
@@ -154,7 +138,7 @@ static int save_config(GString * name)
 	return SUCCESS;
 }
 
-static int read_config(GString * name)
+static flag_t read_config(GString * name)
 {
 	int rc;
 	GError * err = NULL;
@@ -221,7 +205,7 @@ static const char STR_LICENSE_CONFIG[] =
 	"                                                                             #\n"
 	"##############################################################################\n";
 
-static int create_default_config(GString * name)
+static flag_t create_default_config(GString * name)
 {
 	int rc;
 	GError * err = NULL;
@@ -252,7 +236,7 @@ static int create_default_config(GString * name)
 static char STR_CONFIG_FILE[] = "config";
 static GString * config_name = NULL;
 
-static int check_config(GString * catalog)
+static flag_t check_config(GString * catalog)
 {
 	int rc;
 	config_name = g_string_new(catalog->str);
@@ -264,7 +248,7 @@ static int check_config(GString * catalog)
 	return SUCCESS;
 }
 
-static int init_config(void)
+static flag_t init_config(void)
 {
 	int rc = SUCCESS;
 
@@ -274,7 +258,7 @@ static int init_config(void)
 	return rc;
 }
 
-static int deinit_config(void)
+static flag_t deinit_config(void)
 {
 	save_config(config_name);
 	if(system_config != NULL){
@@ -299,7 +283,7 @@ static char STR_RESOURCE_STYLE[] = "style";
 static GString * name_resource_image = NULL;
 static GString * name_resource_style = NULL;
 
-static int check_resource(void)
+static flag_t check_resource(void)
 {
 	int rc;
 	/*файлы ресурсов находятся в каталоге программы в windows */
@@ -327,7 +311,7 @@ static int check_resource(void)
 static GResource * resource_image;
 static GResource * resource_style;
 
-static int init_resource(void)
+static flag_t init_resource(void)
 {
 	GError * err = NULL;
 	resource_image = g_resource_load(name_resource_image->str,&err);
@@ -351,7 +335,7 @@ static int init_resource(void)
 	return SUCCESS;
 }
 
-static int deinit_resource(void)
+static flag_t deinit_resource(void)
 {
 	if(resource_image != NULL){
 		g_resources_unregister(resource_image);
@@ -388,6 +372,29 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 	return image;
 }
 
+/*****************************************************************************/
+/*  Стили                                                                    */
+/*****************************************************************************/
+static GtkCssProvider * css_provider;
+
+static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *section,GError *error,gpointer user_data)
+{
+	g_warning("%s",error->message);
+}
+
+static flag_t init_style(void)
+{
+	css_provider = gtk_css_provider_new();
+	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
+	gtk_css_provider_load_from_resource(css_provider,"/style/main.css");
+
+	return SUCCESS;
+}
+
+static flag_t deinit_style(void)
+{
+	return SUCCESS;
+}
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
@@ -428,7 +435,7 @@ flag_t get_mode_work(void)
 static char STR_WORK_CATALOG[] = G_DIR_SEPARATOR_S".scfm"G_DIR_SEPARATOR_S;
 static GString * work_catalog = NULL;
 
-static int check_system(void)
+static flag_t check_system(void)
 {
  	int rc;
 	const char * str = g_get_home_dir();
@@ -460,7 +467,7 @@ GdkPixbuf * get_default_icon(void)
 	return default_icon;
 }
 
-int init_system(void)
+flag_t init_system(void)
 {
 	/*создание постояных блоков*/
 	pub = g_string_new(NULL);
@@ -473,6 +480,7 @@ int init_system(void)
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
 	init_resource();
+	init_style();
 	init_database(work_catalog);
 	init_all_groups();
 	init_all_videocameras();
@@ -492,13 +500,14 @@ int init_system(void)
 	return SUCCESS;
 }
 
-int deinit_system(void)
+flag_t deinit_system(void)
 {
 	deinit_database();
 	deinit_all_controllers();
 	deinit_all_videcameras();
 	deinit_all_groups();
 	deinit_kernel();
+	deinit_style();
 	deinit_resource();
 	g_message("Останов системы.\n");
 	g_info("Останов системы.\n");

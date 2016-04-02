@@ -48,19 +48,18 @@ extern GString * pub;
 
 extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];
-int set_flag_save_config(void);
+flag_t set_flag_save_config(void);
 
-int set_mode_work(int mode,GtkWidget * w);
-int get_mode_work(void);
+flag_t set_mode_work(int mode,GtkWidget * w);
+flag_t get_mode_work(void);
 
-int init_system(void);
-int deinit_system(void);
+flag_t init_system(void);
+flag_t deinit_system(void);
 
-int dialog_info(char * message);
-int dialog_error(char * message);
+flag_t dialog_info(char * message);
+flag_t dialog_error(char * message);
 
-int layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve);
-int set_size_font(GtkWidget * w,int size);
+flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve);
 
 GDateTime * current_date_time(void);
 

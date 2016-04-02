@@ -199,6 +199,7 @@ int main(int argc,char * argv[])
 	gtk_init(&argc,&argv);
 
 	init_system();
+
 	create_main_block();
 
 	gtk_main();
