@@ -55,11 +55,6 @@
 /*****************************************************************************/
 /* локальные функции                                                         */
 /*****************************************************************************/
-static void activate_menu_bridge_view(GtkMenuItem * b,gpointer ud)
-{
-	create_windows_bridge();
-}
-
 static int mode_control = MODE_CONTROL_OFF;
 static void activate_menu_job_control(GtkMenuItem * b,gpointer ud)
 {
@@ -85,30 +80,38 @@ static void activate_menu_job_exit(GtkMenuItem * b,gpointer ud)
 	gtk_widget_destroy(w);
 }
 
+static void activate_menu_bridge_view(GtkMenuItem * b,gpointer ud)
+{
+	create_windows_bridge();
+}
+
+static void button_clicked_minimaze(GtkButton * b,gpointer ud)
+{
+	GtkWindow * w = (GtkWindow *)ud;
+	gtk_window_iconify(w);
+}
+static void button_clicked_maximaze(GtkButton * b,gpointer ud)
+{
+	flag_t rc;
+	GtkWindow * w = (GtkWindow *)ud;
+	rc = gtk_window_is_maximized(w);
+	/*TODO сменить рисунок*/
+	if(rc){
+		gtk_window_unmaximize(w);
+	}
+	else{
+		gtk_window_maximize(w);
+	}
+}
+
+static void button_clicked_close(GtkButton * b,gpointer ud)
+{
+	GtkWidget * w = (GtkWidget *)ud;
+	gtk_widget_destroy(w);
+}
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
-
-static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_accgro)
-{
-	GtkWidget * menite_bridge;
-	GtkWidget * men_bridge;
-	GtkWidget * menite_view;
-
-	menite_bridge = gtk_menu_item_new_with_label("Мост");
-	men_bridge = gtk_menu_new();
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menite_bridge),men_bridge);
-
-	menite_view = gtk_menu_item_new_with_label("Отобразить");
-	g_signal_connect(menite_view,"activate",G_CALLBACK(activate_menu_bridge_view),NULL);
-	gtk_menu_shell_append(GTK_MENU_SHELL(men_bridge),menite_view);
-
-	gtk_widget_show(menite_bridge);
-	gtk_widget_show(men_bridge);
-	gtk_widget_show(menite_view);
-
-	return menite_bridge;
-}
 
 static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 {
@@ -169,15 +172,77 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 
 	return menite_job;
 }
+static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_accgro)
+{
+	GtkWidget * menite_bridge;
+	GtkWidget * men_bridge;
+	GtkWidget * menite_view;
+
+	menite_bridge = gtk_menu_item_new_with_label("Мост");
+	men_bridge = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menite_bridge),men_bridge);
+
+	menite_view = gtk_menu_item_new_with_label("Отобразить");
+	g_signal_connect(menite_view,"activate",G_CALLBACK(activate_menu_bridge_view),NULL);
+	gtk_menu_shell_append(GTK_MENU_SHELL(men_bridge),menite_view);
+
+	gtk_widget_show(menite_bridge);
+	gtk_widget_show(men_bridge);
+	gtk_widget_show(menite_view);
+
+	return menite_bridge;
+}
+static GtkWidget * create_block_button(GtkWidget *win_main)
+{
+	GtkWidget * box;
+	GtkWidget * but_min;
+	GtkWidget * but_max;
+	GtkWidget * but_close;
+	GtkWidget * image;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,1);
+	layout_widget(box,GTK_ALIGN_END,GTK_ALIGN_FILL,FALSE,TRUE);
+
+	image = gtk_image_new_from_pixbuf(get_resource_image(RESOURCE_STYLE,"minimize-focused-normal"));
+	but_min = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_min),image);
+	g_signal_connect(but_min,"clicked",G_CALLBACK(button_clicked_minimaze),win_main);
+
+	image = gtk_image_new_from_pixbuf(get_resource_image(RESOURCE_STYLE,"maximize-focused-normal"));
+	but_max = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_max),image);
+	g_signal_connect(but_max,"clicked",G_CALLBACK(button_clicked_maximaze),win_main);
+
+	image = gtk_image_new_from_pixbuf(get_resource_image(RESOURCE_STYLE,"close-focused-normal"));
+	but_close = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_close),image);
+	g_signal_connect(but_close,"clicked",G_CALLBACK(button_clicked_close),win_main);
+
+	gtk_box_pack_start(GTK_BOX(box),but_min,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),but_max,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),but_close,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+	gtk_widget_show(but_min);
+	gtk_widget_show(but_max);
+	gtk_widget_show(but_close);
+
+	return box;
+}
 
 GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 {
+	GtkWidget * box;
+	GtkWidget * block_button;
 	GtkWidget * menbar_main;
 	GtkWidget * menite_job;
 	GtkWidget * menite_bridge;
 
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+
 	menbar_main = gtk_menu_bar_new();
-	layout_widget(menbar_main,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	layout_widget(menbar_main,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
 
 	menite_job = create_menu_job(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
@@ -185,8 +250,14 @@ GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 	menite_bridge = create_menu_bridge(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_bridge);
 
+	block_button = create_block_button(win_main);
+
+	gtk_box_pack_start(GTK_BOX(box),menbar_main,TRUE,TRUE,0);
+	gtk_box_pack_end(GTK_BOX(box),block_button,FALSE,TRUE,0);
+
+	gtk_widget_show(box);
 	gtk_widget_show(menbar_main);
-	return menbar_main;
+	return box;
 }
 
 /*****************************************************************************/

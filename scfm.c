@@ -160,11 +160,13 @@ static GtkWidget * create_main_block(void)
 	GtkWidget * block_log;
 
 	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_container_set_border_width(GTK_CONTAINER(win_main),3);
+	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_main),TRUE);
 	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(win_main),1280,980);
+	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
+
 	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
 	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
 
