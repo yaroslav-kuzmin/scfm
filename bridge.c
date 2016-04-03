@@ -129,9 +129,9 @@ static GtkWidget * create_block_state_input(char * name,uint16_t len,char * str_
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 
-	show_widget(box);
-	show_widget(label);
-	show_widget(entry);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(entry);
 	return box;
 }
 
@@ -200,8 +200,8 @@ static GtkWidget * create_block_state_cell(block_bridge_s * bb,int number_cell)
 	gtk_box_pack_start(GTK_BOX(box),block_begin_register,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_amount_register,TRUE,TRUE,0);
 
-	show_widget(frame);
-	show_widget(box);
+	gtk_widget_show(frame);
+	gtk_widget_show(box);
 
 	return frame;
 }
@@ -222,7 +222,7 @@ static GtkWidget * create_block_state(block_bridge_s * bb)
 	gtk_box_pack_start(GTK_BOX(box),block_state_server,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_client,TRUE,TRUE,0);
 
-	show_widget(box);
+	gtk_widget_show(box);
 	return box;
 }
 
@@ -655,8 +655,8 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 	g_signal_connect(but,"clicked",G_CALLBACK(clicked_button_connect),bb);
 	bb->connect = NOT_OK;
 	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,0);
-	show_widget(box);
-	show_widget(but);
+	gtk_widget_show(box);
+	gtk_widget_show(but);
 	return box;
 }
 
@@ -726,9 +726,9 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
-	show_widget(frame);
-	show_widget(scrwin);
-	show_widget(log);
+	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
+	gtk_widget_show(log);
 
 	return frame;
 }
@@ -768,8 +768,8 @@ static GtkWidget * create_block_bridge(block_bridge_s * bb)
 	gtk_box_pack_start(GTK_BOX(box),control,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),info,FALSE,TRUE,0);
 
-	show_widget(frame);
-	show_widget(box);
+	gtk_widget_show(frame);
+	gtk_widget_show(box);
 
 	return frame;
 }
@@ -825,9 +825,9 @@ int create_windows_bridge(void)
 	gtk_box_pack_start(GTK_BOX(box),block,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),exit,FALSE,TRUE,5);
 
-	show_widget(win_bridge);
-	show_widget(box);
-	show_widget(exit);
+	gtk_widget_show(win_bridge);
+	gtk_widget_show(box);
+	gtk_widget_show(exit);
 
 	return SUCCESS;
 }

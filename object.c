@@ -112,7 +112,7 @@ static GtkWidget * create_block_empty(void)
 	GtkWidget * label;
 	label = gtk_label_new("Выберите объект отображения");
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	show_widget(label);
+	gtk_widget_show(label);
 	return label;
 }
 
@@ -138,8 +138,8 @@ static int create_block_page(block_object_s * block_object,char * name)
 	gtk_grid_attach(GTK_GRID(grid),block_object->videocamera,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_object->controller,0,0,1,1);
 
-	show_widget(grid);
-	show_widget(label);
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
 	change_object(block_object,TYPE_UNKNOWN);
 	rc = gtk_notebook_append_page(notebook,grid,label);
 	return rc;
@@ -213,7 +213,7 @@ GtkWidget * create_block_object(void)
 
 	create_block_page(&block_object,STR_BASE_PAGE);
 
-	show_widget(notebook);
+	gtk_widget_show(notebook);
 
 	return notebook;
 }

@@ -337,7 +337,6 @@ GtkWidget * create_block_tree_object(void)
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),NULL);
 	g_object_unref(model);
@@ -349,9 +348,9 @@ GtkWidget * create_block_tree_object(void)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
 
-	show_widget(frame);
-	show_widget(scrwin);
-	show_widget(treeview);
+	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
+	gtk_widget_show(treeview);
 
 	return frame;
 }

@@ -678,10 +678,10 @@ static GtkWidget * create_block_info_line(char * str,int len,GtkEntryBuffer ** b
 		gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 	}
 
-	show_widget(box);
-	show_widget(label);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
 	if(buf != NULL){
-		show_widget(entry);
+		gtk_widget_show(entry);
 	}
 
 	return box;
@@ -713,16 +713,16 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
 	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
-	show_widget(box);
+	gtk_widget_show(box);
 	gtk_box_pack_start(GTK_BOX(box_main),box,TRUE,TRUE,0);
 	label = gtk_label_new("Наименование : ");
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,TRUE,0);
-	show_widget(label);
+	gtk_widget_show(label);
 	label = gtk_label_new("Нет информации");
 	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_START,FALSE,TRUE);
 	gtk_box_pack_start(GTK_BOX(box),label,FALSE,TRUE,0);
-	show_widget(label);
+	gtk_widget_show(label);
 	block_info->label_name = GTK_LABEL(label);
 
 #define LEN_INFO_LINE        100
@@ -978,8 +978,8 @@ static GtkWidget * create_block_info(block_setting_controller_s * bsc)
 
 	gtk_container_add(GTK_CONTAINER(scrwin),box_main);
 
-	show_widget(box_main);
-	show_widget(scrwin);
+	gtk_widget_show(box_main);
+	gtk_widget_show(scrwin);
 
 	bsc->block_info = block_info;
 	fill_block_info(bsc);
@@ -1274,12 +1274,12 @@ static GtkWidget * create_block_select_type(block_setting_controller_s * bsc)
 	gtk_grid_attach(GTK_GRID(grid),lab_uart,2,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_uart,2,1,1,1);
 
-	show_widget(grid);
-	show_widget(lab_type);
-	show_widget(lab_tcp);
-	show_widget(but_tcp);
-	show_widget(lab_uart);
-	show_widget(but_uart);
+	gtk_widget_show(grid);
+	gtk_widget_show(lab_type);
+	gtk_widget_show(lab_tcp);
+	gtk_widget_show(but_tcp);
+	gtk_widget_show(lab_uart);
+	gtk_widget_show(but_uart);
 
 	return grid;
 }
@@ -1303,9 +1303,9 @@ static GtkWidget * create_block_entry(char * name,GtkEntryBuffer ** buf)
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),entry,TRUE,TRUE,0);
 
-	show_widget(box);
-	show_widget(label);
-	show_widget(entry);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(entry);
 
 	return box;
 }
@@ -1335,7 +1335,7 @@ static GtkWidget * create_block_find_type_tcp(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),block_address,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_port,TRUE,TRUE,0);
 
-	show_widget(box);
+	gtk_widget_show(box);
 	return box;
 }
 
@@ -1379,7 +1379,7 @@ static GtkWidget * create_block_find_type_uart(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),block_data_bit,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_stop_bit,TRUE,TRUE,0);
 
-	show_widget(box);
+	gtk_widget_show(box);
 	return box;
 }
 
@@ -1401,7 +1401,7 @@ static GtkWidget * create_block_find_type(block_setting_controller_s * bsc)
 	gtk_grid_attach(GTK_GRID(grid),block_find_type_tcp,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_find_type_uart,0,0,1,1);
 
-	show_widget(grid);
+	gtk_widget_show(grid);
 	bsc->select_block_find = SELECT_BLOCK_FIND_TCP;
 	gtk_widget_show(block_find_type_tcp);
 	gtk_widget_hide(block_find_type_uart);
@@ -1431,8 +1431,8 @@ static GtkWidget * create_block_find(block_setting_controller_s * bsc)
 	gtk_box_pack_start(GTK_BOX(box),block_find_type,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),but_check,FALSE,FALSE,0);
 
-	show_widget(box);
-	show_widget(but_check);
+	gtk_widget_show(box);
+	gtk_widget_show(but_check);
 
 	return box;
 }
@@ -1460,7 +1460,7 @@ GtkWidget * create_block_setting_controller(void)
 	gtk_box_pack_start(GTK_BOX(box),block_find,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_info,TRUE,TRUE,0);
 
-	show_widget(box);
+	gtk_widget_show(box);
 	return box;
 }
 

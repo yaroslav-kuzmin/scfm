@@ -123,7 +123,7 @@ static GtkWidget * create_block_job(void)
 
 	gtk_box_pack_start(GTK_BOX(box),block_tree,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_object,TRUE,TRUE,0);
-	show_widget(box);
+	gtk_widget_show(box);
 	return box;
 }
 
@@ -187,8 +187,8 @@ static GtkWidget * create_main_block(void)
 	gtk_container_add(GTK_CONTAINER(win_main),box);
 	gtk_window_add_accel_group(GTK_WINDOW(win_main),accgro_main);
 
-	show_widget(win_main);
-	show_widget(box);
+	gtk_widget_show(win_main);
+	gtk_widget_show(box);
 
 	return win_main;
 }
@@ -196,11 +196,14 @@ static GtkWidget * create_main_block(void)
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
+	GtkWidget * win_main;
 	gtk_init(&argc,&argv);
 
 	init_system();
 
-	create_main_block();
+	win_main = create_main_block();
+
+	apply_style(win_main);
 
 	gtk_main();
 

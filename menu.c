@@ -163,12 +163,12 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 	                          ,0x06CA,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_exit);
 
-	show_widget(menite_job);
-	show_widget(men_job);
-	show_widget(menite_control);
-	show_widget(menite_config);
-	show_widget(menite_s0);
-	show_widget(menite_exit);
+	gtk_widget_show(menite_job);
+	gtk_widget_show(men_job);
+	gtk_widget_show(menite_control);
+	gtk_widget_show(menite_config);
+	gtk_widget_show(menite_s0);
+	gtk_widget_show(menite_exit);
 
 	return menite_job;
 }
@@ -186,9 +186,9 @@ static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_
 	g_signal_connect(menite_view,"activate",G_CALLBACK(activate_menu_bridge_view),NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_bridge),menite_view);
 
-	show_widget(menite_bridge);
-	show_widget(men_bridge);
-	show_widget(menite_view);
+	gtk_widget_show(menite_bridge);
+	gtk_widget_show(men_bridge);
+	gtk_widget_show(menite_view);
 
 	return menite_bridge;
 }
@@ -226,11 +226,10 @@ static GtkWidget * create_block_button(GtkWidget *win_main)
 	gtk_widget_set_name(but_max,"menu");
 	gtk_widget_set_name(but_close,"menu");
 
-	show_widget(box);
-	show_widget(but_min);
-	show_widget(gtk_bin_get_child(GTK_BIN(but_min)));
-	show_widget(but_max);
-	show_widget(but_close);
+	gtk_widget_show(box);
+	gtk_widget_show(but_min);
+	gtk_widget_show(but_max);
+	gtk_widget_show(but_close);
 
 	return box;
 }
@@ -260,8 +259,8 @@ GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 	gtk_box_pack_start(GTK_BOX(box),menbar_main,TRUE,TRUE,0);
 	gtk_box_pack_end(GTK_BOX(box),block_button,FALSE,TRUE,0);
 
-	show_widget(box);
-	show_widget(menbar_main);
+	gtk_widget_show(box);
+	gtk_widget_show(menbar_main);
 	return box;
 }
 

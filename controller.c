@@ -882,8 +882,8 @@ static GtkWidget * create_block_state_vertical(show_state_s * state)
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
-	show_widget(frame);
-	show_widget(image);
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
 
 	return frame;
 }
@@ -909,8 +909,8 @@ static GtkWidget * create_block_state_horizontal(show_state_s * state)
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
-	show_widget(frame);
-	show_widget(image);
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
 
 	return frame;
 }
@@ -934,8 +934,8 @@ static GtkWidget * create_block_state_valve(show_state_s * state)
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
-	show_widget(frame);
-	show_widget(image);
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
 
 	return frame;
 }
@@ -959,8 +959,8 @@ static GtkWidget * create_block_state_pressure(show_state_s * state)
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
-	show_widget(frame);
-	show_widget(image);
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
 
 	return frame;
 }
@@ -985,9 +985,9 @@ static GtkWidget * create_block_fire_sensor(block_controller_s * block)
 	gtk_container_add(GTK_CONTAINER(frame),grid);
 	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
 
-	show_widget(frame);
-	show_widget(grid);
-	show_widget(label);
+	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
 
 	return frame;
 }
@@ -1017,13 +1017,13 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	for(i = 0;i < AMOUNT_FIRE_SENSOR;i++){
 		block_fire_alarm = create_block_fire_alarm_one(i+1);
 		gtk_box_pack_start(GTK_BOX(box),block_fire_alarm,TRUE,TRUE,0);
-		show_widget(block_fire_alarm);
+		gtk_widget_show(block_fire_alarm);
 	}
 
 	gtk_container_add(GTK_CONTAINER(frame),box);
 
-	show_widget(frame);
-	show_widget(box);
+	gtk_widget_show(frame);
+	gtk_widget_show(box);
 	return frame;
 }
 #endif
@@ -1072,9 +1072,9 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
 #endif
-	show_widget(frame);
-	show_widget(grid);
-	show_widget(label_name);
+	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+	gtk_widget_show(label_name);
 
 	return frame;
 }
@@ -1148,9 +1148,9 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,0);
 
-	show_widget(box);
-	show_widget(label);
-	show_widget(but);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(but);
 	return box;
 }
 
@@ -1243,11 +1243,11 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),but_close,1,1,1,1);
 	/*gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);*/
 
-	show_widget(grid);
-	show_widget(label);
-	show_widget(but_open);
-	show_widget(but_close);
-	/*show_widget(scale);*/
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(but_open);
+	gtk_widget_show(but_close);
+	/*gtk_widget_show(scale);*/
 
 	return grid;
 }
@@ -1357,11 +1357,11 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),but_left ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_right,2,1,1,1);
 
-	show_widget(grid);
-	show_widget(but_up);
-	show_widget(but_down);
-	show_widget(but_right);
-	show_widget(but_left);
+	gtk_widget_show(grid);
+	gtk_widget_show(but_up);
+	gtk_widget_show(but_down);
+	gtk_widget_show(but_right);
+	gtk_widget_show(but_left);
 
  	return grid;
 }
@@ -1483,15 +1483,15 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_less,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_more,1,1,1,1);
 
-	show_widget(box);
-	show_widget(grid_spray);
-	show_widget(label_spray);
-	show_widget(but_spray_less);
-	show_widget(but_spray_more);
-	show_widget(grid_rate);
-	show_widget(label_rate);
-	show_widget(but_rate_less);
-	show_widget(but_rate_more);
+	gtk_widget_show(box);
+	gtk_widget_show(grid_spray);
+	gtk_widget_show(label_spray);
+	gtk_widget_show(but_spray_less);
+	gtk_widget_show(but_spray_more);
+	gtk_widget_show(grid_rate);
+	gtk_widget_show(label_rate);
+	gtk_widget_show(but_rate_less);
+	gtk_widget_show(but_rate_more);
 
  	return box;
 }
@@ -1597,14 +1597,14 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),but_saw       ,0,3,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_step      ,1,3,1,1);
 
-	show_widget(grid);
-	show_widget(label);
-	show_widget(but_run);
-	show_widget(but_stop);
-	show_widget(but_vertical);
-	show_widget(but_horizontal);
-	show_widget(but_saw);
-	show_widget(but_step);
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(but_run);
+	gtk_widget_show(but_stop);
+	gtk_widget_show(but_vertical);
+	gtk_widget_show(but_horizontal);
+	gtk_widget_show(but_saw);
+	gtk_widget_show(but_step);
 
 	return grid;
 }
@@ -1632,7 +1632,7 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
 
-	show_widget(box);
+	gtk_widget_show(box);
 
 	return box;
 }
@@ -1656,8 +1656,8 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 	gtk_box_pack_start(GTK_BOX(box),block_control_console,TRUE,TRUE,0);
 
-	show_widget(frame);
-	show_widget(box);
+	gtk_widget_show(frame);
+	gtk_widget_show(box);
 
 	return frame;
 }
@@ -1902,7 +1902,7 @@ GtkWidget * create_block_controller(void)
 	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,5);
 	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,5);
 
-	show_widget(box);
+	gtk_widget_show(box);
 
 	return box;
 }

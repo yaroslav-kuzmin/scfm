@@ -309,9 +309,9 @@ static GtkWidget * create_block_tree(block_config_s * config)
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);
 
-	show_widget(frame);
-	show_widget(scrwin);
-	show_widget(treeview);
+	gtk_widget_show(frame);
+	gtk_widget_show(scrwin);
+	gtk_widget_show(treeview);
 
 	return frame;
 }
@@ -413,7 +413,7 @@ static GtkWidget * create_combobox(block_config_s * config)
 	                              ,"text",COLUMN_COMBOBOX_NAME,NULL);
 	g_object_unref(model);
 
-	show_widget(combox);
+	gtk_widget_show(combox);
 	return combox;
 }
 
@@ -451,8 +451,8 @@ static GtkWidget * create_block_setting(block_config_s * config)
 	gtk_grid_attach(GTK_GRID(grid),config->setting_videocamera,0,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),config->setting_controller ,0,0,1,1);
 
-	show_widget(frame);
-	show_widget(grid);
+	gtk_widget_show(frame);
+	gtk_widget_show(grid);
 	select_setting(config);
 	return frame;
 }
@@ -566,9 +566,9 @@ static GtkWidget * create_block_button(block_config_s * config)
 	gtk_box_pack_start(GTK_BOX(box),but_add,FALSE,FALSE,0);
 	gtk_box_pack_start(GTK_BOX(box),but_del,FALSE,FALSE,0);
 
-	show_widget(box);
-	show_widget(but_add);
-	show_widget(but_del);
+	gtk_widget_show(box);
+	gtk_widget_show(but_add);
+	gtk_widget_show(but_del);
 
 	return box;
 }
@@ -623,13 +623,13 @@ static GtkWidget * create_block_option(block_config_s * config)
 	gtk_grid_attach(GTK_GRID(grid),block_setting  ,0,3,2,1);
 	gtk_grid_attach(GTK_GRID(grid),block_button   ,0,4,2,1);
 
-	show_widget(grid);
-	show_widget(lab_name_group);
-	show_widget(lab_select);
-	show_widget(lab_name_object);
-	show_widget(ent_name_object);
-	show_widget(lab_name_type);
-	show_widget(ent_name_object);
+	gtk_widget_show(grid);
+	gtk_widget_show(lab_name_group);
+	gtk_widget_show(lab_select);
+	gtk_widget_show(lab_name_object);
+	gtk_widget_show(ent_name_object);
+	gtk_widget_show(lab_name_type);
+	gtk_widget_show(ent_name_object);
 
 	return grid;
 }
@@ -655,8 +655,8 @@ static GtkWidget * create_block_config(block_config_s * config)
 	gtk_box_pack_start(GTK_BOX(box),block_tree,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_option,TRUE,TRUE,0);
 
-	show_widget(frame);
-	show_widget(box);
+	gtk_widget_show(frame);
+	gtk_widget_show(box);
 
 	return frame;
 }
@@ -673,7 +673,7 @@ static void clicked_button_exit(GtkButton * b,gpointer ud)
 {
 	config_window_s * win = (config_window_s*)ud;
 	reread_tree();
-	show_widget(win->main);
+	gtk_widget_show(win->main);
 	win->main_exit = NOT_OK;
 	gtk_widget_destroy(win->config);
 }
@@ -749,9 +749,9 @@ int create_window_config(GtkWidget * win_main)
 	gtk_box_pack_start(GTK_BOX(box),exit,FALSE,TRUE,0);
 	/*TODO обработка alt-f4*/
 	gtk_widget_hide(win_main);
-	show_widget(win_config);
-	show_widget(box);
-	show_widget(exit);
+	gtk_widget_show(win_config);
+	gtk_widget_show(box);
+	gtk_widget_show(exit);
 
 	return SUCCESS;
 }

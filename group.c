@@ -151,10 +151,10 @@ GtkWidget * create_block_setting_group(void)
 	gtk_grid_attach(GTK_GRID(grid),entry ,1,0,1,1);
 	gtk_grid_attach(GTK_GRID(grid),button,2,0,1,1);
 
-	show_widget(grid);
-	show_widget(label);
-	show_widget(entry);
-	show_widget(button);
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(entry);
+	gtk_widget_show(button);
 
 	return grid;
 }
@@ -206,7 +206,7 @@ GtkWidget * create_block_group(void)
 
 	label = gtk_label_new(NULL);
 	layout_widget(label,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	show_widget(label);
+	gtk_widget_show(label);
 	block_group.label = GTK_LABEL(label);
 	return label;
 }

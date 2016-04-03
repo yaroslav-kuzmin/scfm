@@ -376,22 +376,28 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 /*  Стили                                                                    */
 /*****************************************************************************/
 static GtkCssProvider * css_provider;
-
-flag_t show_widget(GtkWidget * w)
+flag_t apply_style(GtkWidget * w)
 {
 	GtkStyleContext * style = gtk_widget_get_style_context(w);
-	gtk_style_context_add_provider(style,GTK_STYLE_PROVIDER(css_provider),GTK_STYLE_PROVIDER_PRIORITY_USER+100); /**/
-	gtk_widget_show(w);
+	gtk_style_context_add_provider(style,GTK_STYLE_PROVIDER(css_provider),GTK_STYLE_PROVIDER_PRIORITY_USER);
+	if (GTK_IS_CONTAINER (w)){
+		gtk_container_forall (GTK_CONTAINER (w), (GtkCallback) apply_style,css_provider);
+	}
 	return SUCCESS;
 }
+
 static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *section,GError *error,gpointer user_data)
 {
-	g_warning("%s :%s",gtk_css_provider_to_string(provider),error->message);
+	GFile * file = gtk_css_section_get_file(section);
+	int line = gtk_css_section_get_end_line(section);
+	int pos = gtk_css_section_get_end_position(section);
+
+	g_warning("%s : line %d position %d : %s",g_file_get_basename(file),line,pos,error->message);
 }
 
 static flag_t init_style(void)
 {
-	css_provider = gtk_css_provider_new();
+ 	css_provider = gtk_css_provider_new();
 	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
 	gtk_css_provider_load_from_resource(css_provider,"/style/main.css");
 

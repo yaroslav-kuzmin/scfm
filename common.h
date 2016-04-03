@@ -67,6 +67,6 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource);
 
 GdkPixbuf * get_default_icon(void);
 
-flag_t show_widget(GtkWidget * w);
+flag_t apply_style(GtkWidget * w);
 #endif
 
