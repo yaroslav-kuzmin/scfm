@@ -1111,9 +1111,9 @@ GtkInfoBar {
 .menubar:backdrop {
      background-color: shade(@dark_bg_color, 1.2);
      color: mix (@bg_color, shade (@fg_color, 0.95), 0.4); }
-.menubar > .menuitem {
+.menubar  .menuitem {
     padding: 3px 6px; }
-.menubar > .menuitem:hover {
+.menubar  .menuitem:hover {
     border-width: 1px;
     border-radius: 0px;
     border-style: solid;
@@ -1123,7 +1123,7 @@ GtkInfoBar {
     border-bottom-color: shade(@dark_bg_color, 1.2);
     background-color: shade(@dark_bg_color, 1.4);
     color: @selected_fg_color; }
-.menubar > .menuitem:insensitive {
+.menubar  .menuitem:insensitive {
     color: @insensitive_fg_color;
     box-shadow: none; }
 
@@ -1184,6 +1184,18 @@ GtkCalendar.header .menu.button.titlebutton {
 
 .menuitem .accelerator {
     color: alpha(currentColor,0.55); }
+
+.menu.button:hover,
+.menu.button:active,
+.menu.button:checked,
+.menu.button:active:insensitive,
+.menu.button:checked:insensitive,
+.menu.button:insensitive,
+.menu.button {
+	border-width: 0;
+	background-color: #454545;
+	background-image: none;
+}
 
 /************
  * notebook *
@@ -1795,7 +1807,7 @@ NautilusWindow * {
 }
 
 NautilusWindow .pane-separator {
-    background-image: url("../assets/null.png");
+    background-image: url("assets/null.png");
 }
 
 

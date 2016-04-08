@@ -9,11 +9,11 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/minD.png"));
+    background-image: -gtk-scaled(url("assets/min.png"));
 }
 
 .titlebar .titlebutton.minimize:backdrop {
-    background-image: -gtk-scaled(url("assets/min_unfocusedD.png"));
+    background-image: -gtk-scaled(url("assets/min_unfocused.png"));
 }
 
 .titlebar .titlebutton.minimize:hover,
@@ -23,7 +23,7 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/min_prelightD.png"));
+    background-image: -gtk-scaled(url("assets/min_prelight.png"));
 }
 
 .titlebar .titlebutton.minimize:active {
@@ -32,7 +32,7 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/min_unfocusedD.png"));
+    background-image: -gtk-scaled(url("assets/min_unfocused.png"));
 }
 
 /* maximize */
@@ -42,11 +42,11 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/maxD.png"));
+    background-image: -gtk-scaled(url("assets/max.png"));
 }
 
 .titlebar .titlebutton.maximize:backdrop {
-    background-image: -gtk-scaled(url("assets/max_unfocusedD.png"));
+    background-image: -gtk-scaled(url("assets/max_unfocused.png"));
 }
 
 
@@ -57,7 +57,7 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/max_prelightD.png"));
+    background-image: -gtk-scaled(url("assets/max_prelight.png"));
 }
 
 .titlebar .titlebutton.maximize:active  {
@@ -66,7 +66,7 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/max_unfocusedD.png"));
+    background-image: -gtk-scaled(url("assets/max_unfocused.png"));
 }
 
 /* close */
@@ -76,11 +76,11 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/closeD.png"));
+    background-image: -gtk-scaled(url("assets/close.png"));
 }
 
 .titlebar .titlebutton.close:backdrop {
-    background-image: -gtk-scaled(url("assets/close_unfocusedD.png"));
+    background-image: -gtk-scaled(url("assets/close_unfocused.png"));
 }
 
 
@@ -91,7 +91,7 @@
     box-shadow: none;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: -gtk-scaled(url("assets/close_prelightD.png"));
+    background-image: -gtk-scaled(url("assets/close_prelight.png"));
 }
 
 .titlebar .titlebutton.close:active  {
@@ -113,7 +113,7 @@
     border-width: 0 1px 0 1px;
     border-style: solid;
     border-color: transparent;
-    border-image: -gtk-scaled(url("assets/header-separator_dark.png"),url("assets/header-separator_dark@2.png")) 0 1 0 1 / 0 1px 0 1px stretch;
+    border-image: -gtk-scaled(url("assets/header-separator.png"),url("assets/header-separator@2.png")) 0 1 0 1 / 0 1px 0 1px stretch;
 }
 
 /****************
@@ -206,7 +206,7 @@
 .menuitem.check {
     -gtk-icon-source: -gtk-scaled(url("assets/menuitem-checkbox.svg"));
     color: @theme_fg_color;
-    icon-shadow: none; 
+    icon-shadow: none;
 }
 .menuitem.check:active, .menuitem.check:checked {
     -gtk-icon-source: -gtk-scaled(url("assets/menuitem-checkbox-checked.svg"));
@@ -219,13 +219,13 @@
     color: @theme_selected_fg_color;
 }
 .menuitem.check:insensitive {
-    color: @insensitive_fg_color; 
+    color: @insensitive_fg_color;
 }
 
 .menuitem.radio {
     -gtk-icon-source: -gtk-scaled(url("assets/menuitem-radio.svg"));
     color: @theme_fg_color;
-    icon-shadow: none; 
+    icon-shadow: none;
 }
 .menuitem.radio:active, .menuitem.radio:checked {
     -gtk-icon-source: -gtk-scaled(url("assets/menuitem-radio-checked.svg"));
@@ -237,7 +237,7 @@
     color: @theme_selected_fg_color;
 }
 .menuitem.radio:insensitive {
-    color: @insensitive_fg_color; 
+    color: @insensitive_fg_color;
 }
 
 
