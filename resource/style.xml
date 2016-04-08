@@ -54,49 +54,5 @@
 		<file>assets/close-focused-normal.png</file>
 		<file>assets/minimize-focused-normal.png</file>
 		<file>assets/maximize-focused-normal.png</file>
-		<file>assets/null.png</file>
-    <file>assets/switch-off.svg</file>
-    <file>assets/switch-on.svg</file>
-    <file>assets/switch-off-disabled.svg</file>
-    <file>assets/switch-on-disabled.svg</file>
-    <file>assets/switch-dark-off.svg</file>
-    <file>assets/switch-dark-on.svg</file>
-    <file>assets/switch-dark-off-disabled.svg</file>
-    <file>assets/switch-dark-on-disabled.svg</file>
-    <file>assets/min.png</file>
-    <file>assets/min_unfocused.png</file>
-    <file>assets/min_prelight.png</file>
-    <file>assets/max.png</file>
-    <file>assets/max_unfocused.png</file>
-    <file>assets/max_prelight.png</file>
-    <file>assets/close.png</file>
-    <file>assets/close_unfocused.png</file>
-    <file>assets/close_prelight.png</file>
-    <file>assets/closePress.png</file>
-    <file>assets/header-separator.png</file>
-		<file>assets/header-separator@2.png</file>
-    <file>assets/noise-texture-dark.png</file>
-    <file>assets/checkbox-unchecked-dark.svg</file>
-    <file>assets/checkbox-unchecked-insensitive-dark.svg</file>
-    <file>assets/checkbox-checked-dark.svg</file>
-    <file>assets/checkbox-checked-insensitive-dark.svg</file>
-    <file>assets/checkbox-mixed-dark.svg</file>
-    <file>assets/checkbox-mixed-insensitive-dark.svg</file>
-    <file>assets/radio-unselected-dark.svg</file>
-    <file>assets/radio-unselected-insensitive-dark.svg</file>
-    <file>assets/radio-selected-dark.svg</file>
-    <file>assets/radio-selected-insensitive-dark.svg</file>
-    <file>assets/radio-mixed-dark.svg</file>
-    <file>assets/radio-mixed-insensitive-dark.svg</file>
-    <file>assets/menuitem-checkbox.svg</file>
-    <file>assets/menuitem-checkbox-checked.svg</file>
-    <file>assets/menuitem-checkbox-mixed.svg</file>
-    <file>assets/menuitem-radio.svg</file>
-    <file>assets/menuitem-radio-checked.svg</file>
-    <file>assets/menuitem-radio-mixed.svg</file>
-    <file>assets/grid-selection-unchecked-dark.png</file>
-		<file>assets/grid-selection-unchecked-dark@2.png</file>
-    <file>assets/grid-selection-checked-dark.png</file>
-		<file>assets/grid-selection-checked-dark@2.png</file>
 	</gresource>
 </gresources>
