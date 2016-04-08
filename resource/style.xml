@@ -50,8 +50,6 @@
 		<file>assets/tree-error.png</file>
 		<file>assets/tree-wait.png</file>
 		<file compressed="true">gtk.css</file>
-		<file compressed="true">gtk-widgets.css</file>
-		<file compressed="true">gtk-widgets-assets.css</file>
 		<file>assets/close-focused-normal.png</file>
 		<file>assets/minimize-focused-normal.png</file>
 		<file>assets/maximize-focused-normal.png</file>
