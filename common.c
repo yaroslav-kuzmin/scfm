@@ -375,13 +375,14 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 /*****************************************************************************/
 /*  Стили                                                                    */
 /*****************************************************************************/
-static GtkCssProvider * css_provider;
+static GtkStyleProvider * style_provider;
+
 flag_t apply_style(GtkWidget * w)
 {
 	GtkStyleContext * style = gtk_widget_get_style_context(w);
-	gtk_style_context_add_provider(style,GTK_STYLE_PROVIDER(css_provider),GTK_STYLE_PROVIDER_PRIORITY_USER);
+	gtk_style_context_add_provider(style,style_provider,GTK_STYLE_PROVIDER_PRIORITY_USER);
 	if (GTK_IS_CONTAINER (w)){
-		gtk_container_forall (GTK_CONTAINER (w), (GtkCallback) apply_style,css_provider);
+		gtk_container_forall (GTK_CONTAINER (w), (GtkCallback) apply_style,NULL);
 	}
 	return SUCCESS;
 }
@@ -397,10 +398,12 @@ static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *s
 
 static flag_t init_style(void)
 {
+	GtkCssProvider * css_provider;
  	css_provider = gtk_css_provider_new();
 	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
-	gtk_css_provider_load_from_resource(css_provider,"/style/main.css");
-
+	/*gtk_css_provider_load_from_resource(css_provider,"/style/gtk.css");*/
+	gtk_css_provider_load_from_path(css_provider,"resource/style/gtk.css",NULL);
+	style_provider = GTK_STYLE_PROVIDER(css_provider);
 	return SUCCESS;
 }
 
