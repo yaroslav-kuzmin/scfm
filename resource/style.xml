@@ -54,5 +54,7 @@
 		<file>assets/close-focused-normal.png</file>
 		<file>assets/minimize-focused-normal.png</file>
 		<file>assets/maximize-focused-normal.png</file>
+		<file>assets/actuator-separator-spray.png</file>
+		<file>assets/actuator-separator-rate.png</file>
 	</gresource>
 </gresources>

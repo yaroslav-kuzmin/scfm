@@ -1,64 +1,45 @@
 /* GTK NAMED COLORS
    ----------------
    use responsibly! */
-/*
-widget text/foreground color */
-@define-color theme_fg_color #adadad;
-/*
-text color for entries, views and content in general */
-@define-color theme_text_color black;
-/*
-widget base background color */
-@define-color theme_bg_color #171E24;
-/*
-text widgets and the like base background color */
+/* widget text/foreground color */
+@define-color theme_fg_color #f0f0f0;/*#adadad;*/
+/* text color for entries, views and content in general */
+@define-color theme_text_color #f0f0f0;/*black;*/
+/* widget base background color */
+@define-color theme_bg_color #2c3949; /*#171E24;*/
+/* text widgets and the like base background color */
 @define-color theme_base_color #2C353C;
-/*
-base background color of selections */
-@define-color theme_selected_bg_color #556876;
-/*
-text/foreground color of selections */
+/* base background color of selections */
+@define-color theme_selected_bg_color #5c768f;/*#556876;*/
+/* text/foreground color of selections */
 @define-color theme_selected_fg_color #f8f8f8;
-/*
-base background color of insensitive widgets */
+/* base background color of insensitive widgets */
 @define-color insensitive_bg_color #171717;
-/*
-text foreground color of insensitive widgets */
+/* text foreground color of insensitive widgets */
 @define-color insensitive_fg_color mix(#3f3f3f, @theme_selected_bg_color, 0.02);
-/*
-insensitive text widgets and the like base background color */
+/* insensitive text widgets and the like base background color */
 @define-color insensitive_base_color #ffffff;
-/*
-widget text/foreground color on backdrop windows */
+/* widget text/foreground color on backdrop windows */
 @define-color theme_unfocused_fg_color mix(#7c7c7c, @theme_selected_bg_color, 0.02);
-/*
-text color for entries, views and content in general on backdrop windows */
+/* text color for entries, views and content in general on backdrop windows */
 @define-color theme_unfocused_text_color black;
-/*
-widget base background color on backdrop windows */
+/* widget base background color on backdrop windows */
 @define-color theme_unfocused_bg_color shade(mix (@theme_base_color, @theme_bg_color, 0.30), 0.98);
-/*
-text widgets and the like base background color on backdrop windows */
+/* text widgets and the like base background color on backdrop windows */
 @define-color theme_unfocused_base_color shade(@insensitive_bg_color, 0.815);
-/*
-base background color of selections on backdrop windows */
+/* base background color of selections on backdrop windows */
 @define-color theme_unfocused_selected_bg_color shade(@theme_selected_bg_color, 0.85);
-/*
-text/foreground color of selections on backdrop windows */
+/* text/foreground color of selections on backdrop windows */
 @define-color theme_unfocused_selected_fg_color @theme_fg_color;
-/*
-widgets main borders color */
+/* widgets main borders color */
 @define-color borders #0f0f0f;
-/*
-widgets main borders color on backdrop windows */
+/* widgets main borders color on backdrop windows */
 @define-color unfocused_borders #a8a8a8;
-/*
-these are pretty self explicative */
+/* these are pretty self explicative */
 @define-color warning_color #f57900;
 @define-color error_color #cc0000;
 @define-color success_color #73d216;
-/*
-these colors are exported for the window manager and shouldn't be used in applications,
+/* these colors are exported for the window manager and shouldn't be used in applications,
 read if you used those and something break with a version upgrade you're on your own... */
 @define-color wm_title @theme_fg_color;
 @define-color wm_unfocused_title #7b7c7c;
@@ -74,10 +55,7 @@ read if you used those and something break with a version upgrade you're on your
 @define-color wm_button_active_color_b #12191e;
 @define-color wm_button_active_color_c #12191e;
 @define-color content_view_bg #ffffff;
-/*
-@import url("unity.css");
-@import url("ubuntu_styles.css");
-*/
+
 
 * {
   padding: 0;
@@ -118,33 +96,9 @@ read if you used those and something break with a version upgrade you're on your
 .background:backdrop {
   text-shadow: none;
   icon-shadow: none;
-  color: #454f52;
+  color: @theme_selected_bg_color;
   background-color:shade(@theme_bg_color, 1.1); }
 
-/*
-   These wildcard seems unavoidable, need to investigate.
-   Wildcards are bad and troublesome, use them with care,
-   or better, just don't.
-   Everytime a wildcard is used a kitten dies, painfully.
-*/
-*:insensitive {
-  -gtk-image-effect: dim; }
-
-.gtkstyle-fallback {
-  background-color: @theme_bg_color;
-  color: @theme_fg_color; }
-  .gtkstyle-fallback:prelight {
-    background-color: shade(@theme_bg_color, 1.2);
-    color: @theme_fg_color; }
-  .gtkstyle-fallback:active {
-    background-color: lightgray;
-    color: @theme_fg_color; }
-  .gtkstyle-fallback:insensitive {
-    background-color: @insensitive_bg_color;
-    color: @theme_insensitive_fg_color; }
-  .gtkstyle-fallback:selected {
-    background-color: @selected_bg_color;
-    color: @selected_fg_color; }
 
 .view {
   color: @theme_fg_color;
@@ -173,23 +127,6 @@ read if you used those and something break with a version upgrade you're on your
   opacity: 0.55;
   text-shadow: none; }
 
-GtkAssistant .sidebar {
-  background-color:@theme_base_color;
-  border-top: 1px solid #0e0e0e; }
-  GtkAssistant .sidebar:dir(ltr) {
-    border-right: 1px solid #0e0e0e; }
-  GtkAssistant .sidebar:dir(rtl) {
-    border-left: 1px solid #0e0e0e; }
-  GtkAssistant .sidebar:backdrop {
-    background-color: shade(@theme_base_color, 1.2);
-    border-color: #0e0e0e; }
-GtkAssistant.csd .sidebar {
-  border-top-style: none; }
-GtkAssistant .sidebar .label {
-  padding: 6px 12px; }
-GtkAssistant .sidebar .label.highlight {
-  background-color: shade(@theme_base_color, 1.3); }
-
 GtkTextView {
   background-color:shade(@theme_base_color, 1.30); }
   GtkTextView:backdrop {
@@ -214,26 +151,11 @@ GtkTextView {
   .popover.osd:backdrop, .app-notification:backdrop, .osd .scale-popup:backdrop, .osd:backdrop {
     text-shadow: none; }
 
-/*********************
- * Spinner Animation *
- *********************/
-@keyframes spin {
-  to {
-    -gtk-icon-transform: rotate(1turn); } }
-.spinner {
-  background-image: none;
-  background-color: blue;
-  opacity: 0;
-  -gtk-icon-source: -gtk-icontheme("process-working-symbolic"); }
-  .spinner:active {
-    opacity: 1;
-    animation: spin 1s linear infinite; }
-    .spinner:active:insensitive {
-      opacity: 0.5; }
 
 /****************
  * Text Entries *
  ****************/
+
 .entry {
   border: 1px solid;
   padding: 4px 7px 5px;
@@ -316,7 +238,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
     .entry.error:selected, .entry.error:selected:focus {
       background-color: #cc0000; }
 .entry.warning {
-    color: #f57900;
+    color: @warning_color;
     border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
     .entry.warning:focus {
       background-color: alpha(black, 0.3);
@@ -329,7 +251,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
       box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(245, 121, 0, 0.15), 0 1px alpha(white, 0.2);
       border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
     .entry.warning:selected, .entry.warning:selected:focus {
-      background-color: #f57900; }
+      background-color: @warning_color; }
  .entry.image {
     color: #7d7d7d; }
     .entry.image:hover {
@@ -340,7 +262,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
       color: #646464; }
   .osd .entry {
     background-color: transparent;
-    background-image: linear-gradient(to bottom, #dedede, #f8f8f8 3px, #ffffff 90%);
+    background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
     color: white;
     border-color: rgba(0, 0, 0, 0.7);
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
@@ -350,7 +272,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
     icon-shadow: 0 1px black; }
     .osd .entry:focus {
       background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, #f8f8f8 3px, #ffffff 90%);
+      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
       color: white;
       border-color: @theme_selected_bg_color;
       background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
@@ -360,7 +282,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
       icon-shadow: 0 1px black; }
     .osd .entry:backdrop {
       background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, #f8f8f8 3px, #ffffff 90%);
+      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
       color: white;
       border-color: rgba(0, 0, 0, 0.7);
       background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
@@ -370,7 +292,7 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
       icon-shadow: none; }
     .osd .entry:insensitive {
       background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, #f8f8f8 3px, #ffffff 90%);
+      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
       color: #878989;
       border-color: rgba(0, 0, 0, 0.7);
       background-image:url("assets/stripe-3.png");
@@ -412,9 +334,11 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
   border-top-color: @theme_selected_bg_color;
    }
 
+
 /***********
  * Buttons *
  ***********/
+
 @keyframes needs_attention {
   from {
     background-image: -gtk-gradient(radial, center center, 0, center center, 0.01, to(#4a90d9), to(transparent)); }
@@ -539,7 +463,7 @@ NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button:backdrop
       .button.flat:hover:active, .sidebar-button.button:hover:active, .header-bar .titlebutton.button:hover:active,
       .titlebar .titlebutton.button:hover:active {
         border-image:none;
-        color: #f8f8f8;
+        color: @theme_selected_fg_color;
         transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); }
   .button:hover, .header-bar .button.titlebutton:hover,
   .titlebar .button.titlebutton:hover {
@@ -738,7 +662,7 @@ NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button:backdrop
   .osd .button, .osd .header-bar .button.titlebutton, .header-bar .osd .button.titlebutton,
   .osd .titlebar .button.titlebutton,
   .titlebar .osd .button.titlebutton {
-    color: #adadad;
+    color: @theme_fg_color;
     outline-color: rgba(238, 238, 236, 0.2);
     background-color: transparent;
     background-clip: padding-box;
@@ -921,7 +845,7 @@ border-color: transparent;
         border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
         text-shadow: none;
@@ -938,7 +862,7 @@ border-color: transparent;
           border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg"), url("borders/button/button-suggested_action-active@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
           box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0); }
@@ -963,7 +887,7 @@ border-color: transparent;
       border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
       background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
       text-shadow: none;
@@ -977,7 +901,7 @@ border-color: transparent;
         border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg"), url("borders/button/button-suggested_action-active@2.svg")) 5/ 5px stretch;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
         box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
@@ -1087,7 +1011,7 @@ border-image: -gtk-scaled(url("borders/button/button-destructive-action-active.s
 border-image: -gtk-scaled(url("borders/button/button.svg"), url("borders/button/button@2.svg")) 5/ 5px stretch;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
         text-shadow: none;
@@ -1104,7 +1028,7 @@ border-image: -gtk-scaled(url("borders/button/button.svg"), url("borders/button/
 border-image: -gtk-scaled(url("borders/button/button-insensitive-active.svg"), url("borders/button/button-insensitive-active@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
           box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0); }
@@ -1129,7 +1053,7 @@ border-image: -gtk-scaled(url("borders/button/button-insensitive-active.svg"), u
       border-image: -gtk-scaled(url("borders/button/button.svg"), url("borders/button/button@2.svg")) 5/ 5px stretch;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
       text-shadow: none;
@@ -1143,7 +1067,7 @@ border-image: -gtk-scaled(url("borders/button/button-insensitive-active.svg"), u
         border-image: -gtk-scaled(url("borders/button/button-insensitive-active.svg"), url("borders/button/button-insensitive-active@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
         box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
@@ -1545,8 +1469,8 @@ box-shadow: 1px 0 alpha(black, 0.8) inset;}
   border-image: none; }
   .menuitem.button.flat:hover, .menuitem.sidebar-button.button:hover, .header-bar .menuitem.titlebutton.button:hover,
   .titlebar .menuitem.titlebutton.button:hover {
-    background-color: #1D2429;
-    color: #f8f8f8; }
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color; }
 
 GtkColorButton.button, .header-bar GtkColorButton.button.titlebutton,
 .titlebar GtkColorButton.button.titlebutton {
@@ -1560,6 +1484,7 @@ GtkColorButton.button, .header-bar GtkColorButton.button.titlebutton,
 /*********
  * Links *
  *********/
+
 *:link, .button:link, .header-bar .button.titlebutton:link,
 .titlebar .button.titlebutton:link, .button:visited, .header-bar .button.titlebutton:visited,
 .titlebar .button.titlebutton:visited {
@@ -1601,7 +1526,6 @@ GtkColorButton.button, .header-bar GtkColorButton.button.titlebutton,
   .button:link:hover, .button:link:active, .button:link:checked, .button:visited:hover, .button:visited:active, .button:visited:checked {
     text-shadow: none;
     border-image:none; }
-  /*.button:link > .label, .button:visited > .label { text-decoration-line: underline; }*/
 
 /*****************
  * GtkSpinButton *
@@ -2032,7 +1956,7 @@ GtkComboBox {
       box-shadow: inset 0 1px alpha(white, 0.45); }
     .titlebar.selection-mode .button,
     .header-bar.selection-mode .button {
-      color: #ffffff;
+      color: @insensitive_base_color;
       outline-color: rgba(255, 255, 255, 0.3);
       border-color: #1c5187;
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
@@ -2053,7 +1977,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
         icon-shadow: none; }
       .titlebar.selection-mode .button:hover,
       .header-bar.selection-mode .button:hover {
-        color: #ffffff;
+        color: @insensitive_base_color;
         outline-color: rgba(255, 255, 255, 0.3);
         border-color: #1c5187;
 border-image: -gtk-scaled(url("borders/button/button-suggested-action-hover.svg"), url("borders/button/button-suggested_action-hover@2.svg")) 5/ 5px stretch;
@@ -2064,7 +1988,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action-hover.svg"
       .titlebar.selection-mode .button:active, .titlebar.selection-mode .button:checked,
       .header-bar.selection-mode .button:active,
       .header-bar.selection-mode .button:checked {
-        color: #ffffff;
+        color: @insensitive_base_color;
         outline-color: rgba(255, 255, 255, 0.3);
         border-color: #1c5187;
 border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg"), url("borders/button/button-suggested_action-active@2.svg")) 5/ 5px stretch;
@@ -2113,7 +2037,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
           text-shadow: none;
@@ -2143,7 +2067,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
 border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg"), url("borders/button/button-suggested_action-active@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
           box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(164, 199, 236, 0);
@@ -2186,7 +2110,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
         text-shadow: none;
@@ -2203,7 +2127,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
  border-image: -gtk-scaled(url("borders/button/button-suggested-action-active.svg"), url("borders/button/button-suggested_action-active@2.svg")) 5/ 5px stretch;
          background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #131313,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #232323
 				      );
           box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
@@ -2250,7 +2174,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action-hover.svg"
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
           text-shadow: none;
@@ -2263,7 +2187,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
         .titlebar.selection-mode .button.suggested-action:backdrop,
         .header-bar.selection-mode .button.suggested-action:backdrop {
           color: @theme_unfocused_fg_color;
-          border-color: #a8a8a8;
+          border-color: @unfocused_borders;
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
           background-image: linear-gradient(to bottom, @theme_unfocused_selected_bg_color);
           text-shadow: none;
@@ -2272,11 +2196,11 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
         .titlebar.selection-mode .button.suggested-action:backdrop:insensitive,
         .header-bar.selection-mode .button.suggested-action:backdrop:insensitive {
           color: @insensitive_fg_color;
-          border-color: #a8a8a8;
+          border-color: @unfocused_borders;
 border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url("borders/button/button-suggested_action@2.svg")) 5/ 5px stretch;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
           text-shadow: none;
@@ -2323,6 +2247,7 @@ border-image: -gtk-scaled(url("borders/button/button-suggested-action.svg"), url
 /************
  * Pathbars *
  ************/
+
 .path-bar .button, .path-bar .header-bar .button.titlebutton, .header-bar .path-bar .button.titlebutton,
 .path-bar .titlebar .button.titlebutton,
 .titlebar .path-bar .button.titlebutton {
@@ -2758,7 +2683,7 @@ GtkTreeView.view {
     GtkTreeView.view.expander:selected {
       color: shade(@theme_fg_color, 0.9); }
       GtkTreeView.view.expander:selected:hover {
-        color: #ffffff; }
+        color: @insensitive_base_color; }
       GtkTreeView.view.expander:selected:backdrop {
         color: #c6dbf1; }
     GtkTreeView.view.expander:checked {
@@ -2766,7 +2691,7 @@ GtkTreeView.view {
     GtkTreeView.view.expander:backdrop {
       color: #86898a; }
   GtkTreeView.view.progressbar {
-    color: #ffffff;
+    color: @insensitive_base_color;
     border-radius: 4px;
     border: 1px solid shade(@theme_selected_bg_color, 0.6);
     background-image: linear-gradient(to bottom, shade(@theme_selected_bg_color, 1.8) 2px, shade(@theme_selected_bg_color, 0.9));
@@ -2862,6 +2787,7 @@ border-image: none;
 /*********
  * Menus *
  *********/
+@define-color menu_bg_color #2c3949;
 .menubar {
   -GtkWidget-window-dragging: true;
   padding: 0px;
@@ -2882,7 +2808,8 @@ border-image: none;
 .menu {
   margin: 4px;
   padding: 0px;
-  background-color: #0d1216;
+	color: #f0f0f0;
+  background-color: @menu_bg_color;
   border: 1px solid @borders; }
   .csd .menu {
     border: none; }
@@ -2898,7 +2825,7 @@ border-image: none;
         color: shade(@theme_fg_color,0.6); }
     .menu .menuitem:backdrop, .menu .menuitem:backdrop:hover {
       color: @theme_unfocused_fg_color;
-      background-color: #0d1216; }
+      background-color: @menu_bg_color; }
     .menu .menuitem.arrow {
       -gtk-icon-source: -gtk-icontheme("pan-end-symbolic"); }
     .menu .menuitem.arrow:dir(rtl) {
@@ -2908,11 +2835,11 @@ border-image: none;
     border-style: none;
     border-radius: 0; }
     .menu.button.top {
-      border-bottom: 1px solid shade(#0d1216,0.9); }
+      border-bottom: 1px solid shade(@menu_bg_color,0.9); }
     .menu.button.bottom {
-      border-top: 1px solid shade(#0d1216,0.9); }
+      border-top: 1px solid shade(@menu_bg_color,0.9); }
     .menu.button:hover {
-      background-color: shade(#0d1216,0.9); }
+      background-color: shade(@menu_bg_color,0.9); }
     .menu.button:insensitive {
       color: transparent;
       background-color: transparent;
@@ -2920,37 +2847,6 @@ border-image: none;
 
 .menuitem .accelerator {
   color: alpha(currentColor,0.55); }
-
-/***************
- * Popovers   *
- ***************/
-.popover {
-  padding: 2px;
-  border: 1px solid @borders;
-  border-radius: 5px;
-  background-color: #0d1216;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);}
-  .popover:backdrop {
-    box-shadow: none; }
-  .popover > .list,
-  .popover > .view,
-  .popover > .toolbar,
-  .popover > .inline-toolbar,
-  .popover > .search-bar,
-  .popover > .location-bar, .popover.osd > .toolbar, .popover.osd > .inline-toolbar, .popover.osd > .search-bar, .popover.osd > .location-bar {
-    border-style: none;
-    background-color: transparent; }
-  .popover .button.flat, .popover .sidebar-button.button, .popover .header-bar .titlebutton.button, .header-bar .popover .titlebutton.button,
-  .popover .titlebar .titlebutton.button,
-  .titlebar .popover .titlebutton.button,
-  .popover .button.flat:hover,
-  .popover .sidebar-button.button:hover,
-  .popover .header-bar .titlebutton.button:hover,
-  .header-bar .popover .titlebutton.button:hover,
-  .popover .titlebar .titlebutton.button:hover,
-  .titlebar .popover .titlebutton.button:hover {
-    text-shadow: none;
-    transition: none; }
 
 /*****************
  * Notebooks and *
@@ -3021,36 +2917,7 @@ border-image: none;
     border-style: solid;
     border-color: transparent;
     background-color: transparent;
-    outline-offset: 0;
-    /* works for testnotebookdnd, but there's a superfluous border
-       in gedit or web, commented out for now, needs gtk fixes
-    &.reorderable-page {
-      &.top {
-        padding-top: ($vt_vpadding - 1px);
-        border-top-width: 1px;
-        border-left-width: 1px;
-        border-right-width: 1px;
-      }
-      &.bottom {
-        padding-bottom: ($vt_vpadding - 1px);
-        border-bottom-width: 1px;
-        border-left-width: 1px;
-        border-right-width: 1px;
-      }
-      &.left {
-        padding-left: ($ht_hpadding - 1px);
-        border-left-width: 1px;
-        border-top-width: 1px;
-        border-bottom-width: 1px;
-      }
-      &.right {
-        padding-right: ($ht_hpadding - 1px);
-        border-right-width: 1px;
-        border-top-width: 1px;
-        border-bottom-width: 1px;
-      }
-    }
-    */ }
+    outline-offset: 0; }
     .notebook tab.top, .notebook tab.bottom {
       padding: 8px 20px; }
     .notebook tab.left, .notebook tab.right {
@@ -3917,7 +3784,7 @@ GtkTreeView.view.radio:backdrop:checked:insensitive:selected,
   .menu .menuitem.radio:inconsistent {
     -gtk-icon-source: -gtk-icontheme("radio-mixed-symbolic"); }
   .menu .menuitem.radio:hover {
-    color: #ffffff; }
+    color: @insensitive_base_color; }
   .menu .menuitem.radio:insensitive {
     color: #bdbebf; }
 
@@ -4587,24 +4454,31 @@ GtkProgressBar {
 /**********
  * Frames *
  **********/
+
 .frame {
   border: 1px solid shade(#141b21, 0.8);
-  padding: 0; }
+  padding: 0;
+}
   .frame.flat {
-    border-style: none; }
+    border-style: none;
+	}
   .frame:backdrop {
-    border-color: @borders; }
+    border-color: @borders;
+	}
   .frame.action-bar {
     padding: 6px;
-    border-width: 1px 0 0; }
+    border-width: 1px 0 0;
+	}
 
 GtkScrolledWindow GtkViewport.frame {
-  border-style: none; }
+  border-style: none;
+}
 
 .separator {
   color: rgba(0, 0, 0, 0.1); }
   GtkFileChooserButton .separator.vertical, GtkFontButton .separator.vertical {
-    -GtkWidget-wide-separators: true; }
+    -GtkWidget-wide-separators: true;
+	}
 
 /*********
  * Lists *
@@ -4658,7 +4532,7 @@ GtkScrolledWindow GtkViewport.frame {
     box-shadow: inset 0 1px rgba(255, 255, 255, 0);
     text-shadow: none;
     icon-shadow: none;
-    color: #ffffff; }
+    color: @insensitive_base_color; }
   .list-row:selected .button:hover {
     color: @theme_fg_color;
     outline-color: rgba(46, 52, 54, 0.3);
@@ -4696,7 +4570,7 @@ GtkScrolledWindow GtkViewport.frame {
   .list-row:selected .titlebar .titlebutton.button:backdrop,
   .titlebar .list-row:selected .titlebutton.button:backdrop {
     color: @theme_unfocused_fg_color;
-    border-color: #a8a8a8;
+    border-color: @unfocused_borders;
     background-image: linear-gradient(to bottom,
                                       #161b1f
                                       );
@@ -4710,7 +4584,7 @@ GtkScrolledWindow GtkViewport.frame {
     .list-row:selected .titlebar .titlebutton.button:backdrop:checked,
     .titlebar .list-row:selected .titlebutton.button:backdrop:checked {
       color: @theme_unfocused_fg_color;
-      border-color: #a8a8a8;
+      border-color: @unfocused_borders;
       background-image: linear-gradient(to bottom,
                                      #15191c
                                       );
@@ -4719,7 +4593,7 @@ GtkScrolledWindow GtkViewport.frame {
     .list-row:selected .titlebar .titlebutton.button:backdrop:insensitive,
     .titlebar .list-row:selected .titlebutton.button:backdrop:insensitive {
       color: @insensitive_fg_color;
-      border-color: #a8a8a8;
+      border-color: @unfocused_borders;
       background-image:  url("assets/stripe-2.png"),linear-gradient(to bottom,
                                       #161b1f
 				      );
@@ -4736,7 +4610,7 @@ GtkScrolledWindow GtkViewport.frame {
       .list-row:selected .titlebar .titlebutton.button:backdrop:insensitive:checked,
       .titlebar .list-row:selected .titlebutton.button:backdrop:insensitive:checked {
         color: @insensitive_fg_color;
-        border-color: #a8a8a8;
+        border-color: @unfocused_borders;
         background-image:  url("assets/stripe-2.png"),linear-gradient(to bottom,
                                       #15191c
 				      );
@@ -4783,139 +4657,12 @@ GtkScrolledWindow GtkViewport.frame {
   .list-row:hover {
     transition: none; }
 
-/*********************
- * App Notifications *
- *********************/
-.app-notification,
-.app-notification.frame {
-  padding: 10px;
-  border-width: 0 1px 1px;
-  border-style: solid;
-  border-color: rgba(255, 255, 255, 0.1);
-  border-radius: 0 0 6px 6px;
-  background-color: rgba(9,10,14,0.8);
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent 2px);
-  background-clip: padding-box; }
-  .app-notification:backdrop,
-  .app-notification.frame:backdrop {
-    background-image: none; }
-  .app-notification .button, .app-notification .header-bar .button.titlebutton, .header-bar .app-notification .button.titlebutton,
-  .app-notification .titlebar .button.titlebutton,
-  .titlebar .app-notification .button.titlebutton,
-  .app-notification.frame .button {
-    border: 1px solid;
-    color: #eeeeec;
-    outline-color: rgba(238, 238, 236, 0.2);
-    color: #eeeeec;
-    outline-color: rgba(238, 238, 236, 0.2);
-    background-color: transparent;
-    background-clip: padding-box;
-    background-image: linear-gradient(to bottom, rgba(47,60,66,0.7));
-    border-color: rgba(0, 0, 0, 0.7);
-    box-shadow: inset 0 -1px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.1);
-    text-shadow: 0 1px black;
-    icon-shadow: 0 1px black;
-    animation:none; }
-    .app-notification .button.flat, .app-notification .sidebar-button.button, .app-notification .header-bar .titlebutton.button, .header-bar .app-notification .titlebutton.button,
-    .app-notification .titlebar .titlebutton.button,
-    .titlebar .app-notification .titlebutton.button,
-    .app-notification.frame .button.flat,
-    .app-notification.frame .sidebar-button.button,
-    .app-notification.frame .header-bar .titlebutton.button,
-    .header-bar .app-notification.frame .titlebutton.button,
-    .app-notification.frame .titlebar .titlebutton.button,
-    .titlebar .app-notification.frame .titlebutton.button {
-      icon-shadow: 0 1px black;
-      text-shadow: 0 1px black; }
-    .app-notification .button:hover,
-    .app-notification.frame .button:hover {
-      color: white;
-      border-color: rgba(0, 0, 0, 0.7);
-      background-image: linear-gradient(to bottom, rgba(47,60,66, 0.7));
-      box-shadow: inset 0 -1px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.1);
-      text-shadow: 0 1px black;
-      icon-shadow: 0 1px black;
-      animation: none; }
-    .app-notification .button:active, .app-notification .button:checked, .app-notification .button:backdrop:active, .app-notification .button:backdrop:checked,
-    .app-notification.frame .button:active,
-    .app-notification.frame .button:checked,
-    .app-notification.frame .button:backdrop:active,
-    .app-notification.frame .button:backdrop:checked {
-      color: white;
-      border-color: rgba(0, 0, 0, 0.7);
-      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7));
-      box-shadow: none;
-      text-shadow: none;
-      icon-shadow: none;
-      animation: none; }
-    .app-notification .button:insensitive, .app-notification .button:backdrop:insensitive,
-    .app-notification.frame .button:insensitive,
-    .app-notification.frame .button:backdrop:insensitive {
-      color: #8d9091;
-      border-color: rgba(0, 0, 0, 0.7);
-      background-image: linear-gradient(to bottom, rgba(65, 70, 72, 0.7));
-      box-shadow: none;
-      text-shadow: none;
-      icon-shadow: none; }
-    .app-notification .button:backdrop,
-    .app-notification.frame .button:backdrop {
-      color: #eeeeec;
-      background-image: linear-gradient(to bottom, rgba(46, 52, 54, 0.7));
-      background-clip: padding-box;
-      box-shadow: none;
-      text-shadow: none;
-      icon-shadow: none; }
 
-/*************
- * Expanders *
- *************/
-.expander {
-  -gtk-icon-source: -gtk-icontheme("pan-end-symbolic"); }
-  .expander:dir(rtl) {
-    -gtk-icon-source: -gtk-icontheme("pan-end-symbolic-rtl"); }
-  .expander:hover {
-    color: @theme_fg_color; }
-  .expander:checked {
-    -gtk-icon-source: -gtk-icontheme("pan-down-symbolic"); }
-
-/************
- * Calendar *
- ***********/
-GtkCalendar {
-  color: black;
-  border: 1px solid @borders; }
-  GtkCalendar.header {
-    box-shadow: inset 0 -1px shade(@theme_base_color, 1.4), inset 0px 1px shade(@theme_base_color, 1.4), 0 1px 2px rgba(0, 0, 0, 0.1);
-    border: 1px solid @borders;
-    border-radius: 0; }
-    GtkCalendar.header:backdrop {
-      border-color: rgba(0, 0, 0, 0.1); }
-  GtkCalendar.button, .header-bar GtkCalendar.button.titlebutton,
-  .titlebar GtkCalendar.button.titlebutton {
-    color: shade(@theme_fg_color, 0.6); }
-    GtkCalendar.button:hover, .header-bar GtkCalendar.button.titlebutton:hover,
-    .titlebar GtkCalendar.button.titlebutton:hover {
-      color: @theme_fg_color; }
-    GtkCalendar.button:backdrop, .header-bar GtkCalendar.button.titlebutton:backdrop,
-    .titlebar GtkCalendar.button.titlebutton:backdrop {
-      color: @theme_unfocused_fg_color;
-      background-color: transparent;
-      background-image: none; }
-    GtkCalendar.button:insensitive, .header-bar GtkCalendar.button.titlebutton:insensitive,
-    .titlebar GtkCalendar.button.titlebutton:insensitive {
-      color: rgba(141, 144, 145, 0.45); }
-  GtkCalendar:inconsistent, GtkCalendar:inconsistent:backdrop {
-    color: alpha(currentColor,0.55); }
-  GtkCalendar.highlight, GtkCalendar.highlight:backdrop {
-    font-size: smaller;
-    color: alpha(currentColor,0.55); }
-  GtkCalendar:backdrop {
-    color: @theme_unfocused_fg_color;
-    border-color: @borders;}
 
 /***********
  * Dialogs *
  ***********/
+
 .message-dialog .dialog-action-area .button {
   padding: 8px; }
 
@@ -5057,7 +4804,7 @@ border-image: none;
 border-image: none;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
           text-shadow: none;
@@ -5071,7 +4818,7 @@ border-image: none;
 border-image: none;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
         text-shadow: none;
@@ -5120,7 +4867,7 @@ border-image: none;
 border-image: none;
           background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
           text-shadow: none;
@@ -5134,7 +4881,7 @@ border-image: none;
 border-image: none;
         background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #232323,
-                                      #171717 40%,
+                                      @insensitive_bg_color 40%,
                                       #141414
 				      );
         text-shadow: none;
@@ -5225,6 +4972,7 @@ GtkPlacesSidebar.sidebar .sidebar-new-bookmark-row {
 /*********
  * Paned *
  *********/
+
 GtkPaned {
   -GtkPaned-handle-size: 1;
   -gtk-icon-source: none;
@@ -5282,7 +5030,7 @@ GtkInfoBar {
   .header-bar .error .button.titlebutton,
   .error .titlebar .button.titlebutton,
   .titlebar .error .button.titlebutton {
-    color: #ffffff;
+    color: @insensitive_base_color;
     outline-color: rgba(255, 255, 255, 0.3);
     border-color: transparent;
     background-image: linear-gradient(to bottom,
@@ -5301,7 +5049,7 @@ GtkInfoBar {
     .question .button:hover,
     .warning .button:hover,
     .error .button:hover {
-      color: #ffffff;
+      color: @insensitive_base_color;
       outline-color: rgba(255, 255, 255, 0.3);
       border-color: transparent;
       background-image: linear-gradient(to bottom,
@@ -5320,7 +5068,7 @@ GtkInfoBar {
     .question .button:active,
     .warning .button:active,
     .error .button:active {
-      color: #ffffff;
+      color: @insensitive_base_color;
       outline-color: rgba(255, 255, 255, 0.3);
       border-color: transparent;
       background-image:linear-gradient(to bottom,
@@ -5400,7 +5148,6 @@ GtkInfoBar {
 .tooltip {
   color: white;
   padding: 4px;
-  /* not working */
   border-radius: 5px;
   box-shadow: none;
   text-shadow: 0 1px black; }
@@ -5415,96 +5162,6 @@ GtkInfoBar {
   padding: 4px;
   background-color: transparent;
   color: inherit; }
-
-/*****************
- * Color Chooser *
- *****************/
-GtkColorSwatch {
-  border: 1px solid;
-  border-color: rgba(0, 0, 0, 0.3);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2); }
-  :selected GtkColorSwatch {
-    box-shadow: none; }
-    :selected GtkColorSwatch.overlay, :selected GtkColorSwatch.overlay:hover {
-      border-color: alpha(#ffffff,0.1); }
-  GtkColorSwatch:selected {
-    box-shadow: inset 0 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white,0.1); }
-  GtkColorSwatch.top {
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px; }
-  GtkColorSwatch.bottom {
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px; }
-  GtkColorSwatch.left, GtkColorSwatch:first-child:not(.overlay):not(.top) {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px; }
-  GtkColorSwatch.right, GtkColorSwatch:last-child:not(.overlay):not(.bottom) {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px; }
-  GtkColorSwatch:only-child:not(.overlay) {
-    border-radius: 6px; }
-  GtkColorSwatch.top > .overlay {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px; }
-  GtkColorSwatch.bottom > .overlay {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px; }
-  GtkColorSwatch:first-child:not(.top) > .overlay {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px; }
-  GtkColorSwatch:last-child:not(.bottom) > .overlay {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px; }
-  GtkColorSwatch:only-child > .overlay {
-    border-radius: 5px; }
-  GtkColorSwatch:hover, GtkColorSwatch:hover:selected {
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 50%);
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), inset 0 -1px rgba(0, 0, 0, 0.1); }
-    GtkColorSwatch:hover.color-dark, GtkColorSwatch:hover:selected.color-dark {
-      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 50%); }
-  GtkColorSwatch:backdrop, GtkColorSwatch:backdrop:selected
-  GtkColorSwatch.color-dark:backdrop, GtkColorSwatch.color-dark:backdrop:selected {
-    background-image: none;
-    box-shadow: none; }
-  GtkColorEditor GtkColorSwatch {
-    border-radius: 3px; }
-    GtkColorEditor GtkColorSwatch:hover {
-      background-image: none;
-      box-shadow: inset 0 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white,0.1); }
-    GtkColorEditor GtkColorSwatch:backdrop {
-      box-shadow: none; }
-  GtkColorSwatch.color-dark {
-    color: white;
-    outline-color: rgba(255, 255, 255, 0.5); }
-    GtkColorSwatch.color-dark:backdrop {
-      color: rgba(255, 255, 255, 0.3); }
-  GtkColorSwatch.color-light {
-    color: black;
-    outline-color: rgba(0, 0, 0, 0.5); }
-    GtkColorSwatch.color-light:backdrop {
-      color: rgba(0, 0, 0, 0.3); }
-  GtkColorSwatch.overlay, GtkColorSwatch.overlay:selected {
-    border: 1px solid rgba(0, 0, 0, 0.3); }
-    GtkColorSwatch.overlay:hover, GtkColorSwatch.overlay:selected:hover {
-      border-color: rgba(0, 0, 0, 0.5); }
-  GtkColorSwatch#add-color-button {
-    border-color: #9a9a9a;
-  background-color: #9a9a9a;
-  color: shade(@theme_fg_color, 0.6);
-  box-shadow: none; }
-    GtkColorSwatch#add-color-button:hover {
-       border-color: @borders;
-    background-color: @borders; }
-    GtkColorSwatch#add-color-button:backdrop {
-      border-color: #aaaaaa;
-    background-color: #aaaaaa; }
-    GtkColorSwatch#add-color-button .overlay {
-      border-color: transparent;
-      background-color: transparent;
-      background-image: none;
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0);
-      text-shadow: none;
-      icon-shadow: none; }
 
 /********
  * Misc *
@@ -5537,7 +5194,6 @@ GtkColorSwatch {
   border-radius: 7px 7px 0 0;
   border-width: 0px;
   box-shadow: 0 4px 12px 1px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.23);
-  /* this is used for the resize cursor area */
   margin: 10px; }
   .window-frame:backdrop {
     box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.18); }
@@ -5737,7 +5393,7 @@ border-image: -gtk-scaled(url("borders/button/button-active.svg"), url("borders/
 .view:selected, GtkCalendar:selected, .label:selected, .label:selected:focus, .label:selected:hover, .grid-child:selected, .entry:selected, .entry:selected:focus, .menuitem.button.flat:selected, .menuitem.sidebar-button.button:selected, .header-bar .menuitem.titlebutton.button:selected,
 .titlebar .menuitem.titlebutton.button:selected, .list-row:selected, .sidebar:selected {
   background-color: @theme_selected_bg_color;
-  color: #ffffff;
+  color: @insensitive_base_color;
   outline-color: rgba(255, 255, 255, 0.3); }
   .view:insensitive:selected, GtkCalendar:insensitive:selected, .label:insensitive:selected, .grid-child:insensitive:selected, .entry:insensitive:selected, .menuitem.button.flat:insensitive:selected, .menuitem.sidebar-button.button:insensitive:selected, .header-bar .menuitem.titlebutton.button:insensitive:selected,
   .titlebar .menuitem.titlebutton.button:insensitive:selected, .list-row:insensitive:selected, .sidebar:insensitive:selected, GtkPlacesSidebar.sidebar .list-row:selected:insensitive .label {
@@ -5953,7 +5609,7 @@ border-image: -gtk-scaled(url("borders/button/button-active.svg"), url("borders/
   border: none;
   box-shadow: none; }
   .overshoot.top:backdrop {
-    background-image: -gtk-gradient(radial, center top, 0, center top, 0.5, to(#a8a8a8), to(rgba(168, 168, 168, 0)));
+    background-image: -gtk-gradient(radial, center top, 0, center top, 0.5, to(@unfocused_borders), to(rgba(168, 168, 168, 0)));
     background-size: 100% 5%;
     background-repeat: no-repeat;
     background-position: center top;
@@ -5969,7 +5625,7 @@ border-image: -gtk-scaled(url("borders/button/button-active.svg"), url("borders/
   border: none;
   box-shadow: none; }
   .overshoot.bottom:backdrop {
-    background-image: -gtk-gradient(radial, center bottom, 0, center bottom, 0.5, to(#a8a8a8), to(rgba(168, 168, 168, 0)));
+    background-image: -gtk-gradient(radial, center bottom, 0, center bottom, 0.5, to(@unfocused_borders), to(rgba(168, 168, 168, 0)));
     background-size: 100% 5%;
     background-repeat: no-repeat;
     background-position: center bottom;
@@ -5985,7 +5641,7 @@ border-image: -gtk-scaled(url("borders/button/button-active.svg"), url("borders/
   border: none;
   box-shadow: none; }
   .overshoot.left:backdrop {
-    background-image: -gtk-gradient(radial, left center, 0, left center, 0.5, to(#a8a8a8), to(rgba(168, 168, 168, 0)));
+    background-image: -gtk-gradient(radial, left center, 0, left center, 0.5, to(@unfocused_borders), to(rgba(168, 168, 168, 0)));
     background-size: 5% 100%;
     background-repeat: no-repeat;
     background-position: left center;
@@ -6001,7 +5657,7 @@ border-image: -gtk-scaled(url("borders/button/button-active.svg"), url("borders/
   border: none;
   box-shadow: none; }
   .overshoot.right:backdrop {
-    background-image: -gtk-gradient(radial, right center, 0, right center, 0.5, to(#a8a8a8), to(rgba(168, 168, 168, 0)));
+    background-image: -gtk-gradient(radial, right center, 0, right center, 0.5, to(@unfocused_borders), to(rgba(168, 168, 168, 0)));
     background-size: 5% 100%;
     background-repeat: no-repeat;
     background-position: right center;
@@ -6067,7 +5723,356 @@ text-shadow: 0 1px rgba(0,0,0, 0.1923);
   icon-shadow: 0 1px rgba(0,0,0, 0.1923);
 }
 
+/* GtkFileChooser */
+GtkFileChooserDialog .search-bar .path-bar .button,
+GtkFileChooserDialog .search-bar .path-bar .button:last-child,
+GtkFileChooserDialog .search-bar .path-bar .button:last-child:hover,
+GtkFileChooserDialog .search-bar .path-bar .button:active:hover,
+GtkFileChooserDialog .search-bar .path-bar .button:checked:hover {
+  background-color: transparent;
+  background-image: 	url("assets/pathbar-carrot-file.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
+
+GtkFileChooserDialog .search-bar .path-bar .button:first-child,
+GtkFileChooserDialog .search-bar .path-bar .button:only-child,
+GtkFileChooserDialog .search-bar .path-bar .button:first-child:hover,
+GtkFileChooserDialog .search-bar .path-bar .button:first-child:backdrop,
+GtkFileChooserDialog .search-bar .path-bar .button:only-child:backdrop,
+GtkFileChooserDialog .search-bar .path-bar .button:first-child:hover:backdrop {
+  background-color: transparent;
+  background-image: 	url("assets/pathbar-carrot-dummy.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
+
+GtkFileChooserDialog .search-bar .path-bar .button:backdrop,
+GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child,
+GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child:hover {
+  background-color: transparent;
+  background-image: 	url("assets/pathbar-carrot-file-backdrop.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
+
+/*
+*:insensitive {
+  -gtk-image-effect: dim; }
+
+.gtkstyle-fallback {
+  background-color: @theme_bg_color;
+  color: @theme_fg_color; }
+  .gtkstyle-fallback:prelight {
+    background-color: shade(@theme_bg_color, 1.2);
+    color: @theme_fg_color; }
+  .gtkstyle-fallback:active {
+    background-color: lightgray;
+    color: @theme_fg_color; }
+  .gtkstyle-fallback:insensitive {
+    background-color: @insensitive_bg_color;
+    color: @theme_insensitive_fg_color; }
+  .gtkstyle-fallback:selected {
+    background-color: @selected_bg_color;
+    color: @selected_fg_color; }
+*/
+/*
+GtkAssistant .sidebar {
+  background-color:@theme_base_color;
+  border-top: 1px solid #0e0e0e; }
+  GtkAssistant .sidebar:dir(ltr) {
+    border-right: 1px solid #0e0e0e; }
+  GtkAssistant .sidebar:dir(rtl) {
+    border-left: 1px solid #0e0e0e; }
+  GtkAssistant .sidebar:backdrop {
+    background-color: shade(@theme_base_color, 1.2);
+    border-color: #0e0e0e; }
+GtkAssistant.csd .sidebar {
+  border-top-style: none; }
+GtkAssistant .sidebar .label {
+  padding: 6px 12px; }
+GtkAssistant .sidebar .label.highlight {
+  background-color: shade(@theme_base_color, 1.3); }
+*/
+/*********************
+ * Spinner Animation *
+ *********************/
+/*
+@keyframes spin {
+  to {
+    -gtk-icon-transform: rotate(1turn); } }
+.spinner {
+  background-image: none;
+  background-color: blue;
+  opacity: 0;
+  -gtk-icon-source: -gtk-icontheme("process-working-symbolic"); }
+  .spinner:active {
+    opacity: 1;
+    animation: spin 1s linear infinite; }
+    .spinner:active:insensitive {
+      opacity: 0.5; }
+*/
+/*************
+ * Expanders *
+ *************/
+/*
+.expander {
+  -gtk-icon-source: -gtk-icontheme("pan-end-symbolic"); }
+  .expander:dir(rtl) {
+    -gtk-icon-source: -gtk-icontheme("pan-end-symbolic-rtl"); }
+  .expander:hover {
+    color: @theme_fg_color; }
+  .expander:checked {
+    -gtk-icon-source: -gtk-icontheme("pan-down-symbolic"); }
+*/
+/************
+ * Calendar *
+ ***********/
+/*
+GtkCalendar {
+  color: black;
+  border: 1px solid @borders; }
+  GtkCalendar.header {
+    box-shadow: inset 0 -1px shade(@theme_base_color, 1.4), inset 0px 1px shade(@theme_base_color, 1.4), 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid @borders;
+    border-radius: 0; }
+    GtkCalendar.header:backdrop {
+      border-color: rgba(0, 0, 0, 0.1); }
+  GtkCalendar.button, .header-bar GtkCalendar.button.titlebutton,
+  .titlebar GtkCalendar.button.titlebutton {
+    color: shade(@theme_fg_color, 0.6); }
+    GtkCalendar.button:hover, .header-bar GtkCalendar.button.titlebutton:hover,
+    .titlebar GtkCalendar.button.titlebutton:hover {
+      color: @theme_fg_color; }
+    GtkCalendar.button:backdrop, .header-bar GtkCalendar.button.titlebutton:backdrop,
+    .titlebar GtkCalendar.button.titlebutton:backdrop {
+      color: @theme_unfocused_fg_color;
+      background-color: transparent;
+      background-image: none; }
+    GtkCalendar.button:insensitive, .header-bar GtkCalendar.button.titlebutton:insensitive,
+    .titlebar GtkCalendar.button.titlebutton:insensitive {
+      color: rgba(141, 144, 145, 0.45); }
+  GtkCalendar:inconsistent, GtkCalendar:inconsistent:backdrop {
+    color: alpha(currentColor,0.55); }
+  GtkCalendar.highlight, GtkCalendar.highlight:backdrop {
+    font-size: smaller;
+    color: alpha(currentColor,0.55); }
+  GtkCalendar:backdrop {
+    color: @theme_unfocused_fg_color;
+    border-color: @borders;}
+*/
+
+/***************
+ * Popovers   *
+ ***************/
+/*
+.popover {
+  padding: 2px;
+  border: 1px solid @borders;
+  border-radius: 5px;
+  background-color: #0d1216;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);}
+  .popover:backdrop {
+    box-shadow: none; }
+  .popover > .list,
+  .popover > .view,
+  .popover > .toolbar,
+  .popover > .inline-toolbar,
+  .popover > .search-bar,
+  .popover > .location-bar, .popover.osd > .toolbar, .popover.osd > .inline-toolbar, .popover.osd > .search-bar, .popover.osd > .location-bar {
+    border-style: none;
+    background-color: transparent; }
+  .popover .button.flat, .popover .sidebar-button.button, .popover .header-bar .titlebutton.button, .header-bar .popover .titlebutton.button,
+  .popover .titlebar .titlebutton.button,
+  .titlebar .popover .titlebutton.button,
+  .popover .button.flat:hover,
+  .popover .sidebar-button.button:hover,
+  .popover .header-bar .titlebutton.button:hover,
+  .header-bar .popover .titlebutton.button:hover,
+  .popover .titlebar .titlebutton.button:hover,
+  .titlebar .popover .titlebutton.button:hover {
+    text-shadow: none;
+    transition: none; }
+*/
+/*****************
+ * Color Chooser *
+ *****************/
+/*
+GtkColorSwatch {
+  border: 1px solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2); }
+  :selected GtkColorSwatch {
+    box-shadow: none; }
+    :selected GtkColorSwatch.overlay, :selected GtkColorSwatch.overlay:hover {
+      border-color: alpha(@insensitive_base_color,0.1); }
+  GtkColorSwatch:selected {
+    box-shadow: inset 0 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white,0.1); }
+  GtkColorSwatch.top {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px; }
+  GtkColorSwatch.bottom {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px; }
+  GtkColorSwatch.left, GtkColorSwatch:first-child:not(.overlay):not(.top) {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px; }
+  GtkColorSwatch.right, GtkColorSwatch:last-child:not(.overlay):not(.bottom) {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px; }
+  GtkColorSwatch:only-child:not(.overlay) {
+    border-radius: 6px; }
+  GtkColorSwatch.top > .overlay {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px; }
+  GtkColorSwatch.bottom > .overlay {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px; }
+  GtkColorSwatch:first-child:not(.top) > .overlay {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px; }
+  GtkColorSwatch:last-child:not(.bottom) > .overlay {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px; }
+  GtkColorSwatch:only-child > .overlay {
+    border-radius: 5px; }
+  GtkColorSwatch:hover, GtkColorSwatch:hover:selected {
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 50%);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), inset 0 -1px rgba(0, 0, 0, 0.1); }
+    GtkColorSwatch:hover.color-dark, GtkColorSwatch:hover:selected.color-dark {
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 50%); }
+  GtkColorSwatch:backdrop, GtkColorSwatch:backdrop:selected
+  GtkColorSwatch.color-dark:backdrop, GtkColorSwatch.color-dark:backdrop:selected {
+    background-image: none;
+    box-shadow: none; }
+  GtkColorEditor GtkColorSwatch {
+    border-radius: 3px; }
+    GtkColorEditor GtkColorSwatch:hover {
+      background-image: none;
+      box-shadow: inset 0 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white,0.1); }
+    GtkColorEditor GtkColorSwatch:backdrop {
+      box-shadow: none; }
+  GtkColorSwatch.color-dark {
+    color: white;
+    outline-color: rgba(255, 255, 255, 0.5); }
+    GtkColorSwatch.color-dark:backdrop {
+      color: rgba(255, 255, 255, 0.3); }
+  GtkColorSwatch.color-light {
+    color: black;
+    outline-color: rgba(0, 0, 0, 0.5); }
+    GtkColorSwatch.color-light:backdrop {
+      color: rgba(0, 0, 0, 0.3); }
+  GtkColorSwatch.overlay, GtkColorSwatch.overlay:selected {
+    border: 1px solid rgba(0, 0, 0, 0.3); }
+    GtkColorSwatch.overlay:hover, GtkColorSwatch.overlay:selected:hover {
+      border-color: rgba(0, 0, 0, 0.5); }
+  GtkColorSwatch#add-color-button {
+    border-color: #9a9a9a;
+  background-color: #9a9a9a;
+  color: shade(@theme_fg_color, 0.6);
+  box-shadow: none; }
+    GtkColorSwatch#add-color-button:hover {
+       border-color: @borders;
+    background-color: @borders; }
+    GtkColorSwatch#add-color-button:backdrop {
+      border-color: #aaaaaa;
+    background-color: #aaaaaa; }
+    GtkColorSwatch#add-color-button .overlay {
+      border-color: transparent;
+      background-color: transparent;
+      background-image: none;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0);
+      text-shadow: none;
+      icon-shadow: none; }
+*/
+
+/*********************
+ * App Notifications *
+ *********************/
+/*
+.app-notification,
+.app-notification.frame {
+  padding: 10px;
+  border-width: 0 1px 1px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 6px 6px;
+  background-color: rgba(9,10,14,0.8);
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent 2px);
+  background-clip: padding-box; }
+  .app-notification:backdrop,
+  .app-notification.frame:backdrop {
+    background-image: none; }
+  .app-notification .button, .app-notification .header-bar .button.titlebutton, .header-bar .app-notification .button.titlebutton,
+  .app-notification .titlebar .button.titlebutton,
+  .titlebar .app-notification .button.titlebutton,
+  .app-notification.frame .button {
+    border: 1px solid;
+    color: #eeeeec;
+    outline-color: rgba(238, 238, 236, 0.2);
+    color: #eeeeec;
+    outline-color: rgba(238, 238, 236, 0.2);
+    background-color: transparent;
+    background-clip: padding-box;
+    background-image: linear-gradient(to bottom, rgba(47,60,66,0.7));
+    border-color: rgba(0, 0, 0, 0.7);
+    box-shadow: inset 0 -1px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 1px black;
+    icon-shadow: 0 1px black;
+    animation:none; }
+    .app-notification .button.flat, .app-notification .sidebar-button.button, .app-notification .header-bar .titlebutton.button, .header-bar .app-notification .titlebutton.button,
+    .app-notification .titlebar .titlebutton.button,
+    .titlebar .app-notification .titlebutton.button,
+    .app-notification.frame .button.flat,
+    .app-notification.frame .sidebar-button.button,
+    .app-notification.frame .header-bar .titlebutton.button,
+    .header-bar .app-notification.frame .titlebutton.button,
+    .app-notification.frame .titlebar .titlebutton.button,
+    .titlebar .app-notification.frame .titlebutton.button {
+      icon-shadow: 0 1px black;
+      text-shadow: 0 1px black; }
+    .app-notification .button:hover,
+    .app-notification.frame .button:hover {
+      color: white;
+      border-color: rgba(0, 0, 0, 0.7);
+      background-image: linear-gradient(to bottom, rgba(47,60,66, 0.7));
+      box-shadow: inset 0 -1px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.1);
+      text-shadow: 0 1px black;
+      icon-shadow: 0 1px black;
+      animation: none; }
+    .app-notification .button:active, .app-notification .button:checked, .app-notification .button:backdrop:active, .app-notification .button:backdrop:checked,
+    .app-notification.frame .button:active,
+    .app-notification.frame .button:checked,
+    .app-notification.frame .button:backdrop:active,
+    .app-notification.frame .button:backdrop:checked {
+      color: white;
+      border-color: rgba(0, 0, 0, 0.7);
+      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7));
+      box-shadow: none;
+      text-shadow: none;
+      icon-shadow: none;
+      animation: none; }
+    .app-notification .button:insensitive, .app-notification .button:backdrop:insensitive,
+    .app-notification.frame .button:insensitive,
+    .app-notification.frame .button:backdrop:insensitive {
+      color: #8d9091;
+      border-color: rgba(0, 0, 0, 0.7);
+      background-image: linear-gradient(to bottom, rgba(65, 70, 72, 0.7));
+      box-shadow: none;
+      text-shadow: none;
+      icon-shadow: none; }
+    .app-notification .button:backdrop,
+    .app-notification.frame .button:backdrop {
+      color: #eeeeec;
+      background-image: linear-gradient(to bottom, rgba(46, 52, 54, 0.7));
+      background-clip: padding-box;
+      box-shadow: none;
+      text-shadow: none;
+      icon-shadow: none; }
+*/
+
 /* Brasero */
+/*
 BraseroLayout GtkPaned {
 	background-image: linear-gradient(to bottom, @theme_bg_color);
 	}
@@ -6117,301 +6122,4 @@ BraseroLayout BraseroFileChooser GtkPathBar.path-bar.linked .button:backdrop:las
     background-repeat: no-repeat;
     background-position: left center;
   }
-
-/* GtkFileChooser */
-GtkFileChooserDialog .search-bar .path-bar .button,
-GtkFileChooserDialog .search-bar .path-bar .button:last-child,
-GtkFileChooserDialog .search-bar .path-bar .button:last-child:hover,
-GtkFileChooserDialog .search-bar .path-bar .button:active:hover,
-GtkFileChooserDialog .search-bar .path-bar .button:checked:hover {
-  background-color: transparent;
-  background-image: 	url("assets/pathbar-carrot-file.png");
-    background-repeat: no-repeat;
-    background-position: left center;
-  }
-
-GtkFileChooserDialog .search-bar .path-bar .button:first-child,
-GtkFileChooserDialog .search-bar .path-bar .button:only-child,
-GtkFileChooserDialog .search-bar .path-bar .button:first-child:hover,
-GtkFileChooserDialog .search-bar .path-bar .button:first-child:backdrop,
-GtkFileChooserDialog .search-bar .path-bar .button:only-child:backdrop,
-GtkFileChooserDialog .search-bar .path-bar .button:first-child:hover:backdrop {
-  background-color: transparent;
-  background-image: 	url("assets/pathbar-carrot-dummy.png");
-    background-repeat: no-repeat;
-    background-position: left center;
-  }
-
-GtkFileChooserDialog .search-bar .path-bar .button:backdrop,
-GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child,
-GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child:hover {
-  background-color: transparent;
-  background-image: 	url("assets/pathbar-carrot-file-backdrop.png");
-    background-repeat: no-repeat;
-    background-position: left center;
-  }
-
-/*************
- * evolution *
- *************/
-
-GtkHTML {
-    background-color: @theme_base_color;
-    color: @theme_fg_color;
-}
-
-GtkHTML:active,
-GtkHTML:active:backdrop {
-    background-color: @theme_selected_bg_color;
-    color: @theme_selected_fg_color;
-}
-
-EMailShellSidebar .view,
-EBookShellSidebar .view,
-ECalBaseShellSidebar EPaned .view {
-    background-color: @theme_bg_color;
-    color: @theme_fg_color;
-}
-
-EMailShellSidebar .view row:selected,
-EBookShellSidebar .view row:selected,
-ECalBaseShellSidebar EPaned .view row:selected {
-  box-shadow: inset 0 -1px alpha(white, 0.06), inset 0 1px alpha(black,0.8);
-  }
-
-EMailShellSidebar .view:backdrop,
-EBookShellSidebar .view:backdrop,
-ECalBaseShellSidebar EPaned .view:backdrop {
-    background-color: @theme_bg_color;
-    color: @theme_unfocused_fg_color;
-}
-
-/*
- * Nautilus & Nemo Desktop Icons
- */
-
-.nautilus-canvas-item,
-.nemo-canvas-item {
-    border-radius: 2px;
-}
-
-.nautilus-desktop.view.nautilus-canvas-item,
-.nemo-desktop.nemo-canvas-item {
-    color: white;
-    text-shadow: 1px 1px black;
-}
-
-.nautilus-desktop.view.nautilus-canvas-item:active,
-.nemo-desktop.nemo-canvas-item:active {
-    color: @theme_text_color;
-}
-
-.nautilus-desktop.view.nautilus-canvas-item:selected,
-.nemo-desktop.nemo-canvas-item:selected {
-    color: #fff;
-    background-image: none;
-	background-color: alpha (@theme_selected_bg_color, 0.74);
-}
-
-.nautilus-desktop.view.nautilus-canvas-item:active,
-.nautilus-desktop.view.nautilus-canvas-item:prelight,
-.nautilus-desktop.view.nautilus-canvas-item:selected,
-.nemo-desktop.nemo-canvas-item:active,
-.nemo-desktop.nemo-canvas-item:prelight,
-.nemo-desktop.nemo-canvas-item:selected {
-    text-shadow: none;
-}
-
-.nautilus-desktop.view.nautilus-canvas-item:selected:backdrop,
-.nemo-desktop.nemo-canvas-item:selected-backdrop {
-    color: @theme_fg_color;
-    background-image: none;
-	background-color: alpha (@theme_selected_bg_color, 0.4);
-}
-
-/* Easy Tag */
-EtBrowser > GtkGrid > GtkPaned > GtkScrolledWindow > GtkTreeView.view row:nth-child(even) {
- color: black;
- }
-EtBrowser > GtkGrid > GtkPaned > GtkScrolledWindow > GtkTreeView.view row:nth-child(even):selected {
- color: white;
- }
-
-/*
- * Gthumb
- */
- GthAutoPaned GtkScrolledWindow GthFolderTree.view {
-    background-color: @theme_bg_color;
-    color: @theme_fg_color;
-}
-
- GthAutoPaned GtkScrolledWindow GthFolderTree.view:backdrop {
-    background-color: @theme_bg_color;
-}
-
-GthAutoPaned GtkScrolledWindow GthFolderTree.view row:selected {
-   box-shadow: inset 0 -1px alpha(white, 0.06), inset 0 1px alpha(black,0.8);
-   }
-
-GthFileList GtkScrolledWindow GthGridView:selected:focus {
-	background-color: @theme_selected_bg_color;
-	background-image: none;
-}
-
-/*** Nemo ***/
-
-NemoPlacesTreeView {
-	-NemoPlacesTreeView-disk-full-bg-color: shade(@theme_selected_bg_color, 1.8);
-	-NemoPlacesTreeView-disk-full-fg-color: shade(@theme_selected_bg_color, 0.7);
-	-NemoPlacesTreeView-disk-full-bar-width: 2px;
-	-NemoPlacesTreeView-disk-full-bar-radius: 1px;
-	-NemoPlacesTreeView-disk-full-bottom-padding: 1px;
-	-NemoPlacesTreeView-disk-full-max-length: 70px;
-}
-
-NemoPlacesTreeView:selected {
-	-NemoPlacesTreeView-disk-full-bg-color: shade(@theme_selected_bg_color, 1.8);
-	-NemoPlacesTreeView-disk-full-fg-color: shade(@theme_selected_bg_color, 0.6);
-}
-
-NemoWindow .sidebar .view {
-	background-color: @theme_bg_color;
-	color: @theme_fg_color;
-}
-
-NemoWindow .sidebar .frame {
-	border-right-width: 0px;
-	border-style: none;
-	border-color: #4c4c4c;
-	border-left: none;
-	border-top-width: 0px;
-	border-bottom: none;
-}
-
-NemoWindow .toolbar {
-  border-width: 0 0 0px;
-  border-style: none;
-  border-color: #aaaaaa;
-  box-shadow: none;
-  }
-
-NemoWindow .toolbar:backdrop {
-  border-width: 0 0 0px;
-  border-style: none;
-  border-color: #969696;
-  box-shadow: none;
-  }
-
-NemoWindow .sidebar row:selected,
-NemoWindow .sidebar row:selected:hover {
-	color: #fff;
-	background-color: @theme_selected_bg_color;
-}
-
-NemoWindow .sidebar row:backdrop:selected,
-NemoWindow .sidebar row:backdrop:selected:hover {
-	color: @theme_unfocused_fg_color;
-	text-shadow: none;
-	background-color: shade(@theme_selected_bg_color,1.1);
-}
-
-NemoWindow .sidebar row:hover {
-	background-color: transparent;
-	color: @theme_fg_color;
-}
-
-NemoWindow .sidebar row:selected {
- box-shadow: inset 0 -1px alpha(white, 0.06), inset 0 1px alpha(black,0.8);
- }
-
-/* desktop mode */
-/*
-.nemo-desktop.nemo-canvas-item {
-	color: @theme_bg_color;
-	text-shadow: 1px 1px alpha (#000000, 0.8);
-}
-
-.nemo-desktop.nemo-canvas-item:active {
-	background-image: none;
-	background-color: alpha (@theme_bg_color, 0.84);
-	color: @theme_fg_color;
-}
-
-.nemo-desktop.nemo-canvas-item:selected {
-	background-image: none;
-	background-color: alpha (@theme_selected_bg_color, 0.84);
-	color: @theme_selected_fg_color;
-}
-
-.nemo-desktop.nemo-canvas-item:active,
-.nemo-desktop.nemo-canvas-item:prelight,
-.nemo-desktop.nemo-canvas-item:selected {
-	text-shadow: none;
-}*/
-
-/* inactive pane */
-
-.nemo-inactive-pane .view {
-	background-color: shade(@theme_base_color,0.9);
-	color: shade(@theme_fg_color,0.6);
-}
-
-
-
-/* small buttons on the nemo status bar */
-
-NemoWindow GtkStatusbar {
-    padding: 0;
-}
-
-NemoWindow .toolbar .button.image-button {
-    -GtkWidget-focus-line-width: 0;
-    -GtkWidget-focus-padding: 0;
-    padding: 4px;
-}
-
-/* the fix above for the statusbar buttons also affects the primary toolbar so we need to reset the
-    padding for those buttons */
-
-NemoWindow .primary-toolbar.toolbar .button.image-button {
-    padding: 4px 7px 5px;
-}
-
-/*
- *  Gnome-Music
- */
-GdMainListView.view.artist-panel-white {
-  background-color:transparent;
-  background-image: linear-gradient(to bottom,
-                                     @theme_base_color,
-                                     @theme_base_color);
-}
-
-GdMainListView.view.artist-panel-white:backdrop {
-  background-color: transparent;
-  background-image: linear-gradient(to bottom,
-                                     shade(@theme_base_color, 0.95),
-                                    shade(@theme_base_color, 0.95));
-}
-
-GdMainListView.view.artist-panel-white:selected {
-  background-image: linear-gradient(to bottom,
-                                    @theme_selected_bg_color);
-  color: white;
-  text-shadow: 0 1px rgba(0,0,0, 0.6);
-}
-
-GdMainListView.view.songs-list.content-view.view  {
-  background-color:transparent;
-  background-image: linear-gradient(to bottom,
-                                     @theme_base_color,
-                                     @theme_base_color);
-}
-
-GdMainListView.view.songs-list.content-view.view:backdrop {
-  background-color: transparent;
-  background-image: linear-gradient(to bottom,
-                                     shade(@theme_base_color, 0.95),
-                                    shade(@theme_base_color, 0.95));
-}
-
+*/

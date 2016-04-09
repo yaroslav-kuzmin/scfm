@@ -63,17 +63,20 @@ GKeyFile * system_config = NULL;
 char STR_GROUP_GLOBAL[] = "global";
 
 /*****************************************************************************/
+/*  Сообщения пользователю Диалоги                                           */
 /*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-/*****************************************************************************/
+
+flag_t apply_style(GtkWidget * w);
 
 flag_t dialog_info(char * message)
 {
-	GtkWidget * md_err;
-	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
-	gtk_dialog_run(GTK_DIALOG(md_err));
-	gtk_widget_destroy(md_err);
+	GtkWidget * md_info;
+	/*TODO передать указатель на основное окно */
+	md_info = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
+	/*TODO применить свой стиль */
+	/*apply_style(md_info);*/
+	gtk_dialog_run(GTK_DIALOG(md_info));
+	gtk_widget_destroy(md_info);
 	g_info("%s",message);
 	return FAILURE;
 }
@@ -81,13 +84,20 @@ flag_t dialog_info(char * message)
 flag_t dialog_error(char * message)
 {
 	GtkWidget * md_err;
+	/*TODO передать указатель на основное окно */
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
+	/*TODO применить свой стиль */
+	/*apply_style(md_err);*/
+	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
 	g_critical("%s",message);
 	return FAILURE;
 }
 
+/*****************************************************************************/
+/* Выравнивание виджетов                                                     */
+/*****************************************************************************/
 flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
 {
 	gtk_widget_set_halign(w,ha);
@@ -96,7 +106,9 @@ flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean 
 	gtk_widget_set_vexpand(w,ve);
 	return SUCCESS;
 }
-
+/*****************************************************************************/
+/* Время                                                                     */
+/*****************************************************************************/
 static GTimeVal current_time;
 GDateTime * current_date_time(void)
 {
