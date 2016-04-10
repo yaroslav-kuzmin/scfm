@@ -97,22 +97,32 @@ enum
 typedef struct _show_control_s show_control_s;
 struct _show_control_s
 {
+	/*режим */
+	GtkLabel * lab_console;
+	GtkButton * but_console;
+	flag_t mode;
+
 	/*лафет*/
 	GtkButton * but_up;
 	GtkButton * but_down;
 	GtkButton * but_right;
 	GtkButton * but_left;
+	flag_t lafet_precise;
+	uint16_t lafet_precise_value;
 
-	GtkButton * but_valve_open;
-	GtkButton * but_valve_close;
-
+	/*актуатор*/
 	GtkWidget * actuator_spray;
 	GtkWidget * actuator_rate;
 
-	flag_t mode;
-	GtkLabel * lab_console;
-	GtkButton * but_console;
-
+	/*задвижка*/
+	GtkButton * but_valve_open;
+	GtkButton * but_valve_close;
+	uint16_t valve_precise;
+	/*Осциляция*/
+	GtkToggleButton * but_oscillation_vertical;
+	GtkToggleButton * but_oscillation_horizontal;
+	GtkToggleButton * but_oscillation_saw;
+	GtkToggleButton * but_oscillation_step;
 	flag_t oscillation_flag;
 	command_u oscillation_command;
 };
@@ -128,11 +138,12 @@ struct _block_controller_s
 	flag_t run_show;
 	uint32_t timeout_show;
 
-	/**/
+	/*флаги управления*/
+
+	/*поток взыимодействия с конторлером*/
 	communication_controller_s * communication_controller;
 
 	/*отображение блока управления в разных режимах*/
-
 	show_state_s * state;
 	show_control_s * control;
 };
@@ -1027,9 +1038,17 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 	return frame;
 }
 #endif
+
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
+	GtkWidget * box;
+
+	frame = gtk_frame_new("Информация");
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+#if 0
 	GtkWidget * grid;
 	GtkWidget * label_name;
 	GtkWidget * block_vertical;
@@ -1039,8 +1058,6 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	/*GtkWidget * block_fire_sensor;*/
 	/*GtkWidget * block_fire_alarm;*/
 
-	frame = gtk_frame_new("Информация");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
@@ -1072,10 +1089,11 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
 	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
 #endif
-	gtk_widget_show(frame);
 	gtk_widget_show(grid);
 	gtk_widget_show(label_name);
+#endif
 
+	gtk_widget_show(frame);
 	return frame;
 }
 
@@ -1152,7 +1170,7 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	return box;
 }
 
-static void clicked_button_valve_open(GtkButton * b,gpointer ud)
+static void button_clicked_valve_open(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1167,7 +1185,7 @@ static void clicked_button_valve_open(GtkButton * b,gpointer ud)
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
-static void clicked_button_valve_close(GtkButton * b,gpointer ud)
+static void button_clicked_valve_close(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1182,70 +1200,186 @@ static void clicked_button_valve_close(GtkButton * b,gpointer ud)
 	push_command_queue(communication_controller,controller,command,NOT_OK);
 }
 
-#if 0
+static void button_clicked_valve_run(GtkButton * b,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s*)ud;*/
+	g_info("Запустить задвижку");
+}
+#define RATE_VALVE_ANALOG     4
+
 static gdouble min_valve = 0;
-static gdouble max_valve = 4000;
-static gdouble step_valve = 10;
-static gboolean change_value_scale_valve(GtkRange * r,GtkScrollType s,gdouble v,gpointer ud)
+static gdouble max_valve = 100;
+static gdouble step_valve = 0.1;
+static gboolean scale_change_value_valve(GtkRange * r,GtkScrollType s,gdouble v,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
-	command_u command = {0};
-	double valve_d = v;
+	gdouble percent;
+	uint16_t precise;
 
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return FALSE;
+	if(v > max_valve ){
+		v = max_valve;
 	}
+	percent = v * 10;
+	precise = percent * RATE_VALVE_ANALOG;
 
-	push_command_queue(communication_controller,controller,command,NOT_OK);
-	gtk_range_set_value(r,valve_d);
-	return TRUE;
+	g_info("Задвижка %e : %d",v,precise);
+	bc->control->valve_precise = precise;
+
+	gtk_range_set_value(r,v);
+ 	return TRUE;
 }
-#endif
 static GtkWidget * create_block_control_valve(block_controller_s * bc)
 {
 	GtkWidget * grid;
 	GtkWidget * label;
 	GtkWidget * but_open;
 	GtkWidget * but_close;
-	/*GtkWidget * scale;*/
+	GtkWidget * but_run;
+	GtkWidget * scale;
 
 	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
-	label = gtk_label_new("Заслонка");
+	label = gtk_label_new("Задвижка");
 
 	but_open = gtk_button_new_with_label("Открыть");
 	layout_widget(but_open,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_open,"clicked",G_CALLBACK(clicked_button_valve_open),bc);
+	g_signal_connect(but_open,"clicked",G_CALLBACK(button_clicked_valve_open),bc);
 	bc->control->but_valve_open = GTK_BUTTON(but_open);
 
 	but_close = gtk_button_new_with_label("Закрыть");
 	layout_widget(but_close,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_close,"clicked",G_CALLBACK(clicked_button_valve_close),bc);
+	g_signal_connect(but_close,"clicked",G_CALLBACK(button_clicked_valve_close),bc);
 	bc->control->but_valve_close = GTK_BUTTON(but_close);
 
-	/*TODO управление аналоговой схеме */
-#if 0
+	but_run = gtk_button_new_with_label("Установить");
+	layout_widget(but_run,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_run,"clicked",G_CALLBACK(button_clicked_valve_run),bc);
+
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
-	layout_widget(scale,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_scale_set_digits(GTK_SCALE(scale),0); /*колличество знаков после запятой*/
-	gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);
-	g_signal_connect(scale,"change-value",G_CALLBACK(change_value_scale_valve),bc);
-#endif
+	layout_widget(scale,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_scale_set_digits(GTK_SCALE(scale),1); /*колличество знаков после запятой*/
+	gtk_widget_set_size_request(scale,100,-1);
+	/*gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);*/
+	g_signal_connect(scale,"change-value",G_CALLBACK(scale_change_value_valve),bc);
 
 	gtk_grid_attach(GTK_GRID(grid),label    ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),but_open ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_close,1,1,1,1);
-	/*gtk_grid_attach(GTK_GRID(grid),scale,0,2,1,1);*/
+	gtk_grid_attach(GTK_GRID(grid),but_close,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_run  ,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),scale    ,1,2,1,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
 	gtk_widget_show(but_open);
 	gtk_widget_show(but_close);
-	/*gtk_widget_show(scale);*/
+	gtk_widget_show(but_run);
+	gtk_widget_show(scale);
+
+	return grid;
+}
+
+static void button_clicked_lafet_precise(GtkButton * b,gpointer ud)
+{
+	block_controller_s * bc = (block_controller_s *)ud;
+	flag_t state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b));
+	if(state){
+		bc->control->lafet_precise = OK;
+	}
+	else{
+		bc->control->lafet_precise = NOT_OK;
+	}
+}
+
+static void entry_activate_lafet_precise(GtkEntry * e,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	/*GtkEntryBuffer * buf = gtk_entry_get_buffer(e);*/
+}
+#if 0
+static void entry_backspace_lafet_precise(GtkEntry * e,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	GtkEntryBuffer * buf = gtk_entry_get_buffer(e);
+	g_info("%s",gtk_entry_buffer_get_text(buf));
+}
+static void entry_delete_from_cursor_lafet_precise(GtkEntry *e,GtkDeleteType type
+                                                  ,gint count,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	GtkEntryBuffer * buf = gtk_entry_get_buffer(e);
+	g_info("%s",gtk_entry_buffer_get_text(buf));
+}
+static void entry_insert_at_cursor_lafet_precise(GtkEntry * e,gchar * str,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	GtkEntryBuffer * buf = gtk_entry_get_buffer(e);
+	g_info("%s",gtk_entry_buffer_get_text(buf));
+}
+static void entry_toggle_overwrite_lafet_precise(GtkEntry * e,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	GtkEntryBuffer * buf = gtk_entry_get_buffer(e);
+	g_info("%s",gtk_entry_buffer_get_text(buf));
+}
+static void entry_preedit_changed_lafet_precise(GtkEntry * e,gchar * str,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	GtkEntryBuffer * buf = gtk_entry_get_buffer(e);
+	g_info("%s",gtk_entry_buffer_get_text(buf));
+}
+#endif
+
+static gboolean entry_key_press_event_lafet_precise(GtkEntry * e,GdkEvent *event,gpointer ud)
+{
+	/*block_controller_s * bc = (block_controller_s *)ud;*/
+	/*GtkEntryBuffer * buf = gtk_entry_get_buffer(e);*/
+	return FALSE;
+}
+static GtkWidget * create_block_lafet_precise(block_controller_s * bc)
+{
+	GtkWidget * grid;
+	GtkWidget * label;
+	GtkWidget * but_choise;
+	GtkWidget * entry;
+
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),TRUE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
+
+	label = gtk_label_new("Точное значение");
+
+	but_choise = gtk_check_button_new();
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(but_choise),FALSE);
+	g_signal_connect(but_choise,"clicked",G_CALLBACK(button_clicked_lafet_precise),bc);
+	bc->control->lafet_precise = NOT_OK;
+
+	entry = gtk_entry_new();
+	gtk_entry_set_text(GTK_ENTRY(entry),"000");
+	gtk_entry_set_max_length(GTK_ENTRY(entry),3);
+	gtk_entry_set_width_chars(GTK_ENTRY(entry),3);
+	gtk_entry_set_max_width_chars(GTK_ENTRY(entry),3);
+	gtk_entry_set_input_purpose(GTK_ENTRY(entry),GTK_INPUT_PURPOSE_DIGITS);
+
+	g_signal_connect(entry,"activate",G_CALLBACK(entry_activate_lafet_precise),bc);
+#if 0
+	g_signal_connect(entry,"backspace",G_CALLBACK(entry_backspace_lafet_precise),bc);
+	g_signal_connect(entry,"delete-from-cursor",G_CALLBACK(entry_delete_from_cursor_lafet_precise),bc);
+	g_signal_connect(entry,"insert-at-cursor",G_CALLBACK(entry_insert_at_cursor_lafet_precise),bc);
+	g_signal_connect(entry,"toggle-overwrite",G_CALLBACK(entry_toggle_overwrite_lafet_precise),bc);
+	g_signal_connect(entry,"preedit-changed",G_CALLBACK(entry_preedit_changed_lafet_precise),bc);
+#endif
+	g_signal_connect(entry,"key-press-event",G_CALLBACK(entry_key_press_event_lafet_precise),bc);
+
+	gtk_grid_attach(GTK_GRID(grid),label     ,0,0,2,1);
+	gtk_grid_attach(GTK_GRID(grid),but_choise,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),entry     ,1,1,1,1);
+
+	gtk_widget_show(grid);
+	gtk_widget_show(label);
+	gtk_widget_show(but_choise);
+	gtk_widget_show(entry);
 
 	return grid;
 }
@@ -1323,6 +1457,7 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	GtkWidget * but_down;
 	GtkWidget * but_right;
 	GtkWidget * but_left;
+	GtkWidget * block_precise;
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
@@ -1353,10 +1488,13 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_left = GTK_BUTTON(but_left);
 
-	gtk_grid_attach(GTK_GRID(grid),but_up   ,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_down ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_left ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_right,2,1,1,1);
+	block_precise = create_block_lafet_precise(bc);
+
+	gtk_grid_attach(GTK_GRID(grid),but_up       ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_down     ,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_left     ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_right    ,2,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_precise,0,2,3,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(but_up);
@@ -1553,25 +1691,70 @@ static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 	command.part.value = COMMAND_OSCILLATION_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }
-static void button_clicked_oscillation_vertical(GtkButton * b,gpointer ud)
+static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL;
+	flag_t state = gtk_toggle_button_get_active(b);
+	GtkToggleButton * set;
+
+	if(state){
+		set = bc->control->but_oscillation_horizontal;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_saw;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_step;
+		gtk_toggle_button_set_active(set,FALSE);
+		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL;
+	}
 }
-static void button_clicked_oscillation_horizontal(GtkButton * b,gpointer ud)
+static void button_clicked_oscillation_horizontal(GtkToggleButton * b,gpointer ud)
 {
-	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+ 	block_controller_s * bc = (block_controller_s*)ud;
+	flag_t state = gtk_toggle_button_get_active(b);
+	GtkToggleButton * set;
+
+	if(state){
+		set = bc->control->but_oscillation_vertical;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_saw;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_step;
+		gtk_toggle_button_set_active(set,FALSE);
+		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+	}
 }
-static void button_clicked_oscillation_saw(GtkButton * b,gpointer ud)
+
+static void button_clicked_oscillation_saw(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_SAW;
+	flag_t state = gtk_toggle_button_get_active(b);
+	GtkToggleButton * set;
+
+	if(state){
+		set = bc->control->but_oscillation_vertical;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_horizontal;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_step;
+		gtk_toggle_button_set_active(set,FALSE);
+		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_SAW;
+	}
 }
-static void button_clicked_oscillation_step(GtkButton * b,gpointer ud)
+static void button_clicked_oscillation_step(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STEP;
+	flag_t state = gtk_toggle_button_get_active(b);
+	GtkToggleButton * set;
+
+	if(state){
+		set = bc->control->but_oscillation_vertical;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_horizontal;
+		gtk_toggle_button_set_active(set,FALSE);
+		set = bc->control->but_oscillation_saw;
+		gtk_toggle_button_set_active(set,FALSE);
+		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STEP;
+	}
 }
 
 static GtkWidget * create_block_oscillation(block_controller_s * bc)
@@ -1587,7 +1770,7 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	GtkWidget * but_step;
 
 	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 
 	label = gtk_label_new("Осциляция");
 
@@ -1600,23 +1783,27 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	but_stop = gtk_button_new_with_label("Остановить");
 	g_signal_connect(but_stop,"clicked",G_CALLBACK(button_clicked_oscillation_stop),bc);
 
-	but_vertical = gtk_radio_button_new_with_label(NULL,"Вертикальная");
+	but_vertical = gtk_check_button_new_with_label("Вертикальная");
 	g_signal_connect(but_vertical,"clicked",G_CALLBACK(button_clicked_oscillation_vertical),bc);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(but_vertical),FALSE);
+	bc->control->but_oscillation_vertical = GTK_TOGGLE_BUTTON(but_vertical);
 
-
-	but_horizontal = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                            ,"Горизонтальная");
+	but_horizontal = gtk_check_button_new_with_label("Горизонтальная");
 	g_signal_connect(but_horizontal,"clicked",G_CALLBACK(button_clicked_oscillation_horizontal),bc);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(but_vertical),FALSE);
+	bc->control->but_oscillation_horizontal = GTK_TOGGLE_BUTTON(but_horizontal);
 
-	but_saw = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                     ,"Пила");
+	but_saw = gtk_check_button_new_with_label("Пила");
 	g_signal_connect(but_saw,"clicked",G_CALLBACK(button_clicked_oscillation_saw),bc);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(but_saw),FALSE);
+	bc->control->but_oscillation_saw = GTK_TOGGLE_BUTTON(but_saw);
 
-	but_step = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(but_vertical)
-	                                                      ,"Ступенька");
+	but_step = gtk_check_button_new_with_label("Ступенька");
 	g_signal_connect(but_step,"clicked",G_CALLBACK(button_clicked_oscillation_step),bc);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(but_step),FALSE);
+	bc->control->but_oscillation_step = GTK_TOGGLE_BUTTON(but_step);
 
-	gtk_grid_attach(GTK_GRID(grid),label         ,0,0,2,1 );
+	gtk_grid_attach(GTK_GRID(grid),label         ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),but_run       ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_stop      ,1,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_vertical  ,0,2,1,1);
@@ -1640,8 +1827,8 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	GtkWidget * box;
 	GtkWidget * block_mode;
 	GtkWidget * block_lafet;
-	GtkWidget * block_valve;
 	GtkWidget * block_actuator;
+	GtkWidget * block_valve;
 	GtkWidget * block_oscillation;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -1656,8 +1843,8 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	gtk_box_pack_start(GTK_BOX(box),block_mode,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,5);
 	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,5);
-	/*gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,5);*/
-	/*gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,5);*/
+	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,5);
 
 	gtk_widget_show(box);
 
@@ -1959,8 +2146,8 @@ controller_s * init_controller(object_s * object)
 
 	communication_controller.list = g_slist_append(communication_controller.list,controller);
 	controller->object = object;
-	g_info(" %s ",controller->name);
 #if 0
+	g_info(" %s ",controller->name);
 	g_debug("type               :> %d",controller->config->type);
 	g_debug("flag               :> %#lx",controller->config->flag);
 	g_debug("tic vertical       :> %g",controller->config->rate_tic_vertical);

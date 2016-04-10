@@ -170,8 +170,6 @@ static void row_activated_tree_view(GtkTreeView *tv,GtkTreePath *path,GtkTreeVie
 	if(object != NULL){
 		select_object(object);
 	}
-#else
-	g_debug("row_activated_tree_view");
 #endif
 }
 
@@ -192,8 +190,6 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	if(object != NULL){
 		select_object(object);
 	}
-#else
-	g_debug("cursor_changed_tree_view");
 #endif
 }
 
