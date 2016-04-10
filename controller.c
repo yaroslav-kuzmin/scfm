@@ -1039,15 +1039,63 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 }
 #endif
 
+
+static GtkWidget * create_block_message_state(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * lab_mode;
+	GtkWidget * lab_state;
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+
+	lab_mode = gtk_label_new("Выключен");
+	lab_state = gtk_label_new("Норма");
+ 	return box;
+}
+
+static GtkWidget * create_block_state_message(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * block_message_state;
+	GtkWidget * block_message_fire;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+
+	block_message_state = create_block_message_state(bc);
+	block_message_fire = create_block_message_fire(bc);
+
+	gtk_box_pack_start(GTK_BOX(box),block_message_state,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_message_fire,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+
+	return box;
+}
+
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * box;
+	GtkWidget * block_state_message;
+	GtkWidget * block_state_lafet;
+	GtkWidget * block_state_pipe;
 
 	frame = gtk_frame_new("Информация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_state_message = create_block_state_message(bc);
+	block_state_lafet = create_block_state_lafet(bc);
+	block_state_pipe = create_block_state_pipe(bc);
+
+	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
+
+
 #if 0
 	GtkWidget * grid;
 	GtkWidget * label_name;
@@ -1094,6 +1142,8 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 #endif
 
 	gtk_widget_show(frame);
+	gtk_widget_show(box);
+
 	return frame;
 }
 
