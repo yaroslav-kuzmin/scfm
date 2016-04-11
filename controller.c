@@ -84,6 +84,11 @@ struct _show_state_s
 
 	GtkImage * pressure;
 	GdkPixbuf * buf_pressure;
+
+	GtkLabel * lab_mode;
+	GtkLabel * lab_state;
+
+	GtkImage * fire_alarm;
 };
 
 enum
@@ -154,20 +159,39 @@ struct _block_controller_s
 /*номера рисунков*/
 enum
 {
- 	VERTICAL_0000 = 0,
-	VERTICAL_0100,
-	VERTICAL_0200,
-	VERTICAL_0300,
-	VERTICAL_0400,
-	VERTICAL_0500,
-	VERTICAL_0600,
-	VERTICAL_0700,
-	VERTICAL_0800,
-	VERTICAL_0900,
-	VERTICAL_UP,
-	VERTICAL_DOWN,
-	VERTICAL_NO_ENGINE, /*Нет двигателя */
-	VERTICAL_NO_CONNECT, /*Нет сигнала*/
+ 	VERTICAL_000 = 0,
+	VERTICAL_006,
+	VERTICAL_012,
+	VERTICAL_018,
+	VERTICAL_024,
+	VERTICAL_030,
+	VERTICAL_036,
+	VERTICAL_042,
+	VERTICAL_048,
+	VERTICAL_054,
+	VERTICAL_060,
+	VERTICAL_066,
+	VERTICAL_072,
+	VERTICAL_078,
+	VERTICAL_084,
+	VERTICAL_090,
+	VERTICAL_096,
+	VERTICAL_102,
+	VERTICAL_108,
+	VERTICAL_114,
+	VERTICAL_120,
+	VERTICAL_126,
+	VERTICAL_132,
+	VERTICAL_138,
+	VERTICAL_144,
+	VERTICAL_150,
+	VERTICAL_156,
+	VERTICAL_162,
+	VERTICAL_168,
+	VERTICAL_174,
+	VERTICAL_180,
+	VERTICAL_BACKGROUND,
+
 	HORIZONTAL_0000,
 	HORIZONTAL_0100,
 	HORIZONTAL_0200,
@@ -223,32 +247,50 @@ enum
 };
 
 static GdkPixbuf * images_state[AMOUNT_IMAGE_STATE] = {0};
-static int16_t period_vertical = 10;
-static int16_t min_vertical = 0;
-static int16_t max_vertical = 90; /*180*/
-static gdouble period_horizontal = 10;
-static int16_t min_horizontal = 0;
-static int16_t max_horizontal = 360;
+static uint16_t period_vertical = 6;
+static uint16_t min_vertical = 0;
+static uint16_t max_vertical = 180;
+static uint16_t period_horizontal = 10;
+static uint16_t min_horizontal = 0;
+static uint16_t max_horizontal = 360;
 
 
 static int init_image(block_controller_s * bc)
 {
 	/*TODO высвободить память из буфферов*/
 
-	images_state[VERTICAL_0000]       = get_resource_image(RESOURCE_IMAGE,"v0000");
-	images_state[VERTICAL_0100]       = get_resource_image(RESOURCE_IMAGE,"v0100");
-	images_state[VERTICAL_0200]       = get_resource_image(RESOURCE_IMAGE,"v0200");
-	images_state[VERTICAL_0300]       = get_resource_image(RESOURCE_IMAGE,"v0300");
-	images_state[VERTICAL_0400]       = get_resource_image(RESOURCE_IMAGE,"v0400");
-	images_state[VERTICAL_0500]       = get_resource_image(RESOURCE_IMAGE,"v0500");
-	images_state[VERTICAL_0600]       = get_resource_image(RESOURCE_IMAGE,"v0600");
-	images_state[VERTICAL_0700]       = get_resource_image(RESOURCE_IMAGE,"v0700");
-	images_state[VERTICAL_0800]       = get_resource_image(RESOURCE_IMAGE,"v0800");
-	images_state[VERTICAL_0900]       = get_resource_image(RESOURCE_IMAGE,"v0900");
-	images_state[VERTICAL_UP]         = get_resource_image(RESOURCE_IMAGE,"v0900p");
-	images_state[VERTICAL_DOWN]       = get_resource_image(RESOURCE_IMAGE,"v0000p");
-	images_state[VERTICAL_NO_ENGINE]  = get_resource_image(RESOURCE_IMAGE,"vxxxx");
-	images_state[VERTICAL_NO_CONNECT] = get_resource_image(RESOURCE_IMAGE,"vbase");
+	images_state[VERTICAL_000] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_006] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_012] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_018] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_024] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_030] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_036] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_042] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_048] = get_resource_image(RESOURCE_IMAGE,"vertical_048");
+	images_state[VERTICAL_054] = get_resource_image(RESOURCE_IMAGE,"vertical_054");
+	images_state[VERTICAL_060] = get_resource_image(RESOURCE_IMAGE,"vertical_060");
+	images_state[VERTICAL_066] = get_resource_image(RESOURCE_IMAGE,"vertical_066");
+	images_state[VERTICAL_072] = get_resource_image(RESOURCE_IMAGE,"vertical_072");
+	images_state[VERTICAL_078] = get_resource_image(RESOURCE_IMAGE,"vertical_078");
+	images_state[VERTICAL_084] = get_resource_image(RESOURCE_IMAGE,"vertical_084");
+	images_state[VERTICAL_090] = get_resource_image(RESOURCE_IMAGE,"vertical_090");
+	images_state[VERTICAL_096] = get_resource_image(RESOURCE_IMAGE,"vertical_096");
+	images_state[VERTICAL_102] = get_resource_image(RESOURCE_IMAGE,"vertical_102");
+	images_state[VERTICAL_108] = get_resource_image(RESOURCE_IMAGE,"vertical_108");
+	images_state[VERTICAL_114] = get_resource_image(RESOURCE_IMAGE,"vertical_114");
+	images_state[VERTICAL_120] = get_resource_image(RESOURCE_IMAGE,"vertical_120");
+	images_state[VERTICAL_126] = get_resource_image(RESOURCE_IMAGE,"vertical_126");
+	images_state[VERTICAL_132] = get_resource_image(RESOURCE_IMAGE,"vertical_132");
+	images_state[VERTICAL_138] = get_resource_image(RESOURCE_IMAGE,"vertical_138");
+	images_state[VERTICAL_144] = get_resource_image(RESOURCE_IMAGE,"vertical_144");
+	images_state[VERTICAL_150] = get_resource_image(RESOURCE_IMAGE,"vertical_150");
+	images_state[VERTICAL_156] = get_resource_image(RESOURCE_IMAGE,"vertical_156");
+	images_state[VERTICAL_162] = get_resource_image(RESOURCE_IMAGE,"vertical_162");
+	images_state[VERTICAL_168] = get_resource_image(RESOURCE_IMAGE,"vertical_168");
+	images_state[VERTICAL_174] = get_resource_image(RESOURCE_IMAGE,"vertical_174");
+	images_state[VERTICAL_180] = get_resource_image(RESOURCE_IMAGE,"vertical_180");
+	images_state[VERTICAL_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"vertical_background");
 
 	images_state[HORIZONTAL_0000]       = get_resource_image(RESOURCE_IMAGE,"h0000");
 	images_state[HORIZONTAL_0100]       = get_resource_image(RESOURCE_IMAGE,"h0100");
@@ -307,26 +349,27 @@ static int init_image(block_controller_s * bc)
  	return SUCCESS;
 }
 
+#define IMAGE_BACKGROUND    0xFFFF
+
 static GdkPixbuf * get_image_vertical(uint16_t angle)
 {
 	GdkPixbuf * buf = NULL;
 
-	if(angle <= min_vertical){
-		buf = images_state[VERTICAL_DOWN];
+	if(angle == IMAGE_BACKGROUND){
+		return images_state[VERTICAL_BACKGROUND];
 	}
-	else{
-		if(angle >= max_vertical){
-			buf = images_state[VERTICAL_UP];
-		}
-		else{
-			angle = angle / period_vertical;
-			angle = angle + VERTICAL_0000;
-			buf = images_state[angle];
-		}
+
+	if(angle > max_vertical){
+		angle = max_vertical;
 	}
+
+	angle = angle / period_vertical;
+	angle = angle + VERTICAL_000;
+	buf = images_state[angle];
+
  	return buf;
 }
-static GdkPixbuf * get_image_horizontal(int16_t angle)
+static GdkPixbuf * get_image_horizontal(uint16_t angle)
 {
  	GdkPixbuf * buf = NULL;
 
@@ -396,8 +439,8 @@ static GdkPixbuf * get_image_valve_analog(uint16_t valve)
 }
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
-#define MIN_VERTICAL_ANGLE    0
-#define MAX_VERTICAL_ANGLE    90  /*180*/
+#define MIN_VERTICAL_ANGLE   	0
+#define MAX_VERTICAL_ANGLE    180
 static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_controller_s * config)
 {
 	uint16_t angle;
@@ -407,18 +450,13 @@ static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_c
 	if(tic > MAX_VERTICAL_TIC){
 		tic = MAX_VERTICAL_TIC;
 	}
-	angle = (uint16_t)tic;
-	/*angle -= (MAX_VERTICAL_TIC >> 1);*/ /*Угол от -90 до 90*/
+	angle = tic;
 	rate = (gdouble)angle * rate;
 	angle =(uint16_t)rate;
 	/*если коэффициент не корректный*/
-	if(angle < MIN_VERTICAL_ANGLE){
-		angle = MIN_VERTICAL_ANGLE;
-	}
 	if(angle > MAX_VERTICAL_ANGLE){
 		angle = MAX_VERTICAL_ANGLE;
 	}
-
  	return angle;
 }
 static uint16_t calculate_angle_encoder_vertical(state_controller_s * state,config_controller_s * config)
@@ -440,7 +478,7 @@ static uint16_t calculate_angle_tic_horizontal(state_controller_s * state,config
 		tic = MAX_HORIZONTAL_TIC;
 	}
 	rate = (gdouble)tic * rate;
-	angle =(uint16_t)rate;
+	angle = (uint16_t)rate;
 	/*если коэффициент не корректный*/
 	if(angle < MIN_HORIZONTAL_ANGLE){
 		angle = MIN_HORIZONTAL_ANGLE;
@@ -727,6 +765,8 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 {
 	uint64_t flag = controller_config->flag;
 	int16_t angle = 0;
+
+	GdkPixbuf * background;
 	GdkPixbuf * angle_image;
 
 	if(!ENGINE_VERTICAL(flag)){
@@ -740,9 +780,17 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 			angle = calculate_angle_encoder_vertical(controller_state,controller_config);
 		}
 	}
-	angle_image = get_image_vertical(angle);
-	set_image(show_state->axis_vertical,show_state->buf_axis_vertical,angle_image);
 
+	background = get_image_vertical(IMAGE_BACKGROUND);
+	/*set_image(show_state->axis_vertical,show_state->buf_axis_vertical,background);*/
+
+	angle_image = get_image_vertical(angle);
+	/*set_image(show_state->axis_vertical,show_state->buf_axis_vertical,angle_image);*/
+	{
+	GtkImage * image = show_state->axis_vertical;
+	gtk_image_set_from_pixbuf(image,background);
+	gtk_image_set_from_pixbuf(image,angle_image);
+	}
 	return SUCCESS;
 }
 
@@ -766,7 +814,7 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 	}
 
 	angle_image = get_image_horizontal(angle);
-	set_image(show_state->axis_horizontal,show_state->buf_axis_horizontal,angle_image);
+	/*set_image(show_state->axis_horizontal,show_state->buf_axis_horizontal,angle_image);*/
 
 	return SUCCESS;
 }
@@ -796,7 +844,7 @@ static int show_valve(show_state_s * show_state,show_control_s * show_controls
 		}
 	}
 
-	set_image(show_state->valve,show_state->buf_valve,image_valve);
+	/*set_image(show_state->valve,show_state->buf_valve,image_valve);*/
 
 	return SUCCESS;
 }
@@ -814,7 +862,7 @@ static int show_pressure(show_state_s * show_state,show_control_s * show_control
 
 	pressure = calculate_pressure(controller_state,controller_config);
 	image_pressure = get_image_pressure(pressure);
-	set_image(show_state->pressure,show_state->buf_pressure,image_pressure);
+	/*set_image(show_state->pressure,show_state->buf_pressure,image_pressure);*/
 
 	return SUCCESS;
 }
@@ -880,10 +928,10 @@ static GtkWidget * create_block_state_vertical(show_state_s * state)
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new("Вертикальная Ось");
+	frame = gtk_frame_new(NULL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = images_state[VERTICAL_NO_CONNECT];
+	buf = images_state[VERTICAL_BACKGROUND];
 	state->buf_axis_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -896,6 +944,10 @@ static GtkWidget * create_block_state_vertical(show_state_s * state)
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
 
+	buf = images_state[VERTICAL_000];
+	g_info("alpha : %d ",gdk_pixbuf_get_has_alpha(buf));
+	buf = images_state[VERTICAL_BACKGROUND];
+	g_info("alpha : %d ",gdk_pixbuf_get_has_alpha(buf));
 	return frame;
 }
 
@@ -907,7 +959,7 @@ static GtkWidget * create_block_state_horizontal(show_state_s * state)
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new("Горизонтальная Ось");
+	frame = gtk_frame_new(NULL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	buf = images_state[HORIZONTAL_NO_CONNECT];
@@ -1039,37 +1091,89 @@ static GtkWidget * create_block_fire_alarm(block_controller_s * block)
 }
 #endif
 
+static GtkWidget * create_block_info_fire(show_state_s * state)
+{
+	GtkWidget * fire;
+	GdkPixbuf * buf = get_resource_image(RESOURCE_IMAGE,"fire_alarm_norm");
 
-static GtkWidget * create_block_message_state(block_controller_s * bc)
+	fire = gtk_image_new_from_pixbuf(buf);
+	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
+	state->fire_alarm = GTK_IMAGE(fire);
+	gtk_widget_show(fire);
+	return fire;
+}
+
+static char STR_INFO_MODE_WAIT[] = "Ожидание";
+static char STR_INFO_STATE_NORM[] = "Норма";
+
+static GtkWidget * create_block_info_state(show_state_s * state)
 {
 	GtkWidget * box;
 	GtkWidget * lab_mode;
 	GtkWidget * lab_state;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
+	lab_mode = gtk_label_new(STR_INFO_MODE_WAIT);
+	state->lab_mode = GTK_LABEL(lab_mode);
 
-	lab_mode = gtk_label_new("Выключен");
-	lab_state = gtk_label_new("Норма");
+	lab_state = gtk_label_new(STR_INFO_STATE_NORM);
+	state->lab_state = GTK_LABEL(lab_state);
+
+	gtk_box_pack_start(GTK_BOX(box),lab_mode,TRUE,TRUE,10);
+	gtk_box_pack_start(GTK_BOX(box),lab_state,TRUE,TRUE,10);
+
+	gtk_widget_show(box);
+	gtk_widget_show(lab_mode);
+	gtk_widget_show(lab_state);
+
  	return box;
 }
 
 static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
 	GtkWidget * box;
-	GtkWidget * block_message_state;
-	GtkWidget * block_message_fire;
+	GtkWidget * block_info_state;
+	GtkWidget * block_info_fire;
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-	layout_widget(box,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
 
-	block_message_state = create_block_message_state(bc);
-	block_message_fire = create_block_message_fire(bc);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
-	gtk_box_pack_start(GTK_BOX(box),block_message_state,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_message_fire,TRUE,TRUE,0);
+	block_info_state = create_block_info_state(bc->state);
+	block_info_fire = create_block_info_fire(bc->state);
+
+	gtk_box_pack_start(GTK_BOX(box),block_info_state,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_info_fire,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 
+	return box;
+}
+
+static GtkWidget * create_block_state_lafet(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * block_vertical;
+	GtkWidget * block_horizontal;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+
+	block_vertical = create_block_state_vertical(bc->state);
+	block_horizontal = create_block_state_horizontal(bc->state);
+
+	gtk_box_pack_start(GTK_BOX(box),block_vertical,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),block_horizontal,TRUE,TRUE,5);
+
+	gtk_widget_show(box);
+	return box;
+}
+static GtkWidget * create_block_state_pipe(block_controller_s * bc)
+{
+	GtkWidget * box;
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+	gtk_widget_show(box);
 	return box;
 }
 
@@ -1077,6 +1181,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
 	GtkWidget * box;
+	GtkWidget * label_name;
 	GtkWidget * block_state_message;
 	GtkWidget * block_state_lafet;
 	GtkWidget * block_state_pipe;
@@ -1087,62 +1192,37 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
+	label_name = gtk_label_new("Нет подключения к контролеру!");
+	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+	bc->name = GTK_LABEL(label_name);
+
 	block_state_message = create_block_state_message(bc);
 	block_state_lafet = create_block_state_lafet(bc);
 	block_state_pipe = create_block_state_pipe(bc);
 
+	gtk_box_pack_start(GTK_BOX(box),label_name,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
 
 
 #if 0
-	GtkWidget * grid;
-	GtkWidget * label_name;
-	GtkWidget * block_vertical;
-	GtkWidget * block_horizontal;
 	GtkWidget * block_valve;
 	GtkWidget * block_pressure;
 	/*GtkWidget * block_fire_sensor;*/
 	/*GtkWidget * block_fire_alarm;*/
 
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
-
-	label_name = gtk_label_new("Нет подключения к контролеру!");
-	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
-
-	bc->name = GTK_LABEL(label_name);
-
-	block_vertical = create_block_state_vertical(bc->state);
-	block_horizontal = create_block_state_horizontal(bc->state);
 	block_valve = create_block_state_valve(bc->state);
 	block_pressure = create_block_state_pressure(bc->state);
-#if 0
 	block_fire_sensor = create_block_fire_sensor(bc);
 	block_fire_alarm = create_block_fire_alarm(bc);
 #endif
 
-	gtk_container_add(GTK_CONTAINER(frame),grid);
-
-	gtk_grid_attach(GTK_GRID(grid),label_name       ,0,0,4,1);
-	gtk_grid_attach(GTK_GRID(grid),block_vertical   ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_horizontal ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_valve      ,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_pressure   ,1,2,1,1);
-#if 0
-	gtk_grid_attach(GTK_GRID(grid),block_fire_sensor,2,1,1,2);
-	gtk_grid_attach(GTK_GRID(grid),block_fire_alarm ,3,1,1,2);
-#endif
-	gtk_widget_show(grid);
-	gtk_widget_show(label_name);
-#endif
+	gtk_container_add(GTK_CONTAINER(frame),box);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(box);
+	gtk_widget_show(label_name);
 
 	return frame;
 }
@@ -1933,7 +2013,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	if(!ENGINE_VERTICAL(flag)){
 		set_button_not_active(control->but_up);
 		set_button_not_active(control->but_down);
-		state->buf_axis_vertical = images_state[VERTICAL_NO_ENGINE];
+		state->buf_axis_vertical = images_state[VERTICAL_BACKGROUND];
 		gtk_image_set_from_pixbuf(state->axis_vertical,state->buf_axis_vertical);
 	}
 	else{

@@ -86,20 +86,31 @@
 		<file>h3500.png</file>
 		<file>h3600.png</file>
 		<file>h3600p.png</file>
-		<file>vxxxx.png</file>
-		<file>vbase.png</file>
-		<file>v0000.png</file>
-		<file>v0000p.png</file>
-		<file>v0100.png</file>
-		<file>v0200.png</file>
-		<file>v0300.png</file>
-		<file>v0400.png</file>
-		<file>v0500.png</file>
-		<file>v0600.png</file>
-		<file>v0700.png</file>
-		<file>v0800.png</file>
-		<file>v0900.png</file>
-		<file>v0900p.png</file>
+		<file>vertical_042.png</file>
+		<file>vertical_048.png</file>
+		<file>vertical_054.png</file>
+		<file>vertical_060.png</file>
+		<file>vertical_066.png</file>
+		<file>vertical_072.png</file>
+		<file>vertical_078.png</file>
+		<file>vertical_084.png</file>
+		<file>vertical_090.png</file>
+		<file>vertical_096.png</file>
+		<file>vertical_102.png</file>
+		<file>vertical_108.png</file>
+		<file>vertical_114.png</file>
+		<file>vertical_120.png</file>
+		<file>vertical_126.png</file>
+		<file>vertical_132.png</file>
+		<file>vertical_138.png</file>
+		<file>vertical_144.png</file>
+		<file>vertical_150.png</file>
+		<file>vertical_156.png</file>
+		<file>vertical_162.png</file>
+		<file>vertical_168.png</file>
+		<file>vertical_174.png</file>
+		<file>vertical_180.png</file>
+		<file>vertical_background.png</file>
 		<file>pressure_00.png</file>
 		<file>pressure_15.png</file>
 		<file>pressure_20.png</file>
@@ -110,5 +121,6 @@
 		<file>valve_open_run.png</file>
 		<file>valve_close_run.png</file>
 		<file>valve_error.png</file>
+		<file>fire_alarm_norm.png</file>
 	</gresource>
 </gresources>
