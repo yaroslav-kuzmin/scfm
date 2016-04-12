@@ -253,7 +253,7 @@ enum
 	HORIZONTAL_348,
 	HORIZONTAL_354,
 	HORIZONTAL_360,
-	HORIZONTAL_BACKGROUND,  
+	HORIZONTAL_BACKGROUND,
 
 	PRESSURE_00,
 	PRESSURE_15,
@@ -1245,19 +1245,6 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
-
-
-#if 0
-	GtkWidget * block_valve;
-	GtkWidget * block_pressure;
-	/*GtkWidget * block_fire_sensor;*/
-	/*GtkWidget * block_fire_alarm;*/
-
-	block_valve = create_block_state_valve(bc->state);
-	block_pressure = create_block_state_pressure(bc->state);
-	block_fire_sensor = create_block_fire_sensor(bc);
-	block_fire_alarm = create_block_fire_alarm(bc);
-#endif
 
 	gtk_container_add(GTK_CONTAINER(frame),box);
 
