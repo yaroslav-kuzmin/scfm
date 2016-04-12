@@ -79,16 +79,14 @@ struct _show_state_s
 	GtkImage * image_horizontal;
 	GdkPixbuf * frame_horizontal;
 
-	GtkImage * valve;
-	GdkPixbuf * buf_valve;
-
-	GtkImage * pressure;
-	GdkPixbuf * buf_pressure;
+	GtkImage * image_pipe;
+	GdkPixbuf * frame_pipe;
 
 	GtkLabel * lab_mode;
 	GtkLabel * lab_state;
 
-	GtkImage * fire_alarm;
+	GtkImage * image_fire_alarm;
+	GdkPixbuf * frame_fire_alarm;
 };
 
 enum
@@ -255,16 +253,13 @@ enum
 	HORIZONTAL_360,
 	HORIZONTAL_BACKGROUND,
 
-	PRESSURE_00,
-	PRESSURE_15,
-	PRESSURE_20,
-	PRESSURE_25,
-	PRESSURE_ERROR,
-	VALVE_OPEN,
-	VALVE_CLOSE,
-	VALVE_OPEN_RUN,
-	VALVE_CLOSE_RUN,
-	VALVE_ERROR,
+	PIPE_000,
+	PIPE_025,
+	PIPE_050,
+	PIPE_075,
+	PIPE_100,
+	PIPE_BACKGROUND,
+
  	AMOUNT_IMAGE_STATE
 };
 
@@ -375,17 +370,12 @@ static int init_image(block_controller_s * bc)
 	images_state[HORIZONTAL_360]        = get_resource_image(RESOURCE_IMAGE,"horizontal_354");
 	images_state[HORIZONTAL_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"horizontal_background");
 
-	images_state[PRESSURE_00]    = get_resource_image(RESOURCE_IMAGE,"pressure_00");
-	images_state[PRESSURE_15]    = get_resource_image(RESOURCE_IMAGE,"pressure_15");
-	images_state[PRESSURE_20]    = get_resource_image(RESOURCE_IMAGE,"pressure_20");
-	images_state[PRESSURE_25]    = get_resource_image(RESOURCE_IMAGE,"pressure_25");
-	images_state[PRESSURE_ERROR] = get_resource_image(RESOURCE_IMAGE,"pressure_xx");
-
-	images_state[VALVE_OPEN]      = get_resource_image(RESOURCE_IMAGE,"valve_open");
-	images_state[VALVE_CLOSE]     = get_resource_image(RESOURCE_IMAGE,"valve_close");
-	images_state[VALVE_OPEN_RUN]  = get_resource_image(RESOURCE_IMAGE,"valve_open_run");
-	images_state[VALVE_CLOSE_RUN] = get_resource_image(RESOURCE_IMAGE,"valve_close_run");
-	images_state[VALVE_ERROR]     = get_resource_image(RESOURCE_IMAGE,"valve_error");
+	images_state[PIPE_000]        = get_resource_image(RESOURCE_IMAGE,"pipe_000");
+	images_state[PIPE_025]        = get_resource_image(RESOURCE_IMAGE,"pipe_025");
+	images_state[PIPE_050]        = get_resource_image(RESOURCE_IMAGE,"pipe_050");
+	images_state[PIPE_075]        = get_resource_image(RESOURCE_IMAGE,"pipe_075");
+	images_state[PIPE_100]        = get_resource_image(RESOURCE_IMAGE,"pipe_100");
+	images_state[PIPE_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"pipe_background");
 
  	return SUCCESS;
 }
@@ -475,7 +465,10 @@ static GdkPixbuf * get_image_valve_analog(uint16_t valve)
 {
 	return images_state[VALVE_ERROR];
 }
+
 #endif
+
+
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
 #define MIN_VERTICAL_ANGLE   	0
@@ -1019,127 +1012,17 @@ static GtkWidget * create_block_state_horizontal(show_state_s * state)
 
 	return frame;
 }
-#if 0
-static GtkWidget * create_block_state_valve(show_state_s * state)
-{
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new("Задвижка");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = images_state[VALVE_ERROR];
-	state->buf_valve = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	state->valve = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-
-static GtkWidget * create_block_state_pressure(show_state_s * state)
-{
- 	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new("Давление");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = images_state[PRESSURE_ERROR];
-	state->buf_pressure = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	state->pressure = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-/*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
-static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
-static GtkWidget * create_block_fire_sensor(block_controller_s * block)
-{
-	GtkWidget * frame;
-	GtkWidget * grid;
-	GtkWidget * label;
-
-	frame = gtk_frame_new("Датчик Пламени");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	label = gtk_label_new(STR_FIRE_SENSOR_NORM);
-	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
-
-	gtk_container_add(GTK_CONTAINER(frame),grid);
-	gtk_grid_attach(GTK_GRID(grid),label,0,0,1,1);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(grid);
-	gtk_widget_show(label);
-
-	return frame;
-}
-
-static GtkWidget * create_block_fire_alarm_one(uint16_t number)
-{
-	GtkWidget * label;
-	g_string_printf(pub,"%02d НОРМА",number);
-	label = gtk_label_new(pub->str);
-	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	return label;
-}
-
-static GtkWidget * create_block_fire_alarm(block_controller_s * block)
-{
-	int i;
-	GtkWidget * frame;
-	GtkWidget * box;
-	GtkWidget * block_fire_alarm;
-
-	frame = gtk_frame_new("Пожарная Сигнализация");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	for(i = 0;i < AMOUNT_FIRE_SENSOR;i++){
-		block_fire_alarm = create_block_fire_alarm_one(i+1);
-		gtk_box_pack_start(GTK_BOX(box),block_fire_alarm,TRUE,TRUE,0);
-		gtk_widget_show(block_fire_alarm);
-	}
-
-	gtk_container_add(GTK_CONTAINER(frame),box);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(box);
-	return frame;
-}
-#endif
 
 static GtkWidget * create_block_info_fire(show_state_s * state)
 {
 	GtkWidget * fire;
-	GdkPixbuf * buf = get_resource_image(RESOURCE_IMAGE,"fire_alarm_norm");
+	GdkPixbuf * buf;
 
+	buf = get_resource_image(RESOURCE_IMAGE,"fire_alarm_norm");
+	state->frame_fire_alarm = buf;
 	fire = gtk_image_new_from_pixbuf(buf);
 	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
-	state->fire_alarm = GTK_IMAGE(fire);
+	state->image_fire_alarm = GTK_IMAGE(fire);
 	gtk_widget_show(fire);
 	return fire;
 }
@@ -1212,10 +1095,27 @@ static GtkWidget * create_block_state_lafet(block_controller_s * bc)
 }
 static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 {
-	GtkWidget * box;
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
-	gtk_widget_show(box);
-	return box;
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(NULL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,"pipe_background");
+	bc->state->frame_pipe = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	bc->state->image_pipe = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
 }
 
 static GtkWidget * create_block_state(block_controller_s * bc)

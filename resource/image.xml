@@ -130,16 +130,12 @@
 		<file>horizontal_348.png</file>
 		<file>horizontal_354.png</file>
 		<file>horizontal_background.png</file>
-		<file>pressure_00.png</file>
-		<file>pressure_15.png</file>
-		<file>pressure_20.png</file>
-		<file>pressure_25.png</file>
-		<file>pressure_xx.png</file>
-		<file>valve_open.png</file>
-		<file>valve_close.png</file>
-		<file>valve_open_run.png</file>
-		<file>valve_close_run.png</file>
-		<file>valve_error.png</file>
+		<file>pipe_000.png</file>
+		<file>pipe_025.png</file>
+		<file>pipe_050.png</file>
+		<file>pipe_075.png</file>
+		<file>pipe_100.png</file>
+		<file>pipe_background.png</file>
 		<file>fire_alarm_norm.png</file>
 	</gresource>
 </gresources>
