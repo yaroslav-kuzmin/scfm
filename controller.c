@@ -73,11 +73,11 @@ struct _communication_controller_s
 typedef struct _show_state_s show_state_s;
 struct _show_state_s
 {
-	GtkImage * axis_vertical;
-	GdkPixbuf * buf_axis_vertical;
+	GtkImage * image_vertical;
+	GdkPixbuf * frame_vertical;
 
-	GtkImage * axis_horizontal;
-	GdkPixbuf * buf_axis_horizontal;
+	GtkImage * image_horizontal;
+	GdkPixbuf * frame_horizontal;
 
 	GtkImage * valve;
 	GdkPixbuf * buf_valve;
@@ -192,47 +192,69 @@ enum
 	VERTICAL_180,
 	VERTICAL_BACKGROUND,
 
-	HORIZONTAL_0000,
-	HORIZONTAL_0100,
-	HORIZONTAL_0200,
-	HORIZONTAL_0300,
-	HORIZONTAL_0400,
-	HORIZONTAL_0500,
-	HORIZONTAL_0600,
-	HORIZONTAL_0700,
-	HORIZONTAL_0800,
-	HORIZONTAL_0900,
-	HORIZONTAL_1000,
-	HORIZONTAL_1100,
-	HORIZONTAL_1200,
-	HORIZONTAL_1300,
-	HORIZONTAL_1400,
-	HORIZONTAL_1500,
-	HORIZONTAL_1600,
-	HORIZONTAL_1700,
-	HORIZONTAL_1800,
-	HORIZONTAL_1900,
-	HORIZONTAL_2000,
-	HORIZONTAL_2100,
-	HORIZONTAL_2200,
-	HORIZONTAL_2300,
-	HORIZONTAL_2400,
-	HORIZONTAL_2500,
-	HORIZONTAL_2600,
-	HORIZONTAL_2700,
-	HORIZONTAL_2800,
-	HORIZONTAL_2900,
-	HORIZONTAL_3000,
-	HORIZONTAL_3100,
-	HORIZONTAL_3200,
-	HORIZONTAL_3300,
-	HORIZONTAL_3400,
-	HORIZONTAL_3500,
-	HORIZONTAL_3600,
-	HORIZONTAL_RIGHT,
-	HORIZONTAL_LEFT,
-	HORIZONTAL_NO_ENGINE,  /*нет двигателя*/
-	HORIZONTAL_NO_CONNECT,  /*нет сигнала*/
+	HORIZONTAL_000,
+	HORIZONTAL_006,
+	HORIZONTAL_012,
+	HORIZONTAL_018,
+	HORIZONTAL_024,
+	HORIZONTAL_030,
+	HORIZONTAL_036,
+	HORIZONTAL_042,
+	HORIZONTAL_048,
+	HORIZONTAL_054,
+	HORIZONTAL_060,
+	HORIZONTAL_066,
+	HORIZONTAL_072,
+	HORIZONTAL_078,
+	HORIZONTAL_084,
+	HORIZONTAL_090,
+	HORIZONTAL_096,
+	HORIZONTAL_102,
+	HORIZONTAL_108,
+	HORIZONTAL_114,
+	HORIZONTAL_120,
+	HORIZONTAL_126,
+	HORIZONTAL_132,
+	HORIZONTAL_138,
+	HORIZONTAL_144,
+	HORIZONTAL_150,
+	HORIZONTAL_156,
+	HORIZONTAL_162,
+	HORIZONTAL_168,
+	HORIZONTAL_174,
+	HORIZONTAL_180,
+	HORIZONTAL_186,
+	HORIZONTAL_192,
+	HORIZONTAL_198,
+	HORIZONTAL_204,
+	HORIZONTAL_210,
+	HORIZONTAL_216,
+	HORIZONTAL_222,
+	HORIZONTAL_228,
+	HORIZONTAL_234,
+	HORIZONTAL_240,
+	HORIZONTAL_246,
+	HORIZONTAL_252,
+	HORIZONTAL_258,
+	HORIZONTAL_264,
+	HORIZONTAL_270,
+	HORIZONTAL_276,
+	HORIZONTAL_282,
+	HORIZONTAL_288,
+	HORIZONTAL_294,
+	HORIZONTAL_300,
+	HORIZONTAL_306,
+	HORIZONTAL_312,
+	HORIZONTAL_318,
+	HORIZONTAL_324,
+	HORIZONTAL_330,
+	HORIZONTAL_336,
+	HORIZONTAL_342,
+	HORIZONTAL_348,
+	HORIZONTAL_354,
+	HORIZONTAL_360,
+	HORIZONTAL_BACKGROUND,  
+
 	PRESSURE_00,
 	PRESSURE_15,
 	PRESSURE_20,
@@ -248,10 +270,8 @@ enum
 
 static GdkPixbuf * images_state[AMOUNT_IMAGE_STATE] = {0};
 static uint16_t period_vertical = 6;
-static uint16_t min_vertical = 0;
 static uint16_t max_vertical = 180;
-static uint16_t period_horizontal = 10;
-static uint16_t min_horizontal = 0;
+static uint16_t period_horizontal = 6;
 static uint16_t max_horizontal = 360;
 
 
@@ -259,80 +279,101 @@ static int init_image(block_controller_s * bc)
 {
 	/*TODO высвободить память из буфферов*/
 
-	images_state[VERTICAL_000] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_006] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_012] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_018] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_024] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_030] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_036] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_042] = get_resource_image(RESOURCE_IMAGE,"vertical_042");
-	images_state[VERTICAL_048] = get_resource_image(RESOURCE_IMAGE,"vertical_048");
-	images_state[VERTICAL_054] = get_resource_image(RESOURCE_IMAGE,"vertical_054");
-	images_state[VERTICAL_060] = get_resource_image(RESOURCE_IMAGE,"vertical_060");
-	images_state[VERTICAL_066] = get_resource_image(RESOURCE_IMAGE,"vertical_066");
-	images_state[VERTICAL_072] = get_resource_image(RESOURCE_IMAGE,"vertical_072");
-	images_state[VERTICAL_078] = get_resource_image(RESOURCE_IMAGE,"vertical_078");
-	images_state[VERTICAL_084] = get_resource_image(RESOURCE_IMAGE,"vertical_084");
-	images_state[VERTICAL_090] = get_resource_image(RESOURCE_IMAGE,"vertical_090");
-	images_state[VERTICAL_096] = get_resource_image(RESOURCE_IMAGE,"vertical_096");
-	images_state[VERTICAL_102] = get_resource_image(RESOURCE_IMAGE,"vertical_102");
-	images_state[VERTICAL_108] = get_resource_image(RESOURCE_IMAGE,"vertical_108");
-	images_state[VERTICAL_114] = get_resource_image(RESOURCE_IMAGE,"vertical_114");
-	images_state[VERTICAL_120] = get_resource_image(RESOURCE_IMAGE,"vertical_120");
-	images_state[VERTICAL_126] = get_resource_image(RESOURCE_IMAGE,"vertical_126");
-	images_state[VERTICAL_132] = get_resource_image(RESOURCE_IMAGE,"vertical_132");
-	images_state[VERTICAL_138] = get_resource_image(RESOURCE_IMAGE,"vertical_138");
-	images_state[VERTICAL_144] = get_resource_image(RESOURCE_IMAGE,"vertical_144");
-	images_state[VERTICAL_150] = get_resource_image(RESOURCE_IMAGE,"vertical_150");
-	images_state[VERTICAL_156] = get_resource_image(RESOURCE_IMAGE,"vertical_156");
-	images_state[VERTICAL_162] = get_resource_image(RESOURCE_IMAGE,"vertical_162");
-	images_state[VERTICAL_168] = get_resource_image(RESOURCE_IMAGE,"vertical_168");
-	images_state[VERTICAL_174] = get_resource_image(RESOURCE_IMAGE,"vertical_174");
-	images_state[VERTICAL_180] = get_resource_image(RESOURCE_IMAGE,"vertical_180");
+	images_state[VERTICAL_000]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_006]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_012]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_018]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_024]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_030]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_036]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_042]        = get_resource_image(RESOURCE_IMAGE,"vertical_042");
+	images_state[VERTICAL_048]        = get_resource_image(RESOURCE_IMAGE,"vertical_048");
+	images_state[VERTICAL_054]        = get_resource_image(RESOURCE_IMAGE,"vertical_054");
+	images_state[VERTICAL_060]        = get_resource_image(RESOURCE_IMAGE,"vertical_060");
+	images_state[VERTICAL_066]        = get_resource_image(RESOURCE_IMAGE,"vertical_066");
+	images_state[VERTICAL_072]        = get_resource_image(RESOURCE_IMAGE,"vertical_072");
+	images_state[VERTICAL_078]        = get_resource_image(RESOURCE_IMAGE,"vertical_078");
+	images_state[VERTICAL_084]        = get_resource_image(RESOURCE_IMAGE,"vertical_084");
+	images_state[VERTICAL_090]        = get_resource_image(RESOURCE_IMAGE,"vertical_090");
+	images_state[VERTICAL_096]        = get_resource_image(RESOURCE_IMAGE,"vertical_096");
+	images_state[VERTICAL_102]        = get_resource_image(RESOURCE_IMAGE,"vertical_102");
+	images_state[VERTICAL_108]        = get_resource_image(RESOURCE_IMAGE,"vertical_108");
+	images_state[VERTICAL_114]        = get_resource_image(RESOURCE_IMAGE,"vertical_114");
+	images_state[VERTICAL_120]        = get_resource_image(RESOURCE_IMAGE,"vertical_120");
+	images_state[VERTICAL_126]        = get_resource_image(RESOURCE_IMAGE,"vertical_126");
+	images_state[VERTICAL_132]        = get_resource_image(RESOURCE_IMAGE,"vertical_132");
+	images_state[VERTICAL_138]        = get_resource_image(RESOURCE_IMAGE,"vertical_138");
+	images_state[VERTICAL_144]        = get_resource_image(RESOURCE_IMAGE,"vertical_144");
+	images_state[VERTICAL_150]        = get_resource_image(RESOURCE_IMAGE,"vertical_150");
+	images_state[VERTICAL_156]        = get_resource_image(RESOURCE_IMAGE,"vertical_156");
+	images_state[VERTICAL_162]        = get_resource_image(RESOURCE_IMAGE,"vertical_162");
+	images_state[VERTICAL_168]        = get_resource_image(RESOURCE_IMAGE,"vertical_168");
+	images_state[VERTICAL_174]        = get_resource_image(RESOURCE_IMAGE,"vertical_174");
+	images_state[VERTICAL_180]        = get_resource_image(RESOURCE_IMAGE,"vertical_180");
 	images_state[VERTICAL_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"vertical_background");
 
-	images_state[HORIZONTAL_0000]       = get_resource_image(RESOURCE_IMAGE,"h0000");
-	images_state[HORIZONTAL_0100]       = get_resource_image(RESOURCE_IMAGE,"h0100");
-	images_state[HORIZONTAL_0200]       = get_resource_image(RESOURCE_IMAGE,"h0200");
-	images_state[HORIZONTAL_0300]       = get_resource_image(RESOURCE_IMAGE,"h0300");
-	images_state[HORIZONTAL_0400]       = get_resource_image(RESOURCE_IMAGE,"h0400");
-	images_state[HORIZONTAL_0500]       = get_resource_image(RESOURCE_IMAGE,"h0500");
-	images_state[HORIZONTAL_0600]       = get_resource_image(RESOURCE_IMAGE,"h0600");
-	images_state[HORIZONTAL_0700]       = get_resource_image(RESOURCE_IMAGE,"h0700");
-	images_state[HORIZONTAL_0800]       = get_resource_image(RESOURCE_IMAGE,"h0800");
-	images_state[HORIZONTAL_0900]       = get_resource_image(RESOURCE_IMAGE,"h0900");
-	images_state[HORIZONTAL_1000]       = get_resource_image(RESOURCE_IMAGE,"h1000");
-	images_state[HORIZONTAL_1100]       = get_resource_image(RESOURCE_IMAGE,"h1100");
-	images_state[HORIZONTAL_1200]       = get_resource_image(RESOURCE_IMAGE,"h1200");
-	images_state[HORIZONTAL_1300]       = get_resource_image(RESOURCE_IMAGE,"h1300");
-	images_state[HORIZONTAL_1400]       = get_resource_image(RESOURCE_IMAGE,"h1400");
-	images_state[HORIZONTAL_1500]       = get_resource_image(RESOURCE_IMAGE,"h1500");
-	images_state[HORIZONTAL_1600]       = get_resource_image(RESOURCE_IMAGE,"h1600");
-	images_state[HORIZONTAL_1700]       = get_resource_image(RESOURCE_IMAGE,"h1700");
-	images_state[HORIZONTAL_1800]       = get_resource_image(RESOURCE_IMAGE,"h1800");
-	images_state[HORIZONTAL_1900]       = get_resource_image(RESOURCE_IMAGE,"h1900");
-	images_state[HORIZONTAL_2000]       = get_resource_image(RESOURCE_IMAGE,"h2000");
-	images_state[HORIZONTAL_2100]       = get_resource_image(RESOURCE_IMAGE,"h2100");
-	images_state[HORIZONTAL_2200]       = get_resource_image(RESOURCE_IMAGE,"h2200");
-	images_state[HORIZONTAL_2300]       = get_resource_image(RESOURCE_IMAGE,"h2300");
-	images_state[HORIZONTAL_2400]       = get_resource_image(RESOURCE_IMAGE,"h2400");
-	images_state[HORIZONTAL_2500]       = get_resource_image(RESOURCE_IMAGE,"h2500");
-	images_state[HORIZONTAL_2600]       = get_resource_image(RESOURCE_IMAGE,"h2600");
-	images_state[HORIZONTAL_2700]       = get_resource_image(RESOURCE_IMAGE,"h2700");
-	images_state[HORIZONTAL_2800]       = get_resource_image(RESOURCE_IMAGE,"h2800");
-	images_state[HORIZONTAL_2900]       = get_resource_image(RESOURCE_IMAGE,"h2900");
-	images_state[HORIZONTAL_3000]       = get_resource_image(RESOURCE_IMAGE,"h3000");
-	images_state[HORIZONTAL_3100]       = get_resource_image(RESOURCE_IMAGE,"h3100");
-	images_state[HORIZONTAL_3200]       = get_resource_image(RESOURCE_IMAGE,"h3200");
-	images_state[HORIZONTAL_3300]       = get_resource_image(RESOURCE_IMAGE,"h3300");
-	images_state[HORIZONTAL_3400]       = get_resource_image(RESOURCE_IMAGE,"h3400");
-	images_state[HORIZONTAL_3500]       = get_resource_image(RESOURCE_IMAGE,"h3500");
-	images_state[HORIZONTAL_3600]       = get_resource_image(RESOURCE_IMAGE,"h3600");
-	images_state[HORIZONTAL_RIGHT]      = get_resource_image(RESOURCE_IMAGE,"h0000p");
-	images_state[HORIZONTAL_LEFT]       = get_resource_image(RESOURCE_IMAGE,"h3600p");
-	images_state[HORIZONTAL_NO_ENGINE]  = get_resource_image(RESOURCE_IMAGE,"hxxxx");
-	images_state[HORIZONTAL_NO_CONNECT] = get_resource_image(RESOURCE_IMAGE,"hbase");
+	images_state[HORIZONTAL_000]        = get_resource_image(RESOURCE_IMAGE,"horizontal_006");
+	images_state[HORIZONTAL_006]        = get_resource_image(RESOURCE_IMAGE,"horizontal_006");
+	images_state[HORIZONTAL_012]        = get_resource_image(RESOURCE_IMAGE,"horizontal_012");
+	images_state[HORIZONTAL_018]        = get_resource_image(RESOURCE_IMAGE,"horizontal_018");
+	images_state[HORIZONTAL_024]        = get_resource_image(RESOURCE_IMAGE,"horizontal_024");
+	images_state[HORIZONTAL_030]        = get_resource_image(RESOURCE_IMAGE,"horizontal_030");
+	images_state[HORIZONTAL_036]        = get_resource_image(RESOURCE_IMAGE,"horizontal_036");
+	images_state[HORIZONTAL_042]        = get_resource_image(RESOURCE_IMAGE,"horizontal_042");
+	images_state[HORIZONTAL_048]        = get_resource_image(RESOURCE_IMAGE,"horizontal_048");
+	images_state[HORIZONTAL_054]        = get_resource_image(RESOURCE_IMAGE,"horizontal_054");
+	images_state[HORIZONTAL_060]        = get_resource_image(RESOURCE_IMAGE,"horizontal_060");
+	images_state[HORIZONTAL_066]        = get_resource_image(RESOURCE_IMAGE,"horizontal_066");
+	images_state[HORIZONTAL_072]        = get_resource_image(RESOURCE_IMAGE,"horizontal_072");
+	images_state[HORIZONTAL_078]        = get_resource_image(RESOURCE_IMAGE,"horizontal_078");
+	images_state[HORIZONTAL_084]        = get_resource_image(RESOURCE_IMAGE,"horizontal_084");
+	images_state[HORIZONTAL_090]        = get_resource_image(RESOURCE_IMAGE,"horizontal_090");
+	images_state[HORIZONTAL_096]        = get_resource_image(RESOURCE_IMAGE,"horizontal_096");
+	images_state[HORIZONTAL_102]        = get_resource_image(RESOURCE_IMAGE,"horizontal_102");
+	images_state[HORIZONTAL_108]        = get_resource_image(RESOURCE_IMAGE,"horizontal_108");
+	images_state[HORIZONTAL_114]        = get_resource_image(RESOURCE_IMAGE,"horizontal_114");
+	images_state[HORIZONTAL_120]        = get_resource_image(RESOURCE_IMAGE,"horizontal_120");
+	images_state[HORIZONTAL_126]        = get_resource_image(RESOURCE_IMAGE,"horizontal_126");
+	images_state[HORIZONTAL_132]        = get_resource_image(RESOURCE_IMAGE,"horizontal_132");
+	images_state[HORIZONTAL_138]        = get_resource_image(RESOURCE_IMAGE,"horizontal_138");
+	images_state[HORIZONTAL_144]        = get_resource_image(RESOURCE_IMAGE,"horizontal_144");
+	images_state[HORIZONTAL_150]        = get_resource_image(RESOURCE_IMAGE,"horizontal_150");
+	images_state[HORIZONTAL_156]        = get_resource_image(RESOURCE_IMAGE,"horizontal_156");
+	images_state[HORIZONTAL_162]        = get_resource_image(RESOURCE_IMAGE,"horizontal_162");
+	images_state[HORIZONTAL_168]        = get_resource_image(RESOURCE_IMAGE,"horizontal_168");
+	images_state[HORIZONTAL_174]        = get_resource_image(RESOURCE_IMAGE,"horizontal_174");
+	images_state[HORIZONTAL_180]        = get_resource_image(RESOURCE_IMAGE,"horizontal_180");
+	images_state[HORIZONTAL_186]        = get_resource_image(RESOURCE_IMAGE,"horizontal_186");
+	images_state[HORIZONTAL_192]        = get_resource_image(RESOURCE_IMAGE,"horizontal_192");
+	images_state[HORIZONTAL_198]        = get_resource_image(RESOURCE_IMAGE,"horizontal_198");
+	images_state[HORIZONTAL_204]        = get_resource_image(RESOURCE_IMAGE,"horizontal_204");
+	images_state[HORIZONTAL_210]        = get_resource_image(RESOURCE_IMAGE,"horizontal_210");
+	images_state[HORIZONTAL_216]        = get_resource_image(RESOURCE_IMAGE,"horizontal_216");
+	images_state[HORIZONTAL_222]        = get_resource_image(RESOURCE_IMAGE,"horizontal_222");
+	images_state[HORIZONTAL_228]        = get_resource_image(RESOURCE_IMAGE,"horizontal_228");
+	images_state[HORIZONTAL_234]        = get_resource_image(RESOURCE_IMAGE,"horizontal_234");
+	images_state[HORIZONTAL_240]        = get_resource_image(RESOURCE_IMAGE,"horizontal_240");
+	images_state[HORIZONTAL_246]        = get_resource_image(RESOURCE_IMAGE,"horizontal_246");
+	images_state[HORIZONTAL_252]        = get_resource_image(RESOURCE_IMAGE,"horizontal_252");
+	images_state[HORIZONTAL_258]        = get_resource_image(RESOURCE_IMAGE,"horizontal_258");
+	images_state[HORIZONTAL_264]        = get_resource_image(RESOURCE_IMAGE,"horizontal_264");
+	images_state[HORIZONTAL_270]        = get_resource_image(RESOURCE_IMAGE,"horizontal_270");
+	images_state[HORIZONTAL_276]        = get_resource_image(RESOURCE_IMAGE,"horizontal_276");
+	images_state[HORIZONTAL_282]        = get_resource_image(RESOURCE_IMAGE,"horizontal_282");
+	images_state[HORIZONTAL_288]        = get_resource_image(RESOURCE_IMAGE,"horizontal_288");
+	images_state[HORIZONTAL_294]        = get_resource_image(RESOURCE_IMAGE,"horizontal_294");
+	images_state[HORIZONTAL_300]        = get_resource_image(RESOURCE_IMAGE,"horizontal_300");
+	images_state[HORIZONTAL_306]        = get_resource_image(RESOURCE_IMAGE,"horizontal_306");
+	images_state[HORIZONTAL_312]        = get_resource_image(RESOURCE_IMAGE,"horizontal_312");
+	images_state[HORIZONTAL_318]        = get_resource_image(RESOURCE_IMAGE,"horizontal_318");
+	images_state[HORIZONTAL_324]        = get_resource_image(RESOURCE_IMAGE,"horizontal_324");
+	images_state[HORIZONTAL_330]        = get_resource_image(RESOURCE_IMAGE,"horizontal_330");
+	images_state[HORIZONTAL_336]        = get_resource_image(RESOURCE_IMAGE,"horizontal_336");
+	images_state[HORIZONTAL_342]        = get_resource_image(RESOURCE_IMAGE,"horizontal_342");
+	images_state[HORIZONTAL_348]        = get_resource_image(RESOURCE_IMAGE,"horizontal_348");
+	images_state[HORIZONTAL_354]        = get_resource_image(RESOURCE_IMAGE,"horizontal_354");
+	images_state[HORIZONTAL_360]        = get_resource_image(RESOURCE_IMAGE,"horizontal_354");
+	images_state[HORIZONTAL_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"horizontal_background");
 
 	images_state[PRESSURE_00]    = get_resource_image(RESOURCE_IMAGE,"pressure_00");
 	images_state[PRESSURE_15]    = get_resource_image(RESOURCE_IMAGE,"pressure_15");
@@ -373,23 +414,20 @@ static GdkPixbuf * get_image_horizontal(uint16_t angle)
 {
  	GdkPixbuf * buf = NULL;
 
-	if(angle <= min_horizontal){
-		buf = images_state[HORIZONTAL_RIGHT];
+	if(angle == IMAGE_BACKGROUND){
+		return images_state[HORIZONTAL_BACKGROUND];
 	}
-	else{
-		if(angle >= max_horizontal){
-			buf = images_state[HORIZONTAL_RIGHT];
-		}
-		else{
-			angle = angle / period_horizontal;
-			angle = angle + HORIZONTAL_0000;
- 			buf = images_state[angle];
- 		}
+
+	if(angle > max_horizontal){
+		angle = max_horizontal;
 	}
+	angle = angle / period_horizontal;
+	angle = angle + HORIZONTAL_000;
+ 	buf = images_state[angle];
 	return buf;
 }
-
 #define STATE_PRESSURE_ERROR     0xFFFF
+#if 0
 static GdkPixbuf * get_image_pressure(uint16_t pressure)
 {
 	if(pressure == STATE_PRESSURE_ERROR){
@@ -437,6 +475,7 @@ static GdkPixbuf * get_image_valve_analog(uint16_t valve)
 {
 	return images_state[VALVE_ERROR];
 }
+#endif
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
 #define MIN_VERTICAL_ANGLE   	0
@@ -450,8 +489,7 @@ static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_c
 	if(tic > MAX_VERTICAL_TIC){
 		tic = MAX_VERTICAL_TIC;
 	}
-	angle = tic;
-	rate = (gdouble)angle * rate;
+	rate = (gdouble)tic * rate;
 	angle =(uint16_t)rate;
 	/*если коэффициент не корректный*/
 	if(angle > MAX_VERTICAL_ANGLE){
@@ -480,9 +518,6 @@ static uint16_t calculate_angle_tic_horizontal(state_controller_s * state,config
 	rate = (gdouble)tic * rate;
 	angle = (uint16_t)rate;
 	/*если коэффициент не корректный*/
-	if(angle < MIN_HORIZONTAL_ANGLE){
-		angle = MIN_HORIZONTAL_ANGLE;
-	}
 	if(angle > MAX_HORIZONTAL_ANGLE){
 		angle = MAX_HORIZONTAL_ANGLE;
 	}
@@ -497,6 +532,7 @@ static uint16_t calculate_angle_encoder_horizontal(state_controller_s * state,co
 }
 
 
+#if 0
 static uint16_t calculate_pressure(state_controller_s * state,config_controller_s * config)
 {
 	gdouble rate = config->rate_pressure;
@@ -518,7 +554,7 @@ static uint16_t calculate_pressure(state_controller_s * state,config_controller_
 
 	return pressure;
 }
-
+#endif
 /*****************************************************************************/
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*****************************************************************************/
@@ -750,13 +786,18 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 
 /***** Функции отрисовки информации по таймеру *******************************/
-static flag_t set_image(GtkImage * image,GdkPixbuf * buf_des,GdkPixbuf * buf_src)
+static flag_t image_copy(GdkPixbuf * buf_des,GdkPixbuf * buf_src)
 {
 	int width = gdk_pixbuf_get_width(buf_des);
 	int height = gdk_pixbuf_get_height(buf_des);
 	gdk_pixbuf_copy_area(buf_src,0,0,width,height,buf_des,0,0);
-
-	gtk_image_set_from_pixbuf(image,buf_des);
+	return SUCCESS;
+}
+static flag_t image_impose(GdkPixbuf * buf_des,GdkPixbuf * buf_src)
+{
+	int width = gdk_pixbuf_get_width(buf_des);
+	int height = gdk_pixbuf_get_height(buf_des);
+	gdk_pixbuf_composite(buf_src,buf_des,0,0,width,height,0,0,1,1,GDK_INTERP_NEAREST,255);
 	return SUCCESS;
 }
 
@@ -782,15 +823,13 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 	}
 
 	background = get_image_vertical(IMAGE_BACKGROUND);
-	/*set_image(show_state->axis_vertical,show_state->buf_axis_vertical,background);*/
+	image_copy(show_state->frame_vertical,background);
 
 	angle_image = get_image_vertical(angle);
-	/*set_image(show_state->axis_vertical,show_state->buf_axis_vertical,angle_image);*/
-	{
-	GtkImage * image = show_state->axis_vertical;
-	gtk_image_set_from_pixbuf(image,background);
-	gtk_image_set_from_pixbuf(image,angle_image);
-	}
+	image_impose(show_state->frame_vertical,angle_image);
+
+	gtk_image_set_from_pixbuf(show_state->image_vertical,show_state->frame_vertical);
+
 	return SUCCESS;
 }
 
@@ -799,6 +838,7 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 {
 	uint64_t flag = controller_config->flag;
 	int16_t angle = 0;
+	GdkPixbuf * background;
 	GdkPixbuf * angle_image;
 
 	if(!ENGINE_HORIZONTAL(flag)){
@@ -813,15 +853,20 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 		}
 	}
 
-	angle_image = get_image_horizontal(angle);
-	/*set_image(show_state->axis_horizontal,show_state->buf_axis_horizontal,angle_image);*/
+	background = get_image_horizontal(IMAGE_BACKGROUND);
+	image_copy(show_state->frame_horizontal,background);
 
+	angle_image = get_image_horizontal(angle);
+	image_impose(show_state->frame_horizontal,angle_image);
+
+	gtk_image_set_from_pixbuf(show_state->image_horizontal,show_state->frame_horizontal);
 	return SUCCESS;
 }
 
 static int show_valve(show_state_s * show_state,show_control_s * show_controls
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
+#if 0
 	uint64_t flag = controller_config->flag;
 	GdkPixbuf * image_valve;
 
@@ -845,13 +890,14 @@ static int show_valve(show_state_s * show_state,show_control_s * show_controls
 	}
 
 	/*set_image(show_state->valve,show_state->buf_valve,image_valve);*/
-
+#endif
 	return SUCCESS;
 }
 
 static int show_pressure(show_state_s * show_state,show_control_s * show_controls
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
+#if 0
  	uint64_t flag = controller_config->flag;
 	GdkPixbuf * image_pressure;
 	uint16_t pressure;
@@ -863,7 +909,7 @@ static int show_pressure(show_state_s * show_state,show_control_s * show_control
 	pressure = calculate_pressure(controller_state,controller_config);
 	image_pressure = get_image_pressure(pressure);
 	/*set_image(show_state->pressure,show_state->buf_pressure,image_pressure);*/
-
+#endif
 	return SUCCESS;
 }
 
@@ -931,23 +977,19 @@ static GtkWidget * create_block_state_vertical(show_state_s * state)
 	frame = gtk_frame_new(NULL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = images_state[VERTICAL_BACKGROUND];
-	state->buf_axis_vertical = buf;
+	/*TODO маштабирование */
+	buf = get_resource_image(RESOURCE_IMAGE,"vertical_background");
+	state->frame_vertical = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование */
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	state->axis_vertical = GTK_IMAGE(image);
+	state->image_vertical = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
 	gtk_widget_show(frame);
 	gtk_widget_show(image);
 
-	buf = images_state[VERTICAL_000];
-	g_info("alpha : %d ",gdk_pixbuf_get_has_alpha(buf));
-	buf = images_state[VERTICAL_BACKGROUND];
-	g_info("alpha : %d ",gdk_pixbuf_get_has_alpha(buf));
 	return frame;
 }
 
@@ -962,13 +1004,13 @@ static GtkWidget * create_block_state_horizontal(show_state_s * state)
 	frame = gtk_frame_new(NULL);
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	buf = images_state[HORIZONTAL_NO_CONNECT];
-	state->buf_axis_horizontal = buf;
+	buf = get_resource_image(RESOURCE_IMAGE,"horizontal_background");
+	state->frame_horizontal = buf;
 	image = gtk_image_new_from_pixbuf(buf);
 	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	/*TODO маштабирование*/
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	state->axis_horizontal = GTK_IMAGE(image);
+	state->image_horizontal = GTK_IMAGE(image);
 
 	gtk_container_add(GTK_CONTAINER(frame),image);
 
@@ -977,7 +1019,7 @@ static GtkWidget * create_block_state_horizontal(show_state_s * state)
 
 	return frame;
 }
-
+#if 0
 static GtkWidget * create_block_state_valve(show_state_s * state)
 {
 	GtkWidget * frame;
@@ -1027,7 +1069,6 @@ static GtkWidget * create_block_state_pressure(show_state_s * state)
 
 	return frame;
 }
-#if 0
 /*static char STR_FIRE_SENSOR_TRIGGER[] = "Пожар";*/
 static char STR_FIRE_SENSOR_NORM[] = "НОРМА";
 static GtkWidget * create_block_fire_sensor(block_controller_s * block)
@@ -2013,8 +2054,8 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	if(!ENGINE_VERTICAL(flag)){
 		set_button_not_active(control->but_up);
 		set_button_not_active(control->but_down);
-		state->buf_axis_vertical = images_state[VERTICAL_BACKGROUND];
-		gtk_image_set_from_pixbuf(state->axis_vertical,state->buf_axis_vertical);
+		image_copy(state->frame_vertical,images_state[VERTICAL_BACKGROUND]);
+		gtk_image_set_from_pixbuf(state->image_vertical,state->frame_vertical);
 	}
 	else{
 		/*TODO сделать функции активные, не активные кнопки */
@@ -2023,19 +2064,19 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	if(!ENGINE_HORIZONTAL(flag)){
 		set_button_not_active(control->but_left);
 		set_button_not_active(control->but_right);
-		state->buf_axis_vertical = images_state[HORIZONTAL_NO_ENGINE];
-	 	gtk_image_set_from_pixbuf(state->axis_horizontal,state->buf_axis_horizontal);
+		image_copy(state->frame_horizontal,images_state[HORIZONTAL_BACKGROUND]);
+		gtk_image_set_from_pixbuf(state->image_horizontal,state->frame_horizontal);
 	}
 	else{
 	}
 
 	if(!VALVE_DRY(flag)){
-		set_button_not_active(control->but_valve_open);
-	 	set_button_not_active(control->but_valve_close);
+		/*set_button_not_active(control->but_valve_open);*/
+		 /*set_button_not_active(control->but_valve_close);*/
 	}
 	else{
 	}
-
+#if 0
 	if(PRESSURE(flag)){
 		gtk_widget_show(GTK_WIDGET(state->pressure));
 	}
@@ -2056,7 +2097,6 @@ static flag_t	changed_block_controller(block_controller_s * bc
 		gtk_widget_hide(control->actuator_rate);
 	}
 
-#if 0
 	if(ACTUATOR_VEIL(flag)){
 	}
 	if(LIMIT_VERTICAL(flag)){

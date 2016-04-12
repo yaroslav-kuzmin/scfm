@@ -193,7 +193,7 @@ static GtkWidget * create_main_block(void)
 	return win_main;
 }
 
-static defualt_size(GtkWindow * w)
+static flag_t defualt_size(GtkWindow * w)
 {
 	gint width;
 	gint height;
@@ -201,6 +201,8 @@ static defualt_size(GtkWindow * w)
 	gtk_window_get_default_size(w,&width,&height);
 
 	g_info("Размер основного экрана : %dx%d",width,height);
+
+	return SUCCESS;
 }
 /*****************************************************************************/
 int main(int argc,char * argv[])

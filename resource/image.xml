@@ -45,47 +45,6 @@
 
 <gresources>
 	<gresource prefix="/image">
-		<file>hxxxx.png</file>
-		<file>hbase.png</file>
-		<file>h0000.png</file>
-		<file>h0000p.png</file>
-		<file>h0100.png</file>
-		<file>h0200.png</file>
-		<file>h0300.png</file>
-		<file>h0400.png</file>
-		<file>h0500.png</file>
-		<file>h0600.png</file>
-		<file>h0700.png</file>
-		<file>h0800.png</file>
-		<file>h0900.png</file>
-		<file>h1000.png</file>
-		<file>h1100.png</file>
-		<file>h1200.png</file>
-		<file>h1300.png</file>
-		<file>h1400.png</file>
-		<file>h1500.png</file>
-		<file>h1600.png</file>
-		<file>h1700.png</file>
-		<file>h1800.png</file>
-		<file>h1900.png</file>
-		<file>h2000.png</file>
-		<file>h2100.png</file>
-		<file>h2200.png</file>
-		<file>h2300.png</file>
-		<file>h2400.png</file>
-		<file>h2500.png</file>
-		<file>h2600.png</file>
-		<file>h2700.png</file>
-		<file>h2800.png</file>
-		<file>h2900.png</file>
-		<file>h3000.png</file>
-		<file>h3100.png</file>
-		<file>h3200.png</file>
-		<file>h3300.png</file>
-		<file>h3400.png</file>
-		<file>h3500.png</file>
-		<file>h3600.png</file>
-		<file>h3600p.png</file>
 		<file>vertical_042.png</file>
 		<file>vertical_048.png</file>
 		<file>vertical_054.png</file>
@@ -111,6 +70,66 @@
 		<file>vertical_174.png</file>
 		<file>vertical_180.png</file>
 		<file>vertical_background.png</file>
+		<file>horizontal_006.png</file>
+		<file>horizontal_012.png</file>
+		<file>horizontal_018.png</file>
+		<file>horizontal_024.png</file>
+		<file>horizontal_030.png</file>
+		<file>horizontal_036.png</file>
+		<file>horizontal_042.png</file>
+		<file>horizontal_048.png</file>
+		<file>horizontal_054.png</file>
+		<file>horizontal_060.png</file>
+		<file>horizontal_066.png</file>
+		<file>horizontal_072.png</file>
+		<file>horizontal_078.png</file>
+		<file>horizontal_084.png</file>
+		<file>horizontal_090.png</file>
+		<file>horizontal_096.png</file>
+		<file>horizontal_102.png</file>
+		<file>horizontal_108.png</file>
+		<file>horizontal_114.png</file>
+		<file>horizontal_120.png</file>
+		<file>horizontal_126.png</file>
+		<file>horizontal_132.png</file>
+		<file>horizontal_138.png</file>
+		<file>horizontal_144.png</file>
+		<file>horizontal_150.png</file>
+		<file>horizontal_156.png</file>
+		<file>horizontal_162.png</file>
+		<file>horizontal_168.png</file>
+		<file>horizontal_174.png</file>
+		<file>horizontal_180.png</file>
+		<file>horizontal_186.png</file>
+		<file>horizontal_192.png</file>
+		<file>horizontal_198.png</file>
+		<file>horizontal_204.png</file>
+		<file>horizontal_210.png</file>
+		<file>horizontal_216.png</file>
+		<file>horizontal_222.png</file>
+		<file>horizontal_228.png</file>
+		<file>horizontal_234.png</file>
+		<file>horizontal_240.png</file>
+		<file>horizontal_246.png</file>
+		<file>horizontal_252.png</file>
+		<file>horizontal_258.png</file>
+		<file>horizontal_264.png</file>
+		<file>horizontal_270.png</file>
+		<file>horizontal_276.png</file>
+		<file>horizontal_282.png</file>
+		<file>horizontal_288.png</file>
+		<file>horizontal_294.png</file>
+		<file>horizontal_300.png</file>
+		<file>horizontal_306.png</file>
+		<file>horizontal_312.png</file>
+		<file>horizontal_318.png</file>
+		<file>horizontal_324.png</file>
+		<file>horizontal_330.png</file>
+		<file>horizontal_336.png</file>
+		<file>horizontal_342.png</file>
+		<file>horizontal_348.png</file>
+		<file>horizontal_354.png</file>
+		<file>horizontal_background.png</file>
 		<file>pressure_00.png</file>
 		<file>pressure_15.png</file>
 		<file>pressure_20.png</file>
