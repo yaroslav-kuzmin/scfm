@@ -120,7 +120,7 @@ releas:$(EXEC)
 .PHONY:resource
 resource:
 	$(COMPILE_RESOURCE) --target=$(RESOURCE_IMAGE_BUNDLE) --sourcedir=$(CATALOG_IMAGE) --generate $(RESOURCE_IMAGE)
-#	$(COMPILE_RESOURCE) --target=$(RESOURCE_STYLE_BUNDLE) --sourcedir=$(CATALOG_STYLE) --generate $(RESOURCE_STYLE)
+	$(COMPILE_RESOURCE) --target=$(RESOURCE_STYLE_BUNDLE) --sourcedir=$(CATALOG_STYLE) --generate $(RESOURCE_STYLE)
 
 .PHONY:clean
 clean:
