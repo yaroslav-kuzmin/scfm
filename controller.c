@@ -856,10 +856,9 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
-static int show_valve(show_state_s * show_state,show_control_s * show_controls
+static int show_pipe(show_state_s * show_state,show_control_s * show_controls
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
-#if 0
 	uint64_t flag = controller_config->flag;
 	GdkPixbuf * image_valve;
 
@@ -871,10 +870,10 @@ static int show_valve(show_state_s * show_state,show_control_s * show_controls
 
 	if(VALVE_LIMIT(flag)){
 		flag_t s = get_state_valve(controller_state);
-		image_valve = get_image_valve_tic(s);
+	 	image_valve = get_image_valve_tic(s);
 	}
 	else{
-		if(VALVE_FEEDBACK(flag)){
+	 	if(VALVE_FEEDBACK(flag)){
 			image_valve = get_image_valve_analog(0);
 		}
 		else{
@@ -883,26 +882,6 @@ static int show_valve(show_state_s * show_state,show_control_s * show_controls
 	}
 
 	/*set_image(show_state->valve,show_state->buf_valve,image_valve);*/
-#endif
-	return SUCCESS;
-}
-
-static int show_pressure(show_state_s * show_state,show_control_s * show_controls
-                     ,state_controller_s * controller_state,config_controller_s * controller_config)
-{
-#if 0
- 	uint64_t flag = controller_config->flag;
-	GdkPixbuf * image_pressure;
-	uint16_t pressure;
-
-	if(!PRESSURE(flag)){
-			return SUCCESS;
-	}
-
-	pressure = calculate_pressure(controller_state,controller_config);
-	image_pressure = get_image_pressure(pressure);
-	/*set_image(show_state->pressure,show_state->buf_pressure,image_pressure);*/
-#endif
 	return SUCCESS;
 }
 
@@ -946,8 +925,7 @@ static int show_block_controller(gpointer data)
 
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
-	show_valve(bc->state,bc->control,&state,controller->config);
-	show_pressure(bc->state,bc->control,&state,controller->config);
+	show_pipe(bc->state,bc->control,&state,controller->config);
 
 #if 0
 	show_file_sensor(bc);
