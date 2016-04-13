@@ -1053,7 +1053,6 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	return box;
 }
-
 static GtkWidget * create_block_state_lafet(block_controller_s * bc)
 {
 	GtkWidget * box;
