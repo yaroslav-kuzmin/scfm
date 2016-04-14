@@ -108,6 +108,22 @@ static int about_programm(GtkWindow * parent_window)
 }
 
 /*****************************************************************************/
+static flag_t defualt_size(GtkWidget * w)
+{
+	GtkRequisition min;
+	GtkRequisition nat;
+
+	/*gint width;*/
+	/*gint height;*/
+
+	/*gtk_window_get_default_size(w,&width,&height);*/
+	gtk_widget_get_preferred_size(w,&min,&nat);
+
+	g_info("Размер основного экрана : %dx%d",nat.width,nat.height);
+
+	return SUCCESS;
+}
+
 static GtkWidget * create_block_job(void)
 {
 	GtkWidget * box;
@@ -145,6 +161,9 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 			if( event_key->keyval == GDK_KEY_A){
 				about_programm(GTK_WINDOW(w));
 			}
+			if( event_key->keyval == GDK_KEY_S){
+				defualt_size(w);
+			}
 		}
 	}
 	return FALSE;
@@ -164,8 +183,8 @@ static GtkWidget * create_main_block(void)
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_main),TRUE);
 	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(win_main),1280,980);
-	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
+	gtk_window_set_default_size(GTK_WINDOW(win_main),1480,980);
+	gtk_window_set_decorated(GTK_WINDOW(win_main),TRUE);
 
 	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
 	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
@@ -193,17 +212,6 @@ static GtkWidget * create_main_block(void)
 	return win_main;
 }
 
-static flag_t defualt_size(GtkWindow * w)
-{
-	gint width;
-	gint height;
-
-	gtk_window_get_default_size(w,&width,&height);
-
-	g_info("Размер основного экрана : %dx%d",width,height);
-
-	return SUCCESS;
-}
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
@@ -215,7 +223,6 @@ int main(int argc,char * argv[])
 	win_main = create_main_block();
 
 	apply_style(win_main);
-	defualt_size(GTK_WINDOW(win_main));
 	gtk_main();
 
 	deinit_system();

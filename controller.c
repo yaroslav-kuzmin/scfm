@@ -82,6 +82,12 @@ struct _show_state_s
 	GtkImage * image_pipe;
 	GdkPixbuf * frame_pipe;
 
+	GtkImage * image_video;
+	GdkPixbuf * frame_video;
+
+	GtkImage * image_auto_work;
+	GdkPixbuf * frame_auto_work;
+
 	GtkLabel * lab_mode;
 	GtkLabel * lab_state;
 
@@ -416,23 +422,13 @@ static GdkPixbuf * get_image_horizontal(uint16_t angle)
  	buf = images_state[angle];
 	return buf;
 }
-#define STATE_PRESSURE_ERROR     0xFFFF
-#if 0
-static GdkPixbuf * get_image_pressure(uint16_t pressure)
+
+static GdkPixbuf * get_image_pipe(uint16_t value)
 {
-	if(pressure == STATE_PRESSURE_ERROR){
-		return images_state[PRESSURE_ERROR];
+	if(value == IMAGE_BACKGROUND){
+		return images_state[PIPE_BACKGROUND];
 	}
-	if(pressure == 0){
-		return images_state[PRESSURE_00];
-	}
-	if(pressure == 1){
-		return images_state[PRESSURE_15];
-	}
-	if(pressure == 2){
-		return images_state[PRESSURE_20];
-	}
-	return images_state[PRESSURE_25];
+	return NULL;
 }
 
 static GdkPixbuf * get_image_valve_tic(flag_t valve)
@@ -441,20 +437,20 @@ static GdkPixbuf * get_image_valve_tic(flag_t valve)
 
 	switch(valve){
 		case STATE_VALVE_OPEN:
-			buf = images_state[VALVE_OPEN];
+			buf = images_state[PIPE_100];
 			break;
 		case STATE_VALVE_CLOSE:
-			buf = images_state[VALVE_CLOSE];
+			buf = images_state[PIPE_000];
 			break;
 		case STATE_VALVE_OPEN_RUN:
-			buf = images_state[VALVE_OPEN_RUN];
+			buf = images_state[PIPE_050];
 			break;
 		case STATE_VALVE_CLOSE_RUN:
-			buf = images_state[VALVE_CLOSE_RUN];
+			buf = images_state[PIPE_050];
 			break;
 		default:
-			/*TODO поставить отдельный рисунок на ошибку*/
-			buf = images_state[VALVE_ERROR];
+				/*TODO поставить отдельный рисунок на ошибку*/
+			buf = images_state[PIPE_000];
 			break;
 	}
 
@@ -463,11 +459,8 @@ static GdkPixbuf * get_image_valve_tic(flag_t valve)
 
 static GdkPixbuf * get_image_valve_analog(uint16_t valve)
 {
-	return images_state[VALVE_ERROR];
+	return images_state[PIPE_000];
 }
-
-#endif
-
 
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
@@ -524,6 +517,10 @@ static uint16_t calculate_angle_encoder_horizontal(state_controller_s * state,co
 	return angle;
 }
 
+static uint16_t calculate_valve(state_controller_s * state,config_controller_s * config)
+{
+	return 0;
+}
 
 #if 0
 static uint16_t calculate_pressure(state_controller_s * state,config_controller_s * config)
@@ -542,7 +539,7 @@ static uint16_t calculate_pressure(state_controller_s * state,config_controller_
 		}
 		else{
 			pressure = (uint16_t)rate;
-		}
+ 		}
 	}
 
 	return pressure;
@@ -860,7 +857,9 @@ static int show_pipe(show_state_s * show_state,show_control_s * show_controls
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
+	GdkPixbuf * background;
 	GdkPixbuf * image_valve;
+
 
 	if(!VALVE_DRY(flag)){
 		if(!VALVE_ANALOG(flag)){
@@ -874,14 +873,19 @@ static int show_pipe(show_state_s * show_state,show_control_s * show_controls
 	}
 	else{
 	 	if(VALVE_FEEDBACK(flag)){
-			image_valve = get_image_valve_analog(0);
+			uint16_t valve = calculate_valve(controller_state,controller_config);
+			image_valve = get_image_valve_analog(valve);
 		}
 		else{
-			image_valve = images_state[VALVE_ERROR];
+			return SUCCESS;
 		}
 	}
+	background = get_image_pipe(IMAGE_BACKGROUND);
+	image_copy(show_state->frame_pipe,background);
 
-	/*set_image(show_state->valve,show_state->buf_valve,image_valve);*/
+	image_impose(show_state->frame_pipe,image_valve);
+
+	gtk_image_set_from_pixbuf(show_state->image_pipe,show_state->frame_pipe);
 	return SUCCESS;
 }
 
@@ -1095,20 +1099,74 @@ static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 	return frame;
 }
 
+static GtkWidget * create_block_state_video(block_controller_s * bc)
+{
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(NULL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,"state_video_background");
+	bc->state->frame_video = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	bc->state->image_video = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
+}
+
+static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
+{
+	GtkWidget * frame;
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	frame = gtk_frame_new(NULL);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	buf = get_resource_image(RESOURCE_IMAGE,"auto_work_background");
+	bc->state->frame_auto_work = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
+	bc->state->image_auto_work = GTK_IMAGE(image);
+
+	gtk_container_add(GTK_CONTAINER(frame),image);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(image);
+
+	return frame;
+}
+
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
 	GtkWidget * frame;
-	GtkWidget * box;
+	GtkWidget * grid;
 	GtkWidget * label_name;
 	GtkWidget * block_state_message;
 	GtkWidget * block_state_lafet;
 	GtkWidget * block_state_pipe;
+	GtkWidget * block_state_video;
+	GtkWidget * block_state_auto_work;
 
 	frame = gtk_frame_new("Информация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
 
 	label_name = gtk_label_new("Нет подключения к контролеру!");
 	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
@@ -1117,16 +1175,20 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	block_state_message = create_block_state_message(bc);
 	block_state_lafet = create_block_state_lafet(bc);
 	block_state_pipe = create_block_state_pipe(bc);
+	block_state_video = create_block_state_video(bc);
+	block_state_auto_work = create_block_state_auto_work(bc);
 
-	gtk_box_pack_start(GTK_BOX(box),label_name,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
+	gtk_grid_attach(GTK_GRID(grid),label_name           ,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_state_message  ,0,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_state_lafet    ,0,2,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_state_pipe     ,0,3,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_state_video    ,1,0,1,2);
+	gtk_grid_attach(GTK_GRID(grid),block_state_auto_work,1,2,1,3);
 
-	gtk_container_add(GTK_CONTAINER(frame),box);
+	gtk_container_add(GTK_CONTAINER(frame),grid);
 
 	gtk_widget_show(frame);
-	gtk_widget_show(box);
+	gtk_widget_show(grid);
 	gtk_widget_show(label_name);
 
 	return frame;
@@ -1936,7 +1998,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 
 	if(!VALVE_DRY(flag)){
 		/*set_button_not_active(control->but_valve_open);*/
-		 /*set_button_not_active(control->but_valve_close);*/
+		/*set_button_not_active(control->but_valve_close);*/
 	}
 	else{
 	}

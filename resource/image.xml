@@ -137,5 +137,7 @@
 		<file>pipe_100.png</file>
 		<file>pipe_background.png</file>
 		<file>fire_alarm_norm.png</file>
+		<file>state_video_background.png</file>
+		<file>auto_work_background.png</file>
 	</gresource>
 </gresources>
