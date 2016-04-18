@@ -315,7 +315,7 @@ GtkWidget * create_block_log(void)
 	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),3);
-	gtk_widget_set_size_request(frame,-1,200);
+	gtk_widget_set_size_request(frame,-1,150);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);

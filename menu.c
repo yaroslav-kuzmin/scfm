@@ -90,6 +90,7 @@ static void button_clicked_minimaze(GtkButton * b,gpointer ud)
 	GtkWindow * w = (GtkWindow *)ud;
 	gtk_window_iconify(w);
 }
+#if 0
 static void button_clicked_maximaze(GtkButton * b,gpointer ud)
 {
 	flag_t rc;
@@ -103,7 +104,7 @@ static void button_clicked_maximaze(GtkButton * b,gpointer ud)
 		gtk_window_maximize(w);
 	}
 }
-
+#endif
 static void button_clicked_close(GtkButton * b,gpointer ud)
 {
 	GtkWidget * w = (GtkWidget *)ud;
@@ -200,7 +201,7 @@ static GtkWidget * create_block_button(GtkWidget *win_main)
 {
 	GtkWidget * box;
 	GtkWidget * but_min;
-	GtkWidget * but_max;
+	/*GtkWidget * but_max;*/
 	GtkWidget * but_close;
 	GtkWidget * image;
 
@@ -211,28 +212,28 @@ static GtkWidget * create_block_button(GtkWidget *win_main)
 	but_min = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_min),image);
 	g_signal_connect(but_min,"clicked",G_CALLBACK(button_clicked_minimaze),win_main);
-
+	/*
 	image = gtk_image_new_from_pixbuf(get_resource_image(RESOURCE_STYLE,"maximize-focused-normal"));
 	but_max = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_max),image);
 	g_signal_connect(but_max,"clicked",G_CALLBACK(button_clicked_maximaze),win_main);
-
+  */
 	image = gtk_image_new_from_pixbuf(get_resource_image(RESOURCE_STYLE,"close-focused-normal"));
 	but_close = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_close),image);
 	g_signal_connect(but_close,"clicked",G_CALLBACK(button_clicked_close),win_main);
 
 	gtk_box_pack_start(GTK_BOX(box),but_min,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),but_max,TRUE,TRUE,0);
+	/*gtk_box_pack_start(GTK_BOX(box),but_max,TRUE,TRUE,0);*/
 	gtk_box_pack_start(GTK_BOX(box),but_close,TRUE,TRUE,0);
 
 	gtk_widget_set_name(but_min,"menu");
-	gtk_widget_set_name(but_max,"menu");
+	/*gtk_widget_set_name(but_max,"menu");*/
 	gtk_widget_set_name(but_close,"menu");
 
 	gtk_widget_show(box);
 	gtk_widget_show(but_min);
-	gtk_widget_show(but_max);
+	/*gtk_widget_show(but_max);*/
 	gtk_widget_show(but_close);
 
 	return box;

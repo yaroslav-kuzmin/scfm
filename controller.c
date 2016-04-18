@@ -490,6 +490,7 @@ static uint16_t calculate_angle_encoder_vertical(state_controller_s * state,conf
 }
 #define MIN_HORIZONTAL_TIC      0
 #define MAX_HORIZONTAL_TIC      60
+
 #define MIN_HORIZONTAL_ANGLE    0
 #define MAX_HORIZONTAL_ANGLE    360
 static uint16_t calculate_angle_tic_horizontal(state_controller_s * state,config_controller_s * config)
@@ -775,7 +776,49 @@ int deinit_all_controllers(void)
 /* Блок отображение основного окна управления контролером                    */
 /*****************************************************************************/
 
+static int image_font_size = 16;
 /***** Функции отрисовки информации по таймеру *******************************/
+static flag_t image_paint_string(cairo_surface_t * cairo_surface,char * str,int x,int y)
+{
+	cairo_t * cairo = cairo_create(cairo_surface);
+
+	cairo_select_font_face (cairo, "Luciida Console",/*"Courier",*/ /*"Georgia",*/
+		    CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+
+	cairo_set_source_rgba(cairo,color_white.red,color_white.green,color_white.blue,color_white.alpha);
+
+	cairo_set_font_size(cairo,image_font_size);
+
+	cairo_move_to(cairo,x,y);
+
+	cairo_show_text(cairo,str);
+
+	cairo_destroy(cairo);
+	return SUCCESS;
+}
+
+static GdkPixbuf * image_add_string(GdkPixbuf * buf_src,char * str,int x,int y)
+{
+	GdkPixbuf * buf_des;
+	cairo_surface_t * cairo_surface = gdk_cairo_surface_create_from_pixbuf(buf_src,1,NULL);
+	gint width = cairo_image_surface_get_width(cairo_surface);
+	gint height = cairo_image_surface_get_height(cairo_surface);
+
+	if(x > width ){
+		return buf_src;
+	}
+	if(y > height){
+		return buf_src;
+	}
+
+	image_paint_string(cairo_surface,str,x,y);
+
+	g_object_unref(buf_src);
+	buf_des = gdk_pixbuf_get_from_surface(cairo_surface,0,0,width,height);
+	cairo_surface_destroy(cairo_surface);
+	return buf_des;
+}
+
 static flag_t image_copy(GdkPixbuf * buf_des,GdkPixbuf * buf_src)
 {
 	int width = gdk_pixbuf_get_width(buf_des);
@@ -796,7 +839,7 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 {
 	uint64_t flag = controller_config->flag;
 	int16_t angle = 0;
-
+	GdkPixbuf * frame = show_state->frame_vertical;
 	GdkPixbuf * background;
 	GdkPixbuf * angle_image;
 
@@ -813,12 +856,17 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 	}
 
 	background = get_image_vertical(IMAGE_BACKGROUND);
-	image_copy(show_state->frame_vertical,background);
+	image_copy(frame,background);
 
 	angle_image = get_image_vertical(angle);
-	image_impose(show_state->frame_vertical,angle_image);
+	image_impose(frame,angle_image);
 
-	gtk_image_set_from_pixbuf(show_state->image_vertical,show_state->frame_vertical);
+	g_string_printf(pub,"%03d",angle);
+	frame = image_add_string(frame,pub->str,34,465);
+
+	gtk_image_set_from_pixbuf(show_state->image_vertical,frame);
+
+	show_state->frame_vertical = frame;
 
 	return SUCCESS;
 }
@@ -828,6 +876,7 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 {
 	uint64_t flag = controller_config->flag;
 	int16_t angle = 0;
+	GdkPixbuf * frame = show_state->frame_horizontal;
 	GdkPixbuf * background;
 	GdkPixbuf * angle_image;
 
@@ -844,48 +893,88 @@ static int show_horizontal(show_state_s * show_state,show_control_s * show_contr
 	}
 
 	background = get_image_horizontal(IMAGE_BACKGROUND);
-	image_copy(show_state->frame_horizontal,background);
+	image_copy(frame,background);
 
 	angle_image = get_image_horizontal(angle);
-	image_impose(show_state->frame_horizontal,angle_image);
+	image_impose(frame,angle_image);
 
-	gtk_image_set_from_pixbuf(show_state->image_horizontal,show_state->frame_horizontal);
+	g_string_printf(pub,"%03d",angle);
+	frame = image_add_string(frame,pub->str,34,465);
+
+	gtk_image_set_from_pixbuf(show_state->image_horizontal,frame);
+	show_state->frame_horizontal = frame;
 	return SUCCESS;
+}
+
+static char STR_VALVE_OPEN[]      = "Открыта";
+static char STR_VALVE_OPEN_RUN[]  = "Открывается";
+static char STR_VALVE_CLOSE[]     = "Закрыта";
+static char STR_VALVE_CLOSE_RUN[] = "Закрывается";
+static char STR_VALVE_ERROR[]     = "Ошибка";
+
+static char * get_state_valve_string(flag_t state)
+{
+	char * str = STR_VALVE_ERROR;
+	switch(state){
+		case STATE_VALVE_OPEN:
+			str = STR_VALVE_OPEN;
+			break;
+		case STATE_VALVE_OPEN_RUN:
+			str = STR_VALVE_OPEN_RUN;
+			break;
+		case STATE_VALVE_CLOSE:
+			str = STR_VALVE_CLOSE;
+			break;
+		case STATE_VALVE_CLOSE_RUN:
+			str = STR_VALVE_CLOSE_RUN;
+			break;
+	}
+	return str;
 }
 
 static int show_pipe(show_state_s * show_state,show_control_s * show_controls
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
+	GdkPixbuf * frame = show_state->frame_pipe;
 	GdkPixbuf * background;
 	GdkPixbuf * image_valve;
-
+	char * str_valve;
+	flag_t state_valve;
+	uint16_t analog_valve;
 
 	if(!VALVE_DRY(flag)){
 		if(!VALVE_ANALOG(flag)){
 			return SUCCESS;
-		}
+	 	}
 	}
 
+	state_valve = get_state_valve(controller_state);
+
 	if(VALVE_LIMIT(flag)){
-		flag_t s = get_state_valve(controller_state);
-	 	image_valve = get_image_valve_tic(s);
+	 	image_valve = get_image_valve_tic(state_valve);
+		str_valve = get_state_valve_string(state_valve);
 	}
 	else{
 	 	if(VALVE_FEEDBACK(flag)){
-			uint16_t valve = calculate_valve(controller_state,controller_config);
-			image_valve = get_image_valve_analog(valve);
+			analog_valve = calculate_valve(controller_state,controller_config);
+			image_valve = get_image_valve_analog(analog_valve);
 		}
 		else{
 			return SUCCESS;
 		}
 	}
+
 	background = get_image_pipe(IMAGE_BACKGROUND);
-	image_copy(show_state->frame_pipe,background);
+	image_copy(frame,background);
 
-	image_impose(show_state->frame_pipe,image_valve);
+	image_impose(frame,image_valve);
 
-	gtk_image_set_from_pixbuf(show_state->image_pipe,show_state->frame_pipe);
+	frame = image_add_string(frame,str_valve,203,32);
+
+	gtk_image_set_from_pixbuf(show_state->image_pipe,frame);
+
+	show_state->frame_pipe = frame;
 	return SUCCESS;
 }
 
