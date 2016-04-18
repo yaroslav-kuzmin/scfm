@@ -58,7 +58,7 @@ enum
 	CELL_CLIENT,
 	AMOUNT_CELL
 };
-
+#define SIZE_QUERY_BYTE     100
 struct _cell_s
 {
 	GtkEntryBuffer * device;
@@ -81,6 +81,8 @@ struct _cell_s
 	uint16_t query_reg;
 	uint16_t query_amount_reg;
 	uint16_t query_amount;
+	uint16_t query_amount_byte;
+	uint16_t query_byte[SIZE_QUERY_BYTE];
 
 	GString * buf;
 };
@@ -443,9 +445,10 @@ static int server_check_register(uint16_t s_reg,uint16_t s_amount_reg,uint16_t d
 	}
 	return MODBUS_CORRECT;
 }
-#define READ_HOLDING_REGISTERS     3
-#define WRITE_SINGLE_REGISTER      6
+#define READ_HOLDING_REGISTERS     0x03
+#define WRITE_SINGLE_REGISTER      0x06
 #define WRITE_MULTI_REGISTER       0x10
+
 static int server_receive(cell_s * server)
 {
 	int rc;
@@ -453,6 +456,7 @@ static int server_receive(cell_s * server)
 	uint8_t modbus_function;
 	uint16_t modbus_register;
 	uint16_t modbus_amount;
+	uint16_t modbus_amount_byte;
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
 	modbus_mapping_t * mb_mapping = server->mapp_reg;
@@ -464,19 +468,26 @@ static int server_receive(cell_s * server)
 	}
 	server->query_amount = rc;
 
+	position ++;
 	modbus_function = query[header_length];
+
+	g_string_printf(server->buf,"[%05lld] server : %02x",position,modbus_function);
+
 	if(modbus_function != READ_HOLDING_REGISTERS){
 		if(modbus_function != WRITE_SINGLE_REGISTER){
 			if(modbus_function != WRITE_MULTI_REGISTER){
-				g_warning("Номер функции некорректный : %d",modbus_function);
+				g_warning("Номер функции неподдерживается : %d",modbus_function);
+				g_string_append_printf(server->buf,"\n");
 				rc = modbus_reply(ctx_server,query,rc,mb_mapping);
-				if(rc == -1){
+				if( rc == -1){
 					g_warning("Клиент закрыл соединение");
-  					return MODBUS_INCORRECT;
+ 					return MODBUS_CLOSE;
 				}
+				return MODBUS_INCORRECT;
 			}
 		}
 	}
+
 	server->query_func = modbus_function;
 
 	modbus_register = query[header_length+1];
@@ -486,19 +497,45 @@ static int server_receive(cell_s * server)
 	modbus_amount <<= 8;
 	modbus_amount += query[header_length+4];
 
+	server->query_reg = modbus_register;
+	server->query_amount_reg = modbus_amount;
+
+	g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);
+
 	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
+		g_string_append_printf(server->buf,"\n");
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
 			g_warning("Клиент закрыл соединение");
   			return MODBUS_CLOSE;
 		}
+		return MODBUS_INCORRECT;
 	}
-	server->query_reg = modbus_register;
-	server->query_amount_reg = modbus_amount;
-	position ++;
-	g_string_printf(server->buf,"[%05lld] server : %02x %04x %04x\n",position,modbus_function,modbus_register,modbus_amount);
+
+	if(modbus_function == WRITE_SINGLE_REGISTER){
+		int i,j;
+		modbus_amount_byte = query[header_length + 5];
+		g_string_append_printf(server->buf," %02x",modbus_amount_byte);
+		if(modbus_amount_byte > SIZE_QUERY_BYTE){
+			g_warning("Буффер приема : %d > %d",modbus_amount_byte,SIZE_QUERY_BYTE);
+			return MODBUS_INCORRECT;
+		}
+		j = header_length + 6;
+		for(i = 0;i < modbus_amount;i++){
+			uint16_t t = query[j];
+			t <<= 8;
+			j++;
+			t += query[j];
+			j++;
+			server->query_byte[i] = t;
+			g_string_append_printf(server->buf," %04x",t);
+		}
+	}
+	server->query_amount_byte = modbus_amount_byte;
+
+	g_string_append_printf(server->buf,"\n");
 
 	return MODBUS_CORRECT;
 }
@@ -572,6 +609,7 @@ static gpointer work_bridge(gpointer ud)
 			g_string_append(cell_client->buf,"\n");
 			server_mapping(cell_server,dest);
 		}
+
 		if( cell_server->query_func == WRITE_SINGLE_REGISTER){
 			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_amount_reg);
 			if(rc == -1){
@@ -582,22 +620,25 @@ static gpointer work_bridge(gpointer ud)
 			position ++;
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
+
 		if( cell_server->query_func == WRITE_MULTI_REGISTER){
-			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_amount_reg);
+			rc = modbus_write_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,cell_server->query_byte);
 			if(rc == -1){
 				g_warning("Сервер разорвал соединение");
 				bb->connect = NOT_OK;
 				return NULL;
 			}
 			position ++;
-			g_string_printf(cell_client->buf,"[%05lld] client : 16 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
+			g_string_printf(cell_client->buf,"[%05lld] client : 10 %04x %04x == %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg,rc);
 		}
+
 reply_continue:
 		rc = server_reply(cell_server);
 		if(rc == MODBUS_CLOSE){
 			bb->connect = NOT_OK;
 			return NULL;
 		}
+
 		g_mutex_lock(&(bb->m_bridge));
 		g_string_append(bb->buf,cell_server->buf->str);
 		g_string_append(bb->buf,cell_client->buf->str);
