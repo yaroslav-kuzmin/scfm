@@ -95,7 +95,6 @@ struct _block_bridge_s
 	int exit;
 
 	GtkTextView * text_view;
-	GtkTextBuffer * text_buf;
 	GString * buf;
 };
 typedef struct _block_bridge_s block_bridge_s;
@@ -675,23 +674,29 @@ static GtkWidget * create_block_control(block_bridge_s * bb)
 
 /*****************************************************************************/
 
+static char mark_end_buff[] = "end";
 static int flush_info_bridge(gpointer ud)
 {
 	block_bridge_s * bb = (block_bridge_s*)ud;
-	/*GtkTextView * text_view = bb->text_view;*/
-	GtkTextBuffer * text_buf = bb->text_buf;
+	GtkTextView * text_view;
+	GtkTextBuffer * text_buf;
 	GString * buf;
 	GtkTextIter iter;
+	GtkTextMark * mark;
 
 	if(bb->connect == OK){
-		gtk_text_buffer_get_end_iter(text_buf,&iter);
+		text_view = bb->text_view;
+		text_buf = gtk_text_view_get_buffer(text_view);
+		mark = gtk_text_buffer_get_mark(text_buf,mark_end_buff);
+		gtk_text_buffer_get_iter_at_mark (text_buf,&iter,mark);
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
 		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
 		g_string_erase(buf,0,-1);
 		g_mutex_unlock(&(bb->m_bridge));
-
+		gtk_text_view_scroll_mark_onscreen(text_view,mark);
 	}
+
 	return TRUE;
 }
 
@@ -708,6 +713,7 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	GtkWidget * scrwin;
 	GtkWidget * log;
 	GtkTextBuffer * text_buf;
+	GtkTextIter text_iter;
 
 	frame = gtk_frame_new("Сообщения");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -718,14 +724,16 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	text_buf = gtk_text_buffer_new(NULL);
-	bb->text_buf = text_buf;
 	bb->buf = g_string_new(NULL);
-	gtk_text_buffer_create_tag (text_buf,"blue_foreground","foreground","blue",NULL);
-	gtk_text_buffer_create_tag (text_buf,"red_foreground" ,"foreground","red",NULL);
-	gtk_text_buffer_create_tag (text_buf,"gree_foreground","foreground","green",NULL);
-  gtk_text_buffer_create_tag (text_buf,"blue_background" ,"background","blue", NULL);
-  gtk_text_buffer_create_tag (text_buf,"red_background"  ,"background","red", NULL);
-  gtk_text_buffer_create_tag (text_buf,"green_background","background","green", NULL);
+	gtk_text_buffer_create_tag(text_buf,"blue_foreground","foreground","blue",NULL);
+	gtk_text_buffer_create_tag(text_buf,"red_foreground" ,"foreground","red",NULL);
+	gtk_text_buffer_create_tag(text_buf,"gree_foreground","foreground","green",NULL);
+  gtk_text_buffer_create_tag(text_buf,"blue_background" ,"background","blue", NULL);
+  gtk_text_buffer_create_tag(text_buf,"red_background"  ,"background","red", NULL);
+  gtk_text_buffer_create_tag(text_buf,"green_background","background","green", NULL);
+
+	gtk_text_buffer_get_end_iter(text_buf,&text_iter);
+	gtk_text_buffer_create_mark(text_buf,mark_end_buff,&text_iter,FALSE);
 
 	log = gtk_text_view_new_with_buffer(text_buf);
 	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
