@@ -115,6 +115,7 @@ extern GdkRGBA color_white;
 extern GdkRGBA color_lite_blue;
 extern GdkRGBA color_lite_red;
 extern GdkRGBA color_lite_green;
+extern GdkRGBA color_background;
 
 /*****************************************************************************/
 #define FORAMT_NAME_TABLE_OBJECT    "[o%07d]"
@@ -508,6 +509,7 @@ struct _config_controller_s
 	double rate_valve_analog;
 };
 
+/* Состояние задвижки */
 enum
 {
 	STATE_VALVE_OPEN=0,

@@ -80,8 +80,9 @@ static flag_t tree_add_column(block_tree_s * bt)
 
 	render = gtk_cell_renderer_pixbuf_new();
 	/*column = gtk_tree_view_column_new_with_attributes("С",render,"pixbuf",COLUMN_IMAGE_TREE,NULL);*/
+	g_object_set(render,"width",10,NULL);
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,"С");
+	gtk_tree_view_column_set_title(column,NULL);
 	gtk_tree_view_column_pack_start(column,render,TRUE);
 	gtk_tree_view_column_set_attributes(column,render,"pixbuf",COLUMN_IMAGE_TREE,NULL);
 	gtk_tree_view_column_set_sizing (GTK_TREE_VIEW_COLUMN (column), GTK_TREE_VIEW_COLUMN_FIXED);
@@ -90,8 +91,9 @@ static flag_t tree_add_column(block_tree_s * bt)
 
 	render = gtk_cell_renderer_text_new();
 	g_object_set(render,"editable",FALSE,NULL);
-	g_object_set(render,"width",100,NULL);
-	g_object_set(render,"size",15000,NULL); /*размер шрифта*/
+	g_object_set(render,"width",70,NULL);
+	/*размер шрифта*/
+	/*g_object_set(render,"size",15000,NULL); */
 
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column,"Наименования");
@@ -322,7 +324,7 @@ GtkWidget * create_block_tree_object(void)
 
 	frame = gtk_frame_new("Объекты");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	gtk_widget_set_size_request(frame,200,-1);
+	gtk_widget_set_size_request(frame,150,-1);
 	g_signal_connect(frame,"realize",G_CALLBACK(realize_frame_tree_object),&block_tree);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);

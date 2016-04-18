@@ -53,13 +53,14 @@ char STR_TYPE_GROUP[] = "группа";
 char STR_TYPE_VIDEOCAMERE[] = "видеокамера";
 char STR_TYPE_CONTROLLER[] = "контроллер";
 
-GdkRGBA color_black =     {0  ,0  ,0  ,1};
-GdkRGBA color_green =     {0  ,1  ,0  ,1};
-GdkRGBA color_red =       {1  ,0  ,0  ,1};
-GdkRGBA color_white =     {1  ,1  ,1  ,1};
-GdkRGBA color_lite_blue = {0.2,0.1,1  ,1};
-GdkRGBA color_lite_red  = {1  ,0.2,0.1,1};
-GdkRGBA color_lite_green= {0.2,1  ,0.1,1};
+GdkRGBA color_black =      {0    ,0    ,0    ,1};
+GdkRGBA color_green =      {0    ,1    ,0    ,1};
+GdkRGBA color_red =        {1    ,0    ,0    ,1};
+GdkRGBA color_white =      {1    ,1    ,1    ,1};
+GdkRGBA color_lite_blue  = {0.2  ,0.1  ,1    ,1};
+GdkRGBA color_lite_red   = {1    ,0.2  ,0.1  ,1};
+GdkRGBA color_lite_green = {0.2  ,1    ,0.1  ,1};
+GdkRGBA color_background = {0.36 ,0.462,0.56 ,1};
 
 char STR_EMPTY[] = "empty";
 /*****************************************************************************/
