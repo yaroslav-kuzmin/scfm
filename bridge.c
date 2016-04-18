@@ -446,6 +446,7 @@ static int server_check_register(uint16_t s_reg,uint16_t s_amount_reg,uint16_t d
 }
 #define READ_HOLDING_REGISTERS     3
 #define WRITE_SINGLE_REGISTER      6
+#define WRITE_MULTI_REGISTER       0x10
 static int server_receive(cell_s * server)
 {
 	int rc;
@@ -467,11 +468,13 @@ static int server_receive(cell_s * server)
 	modbus_function = query[header_length];
 	if(modbus_function != READ_HOLDING_REGISTERS){
 		if(modbus_function != WRITE_SINGLE_REGISTER){
-			g_warning("Номер функции некорректный : %d",modbus_function);
-			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
-			if(rc == -1){
-				g_warning("Клиент закрыл соединение");
-  				return MODBUS_INCORRECT;
+			if(modbus_function != WRITE_MULTI_REGISTER){
+				g_warning("Номер функции некорректный : %d",modbus_function);
+				rc = modbus_reply(ctx_server,query,rc,mb_mapping);
+				if(rc == -1){
+					g_warning("Клиент закрыл соединение");
+  					return MODBUS_INCORRECT;
+				}
 			}
 		}
 	}
@@ -579,6 +582,16 @@ static gpointer work_bridge(gpointer ud)
 			}
 			position ++;
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
+		}
+		if( cell_server->query_func == WRITE_MULTI_REGISTER){
+			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_amount_reg);
+			if(rc == -1){
+				g_warning("Сервер разорвал соединение");
+				bb->connect = NOT_OK;
+				return NULL;
+			}
+			position ++;
+			g_string_printf(cell_client->buf,"[%05lld] client : 16 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
 reply_continue:
 		rc = server_reply(cell_server);

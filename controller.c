@@ -1183,7 +1183,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),block_state_lafet    ,0,2,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_state_pipe     ,0,3,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_state_video    ,1,0,1,2);
-	gtk_grid_attach(GTK_GRID(grid),block_state_auto_work,1,2,1,3);
+	gtk_grid_attach(GTK_GRID(grid),block_state_auto_work,1,2,1,2);
 
 	gtk_container_add(GTK_CONTAINER(frame),grid);
 
