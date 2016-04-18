@@ -57,7 +57,7 @@ struct _logging_s{
 	GString * info_name;
 	GIOChannel * info_channel;
 	GString * buf;
-	GtkTextBuffer * view_buf;
+	GtkTextView * view_buff;
 };
 typedef struct _logging_s logging_s;
 
@@ -104,6 +104,25 @@ static int flush_info_channel(gpointer ud)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+static char mark_end_buff[] = "end";
+static flag_t add_string_view_buff(GtkTextView * view,GString * buf)
+{
+	GtkTextBuffer * text_buff;
+	GtkTextIter iter;
+	GtkTextMark * mark;
+
+	if(view == NULL){
+		return SUCCESS;
+	}
+
+	text_buff = gtk_text_view_get_buffer(view);
+	mark = gtk_text_buffer_get_mark(text_buff,mark_end_buff);
+	gtk_text_buffer_get_iter_at_mark(text_buff,&iter,mark);
+	gtk_text_buffer_insert(text_buff,&iter,buf->str,buf->len);
+	gtk_text_view_scroll_mark_onscreen(view,mark);
+	return SUCCESS;
 }
 
 static char STR_ERROR[]    = "ОШИБКА СИСТЕМЫ : ";
@@ -169,7 +188,7 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 				dialog_error(pub->str);
 				g_error_free(err);
 			}
-			gtk_text_buffer_insert_at_cursor(log->view_buf,buf->str,-1);
+			add_string_view_buff(log->view_buff,buf);
 		}
 		return;
 	}
@@ -227,6 +246,26 @@ int check_logging(GString * catalog)
 /*    Общие функции                                                          */
 /*****************************************************************************/
 
+
+static GtkTextView * init_view_buff(void)
+{
+	GtkWidget * text_view;
+	GtkTextBuffer * text_buff;
+	GtkTextIter text_iter;
+
+	text_view = gtk_text_view_new();
+	text_buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+
+	gtk_text_buffer_get_end_iter(text_buff,&text_iter);
+	gtk_text_buffer_create_mark(text_buff,mark_end_buff,&text_iter,FALSE);
+
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(text_view),FALSE);
+	/*gtk_text_view_set_overwrite(GTK_TEXT_VIEW(text_view),FALSE);*/
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view),FALSE);
+
+	return GTK_TEXT_VIEW(text_view);
+}
+
 #define DEFAULT_TIMEOUT_FLUSH_INFO_CHANNEL    60000    /*в миллисекундах*/
 static int timeout_flush_info_channel = DEFAULT_TIMEOUT_FLUSH_INFO_CHANNEL;
 
@@ -234,7 +273,7 @@ int init_logging(void)
 {
 	int rc = FAILURE;
 
-	logging.view_buf = gtk_text_buffer_new(NULL);
+	logging.view_buff = init_view_buff();
 
 	if(logging.error_name == NULL){
 		return rc;
@@ -299,18 +338,21 @@ int deinit_logging(void)
 	}
 	s = logging.buf;
 	g_string_free(s,TRUE);
-	g_object_unref(logging.view_buf);
 	return SUCCESS;
 }
 
 /*****************************************************************************/
+static void text_view_destroy_log(GtkWidget * w,gpointer ud)
+{
+	logging_s * log = (logging_s*)ud;
+	log->view_buff = NULL;
+}
 
 GtkWidget * create_block_log(void)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
-	GtkWidget * log;
-	GtkTextBuffer * buf = logging.view_buf;
+	GtkWidget * log = GTK_WIDGET(logging.view_buff);
 
 	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
@@ -320,11 +362,8 @@ GtkWidget * create_block_log(void)
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	log = gtk_text_view_new_with_buffer(buf);
 	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
-	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
-
+	g_signal_connect(log,"destroy",G_CALLBACK(text_view_destroy_log),&logging);
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),log);
 
