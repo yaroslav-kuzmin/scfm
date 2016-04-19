@@ -456,7 +456,7 @@ static int server_receive(cell_s * server)
 	uint8_t modbus_function;
 	uint16_t modbus_register;
 	uint16_t modbus_amount;
-	uint16_t modbus_amount_byte;
+	uint8_t modbus_amount_byte;
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
 	modbus_mapping_t * mb_mapping = server->mapp_reg;
@@ -473,19 +473,20 @@ static int server_receive(cell_s * server)
 
 	g_string_printf(server->buf,"[%05lld] server : %02x",position,modbus_function);
 
-	if(modbus_function != READ_HOLDING_REGISTERS){
-		if(modbus_function != WRITE_SINGLE_REGISTER){
-			if(modbus_function != WRITE_MULTI_REGISTER){
-				g_warning("Номер функции неподдерживается : %d",modbus_function);
-				g_string_append_printf(server->buf,"\n");
-				rc = modbus_reply(ctx_server,query,rc,mb_mapping);
-				if( rc == -1){
-					g_warning("Клиент закрыл соединение");
- 					return MODBUS_CLOSE;
-				}
-				return MODBUS_INCORRECT;
+	switch(modbus_function){
+		case READ_HOLDING_REGISTERS:
+		case WRITE_SINGLE_REGISTER:
+		case WRITE_MULTI_REGISTER:
+			break;
+		default:
+			g_warning("Номер функции неподдерживается : %d",modbus_function);
+			g_string_append_printf(server->buf,"\n");
+			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
+			if( rc == -1){
+				g_warning("Клиент закрыл соединение");
+ 				return MODBUS_CLOSE;
 			}
-		}
+			return MODBUS_INCORRECT;
 	}
 
 	server->query_func = modbus_function;
@@ -514,7 +515,7 @@ static int server_receive(cell_s * server)
 		return MODBUS_INCORRECT;
 	}
 
-	if(modbus_function == WRITE_SINGLE_REGISTER){
+	if(modbus_function == WRITE_MULTI_REGISTER){
 		int i,j;
 		modbus_amount_byte = query[header_length + 5];
 		g_string_append_printf(server->buf," %02x",modbus_amount_byte);
@@ -532,8 +533,8 @@ static int server_receive(cell_s * server)
 			server->query_byte[i] = t;
 			g_string_append_printf(server->buf," %04x",t);
 		}
+		server->query_amount_byte = modbus_amount_byte;
 	}
-	server->query_amount_byte = modbus_amount_byte;
 
 	g_string_append_printf(server->buf,"\n");
 
