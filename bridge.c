@@ -504,10 +504,9 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount_reg;
 
-#if 0
-	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
+	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount_reg);
 	if(rc == MODBUS_INCORRECT){
-		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
+		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount_reg);
 		g_string_append_printf(server->buf,"\n");
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
@@ -516,7 +515,6 @@ static int server_receive(cell_s * server)
 		}
 		return MODBUS_INCORRECT;
 	}
-#endif
 #if 0
 	if(modbus_function == WRITE_MULTI_REGISTER){
 		int i,j;
