@@ -504,6 +504,8 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount_reg;
 
+
+	g_string_append_printf(server->buf," (%04x %04x)",server->begin_reg,server->amount_reg);
 	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount_reg);
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount_reg);
@@ -732,7 +734,7 @@ static int flush_info_bridge(gpointer ud)
 		text_view = bb->text_view;
 		text_buf = gtk_text_view_get_buffer(text_view);
 		mark = gtk_text_buffer_get_mark(text_buf,mark_end_buff);
-		gtk_text_buffer_get_iter_at_mark (text_buf,&iter,mark);
+		gtk_text_buffer_get_iter_at_mark(text_buf,&iter,mark);
 		g_mutex_lock(&(bb->m_bridge));
 		buf = bb->buf;
 		gtk_text_buffer_insert(text_buf,&iter,buf->str,-1);
@@ -767,8 +769,16 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	text_buf = gtk_text_buffer_new(NULL);
 	bb->buf = g_string_new(NULL);
+	log = gtk_text_view_new();
+	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
+	/*gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);*/
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(log),FALSE);
+	bb->text_view = GTK_TEXT_VIEW(log);
+	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
+
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(log));
 	gtk_text_buffer_create_tag(text_buf,"blue_foreground","foreground","blue",NULL);
 	gtk_text_buffer_create_tag(text_buf,"red_foreground" ,"foreground","red",NULL);
 	gtk_text_buffer_create_tag(text_buf,"gree_foreground","foreground","green",NULL);
@@ -778,15 +788,6 @@ static GtkWidget * create_block_info(block_bridge_s * bb)
 
 	gtk_text_buffer_get_end_iter(text_buf,&text_iter);
 	gtk_text_buffer_create_mark(text_buf,mark_end_buff,&text_iter,FALSE);
-
-	log = gtk_text_view_new_with_buffer(text_buf);
-	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log),FALSE);
-	gtk_text_view_set_overwrite(GTK_TEXT_VIEW(log),FALSE);
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(log),FALSE);
-	bb->text_view = GTK_TEXT_VIEW(log);
-
-	g_signal_connect(log,"realize",G_CALLBACK(realize_block_info),bb);
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),log);
