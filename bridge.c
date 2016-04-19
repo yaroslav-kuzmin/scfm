@@ -460,7 +460,7 @@ static int server_receive(cell_s * server)
 	uint16_t modbus_amount_reg;
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
-	modbus_mapping_t * mb_mapping = server->mapp_reg;
+	/*modbus_mapping_t * mb_mapping = server->mapp_reg;*/
 
 	/*uint8_t modbus_amount_byte;*/
 
@@ -484,11 +484,13 @@ static int server_receive(cell_s * server)
 		default:
 			g_warning("Номер функции неподдерживается : %d",modbus_function);
 			g_string_append_printf(server->buf,"\n");
+#if 0			
 			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 			if( rc == -1){
 				g_warning("Клиент закрыл соединение");
  				return MODBUS_CLOSE;
 			}
+#endif			
 			return MODBUS_INCORRECT;
 	}
 
@@ -510,11 +512,13 @@ static int server_receive(cell_s * server)
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount_reg);
 		g_string_append_printf(server->buf,"\n");
+#if 0		
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
 			g_warning("Клиент закрыл соединение");
   			return MODBUS_CLOSE;
 		}
+#endif		
 		return MODBUS_INCORRECT;
 	}
 #if 0
@@ -742,7 +746,6 @@ static int flush_info_bridge(gpointer ud)
 		g_mutex_unlock(&(bb->m_bridge));
 		gtk_text_view_scroll_mark_onscreen(text_view,mark);
 	}
-
 	return TRUE;
 }
 
