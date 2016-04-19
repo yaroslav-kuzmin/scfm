@@ -460,7 +460,7 @@ static int server_receive(cell_s * server)
 	uint16_t modbus_amount_reg;
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
-	/*modbus_mapping_t * mb_mapping = server->mapp_reg;*/
+	modbus_mapping_t * mb_mapping = server->mapp_reg;
 
 	/*uint8_t modbus_amount_byte;*/
 
@@ -476,7 +476,6 @@ static int server_receive(cell_s * server)
 	modbus_function = query[header_length];
 	g_string_append_printf(server->buf," %02x",modbus_function);
 	server->query_func = modbus_function;
-#if 0
 	switch(modbus_function){
 		case READ_HOLDING_REGISTERS:
 		case WRITE_SINGLE_REGISTER:
@@ -492,8 +491,6 @@ static int server_receive(cell_s * server)
 			}
 			return MODBUS_INCORRECT;
 	}
-#endif
-
 
 	modbus_register = query[header_length+1];
 	modbus_register <<= 8;
