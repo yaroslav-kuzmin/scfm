@@ -462,6 +462,8 @@ static int server_receive(cell_s * server)
 	uint16_t header_length = modbus_get_header_length(ctx_server);
 	modbus_mapping_t * mb_mapping = server->mapp_reg;
 
+	position ++;
+	g_string_printf(server->buf,"[%05lld] server :",position);
 	rc = modbus_receive(ctx_server,query);
 	if(rc == -1){
 		g_warning("Клиент закрыл соединение");
@@ -469,9 +471,8 @@ static int server_receive(cell_s * server)
 	}
 	server->query_amount = rc;
 
-	position ++;
 	modbus_function = query[header_length];
-	g_string_printf(server->buf,"[%05lld] server : %02x\n",position,modbus_function);
+	g_string_append_printf(server->buf," %02x",modbus_function);
 
 	switch(modbus_function){
 		case READ_HOLDING_REGISTERS:
@@ -480,7 +481,7 @@ static int server_receive(cell_s * server)
 			break;
 		default:
 			g_warning("Номер функции неподдерживается : %d",modbus_function);
-			/*g_string_append_printf(server->buf,"\n");*/
+			g_string_append_printf(server->buf,"\n");
 			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 			if( rc == -1){
 				g_warning("Клиент закрыл соединение");
@@ -501,12 +502,12 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount;
 
-	/*g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);*/
+	g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);
 
 	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
-		/*g_string_append_printf(server->buf,"\n");*/
+		g_string_append_printf(server->buf,"\n");
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
 			g_warning("Клиент закрыл соединение");
@@ -536,7 +537,7 @@ static int server_receive(cell_s * server)
 		server->query_amount_byte = modbus_amount_byte;
 	}
 #endif
-	/*g_string_append_printf(server->buf,"\n");*/
+	g_string_append_printf(server->buf,"\n");
 
 	return MODBUS_CORRECT;
 }
