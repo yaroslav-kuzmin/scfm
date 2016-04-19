@@ -81,8 +81,9 @@ struct _cell_s
 	uint16_t query_reg;
 	uint16_t query_amount_reg;
 	uint16_t query_amount;
-	uint16_t query_amount_byte;
-	uint16_t query_byte[SIZE_QUERY_BYTE];
+
+	/*uint16_t query_byte[SIZE_QUERY_BYTE];*/
+	/*uint16_t query_amount_byte;*/
 
 	GString * buf;
 };
@@ -456,7 +457,7 @@ static int server_receive(cell_s * server)
 	uint8_t modbus_function;
 	uint16_t modbus_register;
 	uint16_t modbus_amount;
-	uint8_t modbus_amount_byte;
+	/*uint8_t modbus_amount_byte;*/
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
 	modbus_mapping_t * mb_mapping = server->mapp_reg;
@@ -470,8 +471,7 @@ static int server_receive(cell_s * server)
 
 	position ++;
 	modbus_function = query[header_length];
-
-	g_string_printf(server->buf,"[%05lld] server : %02x",position,modbus_function);
+	g_string_printf(server->buf,"[%05lld] server : %02x\n",position,modbus_function);
 
 	switch(modbus_function){
 		case READ_HOLDING_REGISTERS:
@@ -480,7 +480,7 @@ static int server_receive(cell_s * server)
 			break;
 		default:
 			g_warning("Номер функции неподдерживается : %d",modbus_function);
-			g_string_append_printf(server->buf,"\n");
+			/*g_string_append_printf(server->buf,"\n");*/
 			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 			if( rc == -1){
 				g_warning("Клиент закрыл соединение");
@@ -501,12 +501,12 @@ static int server_receive(cell_s * server)
 	server->query_reg = modbus_register;
 	server->query_amount_reg = modbus_amount;
 
-	g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);
+	/*g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);*/
 
 	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
-		g_string_append_printf(server->buf,"\n");
+		/*g_string_append_printf(server->buf,"\n");*/
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
 			g_warning("Клиент закрыл соединение");
@@ -535,8 +535,8 @@ static int server_receive(cell_s * server)
 		}
 		server->query_amount_byte = modbus_amount_byte;
 	}
-#endif 
-	g_string_append_printf(server->buf,"\n");
+#endif
+	/*g_string_append_printf(server->buf,"\n");*/
 
 	return MODBUS_CORRECT;
 }
