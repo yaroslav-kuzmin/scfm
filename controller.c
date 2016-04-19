@@ -2292,8 +2292,8 @@ GtkWidget * create_block_controller(void)
 	frame_control = create_block_control(&block_controller);
 	frame_state = create_block_state(&block_controller);
 
-	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),frame_control,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 

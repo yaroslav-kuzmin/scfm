@@ -247,13 +247,14 @@ int check_logging(GString * catalog)
 /*****************************************************************************/
 
 
-static GtkTextView * init_view_buff(void)
+static GtkTextView * create_view_buff(void)
 {
 	GtkWidget * text_view;
 	GtkTextBuffer * text_buff;
 	GtkTextIter text_iter;
 
 	text_view = gtk_text_view_new();
+	gtk_widget_set_size_request(text_view,1600,150);
 	text_buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
 
 	gtk_text_buffer_get_end_iter(text_buff,&text_iter);
@@ -273,7 +274,7 @@ int init_logging(void)
 {
 	int rc = FAILURE;
 
-	logging.view_buff = init_view_buff();
+	logging.view_buff = NULL;
 
 	if(logging.error_name == NULL){
 		return rc;
@@ -352,23 +353,26 @@ GtkWidget * create_block_log(void)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
-	GtkWidget * log = GTK_WIDGET(logging.view_buff);
+	GtkTextView * log;
 
 	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
-	gtk_container_set_border_width(GTK_CONTAINER(frame),3);
-	gtk_widget_set_size_request(frame,-1,150);
+	gtk_container_set_border_width(GTK_CONTAINER(frame),0);
+	gtk_widget_set_size_request(frame,1600,150);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	layout_widget(log,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	log = create_view_buff();
+	layout_widget(GTK_WIDGET(log),GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	g_signal_connect(log,"destroy",G_CALLBACK(text_view_destroy_log),&logging);
+	logging.view_buff = log;
+
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
-	gtk_container_add(GTK_CONTAINER(scrwin),log);
+	gtk_container_add(GTK_CONTAINER(scrwin),GTK_WIDGET(log));
 
 	gtk_widget_show(frame);
 	gtk_widget_show(scrwin);
-	gtk_widget_show(log);
+	gtk_widget_show(GTK_WIDGET(log));
 	return frame;
 }
