@@ -454,13 +454,15 @@ static int server_receive(cell_s * server)
 {
 	int rc;
 	modbus_t * ctx_server = server->link->connect;
+
 	uint8_t modbus_function;
 	uint16_t modbus_register;
-	uint16_t modbus_amount;
-	/*uint8_t modbus_amount_byte;*/
+	uint16_t modbus_amount_reg;
 	uint8_t * query = server->query;
 	uint16_t header_length = modbus_get_header_length(ctx_server);
-	modbus_mapping_t * mb_mapping = server->mapp_reg;
+	/*modbus_mapping_t * mb_mapping = server->mapp_reg;*/
+
+	/*uint8_t modbus_amount_byte;*/
 
 	position ++;
 	g_string_printf(server->buf,"[%05lld] server :",position);
@@ -473,7 +475,8 @@ static int server_receive(cell_s * server)
 
 	modbus_function = query[header_length];
 	g_string_append_printf(server->buf," %02x",modbus_function);
-
+	server->query_func = modbus_function;
+#if 0
 	switch(modbus_function){
 		case READ_HOLDING_REGISTERS:
 		case WRITE_SINGLE_REGISTER:
@@ -489,21 +492,22 @@ static int server_receive(cell_s * server)
 			}
 			return MODBUS_INCORRECT;
 	}
+#endif
 
-	server->query_func = modbus_function;
 
 	modbus_register = query[header_length+1];
 	modbus_register <<= 8;
 	modbus_register += query[header_length+2];
-	modbus_amount = query[header_length+3];
-	modbus_amount <<= 8;
-	modbus_amount += query[header_length+4];
 
+	modbus_amount_reg = query[header_length+3];
+	modbus_amount_reg <<= 8;
+	modbus_amount_reg += query[header_length+4];
+
+	g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount_reg);
 	server->query_reg = modbus_register;
-	server->query_amount_reg = modbus_amount;
+	server->query_amount_reg = modbus_amount_reg;
 
-	g_string_append_printf(server->buf," %04x %04x",modbus_register,modbus_amount);
-
+#if 0
 	rc = server_check_register(server->begin_reg,server->amount_reg,modbus_register,modbus_amount);
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount);
@@ -515,6 +519,7 @@ static int server_receive(cell_s * server)
 		}
 		return MODBUS_INCORRECT;
 	}
+#endif
 #if 0
 	if(modbus_function == WRITE_MULTI_REGISTER){
 		int i,j;
