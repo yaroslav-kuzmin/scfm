@@ -476,7 +476,7 @@ static int server_receive(cell_s * server)
 	switch(modbus_function){
 		case READ_HOLDING_REGISTERS:
 		case WRITE_SINGLE_REGISTER:
-		case WRITE_MULTI_REGISTER:
+		/*case WRITE_MULTI_REGISTER:*/
 			break;
 		default:
 			g_warning("Номер функции неподдерживается : %d",modbus_function);
@@ -514,7 +514,7 @@ static int server_receive(cell_s * server)
 		}
 		return MODBUS_INCORRECT;
 	}
-
+#if 0
 	if(modbus_function == WRITE_MULTI_REGISTER){
 		int i,j;
 		modbus_amount_byte = query[header_length + 5];
@@ -535,7 +535,7 @@ static int server_receive(cell_s * server)
 		}
 		server->query_amount_byte = modbus_amount_byte;
 	}
-
+#endif 
 	g_string_append_printf(server->buf,"\n");
 
 	return MODBUS_CORRECT;
@@ -621,7 +621,7 @@ static gpointer work_bridge(gpointer ud)
 			position ++;
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
-
+#if 0
 		if( cell_server->query_func == WRITE_MULTI_REGISTER){
 			rc = modbus_write_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,cell_server->query_byte);
 			if(rc == -1){
@@ -632,6 +632,7 @@ static gpointer work_bridge(gpointer ud)
 			position ++;
 			g_string_printf(cell_client->buf,"[%05lld] client : 10 %04x %04x == %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg,rc);
 		}
+#endif
 
 reply_continue:
 		rc = server_reply(cell_server);
