@@ -484,13 +484,13 @@ static int server_receive(cell_s * server)
 		default:
 			g_warning("Номер функции неподдерживается : %d",modbus_function);
 			g_string_append_printf(server->buf,"\n");
-#if 0			
+#if 0
 			rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 			if( rc == -1){
 				g_warning("Клиент закрыл соединение");
  				return MODBUS_CLOSE;
 			}
-#endif			
+#endif
 			return MODBUS_INCORRECT;
 	}
 
@@ -512,13 +512,13 @@ static int server_receive(cell_s * server)
 	if(rc == MODBUS_INCORRECT){
 		g_warning("Адрес регистра некорректный : %#x . %d",modbus_register,modbus_amount_reg);
 		g_string_append_printf(server->buf,"\n");
-#if 0		
+#if 0
 		rc = modbus_reply(ctx_server,query,rc,mb_mapping);
 		if(rc == -1){
 			g_warning("Клиент закрыл соединение");
   			return MODBUS_CLOSE;
 		}
-#endif		
+#endif
 		return MODBUS_INCORRECT;
 	}
 #if 0
