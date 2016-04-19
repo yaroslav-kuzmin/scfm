@@ -571,13 +571,13 @@ static int server_reply(cell_s * server)
 
 static gpointer work_bridge(gpointer ud)
 {
-	int i;
+	/*int i;*/
 	int rc;
 	block_bridge_s * bb = (block_bridge_s*)ud;
 	cell_s * cell_server = bb->cell[CELL_SERVER];
 	cell_s * cell_client = bb->cell[CELL_CLIENT];
-	modbus_t * ctx_client = cell_client->link->connect;
-	uint16_t * dest = cell_client->link->dest;
+	/*modbus_t * ctx_client = cell_client->link->connect;*/
+	/*uint16_t * dest = cell_client->link->dest;*/
 
 	for(;;){
 		g_mutex_lock(&(bb->m_bridge));
@@ -596,6 +596,7 @@ static gpointer work_bridge(gpointer ud)
 			goto reply_continue;
 		}
 
+#if 0
 		if( cell_server->query_func == READ_HOLDING_REGISTERS){
 			rc = modbus_read_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,dest);
 			if(rc == -1){
@@ -622,7 +623,6 @@ static gpointer work_bridge(gpointer ud)
 			position ++;
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x  %04x\n",position,cell_server->query_reg,cell_server->query_amount_reg);
 		}
-#if 0
 		if( cell_server->query_func == WRITE_MULTI_REGISTER){
 			rc = modbus_write_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,cell_server->query_byte);
 			if(rc == -1){
