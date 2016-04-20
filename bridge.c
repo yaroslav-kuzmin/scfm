@@ -694,13 +694,12 @@ static void clicked_button_connect(GtkButton * b,gpointer ud)
 			dialog_info("Несмог подключится");
 			return ;
 		}
+		bb->connect = OK;
 		/*запуск потока проброса*/
 		bb->exit = NOT_OK;
 		g_mutex_init(&(bb->m_bridge));
 		bb->t_bridge = g_thread_new("bridge",work_bridge,bb);
-
 		gtk_button_set_label(b,STR_CONTROL_DISCONNECT);
-		bb->connect = OK;
 	}
 	else{
 		g_mutex_lock(&(bb->m_bridge));
