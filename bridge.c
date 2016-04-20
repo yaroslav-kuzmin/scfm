@@ -529,7 +529,8 @@ static int server_receive(cell_s * server)
 			break;
 	}
 
-	g_string_append_printf(server->buf," %04x %02x",server->amount_reg,server->query_amount_byte);
+	g_string_append_printf(server->buf," %04x %02x",server->query_amount_reg,server->query_amount_byte);
+
 	for(int i = 0;i < server->query_amount_reg;i++){
 		g_string_append_printf(server->buf," %04x",server->query_value_reg[i]);
 	}
@@ -633,7 +634,7 @@ static gpointer work_bridge(gpointer ud)
 
 		if( cell_server->query_func == WRITE_SINGLE_REGISTER){
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x ",position,cell_server->query_reg);
-			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_amount_reg);
+			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_value_reg[0]);
 			if(rc == -1){
 				g_warning("Сервер разорвал соединение");
 				bb->connect = NOT_OK;
