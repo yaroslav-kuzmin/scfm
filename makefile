@@ -61,7 +61,7 @@ OBJS=$(patsubst %.c,$(OBJ_CATALOG)%.o,$(SOURCE))
 DEPEND=$(patsubst %.c,$(DEPEND_CATALOG)%.d,$(SOURCE))
 
 CXX=gcc
-CFLAGS=-g2 -Wall -I. -I$(MODBUS_CATALOG) -DG_LOG_DOMAIN=\"scfm\" `pkg-config --cflags gtk+-3.0`
+CFLAGS=-g2 -std=c99 -Wall -I. -I$(MODBUS_CATALOG) -DG_LOG_DOMAIN=\"scfm\" `pkg-config --cflags gtk+-3.0`
 LDFLAGS=-g2 -L$(MODBUS_CATALOG) 
 ifeq '$(OS)' '$(OS_WINDOWS)'
 LDFLAGS+=-mwindows
