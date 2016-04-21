@@ -209,6 +209,7 @@ GtkWidget * create_block_object(void)
 
 	notebook = gtk_notebook_new();
 	layout_widget(notebook,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(notebook,1450,850);
 	block_object.notebook = GTK_NOTEBOOK(notebook);
 
 	create_block_page(&block_object,STR_BASE_PAGE);

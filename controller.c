@@ -1251,6 +1251,7 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 
 	frame = gtk_frame_new("Информация");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -2044,7 +2045,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 	frame = gtk_frame_new("Управление");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_frame_set_label_align(GTK_FRAME(frame),0.5,1);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),5);
 
 	block_control_console = create_block_control_console(bc);

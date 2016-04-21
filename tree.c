@@ -324,7 +324,7 @@ GtkWidget * create_block_tree_object(void)
 
 	frame = gtk_frame_new("Объекты");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	gtk_widget_set_size_request(frame,150,-1);
+	gtk_widget_set_size_request(frame,155,-1);
 	g_signal_connect(frame,"realize",G_CALLBACK(realize_frame_tree_object),&block_tree);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);

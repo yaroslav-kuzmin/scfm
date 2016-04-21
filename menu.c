@@ -252,6 +252,7 @@ GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 
 	menbar_main = gtk_menu_bar_new();
 	layout_widget(menbar_main,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
+	gtk_widget_set_size_request(menbar_main,DEFAULT_WIDTH_WINDOW,20);
 
 	menite_job = create_menu_job(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);

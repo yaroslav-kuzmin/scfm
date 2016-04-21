@@ -68,6 +68,9 @@ typedef unsigned int   flag_t;
 
 extern char STR_NAME_PROGRAMM[];
 
+#define DEFAULT_WIDTH_WINDOW     1615
+#define DEFAULT_HEIGHT_WINDOW    1050
+
 /**************************************/
 enum
 {

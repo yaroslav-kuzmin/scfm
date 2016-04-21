@@ -108,7 +108,7 @@ static int about_programm(GtkWindow * parent_window)
 }
 
 /*****************************************************************************/
-static flag_t defualt_size(GtkWidget * w)
+static flag_t default_size(GtkWidget * w)
 {
 	GtkRequisition min;
 	GtkRequisition nat;
@@ -143,12 +143,12 @@ static GtkWidget * create_block_job(void)
 	return box;
 }
 
-static void destroy_window_main(GtkWidget * w,gpointer ud)
+static void window_destroy_main(GtkWidget * w,gpointer ud)
 {
 	gtk_main_quit();
 }
 
-static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpointer ud)
+static gboolean window_key_press_event_main(GtkWidget * w,GdkEvent  *event,gpointer ud)
 {
 	GdkEventType type = event->type;
 	gint state;
@@ -162,11 +162,19 @@ static gboolean key_press_event_window_main(GtkWidget * w,GdkEvent  *event,gpoin
 				about_programm(GTK_WINDOW(w));
 			}
 			if( event_key->keyval == GDK_KEY_S){
-				defualt_size(w);
+				default_size(w);
 			}
 		}
 	}
 	return FALSE;
+}
+
+static void window_realize_main(GtkWidget * w,gpointer ud)
+{
+}
+
+static void window_show_main(GtkWidget * w,gpointer ud)
+{
 }
 
 static GtkWidget * create_main_block(void)
@@ -182,12 +190,15 @@ static GtkWidget * create_main_block(void)
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 	gtk_window_set_resizable(GTK_WINDOW(win_main),TRUE);
-	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(win_main),1600,1050);
+
+	/*gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);*/
+	/*gtk_window_set_default_size(GTK_WINDOW(win_main),DEFAULT_WIDTH_WINDOW,DEFAULT_HEIGHT_WINDOW);*/
 	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 
-	g_signal_connect(win_main,"destroy",G_CALLBACK(destroy_window_main), NULL);
-	g_signal_connect(win_main,"key-press-event",G_CALLBACK(key_press_event_window_main),NULL);
+	g_signal_connect(win_main,"destroy",G_CALLBACK(window_destroy_main), NULL);
+	g_signal_connect(win_main,"key-press-event",G_CALLBACK(window_key_press_event_main),NULL);
+	g_signal_connect(win_main,"realize",G_CALLBACK(window_realize_main),NULL);
+	g_signal_connect(win_main,"show",G_CALLBACK(window_show_main),NULL);
 
 	accgro_main = gtk_accel_group_new();
 
@@ -211,7 +222,17 @@ static GtkWidget * create_main_block(void)
 
 	return win_main;
 }
+static flag_t move_main_block(GtkWidget * win_main)
+{
+	GdkDisplay * display = gdk_display_get_default();
+	GdkScreen * screen = gdk_display_get_default_screen(display);
 
+	g_info("Высота %d : ширина %d",gdk_screen_get_width(screen),gdk_screen_get_height(screen));
+
+	default_size(win_main);
+	/*gtk_window_move(GTK_WINDOW(win_main),0,0);*/
+	return SUCCESS;
+}
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
@@ -223,6 +244,9 @@ int main(int argc,char * argv[])
 	win_main = create_main_block();
 
 	apply_style(win_main);
+
+	move_main_block(win_main);
+
 	gtk_main();
 
 	deinit_system();

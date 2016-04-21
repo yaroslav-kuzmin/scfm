@@ -349,6 +349,8 @@ static void text_view_destroy_log(GtkWidget * w,gpointer ud)
 	log->view_buff = NULL;
 }
 
+#define DEFAULT_WIDTH_LOG      DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_LOG     150
 GtkWidget * create_block_log(void)
 {
 	GtkWidget * frame;
@@ -358,7 +360,7 @@ GtkWidget * create_block_log(void)
 	frame = gtk_frame_new("Журнал");
 	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),0);
-	gtk_widget_set_size_request(frame,1600,150);
+	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_LOG,DEFAULT_HEIGHT_LOG);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
