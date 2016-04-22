@@ -88,7 +88,7 @@ flag_t dialog_error(char * message)
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
 	/*TODO применить свой стиль */
 	/*apply_style(md_err);*/
-	gtk_dialog_run(GTK_DIALOG(md_err));
+	/*gtk_dialog_run(GTK_DIALOG(md_err));*/
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
 	g_critical("%s",message);

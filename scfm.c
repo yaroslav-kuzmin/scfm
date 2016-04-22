@@ -43,6 +43,7 @@
 
 /*****************************************************************************/
 
+#include <stdlib.h>
 #include "pub.h"
 #include "common.h"
 #include "log.h"
@@ -118,8 +119,8 @@ static flag_t default_size(GtkWidget * w)
 	gtk_window_get_position(GTK_WINDOW(w),&pos_x,&pos_y);
 	gtk_widget_get_preferred_size(w,&min,&nat);
 
-	g_info("Размер основного экрана  : %dx%d",nat.width,nat.height);
-	g_info("Позиция основного экрана : %d %d",pos_x,pos_y);
+	g_message("Размер основного экрана  : %dx%d",nat.width,nat.height);
+	g_message("Позиция основного экрана : %d %d",pos_x,pos_y);
 
 	return SUCCESS;
 }
@@ -189,9 +190,8 @@ static GtkWidget * create_main_block(void)
 	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
-	gtk_window_set_resizable(GTK_WINDOW(win_main),TRUE);
-
-	/*gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER);*/
+	/*gtk_window_set_resizable(GTK_WINDOW(win_main),FALSE);*/
+	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER_ALWAYS);
 	/*gtk_window_set_default_size(GTK_WINDOW(win_main),DEFAULT_WIDTH_WINDOW,DEFAULT_HEIGHT_WINDOW);*/
 	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 
@@ -222,22 +222,37 @@ static GtkWidget * create_main_block(void)
 
 	return win_main;
 }
+
 static flag_t move_main_block(GtkWidget * win_main)
+{
+	/*default_size(win_main);*/
+	return SUCCESS;
+}
+
+#define MIN_WIDTH_SCREEN         1680
+#define MIN_HEIGHT_SCREEN        1050
+
+static flag_t check_size_window(void)
 {
 	GdkDisplay * display = gdk_display_get_default();
 	GdkScreen * screen = gdk_display_get_default_screen(display);
+	int width = gdk_screen_get_width(screen);
+	int height = gdk_screen_get_height(screen);
 
-	g_info("Высота %d : ширина %d",gdk_screen_get_width(screen),gdk_screen_get_height(screen));
-
-	default_size(win_main);
-	/*gtk_window_move(GTK_WINDOW(win_main),0,0);*/
+	if( (width < MIN_WIDTH_SCREEN) || (height < MIN_HEIGHT_SCREEN)){
+		dialog_error("Минимальное разрешение экрана 1680x1050");
+		exit(1);
+	}
 	return SUCCESS;
 }
 /*****************************************************************************/
 int main(int argc,char * argv[])
 {
 	GtkWidget * win_main;
+
 	gtk_init(&argc,&argv);
+
+	check_size_window();
 
 	init_system();
 
