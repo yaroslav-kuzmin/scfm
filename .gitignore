@@ -10,10 +10,6 @@
 *.tar
 tags
 version.h
-resource/.obj
-resource/.obj/base.c
-resource/.obj/base.o
-resource/image.gresource
-resource/style.gresource
+*.gresource
 doc
 resource/base/*.xcf
