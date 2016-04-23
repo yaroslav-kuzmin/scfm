@@ -292,8 +292,10 @@ static char STR_RESOURCE_DIR[] = "resource"G_DIR_SEPARATOR_S;
 static char STR_RESOURCE_EXT[] = ".gresource";
 static char STR_RESOURCE_IMAGE[] = "image";
 static char STR_RESOURCE_STYLE[] = "style";
+static char STR_RESOURCE_UI[] = "ui";
 static GString * name_resource_image = NULL;
 static GString * name_resource_style = NULL;
+static GString * name_resource_ui = NULL;
 
 static flag_t check_resource(void)
 {
@@ -317,11 +319,21 @@ static flag_t check_resource(void)
 		g_error("Нет файла ресурсов : %s",name_resource_style->str);
 		return FAILURE;
 	}
+	name_resource_ui = g_string_new(NULL);
+	g_string_append(name_resource_ui,STR_RESOURCE_DIR);
+	g_string_append(name_resource_ui,STR_RESOURCE_UI);
+	g_string_append(name_resource_ui,STR_RESOURCE_EXT);
+	rc = g_file_test(name_resource_ui->str,G_FILE_TEST_IS_REGULAR);
+	if(rc == FALSE){
+		g_error("Нет файла ресурсов : %s",name_resource_ui->str);
+		return FAILURE;
+	}
 	return SUCCESS;
 }
 
 static GResource * resource_image;
 static GResource * resource_style;
+static GResource * resource_ui;
 
 static flag_t init_resource(void)
 {
@@ -341,8 +353,17 @@ static flag_t init_resource(void)
 		return FAILURE;
 	}
 
+	err = NULL;
+	resource_ui = g_resource_load(name_resource_ui->str,&err);
+	if(resource_ui == NULL){
+		g_warning("Нет ресурсов : %s",err->message);
+		g_error_free(err);
+		return FAILURE;
+	}
+
 	g_resources_register(resource_image);
 	g_resources_register(resource_style);
+	g_resources_register(resource_ui);
 
 	return SUCCESS;
 }
@@ -352,8 +373,17 @@ static flag_t deinit_resource(void)
 	if(resource_image != NULL){
 		g_resources_unregister(resource_image);
 		g_resource_unref(resource_image);
+		g_string_free(name_resource_image,TRUE);
+	}
+	if(resource_style != NULL){
 		g_resources_unregister(resource_style);
 		g_resource_unref(resource_style);
+		g_string_free(name_resource_style,TRUE);
+	}
+	if(resource_ui != NULL){
+		g_resources_unregister(resource_ui);
+		g_resource_unref(resource_ui);
+		g_string_free(name_resource_ui,TRUE);
 	}
 	return SUCCESS;
 }
@@ -423,6 +453,35 @@ static flag_t deinit_style(void)
 {
 	return SUCCESS;
 }
+/*****************************************************************************/
+/*  Постройка интерфейса                                                     */
+/*****************************************************************************/
+static GtkBuilder * builder;
+
+GtkWidget * builder_widget(flag_t module, char * name)
+{
+	GtkWidget * w;
+	/*TODO без пересборки */
+	g_string_printf(pub,"resource");
+	switch(module){
+		case MODULE_MAIN_WINDOW:
+			g_string_append_printf(pub,"/ui/%s.ui",STR_MODULE_MAIN_WINDOW);
+			break;
+		default:
+			g_critical("No name module : %d",module);
+			return NULL;
+	}
+
+	/*builder = gtk_builder_new_from_resource(pub->str);*/
+	builder = gtk_builder_new_from_file(pub->str);
+
+	w = (GtkWidget*)gtk_builder_get_object(builder,name);
+
+	g_object_unref(builder);
+	return w;
+}
+
+
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/

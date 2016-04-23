@@ -76,9 +76,16 @@ enum
 {
 	RESOURCE_STYLE = 1,
 	RESOURCE_IMAGE,
+	RESOURCE_UI,
 	AMOUNT_RESOURCE
 };
 
+enum
+{
+	MODULE_MAIN_WINDOW = 1,
+	AMOUNT_MODULE
+};
+extern char STR_MODULE_MAIN_WINDOW[];
 /**************************************/
 
 enum

@@ -187,13 +187,8 @@ static GtkWidget * create_main_block(void)
 	GtkWidget * block_job;
 	GtkWidget * block_log;
 
-	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
+	win_main = builder_widget(MODULE_MAIN_WINDOW,"main_window");
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
-	/*gtk_window_set_resizable(GTK_WINDOW(win_main),FALSE);*/
-	gtk_window_set_position (GTK_WINDOW(win_main),GTK_WIN_POS_CENTER_ALWAYS);
-	/*gtk_window_set_default_size(GTK_WINDOW(win_main),DEFAULT_WIDTH_WINDOW,DEFAULT_HEIGHT_WINDOW);*/
-	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 
 	g_signal_connect(win_main,"destroy",G_CALLBACK(window_destroy_main), NULL);
 	g_signal_connect(win_main,"key-press-event",G_CALLBACK(window_key_press_event_main),NULL);
