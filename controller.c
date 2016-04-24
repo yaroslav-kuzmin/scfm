@@ -93,6 +93,7 @@ struct _show_state_s
 
 	GtkImage * image_fire_alarm;
 	GdkPixbuf * frame_fire_alarm;
+	uint32_t counter_fire_alarm;
 };
 
 typedef struct _show_control_s show_control_s;
@@ -259,6 +260,10 @@ enum
 	PIPE_100,
 	PIPE_BACKGROUND,
 
+	FIRE_ALARM_ON_0,
+	FIRE_ALARM_ON_1,
+	FIRE_ALARM_OFF,
+
  	AMOUNT_IMAGE_STATE
 };
 
@@ -376,6 +381,10 @@ static int init_image(block_controller_s * bc)
 	images_state[PIPE_100]        = get_resource_image(RESOURCE_IMAGE,"pipe_100");
 	images_state[PIPE_BACKGROUND] = get_resource_image(RESOURCE_IMAGE,"pipe_background");
 
+	images_state[FIRE_ALARM_ON_0] = get_resource_image(RESOURCE_IMAGE,"fire_alarm_on_0");
+	images_state[FIRE_ALARM_ON_1] = get_resource_image(RESOURCE_IMAGE,"fire_alarm_on_1");
+	images_state[FIRE_ALARM_OFF]  = get_resource_image(RESOURCE_IMAGE,"fire_alarm_off");
+
  	return SUCCESS;
 }
 
@@ -444,16 +453,18 @@ static GdkPixbuf * get_image_valve_tic(flag_t valve)
 		default:
 				/*TODO поставить отдельный рисунок на ошибку*/
 			buf = images_state[PIPE_000];
-			break;
+ 			break;
 	}
 
-	return buf;
+ 	return buf;
 }
 
 static GdkPixbuf * get_image_valve_analog(uint16_t valve)
 {
 	return images_state[PIPE_000];
 }
+
+/*****************************************************************************/
 
 #define MIN_VERTICAL_TIC      0
 #define MAX_VERTICAL_TIC      30
@@ -834,7 +845,7 @@ static flag_t image_impose(GdkPixbuf * buf_des,GdkPixbuf * buf_src)
 	return SUCCESS;
 }
 
-static int show_console(show_state_s * show_state,show_control_s * show_control
+static flag_t show_console(show_state_s * show_state,show_control_s * show_control
                        ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	flag_t mode = get_mode_controller(controller_state);
@@ -858,7 +869,7 @@ static int show_console(show_state_s * show_state,show_control_s * show_control
 	return SUCCESS;
 }
 
-static int show_vertical(show_state_s * show_state,show_control_s * show_control
+static flag_t show_vertical(show_state_s * show_state,show_control_s * show_control
                         ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -895,7 +906,7 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 	return SUCCESS;
 }
 
-static int show_horizontal(show_state_s * show_state,show_control_s * show_control
+static flag_t show_horizontal(show_state_s * show_state,show_control_s * show_control
                           ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -956,7 +967,7 @@ static char * get_state_valve_string(flag_t state)
 	return str;
 }
 
-static int show_pipe(show_state_s * show_state,show_control_s * show_control
+static flag_t show_pipe(show_state_s * show_state,show_control_s * show_control
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -999,20 +1010,34 @@ static int show_pipe(show_state_s * show_state,show_control_s * show_control
 	gtk_image_set_from_pixbuf(show_state->image_pipe,frame);
 
 	show_state->frame_pipe = frame;
-	return SUCCESS;
+ 	return SUCCESS;
 }
 
-#if 0
-static int show_file_sensor(block_controller_s * bc)
+static flag_t show_fire_alarm(show_state_s * show_state,show_control_s * show_control
+                          ,state_controller_s * controller_state,config_controller_s * controller_config
+													,uint32_t timeout)
 {
-	return SUCCESS;
-}
+ 	int counter;
+	flag_t fire = get_state_fire_alarm(controller_state);
+	GdkPixbuf * buf;
 
-static int show_fire_alarm(block_controller_s * bc)
-{
+	if(fire == STATE_FIRE_ALARM_OFF){
+		buf = images_state[FIRE_ALARM_OFF];
+	}
+	else{
+ 		counter = show_state->counter_fire_alarm;
+		counter += timeout;
+ 		if((counter/MILLISECOND_PER_SECOND) % 2){
+			buf = images_state[FIRE_ALARM_ON_0];
+		}
+		else{
+			buf = images_state[FIRE_ALARM_ON_1];
+		}
+	}
+	gtk_image_set_from_pixbuf(show_state->image_pipe,buf);
+
 	return SUCCESS;
 }
-#endif
 
 static int show_block_controller(gpointer data)
 {
@@ -1045,91 +1070,19 @@ static int show_block_controller(gpointer data)
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
 	show_pipe(bc->state,bc->control,&state,controller->config);
+	show_fire_alarm(bc->state,bc->control,&state,controller->config,bc->timeout_show);
 
-#if 0
-	show_file_sensor(bc);
-	show_fire_alarm(bc);
-#endif
 	return TRUE; /* продолжаем работу */
 }
 
 /*****************************************************************************/
 /*                                                                           */
-/*     Функции отображение информации                                        */
+/*     Отображение состояние контроллера                                     */
 /*                                                                           */
 /*****************************************************************************/
 
-#define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
-#define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
-
-static GtkWidget * create_block_state_vertical(show_state_s * state)
-{
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new(NULL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	/*TODO маштабирование */
-	buf = get_resource_image(RESOURCE_IMAGE,"vertical_background");
-	state->frame_vertical = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
-	state->image_vertical = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-
-#define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
-#define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
-static GtkWidget * create_block_state_horizontal(show_state_s * state)
-{
-	GtkWidget * frame;
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	frame = gtk_frame_new(NULL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	buf = get_resource_image(RESOURCE_IMAGE,"horizontal_background");
-	state->frame_horizontal = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
-	state->image_horizontal = GTK_IMAGE(image);
-
-	gtk_container_add(GTK_CONTAINER(frame),image);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(image);
-
-	return frame;
-}
-
-static GtkWidget * create_block_info_fire(show_state_s * state)
-{
-	GtkWidget * fire;
-	GdkPixbuf * buf;
-
-	buf = get_resource_image(RESOURCE_IMAGE,"fire_alarm_norm");
-	state->frame_fire_alarm = buf;
-	fire = gtk_image_new_from_pixbuf(buf);
-	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
-	state->image_fire_alarm = GTK_IMAGE(fire);
-	gtk_widget_show(fire);
-	return fire;
-}
-
-static char STR_INFO_MODE_WAIT[] = "Ожидание";
-static char STR_INFO_STATE_NORM[] = "Норма";
+static char STR_INFO_MODE_WAIT[] = "автоматический Режим";
+static char STR_INFO_STATE_NORM[] = "Установка : Норма";
 
 static GtkWidget * create_block_info_state(show_state_s * state)
 {
@@ -1155,6 +1108,20 @@ static GtkWidget * create_block_info_state(show_state_s * state)
  	return box;
 }
 
+static GtkWidget * create_block_info_fire(show_state_s * state)
+{
+	GtkWidget * fire;
+	GdkPixbuf * buf;
+
+	buf = images_state[FIRE_ALARM_OFF];
+	state->frame_fire_alarm = buf;
+	fire = gtk_image_new_from_pixbuf(buf);
+	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
+	state->image_fire_alarm = GTK_IMAGE(fire);
+	gtk_widget_show(fire);
+	return fire;
+}
+
 static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
 	GtkWidget * box;
@@ -1163,7 +1130,6 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
-
 	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	block_info_state = create_block_info_state(bc->state);
@@ -1176,31 +1142,90 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	return box;
 }
+
+#define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
+
+static GtkWidget * create_block_state_vertical(show_state_s * state)
+{
+	/*GtkWidget * frame;*/
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	/*frame = gtk_frame_new(NULL);*/
+	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
+
+	/*TODO маштабирование */
+	buf = get_resource_image(RESOURCE_IMAGE,"vertical_background");
+	state->frame_vertical = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_VERTICAL,DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL);*/
+	state->image_vertical = GTK_IMAGE(image);
+
+	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
+
+	/*gtk_widget_show(frame);*/
+	gtk_widget_show(image);
+
+	/*return frame;*/
+	return image;
+}
+
+#define DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL    300
+#define DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL   300
+static GtkWidget * create_block_state_horizontal(show_state_s * state)
+{
+	/*GtkWidget * frame;*/
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	/*frame = gtk_frame_new(NULL);*/
+	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
+
+	buf = get_resource_image(RESOURCE_IMAGE,"horizontal_background");
+	state->frame_horizontal = buf;
+	image = gtk_image_new_from_pixbuf(buf);
+	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*TODO маштабирование*/
+	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_AXIS_HORIZONTAL,DEFAULT_SIZE_HEIGHT_AXIS_HORIZONTAL);*/
+	state->image_horizontal = GTK_IMAGE(image);
+
+	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
+
+	/*gtk_widget_show(frame);*/
+	gtk_widget_show(image);
+
+	/*return frame;*/
+	return image;
+}
+
 static GtkWidget * create_block_state_lafet(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_vertical;
 	GtkWidget * block_horizontal;
 
-	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 
 	block_vertical = create_block_state_vertical(bc->state);
 	block_horizontal = create_block_state_horizontal(bc->state);
 
-	gtk_box_pack_start(GTK_BOX(box),block_vertical,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),block_horizontal,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),block_vertical,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_horizontal,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 	return box;
 }
+
 static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 {
-	GtkWidget * frame;
+	/*GtkWidget * frame;*/
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(NULL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*frame = gtk_frame_new(NULL);*/
+	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
 
 	buf = get_resource_image(RESOURCE_IMAGE,"pipe_background");
 	bc->state->frame_pipe = buf;
@@ -1210,22 +1235,46 @@ static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
 	bc->state->image_pipe = GTK_IMAGE(image);
 
-	gtk_container_add(GTK_CONTAINER(frame),image);
+	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
 
-	gtk_widget_show(frame);
+	/*gtk_widget_show(frame);*/
 	gtk_widget_show(image);
 
-	return frame;
+	/*return frame;*/
+	return image;
+}
+
+static GtkWidget * create_block_state_left(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * block_state_message;
+	GtkWidget * block_state_lafet;
+	GtkWidget * block_state_pipe;
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_state_message = create_block_state_message(bc);
+	block_state_lafet = create_block_state_lafet(bc);
+	block_state_pipe = create_block_state_pipe(bc);
+
+	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+
+	return box;
 }
 
 static GtkWidget * create_block_state_video(block_controller_s * bc)
 {
-	GtkWidget * frame;
+	/*GtkWidget * frame;*/
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(NULL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*frame = gtk_frame_new(NULL);*/
+	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
 
 	buf = get_resource_image(RESOURCE_IMAGE,"state_video_background");
 	bc->state->frame_video = buf;
@@ -1235,22 +1284,23 @@ static GtkWidget * create_block_state_video(block_controller_s * bc)
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
 	bc->state->image_video = GTK_IMAGE(image);
 
-	gtk_container_add(GTK_CONTAINER(frame),image);
+	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
 
-	gtk_widget_show(frame);
+	/*gtk_widget_show(frame);*/
 	gtk_widget_show(image);
 
-	return frame;
+	/*return frame;*/
+	return image;
 }
 
 static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 {
-	GtkWidget * frame;
+	/*GtkWidget * frame;*/
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	frame = gtk_frame_new(NULL);
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	/*frame = gtk_frame_new(NULL);*/
+	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
 
 	buf = get_resource_image(RESOURCE_IMAGE,"auto_work_background");
 	bc->state->frame_auto_work = buf;
@@ -1260,29 +1310,32 @@ static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
 	bc->state->image_auto_work = GTK_IMAGE(image);
 
-	gtk_container_add(GTK_CONTAINER(frame),image);
+	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
 
-	gtk_widget_show(frame);
+	/*gtk_widget_show(frame);*/
 	gtk_widget_show(image);
 
-	return frame;
+	/*return frame;*/
+	return image;
 }
 
-
-static GtkWidget * create_block_state_left(block_controller_s * bc)
-{
-	GtkWidget * box;
-
-	return box;
-}
 static GtkWidget * create_block_state_right(block_controller_s * bc)
 {
-
+	GtkWidget * box;
 	GtkWidget * block_state_video;
 	GtkWidget * block_state_auto_work;
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
 	block_state_video = create_block_state_video(bc);
 	block_state_auto_work = create_block_state_auto_work(bc);
 
+	gtk_box_pack_start(GTK_BOX(box),block_state_video,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_auto_work,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+	return box;
 }
 
 static GtkWidget * create_block_state(block_controller_s * bc)
@@ -1298,25 +1351,19 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 	block_state_left = create_block_state_left(bc);
 	block_state_right = create_block_state_right(bc);
 
-	gtk_box_pack_start(GTK_BOX(box),block_info_left,)
-#if 0
-	GtkWidget * block_state_message;
-	GtkWidget * block_state_lafet;
-	GtkWidget * block_state_pipe;
-
-
-	block_state_message = create_block_state_message(bc);
-	block_state_lafet = create_block_state_lafet(bc);
-	block_state_pipe = create_block_state_pipe(bc);
-
-#endif
+	gtk_box_pack_start(GTK_BOX(box),block_state_left,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_right,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
+
 	return box;
 }
 
-/***** Функции отображения системы управления ********************************/
-
+/*****************************************************************************/
+/*                                                                           */
+/*     Функции отображения системы управления                                */
+/*                                                                           */
+/*****************************************************************************/
 
 static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command,flag_t rewrite)
 {

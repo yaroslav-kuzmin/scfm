@@ -167,6 +167,7 @@ static int set_config_controller(uint16_t * reg,config_controller_s * config)
 #define REG_D115   15
 #define REG_D116   16
 #define REG_D117   17
+#define REG_D118   18
 
 static int set_state_controller(uint16_t * dest,state_controller_s *state)
 {
@@ -183,6 +184,7 @@ static int set_state_controller(uint16_t * dest,state_controller_s *state)
   state->tic_valve           = dest[REG_D111];
   state->fire_sensor         = dest[REG_D114];
   state->fire_alarm          = dest[REG_D116];
+  state->device              = dest[REG_D118];
 
 	return SUCCESS;
 }
@@ -274,12 +276,13 @@ static uint16_t reg_D100 = 0x1064;
 /*static uint16_t reg_D115 = 0x1073;*/
 /*static uint16_t reg_D116 = 0x1074;*/
 /*static uint16_t reg_D117 = 0x1075;*/
-#define AMOUNT_STATE_REGISTER    18
+/*static uint16_t reg_D118 = 0x1076;*/
+#define AMOUNT_STATE_REGISTER    19
 
 /*считать состояние*/
 int link_state_controller(link_s * link,state_controller_s * state)
 {
-	int rc;
+ 	int rc;
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
 
@@ -722,5 +725,13 @@ flag_t get_mode_controller(state_controller_s * state)
 	}
 
 	return STATE_MODE_ERROR;
+}
+
+flag_t get_state_fire_alarm(state_controller_s * state)
+{
+	if(state->fire_alarm){
+		return STATE_FIRE_ALARM_ON;
+	}
+	return STATE_FIRE_ALARM_OFF;
 }
 /*****************************************************************************/

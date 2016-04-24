@@ -64,6 +64,7 @@
 #define POINTER_TO_INT(s)  ((uint64_t)(s))
 
 typedef unsigned int   flag_t;
+#define MILLISECOND_PER_SECOND       1000
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];
@@ -550,6 +551,9 @@ enum
 	STATE_VALVE_CLOSE,
 	STATE_VALVE_CLOSE_RUN,
 	STATE_VALVE_ERROR,
+	STATE_FIRE_ALARM_ON,
+	STATE_FIRE_ALARM_OFF,
+	STATE_FIRE_ALARM_ERROR,
 	AMOUNT_STATE_CONTROLLER
 };
 
@@ -569,6 +573,7 @@ struct _state_controller_s
 	uint16_t tic_valve;
 	uint16_t fire_sensor;
 	uint16_t fire_alarm;
+	uint16_t device;
 };
 
 /*комманды контроллера*/

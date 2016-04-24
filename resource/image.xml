@@ -136,9 +136,9 @@
 		<file>pipe_075.png</file>
 		<file>pipe_100.png</file>
 		<file>pipe_background.png</file>
-		<file>fire_alarm_norm.png</file>
-		<file>fire_alarm_trigger_0.png</file>
-		<file>fire_alarm_trigger_1.png</file>
+		<file>fire_alarm_off.png</file>
+		<file>fire_alarm_on_0.png</file>
+		<file>fire_alarm_on_1.png</file>
 		<file>state_video_background.png</file>
 		<file>auto_work_background.png</file>
 	</gresource>
