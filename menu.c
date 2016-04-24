@@ -85,12 +85,12 @@ static void activate_menu_bridge_view(GtkMenuItem * b,gpointer ud)
 	create_windows_bridge();
 }
 
+#if 0
 static void button_clicked_minimaze(GtkButton * b,gpointer ud)
 {
 	GtkWindow * w = (GtkWindow *)ud;
 	gtk_window_iconify(w);
 }
-#if 0
 static void button_clicked_maximaze(GtkButton * b,gpointer ud)
 {
 	flag_t rc;
@@ -104,12 +104,12 @@ static void button_clicked_maximaze(GtkButton * b,gpointer ud)
 		gtk_window_maximize(w);
 	}
 }
-#endif
 static void button_clicked_close(GtkButton * b,gpointer ud)
 {
 	GtkWidget * w = (GtkWidget *)ud;
 	gtk_widget_destroy(w);
 }
+#endif
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
@@ -197,6 +197,7 @@ static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_
 
 	return menite_bridge;
 }
+#if 0
 static GtkWidget * create_block_button(GtkWidget *win_main)
 {
 	GtkWidget * box;
@@ -238,21 +239,23 @@ static GtkWidget * create_block_button(GtkWidget *win_main)
 
 	return box;
 }
+#endif
 
 GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 {
 	GtkWidget * box;
-	GtkWidget * block_button;
+	/*GtkWidget * block_button;*/
 	GtkWidget * menbar_main;
 	GtkWidget * menite_job;
 	GtkWidget * menite_bridge;
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_widget_set_size_request(box,DEFAULT_WIDTH_MENU,DEFAULT_HEIGHT_MENU);
+	gtk_container_set_border_width(GTK_CONTAINER(box),0);
 
 	menbar_main = gtk_menu_bar_new();
 	layout_widget(menbar_main,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	gtk_widget_set_size_request(menbar_main,DEFAULT_WIDTH_WINDOW,20);
 
 	menite_job = create_menu_job(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_job);
@@ -260,10 +263,12 @@ GtkWidget * create_block_menu(GtkWidget * win_main,GtkAccelGroup * main_accgro)
 	menite_bridge = create_menu_bridge(win_main,main_accgro);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menbar_main),menite_bridge);
 
-	block_button = create_block_button(win_main);
-
 	gtk_box_pack_start(GTK_BOX(box),menbar_main,TRUE,TRUE,0);
+
+#if 0
+	block_button = create_block_button(win_main);
 	gtk_box_pack_end(GTK_BOX(box),block_button,FALSE,TRUE,0);
+#endif
 
 	gtk_widget_show(box);
 	gtk_widget_show(menbar_main);

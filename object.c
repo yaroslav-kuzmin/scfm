@@ -64,7 +64,7 @@ struct _block_page_s
 #endif
 struct _block_object_s
 {
-	GtkNotebook * notebook;
+	GtkFrame * frame;
 
 	GtkWidget * empty;
 	GtkWidget * group;
@@ -116,35 +116,6 @@ static GtkWidget * create_block_empty(void)
 	return label;
 }
 
-static int create_block_page(block_object_s * block_object,char * name)
-{
-	int rc;
-	GtkNotebook * notebook = block_object->notebook;
-	GtkWidget * grid;
-	GtkWidget * label;
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-
-	label = gtk_label_new(name);
-
-	block_object->empty = create_block_empty();
-	block_object->group = create_block_group();
-	block_object->videocamera = create_block_videocamera();
-	block_object->controller = create_block_controller();
-
-	gtk_grid_attach(GTK_GRID(grid),block_object->empty,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_object->group,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_object->videocamera,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_object->controller,0,0,1,1);
-
-	gtk_widget_show(grid);
-	gtk_widget_show(label);
-	change_object(block_object,TYPE_UNKNOWN);
-	rc = gtk_notebook_append_page(notebook,grid,label);
-	return rc;
-}
-
 /*****************************************************************************/
 /*    Общие функции                                                          */
 /*****************************************************************************/
@@ -152,9 +123,9 @@ block_object_s block_object;
 
 flag_t select_object(object_s * object)
 {
+#if !(TEST_INTERFACE)
 	flag_t rc;
-	GtkWidget * child;
-	GtkWidget * label;
+#endif
 
 	if(object == NULL){
 		change_object(&block_object,TYPE_UNKNOWN);
@@ -170,19 +141,7 @@ flag_t select_object(object_s * object)
 	}
 #endif
 
-	rc = gtk_notebook_get_current_page(block_object.notebook);
-	if(rc == -1){
-		change_object(&block_object,TYPE_UNKNOWN);
-		return FAILURE;
-	}
-	child = gtk_notebook_get_nth_page(block_object.notebook,rc);
-	if(child == NULL){
-		change_object(&block_object,TYPE_UNKNOWN);
-		return FAILURE;
-	}
-
-	label = gtk_notebook_get_tab_label(block_object.notebook,child);
-	gtk_label_set_text(GTK_LABEL(label),object->name);
+	gtk_frame_set_label(block_object.frame,object->name);
 
 	select_block_controller(NULL);
 	switch(object->type){
@@ -202,21 +161,40 @@ flag_t select_object(object_s * object)
 	return SUCCESS;
 }
 
-static char STR_BASE_PAGE[] = "основное";
 GtkWidget * create_block_object(void)
 {
-	GtkWidget * notebook;
+	GtkWidget * frame;
+	GtkWidget * grid;
 
-	notebook = gtk_notebook_new();
-	layout_widget(notebook,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_widget_set_size_request(notebook,1450,850);
-	block_object.notebook = GTK_NOTEBOOK(notebook);
+	frame = gtk_frame_new("Нет обекта");
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_JOB_OBJECT,-1);
+	gtk_container_set_border_width(GTK_CONTAINER(frame),DEFAULT_BORDER_JOB);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
 
-	create_block_page(&block_object,STR_BASE_PAGE);
+	block_object.frame = GTK_FRAME(frame);
 
-	gtk_widget_show(notebook);
+	grid = gtk_grid_new();
+	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	return notebook;
+	block_object.empty = create_block_empty();
+	block_object.group = create_block_group();
+	block_object.videocamera = create_block_videocamera();
+	block_object.controller = create_block_controller();
+
+	gtk_container_add(GTK_CONTAINER(frame),grid);
+
+	gtk_grid_attach(GTK_GRID(grid),block_object.empty,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_object.group,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_object.videocamera,0,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid),block_object.controller,0,0,1,1);
+
+	gtk_widget_show(frame);
+	gtk_widget_show(grid);
+
+	change_object(&block_object,TYPE_UNKNOWN);
+
+	return frame;
 }
 
 /*****************************************************************************/

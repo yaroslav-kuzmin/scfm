@@ -56,5 +56,7 @@
 		<file>assets/maximize-focused-normal.png</file>
 		<file>assets/actuator-separator-spray.png</file>
 		<file>assets/actuator-separator-rate.png</file>
+		<file>assets/button-mode-auto.png</file>
+		<file>assets/button-mode-manual.png</file>
 	</gresource>
 </gresources>

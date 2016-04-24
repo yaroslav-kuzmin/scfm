@@ -60,6 +60,7 @@ flag_t dialog_info(char * message);
 flag_t dialog_error(char * message);
 
 flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve);
+flag_t set_size_font(GtkWidget * w,int size);
 
 GDateTime * current_date_time(void);
 

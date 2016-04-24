@@ -95,20 +95,13 @@ struct _show_state_s
 	GdkPixbuf * frame_fire_alarm;
 };
 
-enum
-{
-	MODE_AUTO=1,
-	MODE_MANUAL,
-	MODE_CONFIG,
-	AMOUNT_MODE
-};
-
 typedef struct _show_control_s show_control_s;
 struct _show_control_s
 {
 	/*режим */
-	GtkLabel * lab_console;
-	GtkButton * but_console;
+	GtkButton * but_mode;
+	GtkWidget * image_mode_auto;
+	GtkWidget * image_mode_manual;
 	flag_t mode;
 
 	/*лафет*/
@@ -546,9 +539,13 @@ static uint16_t calculate_pressure(state_controller_s * state,config_controller_
 	return pressure;
 }
 #endif
+
 /*****************************************************************************/
+/*                                                                           */
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
+/*                                                                           */
 /*****************************************************************************/
+
 static int connect_controller(controller_s * controller)
 {
 	int rc;
@@ -772,12 +769,15 @@ int deinit_all_controllers(void)
 	return SUCCESS;
 }
 
+
 /*****************************************************************************/
-/* Блок отображение основного окна управления контролером                    */
+/*                                                                           */
+/*     Функции отрисовки информации по таймеру                               */
+/*                                                                           */
 /*****************************************************************************/
 
 static int image_font_size = 16;
-/***** Функции отрисовки информации по таймеру *******************************/
+
 static flag_t image_paint_string(cairo_surface_t * cairo_surface,char * str,int x,int y)
 {
 	cairo_t * cairo = cairo_create(cairo_surface);
@@ -834,7 +834,31 @@ static flag_t image_impose(GdkPixbuf * buf_des,GdkPixbuf * buf_src)
 	return SUCCESS;
 }
 
-static int show_vertical(show_state_s * show_state,show_control_s * show_controls
+static int show_console(show_state_s * show_state,show_control_s * show_control
+                       ,state_controller_s * controller_state,config_controller_s * controller_config)
+{
+	flag_t mode = get_mode_controller(controller_state);
+	GtkWidget * image = gtk_button_get_image(show_control->but_mode);
+
+	switch(mode){
+		case STATE_MODE_AUTO:
+			show_control->mode = STATE_MODE_AUTO;
+			if(image != show_control->image_mode_auto){
+				gtk_button_set_image(show_control->but_mode,show_control->image_mode_auto);
+			}
+			break;
+		case STATE_MODE_MANUAL:
+			show_control->mode = STATE_MODE_MANUAL;
+			if(image != show_control->image_mode_manual){
+				gtk_button_set_image(show_control->but_mode,show_control->image_mode_manual);
+			}
+			break;
+	}
+
+	return SUCCESS;
+}
+
+static int show_vertical(show_state_s * show_state,show_control_s * show_control
                         ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -871,7 +895,7 @@ static int show_vertical(show_state_s * show_state,show_control_s * show_control
 	return SUCCESS;
 }
 
-static int show_horizontal(show_state_s * show_state,show_control_s * show_controls
+static int show_horizontal(show_state_s * show_state,show_control_s * show_control
                           ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -932,7 +956,7 @@ static char * get_state_valve_string(flag_t state)
 	return str;
 }
 
-static int show_pipe(show_state_s * show_state,show_control_s * show_controls
+static int show_pipe(show_state_s * show_state,show_control_s * show_control
                      ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
 	uint64_t flag = controller_config->flag;
@@ -989,6 +1013,7 @@ static int show_fire_alarm(block_controller_s * bc)
 	return SUCCESS;
 }
 #endif
+
 static int show_block_controller(gpointer data)
 {
  	/*GtkLabel * label;*/
@@ -1016,6 +1041,7 @@ static int show_block_controller(gpointer data)
 	copy_state(&state,controller->state);
 	g_mutex_unlock(&(cc->mutex));
 
+	show_console(bc->state,bc->control,&state,controller->config);
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
 	show_pipe(bc->state,bc->control,&state,controller->config);
@@ -1027,7 +1053,11 @@ static int show_block_controller(gpointer data)
 	return TRUE; /* продолжаем работу */
 }
 
-/***** Функции отображение информации ****************************************/
+/*****************************************************************************/
+/*                                                                           */
+/*     Функции отображение информации                                        */
+/*                                                                           */
+/*****************************************************************************/
 
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
 #define DEFAULT_SIZE_HEIGHT_AXIS_VERTICAL   300
@@ -1238,50 +1268,51 @@ static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 	return frame;
 }
 
+
+static GtkWidget * create_block_state_left(block_controller_s * bc)
+{
+	GtkWidget * box;
+
+	return box;
+}
+static GtkWidget * create_block_state_right(block_controller_s * bc)
+{
+
+	GtkWidget * block_state_video;
+	GtkWidget * block_state_auto_work;
+	block_state_video = create_block_state_video(bc);
+	block_state_auto_work = create_block_state_auto_work(bc);
+
+}
+
 static GtkWidget * create_block_state(block_controller_s * bc)
 {
-	GtkWidget * frame;
-	GtkWidget * grid;
-	GtkWidget * label_name;
+	GtkWidget * box;
+	GtkWidget * block_state_left;
+	GtkWidget * block_state_right;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
+
+	block_state_left = create_block_state_left(bc);
+	block_state_right = create_block_state_right(bc);
+
+	gtk_box_pack_start(GTK_BOX(box),block_info_left,)
+#if 0
 	GtkWidget * block_state_message;
 	GtkWidget * block_state_lafet;
 	GtkWidget * block_state_pipe;
-	GtkWidget * block_state_video;
-	GtkWidget * block_state_auto_work;
 
-	frame = gtk_frame_new("Информация");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
-
-	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
-
-	label_name = gtk_label_new("Нет подключения к контролеру!");
-	layout_widget(label_name,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
-	bc->name = GTK_LABEL(label_name);
 
 	block_state_message = create_block_state_message(bc);
 	block_state_lafet = create_block_state_lafet(bc);
 	block_state_pipe = create_block_state_pipe(bc);
-	block_state_video = create_block_state_video(bc);
-	block_state_auto_work = create_block_state_auto_work(bc);
 
-	gtk_grid_attach(GTK_GRID(grid),label_name           ,0,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_state_message  ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_state_lafet    ,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_state_pipe     ,0,3,1,1);
-	gtk_grid_attach(GTK_GRID(grid),block_state_video    ,1,0,1,2);
-	gtk_grid_attach(GTK_GRID(grid),block_state_auto_work,1,2,1,2);
+#endif
 
-	gtk_container_add(GTK_CONTAINER(frame),grid);
-
-	gtk_widget_show(frame);
-	gtk_widget_show(grid);
-	gtk_widget_show(label_name);
-
-	return frame;
+	gtk_widget_show(box);
+	return box;
 }
 
 /***** Функции отображения системы управления ********************************/
@@ -1317,15 +1348,40 @@ static void button_clicked_control_mode(GtkButton * b,gpointer ud)
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
 
- 	if(bc->type_device == TYPE_DEVICE_LSD){
-		g_info("Режим управления ручной");
-		command.part.value = COMMAND_MODE_MANUAL;
-		push_command_queue(communication_controller,controller,command,NOT_OK);
+	if( controller == NULL){
+		g_info("Не выбран контролер");
+		return ;
+	}
+
+	if(bc->type_device != TYPE_DEVICE_LSD ){
+		g_info("Немогу перейти в ручной режим управления");
 		return;
 	}
 
-	g_info("Режим не установлен");
-	/*TODO если тип устанвки позволяет устновить автоматический или ручной режим*/
+	if(bc->control->mode == STATE_MODE_AUTO){
+		command.part.value = COMMAND_MODE_MANUAL;
+		push_command_queue(communication_controller,controller,command,NOT_OK);
+	}
+	else{
+		command.part.value = COMMAND_MODE_AUTO;
+		push_command_queue(communication_controller,controller,command,NOT_OK);
+	}
+}
+
+static flag_t init_image_buton_mode(block_controller_s * bc)
+{
+	GtkWidget * image;
+	GdkPixbuf * buf;
+
+	buf = get_resource_image(RESOURCE_STYLE,"button-mode-auto");
+	image = gtk_image_new_from_pixbuf(buf);
+	bc->control->image_mode_auto = image;
+
+	buf = get_resource_image(RESOURCE_STYLE,"button-mode-manual");
+	image = gtk_image_new_from_pixbuf(buf);
+	bc->control->image_mode_manual = image;
+
+	return SUCCESS;
 }
 
 static GtkWidget * create_block_control_mode(block_controller_s * bc)
@@ -1334,19 +1390,19 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	GtkWidget * label;
 	GtkWidget * but;
 
-	bc->control->mode = MODE_MANUAL;
+	bc->control->mode = STATE_MODE_AUTO;
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 	layout_widget(box,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
 
 	label = gtk_label_new("Режим управления");
 	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	/*gtk_label_set_xalign(GTK_LABEL(label),0);*/
-	bc->control->lab_console = GTK_LABEL(label);
 
-	but = gtk_button_new_with_label("Изменить");
+	init_image_buton_mode(bc);
+	but = gtk_button_new();
 	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_button_set_image(GTK_BUTTON(but),bc->control->image_mode_auto);
 	g_signal_connect(but,"clicked",G_CALLBACK(button_clicked_control_mode),bc);
-	bc->control->but_console = GTK_BUTTON(but);
+	bc->control->but_mode = GTK_BUTTON(but);
 
 	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,5);
 	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,5);
@@ -1823,15 +1879,15 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	gtk_box_pack_start(GTK_BOX(box),grid_spray,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),grid_rate ,TRUE,TRUE,0);
 
-	gtk_grid_attach(GTK_GRID(grid_spray),label_spray        ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid_spray),label_spray        ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_less     ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid_spray),img_separator_spray,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_more     ,2,1,1,1);
+	/*gtk_grid_attach(GTK_GRID(grid_spray),img_separator_spray,1,1,1,1);*/
+	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_more     ,1,1,1,1);
 
-	gtk_grid_attach(GTK_GRID(grid_rate),label_rate         ,1,0,1,1);
+	gtk_grid_attach(GTK_GRID(grid_rate),label_rate         ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_less      ,0,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid_rate),img_separator_rate,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_more      ,2,1,1,1);
+	/*gtk_grid_attach(GTK_GRID(grid_rate),img_separator_rate,1,1,1,1);*/
+	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_more      ,1,1,1,1);
 
 	gtk_widget_show(box);
 	gtk_widget_show(grid_spray);
@@ -2009,7 +2065,8 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	return grid;
 }
-static GtkWidget * create_block_control_console(block_controller_s * bc)
+
+static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_mode;
@@ -2028,33 +2085,14 @@ static GtkWidget * create_block_control_console(block_controller_s * bc)
 	block_oscillation = create_block_oscillation(bc);
 
 	gtk_box_pack_start(GTK_BOX(box),block_mode,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 
 	return box;
-}
-
-static GtkWidget * create_block_control(block_controller_s * bc)
-{
-	GtkWidget * frame;
-	GtkWidget * block_control_console;
-
-	frame = gtk_frame_new("Управление");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
-	gtk_container_set_border_width(GTK_CONTAINER(frame),5);
-
-	block_control_console = create_block_control_console(bc);
-
-	gtk_container_add(GTK_CONTAINER(frame),block_control_console);
-
-	gtk_widget_show(frame);
-
-	return frame;
 }
 
 static flag_t	changed_block_controller(block_controller_s * bc

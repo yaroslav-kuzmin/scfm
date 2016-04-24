@@ -68,8 +68,22 @@ typedef unsigned int   flag_t;
 
 extern char STR_NAME_PROGRAMM[];
 
-#define DEFAULT_WIDTH_WINDOW     1615
-#define DEFAULT_HEIGHT_WINDOW    1050
+/* Размеры интерфейса */
+#define DEFAULT_WIDTH_WINDOW      1680
+#define DEFAULT_HEIGHT_WINDOW     1050
+
+#define DEFAULT_WIDTH_MENU        DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_MENU       30
+
+#define DEFAULT_WIDTH_JOB         DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_JOB        870
+#define DEFAULT_BORDER_JOB        3
+#define DEFAULT_WIDTH_JOB_TREE    155
+#define DEFAULT_WIDTH_JOB_OBJECT  (DEFAULT_WIDTH_JOB - DEFAULT_WIDTH_JOB_TREE - (DEFAULT_BORDER_JOB * 4))
+
+#define DEFAULT_WIDTH_LOG         DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_LOG        150
+#define DEFAULT_BORDER_LOG        3
 
 /**************************************/
 enum
@@ -519,15 +533,24 @@ struct _config_controller_s
 	double rate_valve_analog;
 };
 
-/* Состояние задвижки */
+
+/* Состояние контроллера */
 enum
 {
-	STATE_VALVE_OPEN=0,
+	STATE_MODE_AUTO = 0,
+	STATE_MODE_MANUAL,
+	STATE_MODE_CONFIG,
+	STATE_MODE_VERTICAL,
+	STATE_MODE_HORIZONTAL,
+	STATE_MODE_SAW,
+	STATE_MODE_STEP,
+	STATE_MODE_ERROR,
+	STATE_VALVE_OPEN,
 	STATE_VALVE_OPEN_RUN,
 	STATE_VALVE_CLOSE,
 	STATE_VALVE_CLOSE_RUN,
 	STATE_VALVE_ERROR,
-	AMOUNT_STATE_VALVE
+	AMOUNT_STATE_CONTROLLER
 };
 
 typedef struct _state_controller_s state_controller_s;

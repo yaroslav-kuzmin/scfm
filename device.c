@@ -47,13 +47,38 @@
 #include "common.h"
 #include "modbus.h"
 
-/*****************************************************************************/
-/*    Общие переменые                                                        */
-/*****************************************************************************/
 
 /*****************************************************************************/
-/*    Локальные функции                                                      */
+/*                                                                           */
+/*   Отключение от конторллера                                               */
+/*                                                                           */
 /*****************************************************************************/
+
+int link_disconnect_controller(link_s * link)
+{
+	uint16_t * dest = link->dest;
+	modbus_t * ctx = (modbus_t*)link->connect;
+	if(ctx != NULL){
+   	modbus_close(ctx);
+		modbus_free(ctx);
+		if(link->type == TYPE_LINK_TCP){
+			g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
+		}
+		if(link->type == TYPE_LINK_UART){
+			g_slice_free1(MODBUS_RTU_MAX_ADU_LENGTH,dest);
+		}
+	}
+	link->connect = NULL;
+
+	return SUCCESS;
+}
+
+/*****************************************************************************/
+/*                                                                           */
+/*   Подключения к контролеру и проверка подключения                         */
+/*                                                                           */
+/*****************************************************************************/
+
 
 #define REG_D300            0
 #define AMOUNT_BIT_D300     16
@@ -220,28 +245,128 @@ static int connect_uart(link_s * link)
 	link->dest = g_slice_alloc0(MODBUS_RTU_MAX_ADU_LENGTH);
 	return SUCCESS;
 }
-/*****************************************************************************/
-/*    Общие функции                                                          */
-/*****************************************************************************/
-
-int link_disconnect_controller(link_s * link)
+int check_config_controller(config_controller_s * config_c,config_controller_s * config_d)
 {
+	if(config_c->type != config_d->type){
+		return FAILURE;
+	}
+	if(config_c->flag != config_d->flag){
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
+static uint16_t reg_D100 = 0x1064;
+/*static uint16_t reg_D101 = 0x1065;*/
+/*static uint16_t reg_D102 = 0x1066;*/
+/*static uint16_t reg_D103 = 0x1067;*/
+/*static uint16_t reg_D104 = 0x1068;*/
+/*static uint16_t reg_D105 = 0x1069;*/
+/*static uint16_t reg_D106 = 0x106A;*/
+/*static uint16_t reg_D107 = 0x106B;*/
+/*static uint16_t reg_D108 = 0x106C;*/
+/*static uint16_t reg_D109 = 0x106D;*/
+/*static uint16_t reg_D110 = 0x106E;*/
+/*static uint16_t reg_D111 = 0x106F;*/
+/*static uint16_t reg_D112 = 0x1070;*/
+/*static uint16_t reg_D113 = 0x1071;*/
+/*static uint16_t reg_D114 = 0x1072;*/
+/*static uint16_t reg_D115 = 0x1073;*/
+/*static uint16_t reg_D116 = 0x1074;*/
+/*static uint16_t reg_D117 = 0x1075;*/
+#define AMOUNT_STATE_REGISTER    18
+
+/*считать состояние*/
+int link_state_controller(link_s * link,state_controller_s * state)
+{
+	int rc;
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
-	if(ctx != NULL){
-   	modbus_close(ctx);
-		modbus_free(ctx);
-		if(link->type == TYPE_LINK_TCP){
-			g_slice_free1(MODBUS_TCP_MAX_ADU_LENGTH,dest);
-		}
-		if(link->type == TYPE_LINK_UART){
-			g_slice_free1(MODBUS_RTU_MAX_ADU_LENGTH,dest);
-		}
+
+	if(ctx == NULL){
+		return FAILURE;
 	}
-	link->connect = NULL;
+	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
+	if(rc == -1){
+		link_disconnect_controller(link);
+		return FAILURE;
+	}
+	/*TODO запись чтение в разных потоках */
+	set_state_controller(dest,state);
+	return SUCCESS;
+}
+
+static uint16_t reg_D300 = 0x112C;
+/*static uint16_t reg_D301 = 0x112D;*/
+/*static uint16_t reg_D302 = 0x112E;*/
+/*static uint16_t reg_D303 = 0x112F;*/
+/*static uint16_t reg_D304 = 0x1130;*/
+/*static uint16_t reg_D305 = 0x1131;*/
+/*static uint16_t reg_D306 = 0x1132;*/
+/*static uint16_t reg_D307 = 0x1133;*/
+#define AMOUNT_CONFIG_REGISTER    8
+
+/*считать конфигурацию*/
+int link_config_controller(link_s * link,config_controller_s * config)
+{
+	int rc;
+	uint16_t * dest = link->dest;
+	modbus_t * ctx = (modbus_t*)link->connect;
+
+	if(ctx == NULL){
+		return FAILURE;
+	}
+	rc = modbus_read_registers(ctx,reg_D300,AMOUNT_CONFIG_REGISTER,dest);
+	if(rc == -1){
+		link_disconnect_controller(link);
+		return FAILURE;
+	}
+	/*TODO запись чтение в разных потоках */
+	set_config_controller(dest,config);
 
 	return SUCCESS;
 }
+
+int link_connect_controller(link_s * link)
+{
+	int rc;
+	switch(link->type){
+		case TYPE_LINK_TCP:
+			rc = connect_tcp(link);
+			break;
+		case TYPE_LINK_UART:
+			rc = connect_uart(link);
+			break;
+		default:
+			rc = FAILURE;
+			break;
+	}
+	return rc;
+}
+
+int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+{
+	int rc;
+	rc = link_connect_controller(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_config_controller(link,config);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = link_state_controller(link,state);
+	if(rc == FAILURE){
+		return rc;
+	}
+	return SUCCESS;
+}
+
+/*****************************************************************************/
+/*                                                                           */
+/*    Команды контролера                                                     */
+/*                                                                           */
+/*****************************************************************************/
 
 static uint16_t reg_D200 = 0x10C8;
 static uint16_t reg_D201 = 0x10C9;
@@ -438,16 +563,12 @@ int command_controller(link_s * link,command_u command)
 	return SUCCESS;
 }
 
-int check_config_controller(config_controller_s * config_c,config_controller_s * config_d)
-{
-	if(config_c->type != config_d->type){
-		return FAILURE;
-	}
-	if(config_c->flag != config_d->flag){
-		return FAILURE;
-	}
-	return SUCCESS;
-}
+
+/*****************************************************************************/
+/*                                                                           */
+/*   Возврашаемые состояния                                                  */
+/*                                                                           */
+/*****************************************************************************/
 
 static uint16_t min_type_lsd = 6;
 flag_t get_type_device(config_controller_s * config)
@@ -510,49 +631,9 @@ char * get_name_controller(config_controller_s * config)
 	return g_strdup(pub->str);
 }
 
-static uint16_t reg_D100 = 0x1064;
-/*static uint16_t reg_D101 = 0x1065;*/
-/*static uint16_t reg_D102 = 0x1066;*/
-/*static uint16_t reg_D103 = 0x1067;*/
-/*static uint16_t reg_D104 = 0x1068;*/
-/*static uint16_t reg_D105 = 0x1069;*/
-/*static uint16_t reg_D106 = 0x106A;*/
-/*static uint16_t reg_D107 = 0x106B;*/
-/*static uint16_t reg_D108 = 0x106C;*/
-/*static uint16_t reg_D109 = 0x106D;*/
-/*static uint16_t reg_D110 = 0x106E;*/
-/*static uint16_t reg_D111 = 0x106F;*/
-/*static uint16_t reg_D112 = 0x1070;*/
-/*static uint16_t reg_D113 = 0x1071;*/
-/*static uint16_t reg_D114 = 0x1072;*/
-/*static uint16_t reg_D115 = 0x1073;*/
-/*static uint16_t reg_D116 = 0x1074;*/
-/*static uint16_t reg_D117 = 0x1075;*/
-#define AMOUNT_STATE_REGISTER    18
-
-/*считать состояние*/
-int link_state_controller(link_s * link,state_controller_s * state)
-{
-	int rc;
-	uint16_t * dest = link->dest;
-	modbus_t * ctx = (modbus_t*)link->connect;
-
-	if(ctx == NULL){
-		return FAILURE;
-	}
-	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
-	if(rc == -1){
-		link_disconnect_controller(link);
-		return FAILURE;
-	}
-	/*TODO запись чтение в разных потоках */
-	set_state_controller(dest,state);
-	return SUCCESS;
-}
-
 flag_t get_state_valve(state_controller_s * state)
 {
-	/*valve внем значение регистра  D110 */
+	/*valve значение регистра  D110 */
 	/*
 	бит 0 - датчик состояния "ОТКРЫТ"
 	бит 1 - датчик состояния "ЗАКРЫТ"
@@ -583,70 +664,63 @@ flag_t get_state_valve(state_controller_s * state)
 	return STATE_VALVE_ERROR;
 }
 
-static uint16_t reg_D300 = 0x112C;
-/*static uint16_t reg_D301 = 0x112D;*/
-/*static uint16_t reg_D302 = 0x112E;*/
-/*static uint16_t reg_D303 = 0x112F;*/
-/*static uint16_t reg_D304 = 0x1130;*/
-/*static uint16_t reg_D305 = 0x1131;*/
-/*static uint16_t reg_D306 = 0x1132;*/
-/*static uint16_t reg_D307 = 0x1133;*/
-#define AMOUNT_CONFIG_REGISTER    8
 
-/*считать конфигурацию*/
-int link_config_controller(link_s * link,config_controller_s * config)
+/* work значение регистра  D108 */
+/*
+бит 0 - ошибка вертикальной оси
+бит 1 - ошибка горизонтальной оси
+бит 2 - ошибка привода актуатора 1
+бит 3 - ошибка привода актуатора 2
+бит 4 - ошибка привода заслонки
+бит 5 - резерв
+бит 6 - резерв
+бит 7 - резерв
+бит 8 - автоматический режим работы
+бит 9 - ручной режим работы (управление местное)
+бит 10 - ручной режим работы (управление оператора)
+бит 11 - режим программирования
+бит 12 - режим  горизонтальной осцилляции
+бит 13 - режим вертикальной осцилляции
+бит 14 - режим осцилляции SAW
+бит 15 - режим осцилляции STEP
+*/
+
+#define BIT_ERROR_VERTICAL            0x0001
+#define BIT_ERROR_HORIZONTAL          0x0002
+#define BIT_ERROR_ACTUATOR_SPRAY      0x0004
+#define BIT_ERROR_ACTUATOR_RATE       0x0008
+#define BIT_ERROR_VALVE               0x0010
+#define BIT_MODE_AUTO                 0x0100
+#define BIT_MODE_MANUAL               0x0200
+#define BIT_MODE_CONFIG               0x0800
+#define BIT_MODE_VERTICAL             0x1000
+#define BIT_MODE_HORIZONTAL           0x2000
+#define BIT_MODE_SAW                  0x4000
+#define BIT_MODE_STEP                 0x8000
+
+#define ERROR_VERTICAL(b)        (b & BIT_ERROR_VERTICAL)
+#define ERROR_HORIZONTAL(b)      (b & BIT_ERROR_HORIZONTAL)
+#define ERROR_ACTUATOR_SPRAY(b)  (b & BIT_ERROR_ACTUATOR_SPRAY)
+#define ERROR_ACTUATOR_RATE(b)   (b & BIT_ERROR_ACTUATOR_RATE)
+#define ERROR_VALVE(b)           (b & BIT_ERROR_VALVE)
+#define MODE_AUTO(b)             (b & BIT_MODE_AUTO)
+#define MODE_MANUAL(b)           (b & BIT_MODE_MANUAL)
+#define MODE_CONFIG(b)           (b & BIT_MODE_CONFIG)
+#define MODE_VERTICAL(b)         (b & BIT_MODE_VERTICAL)
+#define MODE_HORIZONTAL(b)       (b & BIT_MODE_VERTICAL)
+#define MODE_SAW(b)              (b & BIT_MODE_SAW)
+#define MODE_STEP(b)             (b & BIT_MODE_STEP)
+
+flag_t get_mode_controller(state_controller_s * state)
 {
-	int rc;
-	uint16_t * dest = link->dest;
-	modbus_t * ctx = (modbus_t*)link->connect;
-
-	if(ctx == NULL){
-		return FAILURE;
+	uint16_t work = state->work;
+	if(MODE_AUTO(work)){
+		return STATE_MODE_AUTO;
 	}
-	rc = modbus_read_registers(ctx,reg_D300,AMOUNT_CONFIG_REGISTER,dest);
-	if(rc == -1){
-		link_disconnect_controller(link);
-		return FAILURE;
+	if(MODE_MANUAL(work)){
+		return STATE_MODE_MANUAL;
 	}
-	/*TODO запись чтение в разных потоках */
-	set_config_controller(dest,config);
 
-	return SUCCESS;
+	return STATE_MODE_ERROR;
 }
-
-int link_connect_controller(link_s * link)
-{
-	int rc;
-	switch(link->type){
-		case TYPE_LINK_TCP:
-			rc = connect_tcp(link);
-			break;
-		case TYPE_LINK_UART:
-			rc = connect_uart(link);
-			break;
-		default:
-			rc = FAILURE;
-			break;
-	}
-	return rc;
-}
-
-int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
-{
-	int rc;
-	rc = link_connect_controller(link);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_config_controller(link,config);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_state_controller(link,state);
-	if(rc == FAILURE){
-		return rc;
-	}
-	return SUCCESS;
-}
-
 /*****************************************************************************/

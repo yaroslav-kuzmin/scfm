@@ -341,14 +341,19 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
 
 @keyframes needs_attention {
   from {
-    background-image: -gtk-gradient(radial, center center, 0, center center, 0.01, to(#4a90d9), to(transparent)); }
+    background-image: -gtk-gradient(radial, center center, 0, center center, 0.01, to(#4a90d9), to(transparent));
+	}
   to {
-    background-image: -gtk-gradient(radial, center center, 0, center center, 0.5, to(#4a90d9), to(transparent)); } }
+    background-image: -gtk-gradient(radial, center center, 0, center center, 0.5, to(#4a90d9), to(transparent));
+	}
+}
+
+
 .button, .header-bar .button.titlebutton,
 .titlebar .button.titlebutton {
   border: 1px solid;
   border-image: -gtk-scaled(url("borders/button/button.svg"), url("borders/button/button@2.svg")) 4 /4px stretch;
-    border-radius: 5px;
+  border-radius: 5px;
   padding: 5px 8px 6px;
   transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   color: @theme_fg_color;
@@ -365,9 +370,10 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
                                       );
   text-shadow: 0 -1px rgba(0,0,0, 0.96923);
   icon-shadow: 0 -1px rgba(0,0,0, 0.96923);
-  box-shadow:  none;  }
+  box-shadow:  none;
+}
 
-  .titlebar .button,
+.titlebar .button,
 .header-bar .button {
   border-image: -gtk-scaled(url("borders/button/button-titlebar.svg"), url("borders/button/button-titlebar@2.svg")) 5 /5px stretch;
   color: @theme_fg_color;
@@ -381,9 +387,10 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
                                     @theme_base_color);
   box-shadow: none;
   icon-shadow: 0 1px rgba(0,0,0,0.45);
-  text-shadow: 0 1px rgba(0,0,0,0.45);}
+  text-shadow: 0 1px rgba(0,0,0,0.45);
+}
 
-  .titlebar .button:backdrop,
+.titlebar .button:backdrop,
 .header-bar .button:backdrop {
   border-image: -gtk-scaled(url("borders/button/button-titlebar.svg"), url("borders/button/button-titlebar@2.svg")) 5 /5px stretch;
   color: @theme_fg_color;
@@ -406,10 +413,11 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
   background-color: transparent;
   background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
                                       #141c22);
-    text-shadow: none;
-    icon-shadow: none;
-    box-shadow:none;}
-
+  text-shadow: none;
+  icon-shadow: none;
+  box-shadow:none;
+}
+/*
   NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button {
   background-image: none;
   background-color: transparent;
@@ -443,6 +451,7 @@ NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button:backdrop
   text-shadow: none;
   icon-shadow: none;
   }
+*/
 
   .button.flat, .sidebar-button.button, .header-bar .titlebutton.button,
   .titlebar .titlebutton.button {
@@ -453,18 +462,22 @@ NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button:backdrop
     box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0);
     text-shadow: none;
     icon-shadow: none;
-    transition: none; }
+    transition: none;
+	}
     .button.flat:hover, .sidebar-button.button:hover, .header-bar .titlebutton.button:hover,
     .titlebar .titlebutton.button:hover {
       border-image:none;
       color: white;
       transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      transition-duration: 500ms; }
+      transition-duration: 500ms;
+		}
       .button.flat:hover:active, .sidebar-button.button:hover:active, .header-bar .titlebutton.button:hover:active,
       .titlebar .titlebutton.button:hover:active {
         border-image:none;
         color: @theme_selected_fg_color;
-        transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+			}
+
   .button:hover, .header-bar .button.titlebutton:hover,
   .titlebar .button.titlebutton:hover {
     border-image: -gtk-scaled(url("borders/button/button-hover.svg"), url("borders/button/button-hover@2.svg")) 3 / 3px stretch;
@@ -486,7 +499,8 @@ NautilusToolbar.titlebar.header-bar .raised.linked .button.image-button:backdrop
     icon-shadow: 0 -1px rgba(0,0,0, 0.96923);
       box-shadow: 0 2px 2px 1px rgba(0,0,0,0.24), 0 1px rgba(255,255,255,0.06)inset;
     -gtk-image-effect: highlight;
-    animation: none;}
+    animation: none;
+	}
   .button:active, .header-bar .button.titlebutton:active,
   .titlebar .button.titlebutton:active, .button:checked, .header-bar .button.titlebutton:checked,
   .titlebar .button.titlebutton:checked {
@@ -1480,6 +1494,7 @@ GtkColorButton.button, .header-bar GtkColorButton.button.titlebutton,
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2), 0 1px alpha(white,0.1); }
     GtkColorButton.button GtkColorSwatch:first-child:last-child:insensitive, GtkColorButton.button GtkColorSwatch:first-child:last-child:backdrop {
       box-shadow: none; }
+
 
 /*********
  * Links *

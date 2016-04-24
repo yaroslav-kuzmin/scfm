@@ -96,7 +96,7 @@ flag_t dialog_error(char * message)
 }
 
 /*****************************************************************************/
-/* Выравнивание виджетов                                                     */
+/* Настройка  виджетов                                                       */
 /*****************************************************************************/
 flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean ve)
 {
@@ -104,6 +104,20 @@ flag_t layout_widget(GtkWidget * w,GtkAlign ha,GtkAlign va,gboolean he,gboolean 
 	gtk_widget_set_valign(w,va);
 	gtk_widget_set_hexpand(w,he);
 	gtk_widget_set_vexpand(w,ve);
+	return SUCCESS;
+}
+
+flag_t set_size_font(GtkWidget * w,int size)
+{
+#if 0
+	PangoContext * pancon_info;
+	PangoFontDescription * panfondes_info;
+
+	pancon_info = gtk_widget_get_pango_context(w);
+	panfondes_info = pango_context_get_font_description(pancon_info);
+	pango_font_description_set_size(panfondes_info,size);
+	gtk_widget_override_font(w,panfondes_info);
+#endif
 	return SUCCESS;
 }
 /*****************************************************************************/

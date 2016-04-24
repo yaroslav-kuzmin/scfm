@@ -82,7 +82,7 @@ static flag_t tree_add_column(block_tree_s * bt)
 	/*column = gtk_tree_view_column_new_with_attributes("С",render,"pixbuf",COLUMN_IMAGE_TREE,NULL);*/
 	g_object_set(render,"width",10,NULL);
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column,NULL);
+	gtk_tree_view_column_set_title(column,"Статус");
 	gtk_tree_view_column_pack_start(column,render,TRUE);
 	gtk_tree_view_column_set_attributes(column,render,"pixbuf",COLUMN_IMAGE_TREE,NULL);
 	gtk_tree_view_column_set_sizing (GTK_TREE_VIEW_COLUMN (column), GTK_TREE_VIEW_COLUMN_FIXED);
@@ -290,7 +290,7 @@ static int show_block_tree(gpointer ud)
 
 #define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
 
-static void realize_frame_tree_object(GtkWidget * w,gpointer ud)
+static void tree_view_realize_main(GtkWidget * w,gpointer ud)
 {
 	block_tree_s * bt = (block_tree_s*)ud;
 	bt->timeout_show = DEFAULT_TIMEOUT_SHOW;
@@ -313,6 +313,7 @@ int reread_tree(void)
 	return SUCCESS;
 }
 
+
 GtkWidget * create_block_tree_object(void)
 {
 	GtkWidget * frame;
@@ -324,8 +325,9 @@ GtkWidget * create_block_tree_object(void)
 
 	frame = gtk_frame_new("Объекты");
 	layout_widget(frame,GTK_ALIGN_START,GTK_ALIGN_FILL,FALSE,TRUE);
-	gtk_widget_set_size_request(frame,155,-1);
-	g_signal_connect(frame,"realize",G_CALLBACK(realize_frame_tree_object),&block_tree);
+	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_JOB_TREE,-1);
+	gtk_container_set_border_width(GTK_CONTAINER(frame),DEFAULT_BORDER_JOB);
+	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
 
 	scrwin = gtk_scrolled_window_new(NULL,NULL);
 	layout_widget(scrwin,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
@@ -335,6 +337,7 @@ GtkWidget * create_block_tree_object(void)
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
+	g_signal_connect(treeview,"realize",G_CALLBACK(tree_view_realize_main),&block_tree);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),NULL);
 	g_object_unref(model);

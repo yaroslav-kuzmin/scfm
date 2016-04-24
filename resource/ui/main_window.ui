@@ -46,9 +46,19 @@
 
 <interface>
 
-<object class="GtkWindow" id="main_window">
+<object class="GtkWindow" id="window">
+	<property name="can_focus">FALSE</property>
 	<property name="border-width">0</property>
 	<property name="window-position">center-always</property>
-	<property name="decorated">TRUE</property>
+	<property name="decorated">FALSE</property>
+	<child>
+		<object class="GtkBox" id="box">
+			<property name="can_focus">FALSE</property>
+			<property name="orientation">vertical</property>
+			<property name="border-width">0</property>
+			<property name="homogeneous">FALSE</property>
+		</object>
+	</child>
 </object>
 </interface>
+
