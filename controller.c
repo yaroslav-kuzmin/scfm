@@ -1084,7 +1084,7 @@ static int show_block_controller(gpointer data)
 static char STR_INFO_MODE_WAIT[] = "автоматический Режим";
 static char STR_INFO_STATE_NORM[] = "Установка : Норма";
 
-static GtkWidget * create_block_info_state(show_state_s * state)
+static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * lab_mode;
@@ -1092,55 +1092,21 @@ static GtkWidget * create_block_info_state(show_state_s * state)
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
+
 	lab_mode = gtk_label_new(STR_INFO_MODE_WAIT);
-	state->lab_mode = GTK_LABEL(lab_mode);
+	bc->state->lab_mode = GTK_LABEL(lab_mode);
 
 	lab_state = gtk_label_new(STR_INFO_STATE_NORM);
-	state->lab_state = GTK_LABEL(lab_state);
+	bc->state->lab_state = GTK_LABEL(lab_state);
 
-	gtk_box_pack_start(GTK_BOX(box),lab_mode,TRUE,TRUE,10);
-	gtk_box_pack_start(GTK_BOX(box),lab_state,TRUE,TRUE,10);
+	gtk_box_pack_start(GTK_BOX(box),lab_mode,TRUE,TRUE,20);
+	gtk_box_pack_start(GTK_BOX(box),lab_state,TRUE,TRUE,20);
 
 	gtk_widget_show(box);
 	gtk_widget_show(lab_mode);
 	gtk_widget_show(lab_state);
 
  	return box;
-}
-
-static GtkWidget * create_block_info_fire(show_state_s * state)
-{
-	GtkWidget * fire;
-	GdkPixbuf * buf;
-
-	buf = images_state[FIRE_ALARM_OFF];
-	state->frame_fire_alarm = buf;
-	fire = gtk_image_new_from_pixbuf(buf);
-	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
-	state->image_fire_alarm = GTK_IMAGE(fire);
-	gtk_widget_show(fire);
-	return fire;
-}
-
-static GtkWidget * create_block_state_message(block_controller_s * bc)
-{
-	GtkWidget * box;
-	GtkWidget * block_info_state;
-	GtkWidget * block_info_fire;
-
-	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
-	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
-
-	block_info_state = create_block_info_state(bc->state);
-	block_info_fire = create_block_info_fire(bc->state);
-
-	gtk_box_pack_start(GTK_BOX(box),block_info_state,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_info_fire,TRUE,TRUE,0);
-
-	gtk_widget_show(box);
-
-	return box;
 }
 
 #define DEFAULT_SIZE_WIDTH_AXIS_VERTICAL    300
@@ -1244,23 +1210,57 @@ static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 	return image;
 }
 
+static GtkWidget * create_block_state_fire(show_state_s * state)
+{
+	GtkWidget * fire;
+	GdkPixbuf * buf;
+
+	buf = images_state[FIRE_ALARM_OFF];
+	state->frame_fire_alarm = buf;
+	fire = gtk_image_new_from_pixbuf(buf);
+	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
+	state->image_fire_alarm = GTK_IMAGE(fire);
+	gtk_widget_show(fire);
+	return fire;
+}
+
+static GtkWidget * create_block_state_info(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * block_pipe;
+	GtkWidget * block_fire;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,FALSE);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
+
+	block_pipe = create_block_state_pipe(bc);
+	block_fire = create_block_state_fire(bc->state);
+
+	gtk_box_pack_start(GTK_BOX(box),block_pipe,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_fire,TRUE,TRUE,0);
+
+	gtk_widget_show(box);
+	return box;
+}
 static GtkWidget * create_block_state_left(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_state_message;
 	GtkWidget * block_state_lafet;
-	GtkWidget * block_state_pipe;
+	GtkWidget * block_state_info;
+
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	block_state_message = create_block_state_message(bc);
 	block_state_lafet = create_block_state_lafet(bc);
-	block_state_pipe = create_block_state_pipe(bc);
+	block_state_info = create_block_state_info(bc);
 
 	gtk_box_pack_start(GTK_BOX(box),block_state_message,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_lafet,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_state_pipe,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_info,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 
