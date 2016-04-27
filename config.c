@@ -414,6 +414,7 @@ static GtkWidget * create_combobox(block_config_s * config)
 	g_object_unref(model);
 
 	gtk_widget_show(combox);
+	apply_style(combox);
 	return combox;
 }
 
@@ -608,6 +609,7 @@ static GtkWidget * create_block_option(block_config_s * config)
 
 	lab_name_type = gtk_label_new("Тип");
 	layout_widget(lab_name_type,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,FALSE);
+
 	combox = create_combobox(config);
 
 	block_setting = create_block_setting(config);
@@ -752,6 +754,8 @@ int create_window_config(GtkWidget * win_main)
 	gtk_widget_show(win_config);
 	gtk_widget_show(box);
 	gtk_widget_show(exit);
+
+	apply_style(win_config);
 
 	return SUCCESS;
 }

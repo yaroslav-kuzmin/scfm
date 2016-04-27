@@ -84,7 +84,8 @@ read if you used those and something break with a version upgrade you're on your
   outline-style: dashed;
   outline-offset: -3px;
   outline-width: 1px;
-  outline-radius: 2px; }
+  outline-radius: 2px;
+}
 
 /***************
  * Base States *
@@ -98,7 +99,6 @@ read if you used those and something break with a version upgrade you're on your
   icon-shadow: none;
   color: @theme_selected_bg_color;
   background-color:shade(@theme_bg_color, 1.1); }
-
 
 .view {
   color: @theme_fg_color;
@@ -5771,7 +5771,7 @@ GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child:hover {
     background-position: left center;
   }
 
-/*
+
 *:insensitive {
   -gtk-image-effect: dim; }
 
@@ -5790,8 +5790,8 @@ GtkFileChooserDialog .search-bar .path-bar .button:backdrop:last-child:hover {
   .gtkstyle-fallback:selected {
     background-color: @selected_bg_color;
     color: @selected_fg_color; }
-*/
-/*
+
+
 GtkAssistant .sidebar {
   background-color:@theme_base_color;
   border-top: 1px solid #0e0e0e; }
@@ -5808,11 +5808,11 @@ GtkAssistant .sidebar .label {
   padding: 6px 12px; }
 GtkAssistant .sidebar .label.highlight {
   background-color: shade(@theme_base_color, 1.3); }
-*/
+
 /*********************
  * Spinner Animation *
  *********************/
-/*
+
 @keyframes spin {
   to {
     -gtk-icon-transform: rotate(1turn); } }
@@ -5826,11 +5826,11 @@ GtkAssistant .sidebar .label.highlight {
     animation: spin 1s linear infinite; }
     .spinner:active:insensitive {
       opacity: 0.5; }
-*/
+
 /*************
  * Expanders *
  *************/
-/*
+
 .expander {
   -gtk-icon-source: -gtk-icontheme("pan-end-symbolic"); }
   .expander:dir(rtl) {
@@ -5839,11 +5839,11 @@ GtkAssistant .sidebar .label.highlight {
     color: @theme_fg_color; }
   .expander:checked {
     -gtk-icon-source: -gtk-icontheme("pan-down-symbolic"); }
-*/
+
 /************
  * Calendar *
  ***********/
-/*
+
 GtkCalendar {
   color: black;
   border: 1px solid @borders; }
@@ -5875,12 +5875,12 @@ GtkCalendar {
   GtkCalendar:backdrop {
     color: @theme_unfocused_fg_color;
     border-color: @borders;}
-*/
+
 
 /***************
  * Popovers   *
  ***************/
-/*
+
 .popover {
   padding: 2px;
   border: 1px solid @borders;
@@ -5908,11 +5908,11 @@ GtkCalendar {
   .titlebar .popover .titlebutton.button:hover {
     text-shadow: none;
     transition: none; }
-*/
+
 /*****************
  * Color Chooser *
  *****************/
-/*
+
 GtkColorSwatch {
   border: 1px solid;
   border-color: rgba(0, 0, 0, 0.3);
@@ -5999,12 +5999,12 @@ GtkColorSwatch {
       box-shadow: inset 0 1px rgba(255, 255, 255, 0), 0 1px rgba(255, 255, 255, 0);
       text-shadow: none;
       icon-shadow: none; }
-*/
+
 
 /*********************
  * App Notifications *
  *********************/
-/*
+
 .app-notification,
 .app-notification.frame {
   padding: 10px;
@@ -6084,10 +6084,10 @@ GtkColorSwatch {
       box-shadow: none;
       text-shadow: none;
       icon-shadow: none; }
-*/
+
 
 /* Brasero */
-/*
+
 BraseroLayout GtkPaned {
 	background-image: linear-gradient(to bottom, @theme_bg_color);
 	}
@@ -6137,4 +6137,4 @@ BraseroLayout BraseroFileChooser GtkPathBar.path-bar.linked .button:backdrop:las
     background-repeat: no-repeat;
     background-position: left center;
   }
-*/
+

@@ -74,7 +74,8 @@ flag_t dialog_info(char * message)
 	/*TODO передать указатель на основное окно */
 	md_info = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
 	/*TODO применить свой стиль */
-	/*apply_style(md_info);*/
+	gtk_window_set_decorated(GTK_WINDOW(md_info),FALSE);
+	apply_style(md_info);
 	gtk_dialog_run(GTK_DIALOG(md_info));
 	gtk_widget_destroy(md_info);
 	g_info("%s",message);
@@ -87,7 +88,8 @@ flag_t dialog_error(char * message)
 	/*TODO передать указатель на основное окно */
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
 	/*TODO применить свой стиль */
-	/*apply_style(md_err);*/
+	gtk_window_set_decorated(GTK_WINDOW(md_err),FALSE);
+	apply_style(md_err);
 	/*gtk_dialog_run(GTK_DIALOG(md_err));*/
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
