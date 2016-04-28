@@ -128,7 +128,7 @@ GtkTextView {
   border: 1px solid;
   padding: 4px 7px 5px;
   border-radius: 3px;
-border-image: -gtk-scaled(url("borders/entry/entry.svg"), url("borders/entry/entry@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+  border-image: -gtk-scaled(url("borders/entry/entry.svg"), url("borders/entry/entry@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
   transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   background-image: linear-gradient(to bottom,
                                       rgba(0,0,0,0.12),
@@ -136,13 +136,16 @@ border-image: -gtk-scaled(url("borders/entry/entry.svg"), url("borders/entry/ent
                                       rgba(0,0,0,0.0) 20%,
                                       rgba(0,0,0,0.0)
                                       );
-    background-color: alpha(black, 0.3);
+  background-color: alpha(black, 0.3);
   border-color: transparent;
-  box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(74, 144, 217, 0); }
+  box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(74, 144, 217, 0);
+}
   .entry.image.left {
-    padding-left: 0; }
+    padding-left: 0;
+	}
   .entry.image.right {
-    padding-right: 0; }
+    padding-right: 0;
+	}
   .entry.flat, .entry.flat:focus {
     padding: 2px;
     background-color: alpha(black, 0.3);
@@ -150,33 +153,37 @@ border-image: -gtk-scaled(url("borders/entry/entry.svg"), url("borders/entry/ent
     border-color: #0e0e0e;
     box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(74, 144, 217, 0);
     border: none;
-    border-radius: 0; }
+    border-radius: 0;
+	}
   .entry:focus {
-border-image: -gtk-scaled(url("borders/entry/entry-focus.svg"), url("borders/entry/entry-focus@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+    border-image: -gtk-scaled(url("borders/entry/entry-focus.svg"), url("borders/entry/entry-focus@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
     background-color: shade(@theme_base_color, 1.3);
     box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08);
-    border-color: transparent; }
+    border-color: transparent;
+	}
   .entry:insensitive {
-border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borders/entry/entry-insnesitive@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
-     background-color: alpha(black, 0.16);
+    border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borders/entry/entry-insnesitive@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+    background-color: alpha(black, 0.16);
     background-image: url("assets/stripe-3.png");
     color: @insensitive_fg_color;
     border-color: transparent;
-    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent; }
+    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent;
+	}
   .entry:backdrop {
     background-color: transparent;
     background-image: none;
     background-color: alpha(black, 0.5);
     color: @theme_unfocused_fg_color;
     border-image: -gtk-scaled(url("borders/entry/entry.svg"), url("borders/entry/entry@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
-
-    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent, 0 1px rgba(255, 255, 255, 0); }
+    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent, 0 1px rgba(255, 255, 255, 0);
+	}
   .entry:backdrop:insensitive {
     background-color: alpha(black, 0.18);
     background-image: url("assets/stripe-2.png");
     color: @insensitive_fg_color;
     border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borders/entry/entry-insnesitive@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
-    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent, 0 1px rgba(255, 255, 255, 0); }
+    box-shadow: inset 0 3px transparent, inset 0 2px transparent, inset 0 1px transparent, 0 1px rgba(255, 255, 255, 0);
+	}
   .entry.progressbar {
     margin: 2px;
     border-radius: 0;
@@ -185,14 +192,19 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
     border-style: solid;
     background-image: none;
     background-color: transparent;
-    box-shadow: none; }
+    box-shadow: none;
+	}
     .entry.progressbar:backdrop {
-      background-color: transparent; }
+      background-color: transparent;
+		}
+
   .linked:not(.vertical) > .entry:focus + .entry, .linked:not(.vertical) > .entry:focus + .button, .linked:not(.vertical) > .entry:focus + GtkComboBox > .the-button-in-the-combobox, .linked:not(.vertical) > .entry:focus + GtkComboBoxText > .the-button-in-the-combobox {
-    border-left-color: #050505; }
+    border-left-color: #050505;
+	}
   .entry.error {
     color: #cc0000;
-    border-image: -gtk-scaled(url("borders/entry/entry-error.svg"), url("borders/entry/entry-error@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
+    border-image: -gtk-scaled(url("borders/entry/entry-error.svg"), url("borders/entry/entry-error@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+	}
 .entry.error:focus {
       background-color: alpha(black, 0.3);
       background-image: linear-gradient(to bottom,
@@ -202,12 +214,15 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
                                       rgba(0,0,0,0.0)
                                       );
       box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(204, 0, 0, 0.15), 0 1px alpha(white, 0.2);
-      border-image: -gtk-scaled(url("borders/entry/entry-error.svg"), url("borders/entry/entry-error@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
+      border-image: -gtk-scaled(url("borders/entry/entry-error.svg"), url("borders/entry/entry-error@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+}
     .entry.error:selected, .entry.error:selected:focus {
-      background-color: #cc0000; }
+      background-color: #cc0000;
+		}
 .entry.warning {
     color: @warning_color;
-    border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
+    border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+}
     .entry.warning:focus {
       background-color: alpha(black, 0.3);
       background-image: linear-gradient(to bottom,
@@ -217,93 +232,30 @@ border-image: -gtk-scaled(url("borders/entry/entry-insensitive.svg"), url("borde
                                       rgba(0,0,0,0.0)
                                       );
       box-shadow: inset 0 3px rgba(0, 0, 0, 0.02), inset 0 2px rgba(0, 0, 0, 0.03), inset 0 1px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(245, 121, 0, 0.15), 0 1px alpha(white, 0.2);
-      border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch; }
+      border-image: -gtk-scaled(url("borders/entry/entry-warning.svg"), url("borders/entry/entry-warning@2.svg")) 3 3 4 3 / 3px 3px 4px 3px stretch;
+		}
     .entry.warning:selected, .entry.warning:selected:focus {
-      background-color: @warning_color; }
- .entry.image {
-    color: #7d7d7d; }
-    .entry.image:hover {
-      color: @theme_fg_color; }
-    .entry.image:active {
-      color: #4a90d9; }
-    .entry.image:backdrop {
-      color: #646464; }
-  .osd .entry {
-    background-color: transparent;
-    background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
-    color: white;
-    border-color: rgba(0, 0, 0, 0.7);
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
-    background-clip: padding-box;
-    box-shadow: none;
-    text-shadow: 0 1px black;
-    icon-shadow: 0 1px black; }
-    .osd .entry:focus {
-      background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
-      color: white;
-      border-color: @theme_selected_bg_color;
-      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
-      background-clip: padding-box;
-      box-shadow: inset 0 0 0 1px @theme_selected_bg_color;
-      text-shadow: 0 1px black;
-      icon-shadow: 0 1px black; }
-    .osd .entry:backdrop {
-      background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
-      color: white;
-      border-color: rgba(0, 0, 0, 0.7);
-      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5));
-      background-clip: padding-box;
-      box-shadow: none;
-      text-shadow: none;
-      icon-shadow: none; }
-    .osd .entry:insensitive {
-      background-color: transparent;
-      background-image: linear-gradient(to bottom, #dedede, @theme_selected_fg_color 3px, #ffffff 90%);
-      color: #878989;
-      border-color: rgba(0, 0, 0, 0.7);
-      background-image:url("assets/stripe-3.png");
-      background-color: rgba(52, 57, 57, 0.5);
-      background-clip: padding-box;
-      box-shadow: none;
-      text-shadow: none;
-      icon-shadow: none; }
-
-.linked.vertical > .entry:not(:last-child) {
-  box-shadow: none; }
-.linked.vertical > .entry:focus:not(:last-child) {
-  box-shadow: inset 0 0 0 1px @theme_selected_bg_color; }
-.linked.vertical > .entry:not(:insensitive) + .entry:not(:insensitive) {
-  border-top-color: #0a0a0a;
-  background-image: linear-gradient(to bottom,
-                                      rgba(0,0,0,0.12),
-                                      rgba(0,0,0,0.0) 20%,
-                                      rgba(0,0,0,0.0) 20%,
-                                      rgba(0,0,0,0.0)
-                                      );
-    background-color: alpha(black, 0.3); }
-  .linked.vertical > .entry:not(:insensitive) + .entry:not(:insensitive):backdrop {
-    border-top-color: #0a0a0a;
-    background-image: none;
-    background-color: alpha(black, 0.5); }
-.linked.vertical > .entry + .entry:focus:not(:last-child) {
-  border-top-color: @theme_selected_bg_color;
-  background-color: shade(@theme_base_color, 1.3);
-  box-shadow: inset 0 0 0 1px @theme_selected_bg_color; }
-.linked.vertical > .entry + .entry:focus:last-child {
-  border-top-color: @theme_selected_bg_color;
-  box-shadow: inset 0 0 0 1px @theme_selected_bg_color;
-  background-color: shade(@theme_base_color, 1.3); }
-.linked.vertical > .entry:focus:not(:only-child) + .entry,
-.linked.vertical > .entry:focus:not(:only-child) + .button,
-.linked.vertical > .entry:focus:not(:only-child) + GtkComboBox > .the-button-in-the-combobox,
-.linked.vertical > .entry:focus:not(:only-child) + GtkComboBoxText > .the-button-in-the-combobox {
-  border-top-color: @theme_selected_bg_color;
-   }
+      background-color: @warning_color;
+		}
 
 
-/* Копки  */
+/*
+.entry.image {
+  color: #7d7d7d;
+}
+.entry.image:hover {
+  color: @theme_fg_color;
+}
+.entry.image:active {
+  color: #4a90d9;
+}
+.entry.image:backdrop {
+  color: #646464;
+}
+*/
+
+
+/* Кнопки  */
 
 @keyframes needs_attention {
   from {
