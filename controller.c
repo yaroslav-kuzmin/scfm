@@ -1686,6 +1686,7 @@ static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	}
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	gtk_button_clicked(b);
 }
 static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1699,6 +1700,7 @@ static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud
 	}
 	command.part.value = COMMAND_LAFET_DOWN;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	gtk_button_clicked(b);
 }
 static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1712,6 +1714,7 @@ static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer u
 	}
 	command.part.value = COMMAND_LAFET_RIGHT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	gtk_button_clicked(b);
 }
 static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1725,6 +1728,7 @@ static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud
 	}
 	command.part.value = COMMAND_LAFET_LEFT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	gtk_button_clicked(b);
 }
 static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
@@ -1739,7 +1743,6 @@ static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer 
 	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
 }
-
 static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 {
 	GtkWidget * grid;
