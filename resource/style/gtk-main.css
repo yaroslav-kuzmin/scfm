@@ -171,154 +171,6 @@ read if you used those and something break with a version upgrade you're on your
 	}
 
 
-/*  окно списка дерева */
-
-GtkTreeView.view {
-  -GtkTreeView-grid-line-width: 1;
-  -GtkTreeView-grid-line-pattern: '';
-  -GtkTreeView-tree-line-width: 1;
-  -GtkTreeView-tree-line-pattern: '';
-  -GtkTreeView-expander-size: 16;
-  border-left-color: shade(@theme_bg_color, 0.8);
-  border-top-color: shade(@theme_bg_color, 1.0);
-}
-  GtkTreeView.view:selected {
-    border-radius: 0;
-	}
-  GtkTreeView.view:selected, GtkTreeView.view:backdrop:selected {
-    border-left-color: shade(@theme_bg_color, 0.9);
-    border-top-color: shade(@theme_bg_color, 1.1);
-	}
-  GtkTreeView.view:insensitive {
-    color: @insensitive_fg_color;
-	}
-    GtkTreeView.view:insensitive:selected {
-      color: shade(@insensitive_fg_color,0.9); }
-      GtkTreeView.view:insensitive:selected:backdrop {
-        color: shade(@insensitive_fg_color, 1.05); }
-    GtkTreeView.view:insensitive:backdrop {
-      color: shade(@insensitive_fg_color, 1.15); ; }
-  GtkTreeView.view.separator:backdrop {
-    color: rgba(0, 0, 0, 0.1); }
-  GtkTreeView.view:backdrop {
-    border-left-color: shade(@theme_bg_color, 1.0);
-    border-top: shade(@theme_bg_color, 1.1); }
-  GtkTreeView.view.dnd {
-    border-style: solid none;
-    border-width: 1px;
-    border-color: @theme_selected_bg_color; }
-  GtkTreeView.view.expander {
-    -gtk-icon-source: -gtk-icontheme("pan-end-symbolic");
-    color: shade(@theme_fg_color, 0.8); }
-    GtkTreeView.view.expander:dir(rtl) {
-      -gtk-icon-source: -gtk-icontheme("pan-end-symbolic-rtl"); }
-    GtkTreeView.view.expander:hover {
-      color: @theme_fg_color; }
-    GtkTreeView.view.expander:selected {
-      color: shade(@theme_fg_color, 0.9); }
-      GtkTreeView.view.expander:selected:hover {
-        color: @insensitive_base_color; }
-      GtkTreeView.view.expander:selected:backdrop {
-        color: #c6dbf1; }
-    GtkTreeView.view.expander:checked {
-      -gtk-icon-source: -gtk-icontheme("pan-down-symbolic"); }
-    GtkTreeView.view.expander:backdrop {
-      color: #86898a; }
-  GtkTreeView.view.progressbar {
-    color: @insensitive_base_color;
-    border-radius: 4px;
-    border: 1px solid shade(@theme_selected_bg_color, 0.6);
-    background-image: linear-gradient(to bottom, shade(@theme_selected_bg_color, 1.8) 2px, shade(@theme_selected_bg_color, 0.9));
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), 0 1px rgba(0, 0, 0, 0.2); }
-    GtkTreeView.view.progressbar:selected {
-      color: @theme_selected_bg_color;
-      box-shadow: none;
-      background-image: linear-gradient(to bottom, shade(@theme_selected_bg_color, 1.8) 2px, shade(@theme_selected_bg_color, 0.9)); }
-      GtkTreeView.view.progressbar:selected:backdrop {
-        color: @theme_selected_bg_color;
-        background-color: @theme_selected_bg_color; }
-    GtkTreeView.view.progressbar:backdrop {
-      color: shade(@theme_fg_color, 0.6);
-      background-image: none;
-background-color: shade(@theme_selected_bg_color, 1.2);
-      box-shadow: none; }
-  GtkTreeView.view.trough {
-     background-color: rgba(0,0,0, 0.3);
-      border-width: 1px 0;
-      border-style: solid;
-      border: 1px solid shade(@borders, 0.7); }
-
-column-header .button, column-header .header-bar .button.titlebutton, .header-bar column-header .button.titlebutton,
-column-header .titlebar .button.titlebutton,
-.titlebar column-header .button.titlebutton {
-  color: shade(@theme_fg_color, 0.6);
-  background-color: alpha(black, 0.35);
-  font-weight: bold;
-  text-shadow: none;
-  border-image: none;}
-
-  column-header .button:active, column-header .header-bar .button.titlebutton:active, .header-bar column-header .button.titlebutton:active,
-  column-header .titlebar .button.titlebutton:active,
-  .titlebar column-header .button.titlebutton:active {
-    color: @theme_fg_color;
-    transition: none; }
-column-header:last-child .button, column-header:last-child .header-bar .button.titlebutton, .header-bar column-header:last-child .button.titlebutton,
-column-header:last-child .titlebar .button.titlebutton,
-.titlebar column-header:last-child .button.titlebutton, column-header:last-child .button:backdrop, column-header:last-child.button, .header-bar column-header.button.titlebutton:last-child,
-.titlebar column-header.button.titlebutton:last-child, column-header:last-child.button:backdrop {
-  border-right-style: none; }
-
-column-header.button.dnd, column-header .button.dnd, column-header .header-bar .dnd.button.titlebutton, .header-bar column-header .dnd.button.titlebutton,
-column-header .titlebar .dnd.button.titlebutton,
-.titlebar column-header .dnd.button.titlebutton, column-header.button.dnd:active, column-header.button.dnd:selected, column-header.button.dnd:hover, .header-bar column-header.dnd.button.titlebutton,
-.titlebar column-header.dnd.button.titlebutton {
-  transition: none;
-  color: @theme_selected_bg_color;
-  box-shadow: inset 1px 1px 0 1px @theme_selected_bg_color, inset -1px 0 0 1px @theme_selected_bg_color, inset 1px 1px #ffffff, inset -1px 0 #ffffff; }
-
-column-header .button, column-header .header-bar .button.titlebutton, .header-bar column-header .button.titlebutton,
-column-header .titlebar .button.titlebutton,
-.titlebar column-header .button.titlebutton, column-header .button:hover, column-header .button:active {
-  padding: 3px 6px;
-  border-style: none solid solid none;
-  border-radius: 0;
-   background-image: -gtk-gradient (linear,
-                                     left top, left bottom,
-                                     from (#11171c),
-                                     to (shade(#11171c, 0.7)));
-box-shadow: inset 1px 0 alpha(white, 0.06);
-  border-color: @borders;
-  text-shadow: none; }
-  column-header .button:hover, column-header .header-bar .button.titlebutton:hover, .header-bar column-header .button.titlebutton:hover,
-  column-header .titlebar .button.titlebutton:hover,
-  .titlebar column-header .button.titlebutton:hover {
-    color: #1c1c1c;
-    background-color: @theme_selected_bg_color;
-    background-image: none;
-    box-shadow: none;
-    border-image:none;
-    transition: none; }
-  column-header .button:insensitive, column-header .header-bar .button.titlebutton:insensitive, .header-bar column-header .button.titlebutton:insensitive,
-  column-header .titlebar .button.titlebutton:insensitive,
-  .titlebar column-header .button.titlebutton:insensitive {
-    border-color: @borders;
-    background-image: none;
-    border-image:none; }
-  column-header .button:backdrop, column-header .header-bar .button.titlebutton:backdrop, .header-bar column-header .button.titlebutton:backdrop,
-  column-header .titlebar .button.titlebutton:backdrop,
-  .titlebar column-header .button.titlebutton:backdrop {
-    border-color: @borders;
-    border-style: none solid solid none;
-border-image: none;
-    color: shade(@theme_unfocused_fg_color, 0.8);
-    background-image: none;
-    background-color: #11171c; }
-    column-header .button:backdrop:insensitive {
-      border-color: @borders;
-      background-image: none;
-      border-image:none; }
-
-
 
 
 /* Меню  */
@@ -482,552 +334,175 @@ border-image: none;
 
 .check {
   -gtk-icon-source: -gtk-scaled(url("assets/check-unchecked.png"), url("assets/check-unchecked@2.png"));
-  icon-shadow:none; }
+  icon-shadow:none;
+}
   .check.button.flat, .header-bar .check.titlebutton.button,
   .titlebar .check.titlebutton.button,
   GtkCalendar.header .check.titlebutton.button {
-    icon-shadow: none; }
-
-GtkTreeView.view.check,
-.list-row .check {
-  -gtk-icon-source: -gtk-scaled(url("assets/check-checkbox-unchecked.png"), url("assets/selected-checkbox-unchecked@2.png")); }
-
-
-GtkTreeView.view.check:selected,
-.list-row:selected .check {
-  -gtk-icon-source: -gtk-scaled(url("assets/check-checkbox-unchecked.png"), url("assets/selected-checkbox-unchecked@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:hover {
   -gtk-icon-source: -gtk-scaled(url("assets/checkbox-unchecked-hover.png"), url("assets/checkbox-unchecked-hover@2.png"));
-  icon-shadow: 0 1px 0 alpha(black, 0.2); }
+  icon-shadow: 0 1px 0 alpha(black, 0.2);
+}
   .check:hover.button.flat, .header-bar .check.titlebutton.button:hover,
   .titlebar .check.titlebutton.button:hover,
   GtkCalendar.header .check.titlebutton.button:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:hover:selected,
-.list-row:selected .check:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-unchecked-hover.png"), url("assets/selected-checkbox-unchecked-hover@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:active {
   -gtk-icon-source: -gtk-scaled(url("assets/checkbox-unchecked-active.png"), url("assets/checkbox-unchecked-active@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:active.button.flat, .header-bar .check.titlebutton.button:active,
   .titlebar .check.titlebutton.button:active,
   GtkCalendar.header .check.titlebutton.button:active {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:active:selected,
-.list-row:selected .check:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-unchecked-active.png"), url("assets/selected-checkbox-unchecked-active@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:insensitive {
   -gtk-icon-source: -gtk-scaled(url("assets/check-unchecked-insensitive.png"), url("assets/check-unchecked-insensitive@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:insensitive.button.flat, .header-bar .check.titlebutton.button:insensitive,
   .titlebar .check.titlebutton.button:insensitive,
   GtkCalendar.header .check.titlebutton.button:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:insensitive:selected,
-.list-row:selected .check:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-unchecked-insensitive.png"), url("assets/selected-checkbox-unchecked-insensitive@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:backdrop {
   -gtk-icon-source: -gtk-scaled(url("assets/check-unchecked-backdrop.png"), url("assets/check-unchecked-backdrop@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:backdrop.button.flat, .header-bar .check.titlebutton.button:backdrop,
   .titlebar .check.titlebutton.button:backdrop,
   GtkCalendar.header .check.titlebutton.button:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:backdrop:selected,
-.list-row:selected .check:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-unchecked-backdrop.png"), url("assets/selected-checkbox-unchecked-backdrop@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:backdrop:insensitive {
   -gtk-icon-source: -gtk-scaled(url("assets/check-unchecked-insensitive-backdrop.png"), url("assets/check-unchecked-insensitive-backdrop@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:backdrop:insensitive.button.flat, .header-bar .check.titlebutton.button:backdrop:insensitive,
   .titlebar .check.titlebutton.button:backdrop:insensitive,
   GtkCalendar.header .check.titlebutton.button:backdrop:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:backdrop:insensitive:selected,
-.list-row:selected .check:backdrop:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-unchecked-backdrop-insensitive.png"), url("assets/selected-checkbox-unchecked-backdrop-insensitive@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent {
   -gtk-icon-source: -gtk-scaled(url("assets/check-mixed.png"), url("assets/check-mixed@2.png"));
-  icon-shadow:none; }
+  icon-shadow:none;
+}
   .check:inconsistent.button.flat, .header-bar .check.titlebutton.button:inconsistent,
   .titlebar .check.titlebutton.button:inconsistent,
   GtkCalendar.header .check.titlebutton.button:inconsistent {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:selected,
-.list-row:selected .check:inconsistent {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed.png"), url("assets/selected-checkbox-mixed@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent:hover {
   -gtk-icon-source: -gtk-scaled(url("assets/checkbox-mixed-hover.png"), url("assets/checkbox-mixed-hover@2.png"));
-  icon-shadow: 0 1px 0 alpha(black, 0.2); }
+  icon-shadow: 0 1px 0 alpha(black, 0.2);
+}
   .check:inconsistent:hover.button.flat, .header-bar .check.titlebutton.button:inconsistent:hover,
   .titlebar .check.titlebutton.button:inconsistent:hover,
   GtkCalendar.header .check.titlebutton.button:inconsistent:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:hover:selected,
-.list-row:selected .check:inconsistent:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-hover.png"), url("assets/checkbox-mixed-hover@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent:selected {
   -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-active.png"), url("assets/checkbox-mixed-active@2.png"));
-  icon-shadow:none; }
+  icon-shadow:none;
+}
   .check:inconsistent:selected.button.flat, .header-bar .check.titlebutton.button:inconsistent:selected,
   .titlebar .check.titlebutton.button:inconsistent:selected,
   GtkCalendar.header .check.titlebutton.button:inconsistent:selected {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:selected:selected,
-.list-row:selected .check:inconsistent:selected {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-active.png"), url("assets/selected-checkbox-mixed-active@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent:backdrop {
   -gtk-icon-source: -gtk-scaled(url("assets/check-mixed-backdrop.png"), url("assets/check-mixed-backdrop@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:inconsistent:backdrop.button.flat, .header-bar .check.titlebutton.button:inconsistent:backdrop,
   .titlebar .check.titlebutton.button:inconsistent:backdrop,
   GtkCalendar.header .check.titlebutton.button:inconsistent:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:backdrop:selected,
-.list-row:selected .check:inconsistent:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-backdrop.png"), url("assets/selected-checkbox-mixed-backdrop@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent:insensitive {
   -gtk-icon-source: -gtk-scaled(url("assets/check-mixed-insensitive.png"), url("assets/check-mixed-insensitive@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:inconsistent:insensitive.button.flat, .header-bar .check.titlebutton.button:inconsistent:insensitive,
   .titlebar .check.titlebutton.button:inconsistent:insensitive,
   GtkCalendar.header .check.titlebutton.button:inconsistent:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:insensitive:selected,
-.list-row:selected .check:inconsistent:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-insensitive.png"), url("assets/selected-checkbox-mixed-insensitive@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:inconsistent:insensitive:backdrop {
   -gtk-icon-source: -gtk-scaled(url("assets/check-mixed-backdrop-insensitive.png"), url("assets/check-mixed-backdrop-insensitive@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
+/*
   .check:inconsistent:insensitive:backdrop.button.flat, .header-bar .check.titlebutton.button:inconsistent:insensitive:backdrop,
   .titlebar .check.titlebutton.button:inconsistent:insensitive:backdrop,
   GtkCalendar.header .check.titlebutton.button:inconsistent:insensitive:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:inconsistent:insensitive:backdrop:selected,
-.list-row:selected .check:inconsistent:insensitive:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-mixed-backdrop-insensitive.png"), url("assets/selected-checkbox-mixed-backdrop-insensitive@2.png")); }
-
+    icon-shadow: none;
+	}
+*/
 .check:checked {
   -gtk-icon-source: -gtk-scaled(url("assets/check-checked.png"), url("assets/check-checked@2.png"));
-  icon-shadow:none; }
+  icon-shadow:none;
+}
   .check:checked.button.flat, .header-bar .check.titlebutton.button:checked,
   .titlebar .check.titlebutton.button:checked,
   GtkCalendar.header .check.titlebutton.button:checked {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:checked,
-.list-row:selected .check:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked.png"), url("assets/selected-checkbox-checked@2.png")); }
-
-
-GtkTreeView.view.check:checked:selected,
-.list-row:selected .check:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked.png"), url("assets/selected-checkbox-checked@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:checked:insensitive {
   -gtk-icon-source: -gtk-scaled(url("assets/check-checked-insensitive.png"), url("assets/check-checked-insensitive@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:checked:insensitive.button.flat, .header-bar .check.titlebutton.button:checked:insensitive,
   .titlebar .check.titlebutton.button:checked:insensitive,
   GtkCalendar.header .check.titlebutton.button:checked:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:checked:insensitive:selected,
-.list-row:selected .check:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked-insensitive.png"), url("assets/selected-checkbox-checked-insensitive@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:checked:hover {
   -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-hover.png"), url("assets/checkbox-checked-hover@2.png"));
-  icon-shadow: 0 1px 0 alpha(black, 0.2); }
+  icon-shadow: 0 1px 0 alpha(black, 0.2);
+}
   .check:checked:hover.button.flat, .header-bar .check.titlebutton.button:checked:hover,
   .titlebar .check.titlebutton.button:checked:hover,
   GtkCalendar.header .check.titlebutton.button:checked:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:checked:hover:selected,
-.list-row:selected .check:checked:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked-hover.png"), url("assets/checkbox-checked-hover@2.png")); }
-
+    icon-shadow: none;
+	}
 .check:checked:active {
   -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-active.png"), url("assets/checkbox-checked-active@2.png"));
-  icon-shadow:none; }
+  icon-shadow:none;
+}
+/*
   .check:checked:active.button.flat, .header-bar .check.titlebutton.button:checked:active,
   .titlebar .check.titlebutton.button:checked:active,
   GtkCalendar.header .check.titlebutton.button:checked:active {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:checked:active:selected,
-.list-row:selected .check:checked:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked-active.png"), url("assets/selected-checkbox-checked-active@2.png")); }
-
+    icon-shadow: none;
+	}
+*/
+/*
 .check:backdrop:checked {
   -gtk-icon-source: -gtk-scaled(url("assets/check-checked-backdrop.png"), url("assets/check-checked-backdrop@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:backdrop:checked.button.flat, .header-bar .check.titlebutton.button:backdrop:checked,
   .titlebar .check.titlebutton.button:backdrop:checked,
   GtkCalendar.header .check.titlebutton.button:backdrop:checked {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:backdrop:checked:selected,
-.list-row:selected .check:backdrop:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked-backdrop.png"), url("assets/selected-checkbox-checked-backdrop@2.png")); }
+    icon-shadow: none;
+	}
 
 .check:backdrop:checked:insensitive {
   -gtk-icon-source: -gtk-scaled(url("assets/check-checked-backdrop-insensitive.png"), url("assets/check-checked-backdrop-insensitive@2.png"));
-  icon-shadow: none; }
+  icon-shadow: none;
+}
   .check:backdrop:checked:insensitive.button.flat, .header-bar .check.titlebutton.button:backdrop:checked:insensitive,
   .titlebar .check.titlebutton.button:backdrop:checked:insensitive,
   GtkCalendar.header .check.titlebutton.button:backdrop:checked:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.check:backdrop:checked:insensitive:selected,
-.list-row:selected .check:backdrop:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-checkbox-checked-backdrop-insensitive.png"), url("assets/selected-checkbox-checked-backdrop-insensitive@2.png")); }
-
-.menu .menuitem.check {
-  -gtk-icon-source: -gtk-icontheme("checkbox-symbolic");
-  color: shade(@theme_fg_color, 0.6);
-  icon-shadow: none; }
-  .menu .menuitem.check:active, .menu .menuitem.check:checked {
-    -gtk-icon-source: -gtk-icontheme("checkbox-checked-symbolic"); }
-  .menu .menuitem.check:inconsistent {
-    -gtk-icon-source: -gtk-icontheme("checkbox-mixed-symbolic"); }
-  .menu .menuitem.check:hover {
-    color: @theme_fg_color; }
-  .menu .menuitem.check:insensitive {
-    color: @insensitive_fg_color; }
-
-.radio {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked.png"), url("assets/radio-unchecked@2.png"));
-  icon-shadow: none; }
-  .radio.button.flat, .header-bar .radio.titlebutton.button,
-  .titlebar .radio.titlebutton.button,
-  GtkCalendar.header .radio.titlebutton.button {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:selected,
-.list-row:selected .radio {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-unchecked.png"), url("assets/selected-radio-unchecked@2.png")); }
-
-.radio:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-hover.png"), url("assets/radio-unchecked-hover@2.png"));
-  icon-shadow: 0 1px 0 alpha(black, 0.2); }
-  .radio:hover.button.flat, .header-bar .radio.titlebutton.button:hover,
-  .titlebar .radio.titlebutton.button:hover,
-  GtkCalendar.header .radio.titlebutton.button:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:hover:selected,
-.list-row:selected .radio:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-hover.png"), url("assets/radio-unchecked-hover@2.png")); }
-
-.radio:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-active.png"), url("assets/radio-unchecked-active@2.png"));
-  icon-shadow: none; }
-  .radio:active.button.flat, .header-bar .radio.titlebutton.button:active,
-  .titlebar .radio.titlebutton.button:active,
-  GtkCalendar.header .radio.titlebutton.button:active {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:active:selected,
-.list-row:selected .radio:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-unchecked-active.png"), url("assets/selected-radio-unchecked-active@2.png")); }
-
-.radio:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-insensitive.png"), url("assets/radio-unchecked-insensitive@2.png"));
-  icon-shadow:none; }
-  .radio:insensitive.button.flat, .header-bar .radio.titlebutton.button:insensitive,
-  .titlebar .radio.titlebutton.button:insensitive,
-  GtkCalendar.header .radio.titlebutton.button:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:insensitive:selected,
-.list-row:selected .radio:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-unchecked-insensitive.png"), url("assets/selected-radio-unchecked-insensitive@2.png")); }
-
-.radio:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-backdrop.png"), url("assets/radio-unchecked-backdrop@2.png"));
-  icon-shadow: none; }
-  .radio:backdrop.button.flat, .header-bar .radio.titlebutton.button:backdrop,
-  .titlebar .radio.titlebutton.button:backdrop,
-  GtkCalendar.header .radio.titlebutton.button:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:backdrop:selected,
-.list-row:selected .radio:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-unchecked-backdrop.png"), url("assets/selected-radio-unchecked-backdrop@2.png")); }
-
-.radio:backdrop:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-unchecked-backdrop-insensitive.png"), url("assets/radio-unchecked-backdrop-insensitive@2.png"));
-  icon-shadow: none; }
-  .radio:backdrop:insensitive.button.flat, .header-bar .radio.titlebutton.button:backdrop:insensitive,
-  .titlebar .radio.titlebutton.button:backdrop:insensitive,
-  GtkCalendar.header .radio.titlebutton.button:backdrop:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:backdrop:insensitive:selected,
-.list-row:selected .radio:backdrop:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-unchecked-backdrop-insensitive.png"), url("assets/selected-radio-unchecked-backdrop-insensitive@2.png")); }
-
-.radio:inconsistent {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed.png"), url("assets/radio-mixed@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent.button.flat, .header-bar .radio.titlebutton.button:inconsistent,
-  .titlebar .radio.titlebutton.button:inconsistent,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:selected,
-.list-row:selected .radio:inconsistent {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed.png"), url("assets/selected-radio-mixed@2.png")); }
-
-.radio:inconsistent:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed-hover.png"), url("assets/radio-mixed-hover@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent:hover.button.flat, .header-bar .radio.titlebutton.button:inconsistent:hover,
-  .titlebar .radio.titlebutton.button:inconsistent:hover,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:hover:selected,
-.list-row:selected .radio:inconsistent:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed-hover.png"), url("assets/selected-radio-mixed-hover@2.png")); }
-
-.radio:inconsistent:selected {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed-active.png"), url("assets/radio-mixed-active@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent:selected.button.flat, .header-bar .radio.titlebutton.button:inconsistent:selected,
-  .titlebar .radio.titlebutton.button:inconsistent:selected,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent:selected {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:selected:selected,
-.list-row:selected .radio:inconsistent:selected {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed-active.png"), url("assets/selected-radio-mixed-active@2.png")); }
-
-.radio:inconsistent:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed-backdrop.png"), url("assets/radio-mixed-backdrop@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent:backdrop.button.flat, .header-bar .radio.titlebutton.button:inconsistent:backdrop,
-  .titlebar .radio.titlebutton.button:inconsistent:backdrop,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:backdrop:selected,
-.list-row:selected .radio:inconsistent:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed-backdrop.png"), url("assets/selected-radio-mixed-backdrop@2.png")); }
-
-.radio:inconsistent:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed-insensitive.png"), url("assets/radio-mixed-insensitive@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent:insensitive.button.flat, .header-bar .radio.titlebutton.button:inconsistent:insensitive,
-  .titlebar .radio.titlebutton.button:inconsistent:insensitive,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:insensitive:selected,
-.list-row:selected .radio:inconsistent:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed-insensitive.png"), url("assets/selected-radio-mixed-insensitive@2.png")); }
-
-.radio:inconsistent:insensitive:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-mixed-backdrop-insensitive.png"), url("assets/radio-mixed-backdrop-insensitive@2.png"));
-  icon-shadow: none; }
-  .radio:inconsistent:insensitive:backdrop.button.flat, .header-bar .radio.titlebutton.button:inconsistent:insensitive:backdrop,
-  .titlebar .radio.titlebutton.button:inconsistent:insensitive:backdrop,
-  GtkCalendar.header .radio.titlebutton.button:inconsistent:insensitive:backdrop {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:inconsistent:insensitive:backdrop:selected,
-.list-row:selected .radio:inconsistent:insensitive:backdrop {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-mixed-backdrop-insensitive.png"), url("assets/selected-radio-mixed-backdrop-insensitive@2.png")); }
-
-.radio:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked.png"), url("assets/radio-checked@2.png"));
-  icon-shadow:none; }
-  .radio:checked.button.flat, .header-bar .radio.titlebutton.button:checked,
-  .titlebar .radio.titlebutton.button:checked,
-  GtkCalendar.header .radio.titlebutton.button:checked {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:checked:selected,
-.list-row:selected .radio:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked.png"), url("assets/selected-radio-checked@2.png")); }
-
-.radio:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked-insensitive.png"), url("assets/radio-checked-insensitive@2.png"));
-  icon-shadow:none; }
-  .radio:checked:insensitive.button.flat, .header-bar .radio.titlebutton.button:checked:insensitive,
-  .titlebar .radio.titlebutton.button:checked:insensitive,
-  GtkCalendar.header .radio.titlebutton.button:checked:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:checked:insensitive:selected,
-.list-row:selected .radio:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked-insensitive.png"), url("assets/selected-radio-checked-insensitive@2.png")); }
-
-.radio:checked:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked-hover.png"), url("assets/radio-checked-hover@2.png"));
-  icon-shadow: 0 1px 0 alpha(black, 0.2); }
-  .radio:checked:hover.button.flat, .header-bar .radio.titlebutton.button:checked:hover,
-  .titlebar .radio.titlebutton.button:checked:hover,
-  GtkCalendar.header .radio.titlebutton.button:checked:hover {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:checked:hover:selected,
-.list-row:selected .radio:checked:hover {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked-hover.png"), url("assets/selected-radio-checked-hover@2.png")); }
-
-.radio:checked:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked-active.png"), url("assets/radio-checked-active@2.png"));
-  icon-shadow:none; }
-  .radio:checked:active.button.flat, .header-bar .radio.titlebutton.button:checked:active,
-  .titlebar .radio.titlebutton.button:checked:active,
-  GtkCalendar.header .radio.titlebutton.button:checked:active {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:checked:active:selected,
-.list-row:selected .radio:checked:active {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked-active.png"), url("assets/selected-radio-checked-active@2.png")); }
-
-.radio:backdrop:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked-backdrop.png"), url("assets/radio-checked-backdrop@2.png"));
-  icon-shadow: none; }
-  .radio:backdrop:checked.button.flat, .header-bar .radio.titlebutton.button:backdrop:checked,
-  .titlebar .radio.titlebutton.button:backdrop:checked,
-  GtkCalendar.header .radio.titlebutton.button:backdrop:checked {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:backdrop:checked:selected,
-.list-row:selected .radio:backdrop:checked {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked-backdrop.png"), url("assets/selected-radio-checked-backdrop@2.png")); }
-
-.radio:backdrop:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/radio-checked-backdrop-insensitive.png"), url("assets/radio-checked-backdrop-insensitive@2.png"));
-  icon-shadow: none; }
-  .radio:backdrop:checked:insensitive.button.flat, .header-bar .radio.titlebutton.button:backdrop:checked:insensitive,
-  .titlebar .radio.titlebutton.button:backdrop:checked:insensitive,
-  GtkCalendar.header .radio.titlebutton.button:backdrop:checked:insensitive {
-    icon-shadow: none; }
-
-GtkTreeView.view.radio:backdrop:checked:insensitive:selected,
-.list-row:selected .radio:backdrop:checked:insensitive {
-  -gtk-icon-source: -gtk-scaled(url("assets/selected-radio-checked-backdrop-insensitive.png"), url("assets/selected-radio-checked-backdrop-insensitive@2.png")); }
-
-.menu .menuitem.radio {
-  -gtk-icon-source: -gtk-icontheme("radio-symbolic");
-  color: #7a7e7f;
-  icon-shadow: none; }
-  .menu .menuitem.radio:active, .menu .menuitem.radio:checked {
-    -gtk-icon-source: -gtk-icontheme("radio-checked-symbolic"); }
-  .menu .menuitem.radio:inconsistent {
-    -gtk-icon-source: -gtk-icontheme("radio-mixed-symbolic"); }
-  .menu .menuitem.radio:hover {
-    color: @insensitive_base_color; }
-  .menu .menuitem.radio:insensitive {
-    color: #bdbebf; }
-
-.view.check, .view.radio,
-.list-row .check, list-row .radio {
-  icon-shadow: none; }
-  .view.check:selected, GtkCalendar.check:selected, .view.check:hover, .view.radio:selected, GtkCalendar.radio:selected, .view.radio:hover,
-  .list-row .check:selected,
-  .list-row .check:hover, list-row .radio:selected, list-row .radio:hover {
-    icon-shadow: none; }
-
-.view.content-view.check:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-selectionmode.png"), url("assets/checkbox-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:hover:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-hover-selectionmode.png"), url("assets/checkbox-hover-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:active:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-active-selectionmode.png"), url("assets/checkbox-active-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:backdrop:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-backdrop-selectionmode.png"), url("assets/checkbox-backdrop-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:checked:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-selectionmode.png"), url("assets/checkbox-checked-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:checked:hover:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-hover-selectionmode.png"), url("assets/checkbox-checked-hover-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:checked:active:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-active-selectionmode.png"), url("assets/checkbox-checked-active-selectionmode@2.png"));
-  background-color: transparent; }
-
-.view.content-view.check:backdrop:checked:not(.list) {
-  icon-shadow: none;
-  -gtk-icon-source: -gtk-scaled(url("assets/checkbox-checked-backdrop-selectionmode.png"), url("assets/checkbox-checked-backdrop-selectionmode@2.png"));
-  background-color: transparent; }
-
-GtkCheckButton.text-button, GtkRadioButton.text-button {
-  padding: 1px 2px 4px;
-  outline-offset: 0; }
-  GtkCheckButton.text-button:insensitive, GtkCheckButton.text-button:insensitive:active, GtkCheckButton.text-button:insensitive:inconsistent, GtkRadioButton.text-button:insensitive, GtkRadioButton.text-button:insensitive:active, GtkRadioButton.text-button:insensitive:inconsistent {
-    color: @insensitive-fg_color; }
-    GtkCheckButton.text-button:insensitive:backdrop, GtkCheckButton.text-button:insensitive:active:backdrop, GtkCheckButton.text-button:insensitive:inconsistent:backdrop, GtkRadioButton.text-button:insensitive:backdrop, GtkRadioButton.text-button:insensitive:active:backdrop, GtkRadioButton.text-button:insensitive:inconsistent:backdrop {
-      color: @insensitive-fg_color; }
-
-
-
-
-
+    icon-shadow: none;
+	}
+*/
 
 /* Шкала маштабирования*/
-.scale,
-.scale.scale-has-marks-above.scale-has-marks-below,
-.scale.vertical.scale-has-marks-above.scale-has-marks-below {
-  -GtkScale-slider-length: 20;
-  -GtkRange-slider-width: 20;
-  -GtkRange-trough-border: 2;
-  outline-offset: -9px;
-  outline-radius: 4px; }
-  .scale.fine-tune,
-  .scale.scale-has-marks-above.scale-has-marks-below.fine-tune,
-  .scale.vertical.scale-has-marks-above.scale-has-marks-below.fine-tune {
-    outline-offset: -7px;
-    outline-radius: 6px; }
-    .scale.fine-tune.trough,
-    .scale.scale-has-marks-above.scale-has-marks-below.fine-tune.trough,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.fine-tune.trough {
-      margin: 8px;
-      border-radius: 4px; }
   .scale.slider,
   .scale.scale-has-marks-above.scale-has-marks-below.slider,
   .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider {
@@ -1046,7 +521,9 @@ GtkCheckButton.text-button, GtkRadioButton.text-button {
     border-color: shade(@theme_selected_bg_color, 0.4);
 
     border-radius: 50%;
-    box-shadow: inset 0 1px alpha(white, 0.26), inset 0 -2px alpha(white, 0.06), inset 0 -1px alpha(white, 0.03);}
+    box-shadow: inset 0 1px alpha(white, 0.26), inset 0 -2px alpha(white, 0.06), inset 0 -1px alpha(white, 0.03);
+	}
+
     .scale.slider:hover,
     .scale.scale-has-marks-above.scale-has-marks-below.slider:hover,
     .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:hover {
@@ -1064,93 +541,9 @@ GtkCheckButton.text-button, GtkRadioButton.text-button {
       text-shadow: 0 1px rgba(255, 255, 255, 0.76923);
       icon-shadow: 0 1px rgba(255, 255, 255, 0.76923);
       box-shadow: inset 0 1px alpha(white, 0.26), inset 0 -2px alpha(white, 0.06), inset 0 -1px alpha(white, 0.03);
-      border-radius: 50%; }
-    .scale.slider:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.slider:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:insensitive {
-      border-style: solid;
       border-radius: 50%;
-      background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #141c22
-				      );
-      box-shadow: inset 0 1px alpha(white, 0.1), inset 0 -2px alpha(black, 0.16), inset 0 -1px alpha(black, 0.08); }
-    .scale.slider:backdrop,
-    .scale.scale-has-marks-above.scale-has-marks-below.slider:backdrop,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:backdrop {
-      color: #2e3436;
-    outline-color: rgba(46, 52, 54, 0.3);
-    background-image: -gtk-gradient (radial,
-										center -0.5, 0,
-										center -0.3, 0.9,
-										from(rgba(255,255,255,0.9)),
-										to(transparent)),
-						linear-gradient(to bottom,
-                                      @theme_selected_bg_color
-                                      );
-    text-shadow: 0 1px rgba(255, 255, 255, 0.76923);
-    icon-shadow: 0 1px rgba(255, 255, 255, 0.76923);
-    border-color: shade(@theme_selected_bg_color, 0.4);
+		}
 
-    border-radius: 50%;
-    box-shadow: inset 0 1px alpha(white, 0.26), inset 0 -2px alpha(white, 0.06), inset 0 -1px alpha(white, 0.03);}
-    .scale.slider:backdrop:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.slider:backdrop:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:backdrop:insensitive {
-      color:@insensitive_fg_color;
-      border-color: @borders;
-      background-image: url("assets/stripe-2.png"),linear-gradient(to bottom,
-                                      #161b1f
-				      );
-      text-shadow: none;
-      icon-shadow: none;
-      box-shadow: inset 0 1px alpha(white, 0.1), inset 0 -2px alpha(black, 0.16), inset 0 -1px alpha(black, 0.08); }
-      .scale.slider:backdrop:insensitive > .label,
-      .scale.scale-has-marks-above.scale-has-marks-below.slider:backdrop:insensitive > .label,
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:backdrop:insensitive > .label {
-        color: inherit; }
-    .scale.slider:active,
-    .scale.scale-has-marks-above.scale-has-marks-below.slider:active,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:active {
-      border: 1px solid #153d65; }
-    .osd .scale.slider, .osd
-    .scale.scale-has-marks-above.scale-has-marks-below.slider, .osd
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider {
-      color: #eeeeec;
-      outline-color: rgba(238, 238, 236, 0.2);
-      background-color: @theme_selected_bg_color;
-      background-clip: padding-box;
-      background-image: none;
-      border-color: rgba(0, 0, 0, 0.0);
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0.1);
-      text-shadow: 0 1px black;
-      icon-shadow: 0 1px black; }
-      .osd .scale.slider:hover, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.slider:hover, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:hover {
-        color: white;
-        border-color: rgba(0, 0, 0, 0.0);
-        background-image: none;
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0.1);
-        text-shadow: 0 1px black;
-        icon-shadow: 0 1px black; }
-      .osd .scale.slider:active, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.slider:active, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:active {
-        color: white;
-        border-color: rgba(0, 0, 0, 0.0);
-        background-image: linear-gradient(to bottom, shade(@theme_selected_bg_color, 1.4));
-        box-shadow: none;
-        text-shadow: none;
-        icon-shadow: none; }
-      .osd .scale.slider:backdrop, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.slider:backdrop, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.slider:backdrop {
-        color: #7d7d7d;
-        background-image: linear-gradient(to bottom, shade(@theme_selected_bg_color, 0.8));
-        background-clip: padding-box;
-        box-shadow: none;
-        text-shadow: none;
-        icon-shadow: none; }
   .scale.trough,
   .scale.scale-has-marks-above.scale-has-marks-below.trough,
   .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough {
@@ -1158,347 +551,17 @@ GtkCheckButton.text-button, GtkRadioButton.text-button {
     border: 1px solid shade(#141b21, 0.7);
     border-radius: 3px;
     background-color: #141b21;
-    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white, 0.06); }
+    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white, 0.06);
+	}
+
+/*тень шкалы*/
     .scale.trough.highlight,
     .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight,
     .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight {
       background-image: linear-gradient(to bottom, #4a90d9 2px, #63a0de);
       border-color: #184472;
-      box-shadow: 0 1px alpha(white,0.15); }
-      .scale.trough.highlight.vertical,
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight.vertical,
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight.vertical {
-        background-image: linear-gradient(to right, shade(@theme_selected_bg_color, 1.9) 2px, shade(@theme_selected_bg_color, 0.9)); }
-      .scale.trough.highlight:backdrop,
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight:backdrop,
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight:backdrop {
-        border-color: shade( @theme_unfocused_selected_bg_color,0.8);
-        background-color: @theme_unfocused_selected_bg_color;
-background-image: none;
-        box-shadow: none; }
-    .scale.trough:insensitive, .scale.trough.vertical:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.trough:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.trough.vertical:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.vertical:insensitive {
-      border-color: @borders;
-      background-image: none;
-      background-color: #191919;
-      box-shadow: 0 1px alpha(white, 0.06); }
-    .scale.trough:backdrop,
-    .scale.scale-has-marks-above.scale-has-marks-below.trough:backdrop,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:backdrop {
-      border-color: @borders;
-      background-color: #1f1f1f;
-      box-shadow: none; }
-    .scale.trough:backdrop:insensitive, .scale.trough .highlight:backdrop:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.trough:backdrop:insensitive,
-    .scale.scale-has-marks-above.scale-has-marks-below.trough .highlight:backdrop:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:backdrop:insensitive,
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough .highlight:backdrop:insensitive {
-      border-color: @borders;
-      background-color: #191919; }
-    .osd .scale.trough, .osd
-    .scale.scale-has-marks-above.scale-has-marks-below.trough, .osd
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough {
-      border-color: rgba(0, 0, 0, 0.7);
-      box-shadow: none;
-      margin: 9px;
-      background-color: rgba(0, 0, 0, 0.5);
-      outline-color: rgba(238, 238, 236, 0.2);
-      outline-offset: -8px; }
-      .osd .scale.trough.fine-tune, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.fine-tune, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.fine-tune {
-        margin: 7px; }
-      .osd .scale.trough.highlight, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight {
-        background-image: none;
-        background-color: @theme_selected_bg_color; }
-      .osd .scale.trough:insensitive, .osd .scale.trough:backdrop:insensitive, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.trough:insensitive, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.trough:backdrop:insensitive, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:insensitive, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:backdrop:insensitive {
-        border-color: transparent;
-        background-color:#191919; }
-      .osd .scale.trough:backdrop, .osd
-      .scale.scale-has-marks-above.scale-has-marks-below.trough:backdrop, .osd
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:backdrop {
-        border-color: rgba(0, 0, 0, 0.7);
-        background-image: none;
-        background-color: #1f1f1f; }
-  .list-row:selected .scale, .list-row:selected
-  .scale.scale-has-marks-above.scale-has-marks-below, .list-row:selected
-  .scale.vertical.scale-has-marks-above.scale-has-marks-below {
-    border-color: shade(@theme_selected_bg_color, 0.4); }
-    .list-row:selected .scale.trough, .list-row:selected
-    .scale.scale-has-marks-above.scale-has-marks-below.trough, .list-row:selected
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough {
-      box-shadow: inset 1px 1px rgba(0, 0, 0, 0.1), 0 1px alpha(white, 0.06);}
-      .list-row:selected .scale.trough:backdrop, .list-row:selected
-      .scale.scale-has-marks-above.scale-has-marks-below.trough:backdrop, .list-row:selected
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough:backdrop {
-        box-shadow: none; }
-      .list-row:selected .scale.trough.highlight:backdrop, .list-row:selected
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight:backdrop, .list-row:selected
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight:backdrop {
-        border-color: shade( @theme_unfocused_selected_bg_color,0.8); }
-    .list-row:selected .scale:insensitive, .list-row:selected .scale.trough.highlight:insensitive, .list-row:selected
-    .scale.scale-has-marks-above.scale-has-marks-below:insensitive, .list-row:selected
-    .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight:insensitive, .list-row:selected
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below:insensitive, .list-row:selected
-    .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight:insensitive {
-      border-style: solid;
-      background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #141c22
-				      );
-      box-shadow: inset 0 1px alpha(white, 0.1), inset 0 -2px alpha(black, 0.16), inset 0 -1px alpha(black, 0.08); }
-      .list-row:selected .scale:insensitive:backdrop, .list-row:selected .scale.trough.highlight:insensitive:backdrop, .list-row:selected
-      .scale.scale-has-marks-above.scale-has-marks-below:insensitive:backdrop, .list-row:selected
-      .scale.scale-has-marks-above.scale-has-marks-below.trough.highlight:insensitive:backdrop, .list-row:selected
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below:insensitive:backdrop, .list-row:selected
-      .scale.vertical.scale-has-marks-above.scale-has-marks-below.trough.highlight:insensitive:backdrop {
-        background-image: url("assets/stripe-2.png"),linear-gradient(to bottom,
-                                      #161b1f
-				      );}
-
-.scale.scale-has-marks-below {
-  -GtkScale-slider-length: 20;
-  -GtkRange-slider-width: 24;
-  -GtkRange-trough-border: 2;
-  color: alpha(currentColor,0.5); }
-  .scale.scale-has-marks-below.slider {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below.png"), url("assets/slider-horz-scale-has-marks-below@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-below.slider:hover {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below-hover.png"), url("assets/slider-horz-scale-has-marks-below-hover@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-below.slider:active {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below-active.png"), url("assets/slider-horz-scale-has-marks-below-active@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-below.slider:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below-insensitive.png"), url("assets/slider-horz-scale-has-marks-below-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-below.slider:backdrop {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below-backdrop.png"), url("assets/slider-horz-scale-has-marks-below-backdrop@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-below.slider:backdrop:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-below-backdrop-insensitive.png"), url("assets/slider-horz-scale-has-marks-below-backdrop-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-
-.scale.scale-has-marks-above {
-  -GtkScale-slider-length: 20;
-  -GtkRange-slider-width: 24;
-  -GtkRange-trough-border: 2;
-  color: alpha(currentColor,0.5); }
-  .scale.scale-has-marks-above.slider {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-above.png"), url("assets/slider-horz-scale-has-marks-above@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-above.slider:hover {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horcomboboxentryz-scale-has-marks-above-hover.png"), url("assets/slider-horz-scale-has-marks-above-hover@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-above.slider:active {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-above-active.png"), url("assets/slider-horz-scale-has-marks-above-active@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-above.slider:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-above-insensitive.png"), url("assets/slider-horz-scale-has-marks-above-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-above.slider:backdrop {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-above-backdrop.png"), url("assets/slider-horz-scale-has-marks-above-backdrop@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.scale-has-marks-above.slider:backdrop:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-horz-scale-has-marks-above-backdrop-insensitive.png"), url("assets/slider-horz-scale-has-marks-above-backdrop-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-
-.scale.vertical.scale-has-marks-below {
-  -GtkScale-slider-length: 20;
-  -GtkRange-slider-width: 24;
-  -GtkRange-trough-border: 2;
-  color: alpha(currentColor,0.5); }
-  .scale.vertical.scale-has-marks-below.slider {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below.png"), url("assets/slider-vert-scale-has-marks-below@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-below.slider:hover {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below-hover.png"), url("assets/slider-vert-scale-has-marks-below-hover@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-below.slider:active {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below-active.png"), url("assets/slider-vert-scale-has-marks-below-active@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-below.slider:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below-insensitive.png"), url("assets/slider-vert-scale-has-marks-below-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-below.slider:backdrop {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below-backdrop.png"), url("assets/slider-vert-scale-has-marks-below-backdrop@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-below.slider:backdrop:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-below-backdrop-insensitive.png"), url("assets/slider-vert-scale-has-marks-below-backdrop-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-
-.scale.vertical.scale-has-marks-above {
-  -GtkScale-slider-length: 20;
-  -GtkRange-slider-width: 24;
-  -GtkRange-trough-border: 2;
-  color: alpha(currentColor,0.5); }
-  .scale.vertical.scale-has-marks-above.slider {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above.png"), url("assets/slider-vert-scale-has-marks-above@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-above.slider:hover {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above-hover.png"), url("assets/slider-vert-scale-has-marks-above-hover@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-above.slider:active {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above-active.png"), url("assets/slider-vert-scale-has-marks-above-active@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-above.slider:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above-insensitive.png"), url("assets/slider-vert-scale-has-marks-above-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-above.slider:backdrop {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above-backdrop.png"), url("assets/slider-vert-scale-has-marks-above-backdrop@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-  .scale.vertical.scale-has-marks-above.slider:backdrop:insensitive {
-    border-style: none;
-    border-radius: 0;
-    background-color: transparent;
-    background-image: -gtk-scaled(url("assets/slider-vert-scale-has-marks-above-backdrop-insensitive.png"), url("assets/slider-vert-scale-has-marks-above-backdrop-insensitive@2.png"));
-    background-repeat: no-repeat;
-    background-position: center;
-    box-shadow: none; }
-
-.scale.scale-has-marks-above .trough {
-  margin: 14px 10px 10px; }
-.fine-tune.scale.scale-has-marks-above .trough {
-  margin: 12px 8px 8px; }
-
-.scale.scale-has-marks-below .trough {
-  margin: 10px 10px 14px; }
-.fine-tune.scale.scale-has-marks-below .trough {
-  margin: 8px 8px 12px; }
-
-.scale.vertical.scale-has-marks-above .trough {
-  margin: 10px 10px 10px 14px; }
-.fine-tune.scale.vertical.scale-has-marks-above .trough {
-  margin: 8px 8px 8px 12px; }
-
-.scale.vertical.scale-has-marks-below .trough {
-  margin: 10px 14px 10px 10px; }
-.fine-tune.scale.vertical.scale-has-marks-below .trough {
-  margin: 8px 12px 8px 8px; }
+      box-shadow: 0 1px alpha(white,0.15);
+		}
 
 
 /* frame */
@@ -1506,293 +569,18 @@ background-image: none;
   border: 1px solid shade(#141b21, 0.8);
   padding: 0;
 }
-  .frame.flat {
-    border-style: none;
-	}
-  .frame:backdrop {
-    border-color: @borders;
-	}
-  .frame.action-bar {
-    padding: 6px;
-    border-width: 1px 0 0;
-	}
-
-GtkScrolledWindow GtkViewport.frame {
-  border-style: none;
-}
-
-.separator {
-  color: rgba(0, 0, 0, 0.1); }
-  GtkFileChooserButton .separator.vertical, GtkFontButton .separator.vertical {
-    -GtkWidget-wide-separators: true;
-	}
-
 
 /* Диалоговые окна*/
+
 .message-dialog .dialog-action-area .button {
   padding: 8px;
 }
 
+
 .message-dialog.background {
   background-color: #0d1216;
 }
-.message-dialog .titlebar {
-  border-style: none;
-  border-image: linear-gradient(to right, rgba(161, 161, 161, 0), alpha(#8d8d8f,0.95) 20%, alpha(#8d8d8f,0.95) 80%, rgba(161, 161, 161, 0) 100%) 1 0 0 0/ 1px 0 0 0 stretch;
-  background-color: transparent;
-  background-image: linear-gradient(to bottom, shade(@theme_base_color, 1.38), shade(@theme_base_color, 1.28));
-  box-shadow:inset 0 1px 0px alpha(white,0.15);
-}
-.message-dialog.csd.background {
-  border-bottom-left-radius: 9px;
-  border-bottom-right-radius: 9px;
-}
-.message-dialog.csd .dialog-action-area .button {
-  padding: 12px;
-    border-radius: 0;
-    color: @theme_fg_color;
-    outline-color: rgba(46, 52, 54, 0.3);
-    border-color: shade(#121619, 0.82);
-border-image: none;
-     background-image: linear-gradient(to bottom,
-										rgba(255,255,255, 0.02),
-										rgba(255,255,255, 0.00) 50%,
-										rgba(0,0,0, 0.00) 51%,
-										rgba(0,0,0, 0.00)
-										),
-					linear-gradient(to bottom,
-                                      #121619
-                                      );
-  text-shadow: 0 -1px rgba(0,0,0, 0.96923);
-  icon-shadow: 0 -1px rgba(0,0,0, 0.96923);
-    box-shadow: inset 1px 1px alpha(white, 0.06);
-}
-  .message-dialog.csd .dialog-action-area .button:hover {
-    color: #1c1c1c;
-      outline-color: rgba(46, 52, 54, 0.3);
-      border-color: shade(#121619, 0.82);
-border-image: none;
-      background-image: linear-gradient(to bottom,
-										rgba(255,255,255, 0.08),
-										rgba(255,255,255, 0.0) 50%,
-										rgba(0,0,0, 0.0)51%,
-										rgba(0,0,0, 0.0)
-										),
-						linear-gradient(to bottom,
-                                      @theme_selected_bg_color
-                                      );
-      text-shadow: 0 -1px rgba(0,0,0, 0.96923);
-    icon-shadow: 0 -1px rgba(0,0,0, 0.96923);
-      box-shadow: inset 0 1px alpha(white, 0.09);
-	}
-  .message-dialog.csd .dialog-action-area .button:active {
-    color: @theme_fg_color;
-      outline-color: rgba(46, 52, 54, 0.3);
-      border-color: shade(#121619, 0.82);
-border-image: none;
-      background-image:linear-gradient(to bottom,
-                                      rgba(0,0,0,0.2),
-                                      rgba(0,0,0,0.0) 25%,
-                                      rgba(0,0,0,0.0)
-                                      ),
-					linear-gradient(to bottom,
-                                     #12191e
-                                      );
-    text-shadow: 0 -1px rgba(0,0,0, 0.96923);
-    icon-shadow: 0 -1px rgba(0,0,0, 0.96923);
-      box-shadow: inset 0 1px rgba(0, 0, 0, 0.07), inset 0 2px 1px -2px rgba(0, 0, 0, 0.6);
-	}
-  .message-dialog.csd .dialog-action-area .button:insensitive {
-    color: @insensitive_fg_color;
-      border-color: shade(#121619, 0.82);
-border-image: none;
-      background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #141c22
-				      );
-      text-shadow: none;
-      icon-shadow: none;
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0);
-	}
-    .message-dialog.csd .dialog-action-area .button:insensitive > .label {
-      color: inherit;
-		}
-  .message-dialog.csd .dialog-action-area .button:backdrop {
-    color: @theme_unfocused_fg_color;
-      border-color: shade(#121619, 0.82);
-border-image: none;
-      background-image: linear-gradient(to bottom,
-                                      #161b1f
-                                      );
-      text-shadow: none;
-      icon-shadow: none;
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0);
-	}
-  .message-dialog.csd .dialog-action-area .button:backdrop:insensitive {
-    color: @insensitive_fg_color;
-      border-color: shade(#121619, 0.82);
-border-image: none;
-      background-image: url("assets/stripe-2.png"),linear-gradient(to bottom,
-                                      #161b1f
-				      );
-      text-shadow: none;
-      icon-shadow: none;
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0);
-	}
-    .message-dialog.csd .dialog-action-area .button:backdrop:insensitive > .label {
-      color: inherit;
-		}
-  .message-dialog.csd .dialog-action-area .button.suggested-action {
-    color: white;
-      outline-color: rgba(255, 255, 255, 0.12);
-      border-color: #0d2847;
-border-image: none;
-      background-image: linear-gradient(to bottom, #1c5ca4, #1b589c 40%, #16467d);
-    text-shadow: 0 -1px rgba(0, 0, 0, 0.54353);
-    icon-shadow: 0 -1px rgba(0, 0, 0, 0.54353);
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
-	}
-    .message-dialog.csd .dialog-action-area .button.suggested-action:hover {
-      color: white;
-        outline-color: rgba(255, 255, 255, 0.12);
-        border-color: #0d2847;
-border-image: none;
-         background-image: linear-gradient(to bottom, #2578d5, #2372cb 40%, #1c5ba2);
-      text-shadow: 0 -1px rgba(0, 0, 0, 0.51153);
-      icon-shadow: 0 -1px rgba(0, 0, 0, 0.51153);
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0.12);
-		}
-    .message-dialog.csd .dialog-action-area .button.suggested-action:active {
-      color: white;
-        outline-color: rgba(255, 255, 255, 0.12);
-        border-color: #0d2847;
-border-image: none;
-        background-image: linear-gradient(to bottom, #16467d, #1c5ca4);
-      text-shadow: 0 -1px rgba(0, 0, 0, 0.62353);
-      icon-shadow: 0 -1px rgba(0, 0, 0, 0.62353);
-        box-shadow: inset 0 1px rgba(0, 0, 0, 0.07), inset 0 2px 1px -2px rgba(0, 0, 0, 0.6); }
-    .message-dialog.csd .dialog-action-area .button.suggested-action:backdrop {
-      color: @theme_unfocused_fg_color;
-        border-color: #0d2847;
-border-image: none;
-        background-image: linear-gradient(to bottom, @theme_unfocused_selected_bg_color);
-        text-shadow: none;
-        icon-shadow: none;
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-      .message-dialog.csd .dialog-action-area .button.suggested-action:backdrop:insensitive {
-        color: @insensitive_fg_color;
-         border-color: #0d2847;
-border-image: none;
-          background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #232323,
-                                      @insensitive_bg_color 40%,
-                                      #141414
-				      );
-          text-shadow: none;
-          icon-shadow: none;
-          box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-        .message-dialog.csd .dialog-action-area .button.suggested-action:backdrop:insensitive > .label {
-          color: inherit; }
-    .message-dialog.csd .dialog-action-area .button.suggested-action:insensitive {
-      color: @insensitive_fg_color;
-        border-color: #0d2847;
-border-image: none;
-        background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #232323,
-                                      @insensitive_bg_color 40%,
-                                      #141414
-				      );
-        text-shadow: none;
-        icon-shadow: none;
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-      .message-dialog.csd .dialog-action-area .button.suggested-action:insensitive > .label {
-        color: inherit; }
-  .message-dialog.csd .dialog-action-area .button.destructive-action {
-    color: white;
-      outline-color: rgba(255, 255, 255, 0.3);
-      border-color: #8e0b0b;
-border-image: none;
-      background-image: linear-gradient(to bottom, #fb2b2b, #ef2929 40%, #bf2121);
-    text-shadow: 0 -1px rgba(0, 0, 0, 0.56078);
-    icon-shadow: 0 -1px rgba(0, 0, 0, 0.56078);
-      box-shadow: inset 0 1px rgba(255, 255, 255, 0.08); }
-    .message-dialog.csd .dialog-action-area .button.destructive-action:hover {
-      color: white;
-        outline-color: rgba(255, 255, 255, 0.3);
-        border-color: #8e0b0b;
-border-image: none;
-         background-image: linear-gradient(to bottom, #ef2929, #e52828 40%, #ef2929);
-        text-shadow: 0 -1px rgba(0, 0, 0, 0.52878);
-        icon-shadow: 0 -1px rgba(0, 0, 0, 0.52878);
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0.12); }
-    .message-dialog.csd .dialog-action-area .button.destructive-action:active {
-      color: white;
-        outline-color: rgba(255, 255, 255, 0.3);
-        border-color: #8e0b0b;
-border-image: none;
-         background-image: linear-gradient(to bottom, #bf2121, #fb2b2b);
-        text-shadow: 0 -1px rgba(0, 0, 0, 0.64078);
-        icon-shadow: 0 -1px rgba(0, 0, 0, 0.64078);
-        box-shadow: inset 0 1px rgba(0, 0, 0, 0.07), inset 0 2px 1px -2px rgba(0, 0, 0, 0.6); }
-    .message-dialog.csd .dialog-action-area .button.destructive-action:backdrop {
-      color: #fbd4d4;
-        border-color: #ef2929;
-border-image: none;
-        background-image: linear-gradient(to bottom, #ef2929);
-        text-shadow: none;
-        icon-shadow: none;
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-      .message-dialog.csd .dialog-action-area .button.destructive-action:backdrop:insensitive {
-        color: @insensitive_fg_color;
-          border-color: @borders;
-border-image: none;
-          background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #232323,
-                                      @insensitive_bg_color 40%,
-                                      #141414
-				      );
-          text-shadow: none;
-          icon-shadow: none;
-          box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-        .message-dialog.csd .dialog-action-area .button.destructive-action:backdrop:insensitive > .label {
-          color: inherit; }
-    .message-dialog.csd .dialog-action-area .button.destructive-action:insensitive {
-      color: @insensitive_fg_color;
-        border-color: @borders;
-border-image: none;
-        background-image:  url("assets/stripe-3.png"),linear-gradient(to bottom,
-                                      #232323,
-                                      @insensitive_bg_color 40%,
-                                      #141414
-				      );
-        text-shadow: none;
-        icon-shadow: none;
-        box-shadow: inset 0 1px rgba(255, 255, 255, 0); }
-      .message-dialog.csd .dialog-action-area .button.destructive-action:insensitive > .label {
-        color: inherit;
-			}
 
-.message-dialog.csd .dialog-action-area .button,
-.message-dialog.csd .dialog-action-area .button:hover,
-.message-dialog.csd .dialog-action-area .button:active,
-.message-dialog.csd .dialog-action-area .button:insensitive,
-.message-dialog.csd .dialog-action-area .button:backdrop,
-.message-dialog.csd .dialog-action-area .button:backdrop:insensitive,
-.message-dialog.csd .dialog-action-area .button.suggested-action,
-.message-dialog.csd .dialog-action-area .button.suggested-action:hover,
-.message-dialog.csd .dialog-action-area .button.suggested-action:active, .message-dialog.csd .dialog-action-area .button.suggested-action:backdrop, .message-dialog.csd .dialog-action-area .button.suggested-action:backdrop:insensitive, .message-dialog.csd .dialog-action-area .button.suggested-action:insensitive, .message-dialog.csd .dialog-action-area .button.destructive-action, .message-dialog.csd .dialog-action-area .button.destructive-action:hover, .message-dialog.csd .dialog-action-area .button.destructive-action:active, .message-dialog.csd .dialog-action-area .button.destructive-action:backdrop, .message-dialog.csd .dialog-action-area .button.destructive-action:backdrop:insensitive, .message-dialog.csd .dialog-action-area .button.destructive-action:insensitive {
-  border-left-style: solid;
-  border-right-style: none;
-  border-bottom-style: none;
-}
-.message-dialog.csd .dialog-action-area .button:last-child {
-  border-bottom-right-radius: 7px;
-  outline-bottom-right-radius: 5px;
-}
-.message-dialog.csd .dialog-action-area .button:first-child {
-  border-left-style: none;
-  border-bottom-left-radius: 7px;
-  outline-bottom-left-radius: 5px;
-}
 
 /*выбор в treeview */
 .view:selected, GtkCalendar:selected, .label:selected, .label:selected:focus, .label:selected:hover, .grid-child:selected, .entry:selected, .entry:selected:focus, .menuitem.button.flat:selected, .menuitem.sidebar-button.button:selected, .header-bar .menuitem.titlebutton.button:selected,
@@ -1800,6 +588,18 @@ border-image: none;
   background-color: @theme_selected_bg_color;
   color: @insensitive_base_color;
 }
+
+/*  заголовок списка дерева */
+column-header .button, column-header .header-bar .button.titlebutton, .header-bar column-header .button.titlebutton,
+column-header .titlebar .button.titlebutton,
+.titlebar column-header .button.titlebutton {
+  color: shade(@theme_fg_color, 0.6);
+  background-color: alpha(black, 0.35);
+  font-weight: bold;
+  text-shadow: none;
+  border-image: none;
+}
+
 
 .monospace {
   font: Monospace;
