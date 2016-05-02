@@ -509,6 +509,8 @@ static flag_t init_style(void)
 #endif
 	style_message_norm = GTK_STYLE_PROVIDER(css_provider);
 
+ 	css_provider = gtk_css_provider_new();
+	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
 #if TEST_INTERFACE
 	gtk_css_provider_load_from_path(css_provider,STR_NAME_STYLE_MESSAGE_ALARM,NULL);
 #else

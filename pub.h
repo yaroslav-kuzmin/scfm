@@ -77,13 +77,13 @@ extern char STR_NAME_PROGRAMM[];
 #define DEFAULT_HEIGHT_MENU       30
 
 #define DEFAULT_WIDTH_JOB         DEFAULT_WIDTH_WINDOW
-#define DEFAULT_HEIGHT_JOB        870
+#define DEFAULT_HEIGHT_JOB        800   /*870*/
 #define DEFAULT_BORDER_JOB        3
 #define DEFAULT_WIDTH_JOB_TREE    155
 #define DEFAULT_WIDTH_JOB_OBJECT  (DEFAULT_WIDTH_JOB - DEFAULT_WIDTH_JOB_TREE - (DEFAULT_BORDER_JOB * 4))
 
 #define DEFAULT_WIDTH_LOG         DEFAULT_WIDTH_WINDOW
-#define DEFAULT_HEIGHT_LOG        150
+#define DEFAULT_HEIGHT_LOG        220      /* 150*/
 #define DEFAULT_BORDER_LOG        3
 
 /**************************************/

@@ -1,12 +1,10 @@
 
-* {
-  padding: 0;
-}
-/*базовые цвета */
 .label {
-	font-size: 30px;
+  padding: 0;
+	font-size: 25px;
   color: #0000ff;
   background-color: #ff0000;
+	border-radius: 4px;
 }
 
 

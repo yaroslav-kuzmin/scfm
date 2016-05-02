@@ -1,12 +1,11 @@
 
-* {
-  padding: 0;
-}
-/*базовые цвета */
 .label {
-	font-size: 30px;
-  color: #0000ff;
-  background-color: #00ff00;
+	padding : 0;
+	font-style: oblique;
+	font-size: 25px;
+	color: #0000ff;
+	background-color: #00ff00;
+	border-radius: 4px;
 }
 
 
