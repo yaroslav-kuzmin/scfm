@@ -66,7 +66,7 @@ char STR_GROUP_GLOBAL[] = "global";
 /*  Сообщения пользователю Диалоги                                           */
 /*****************************************************************************/
 
-flag_t apply_style(GtkWidget * w);
+void apply_style_main(GtkWidget * w,gpointer d);
 
 flag_t dialog_info(char * message)
 {
@@ -75,7 +75,7 @@ flag_t dialog_info(char * message)
 	md_info = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s",message);
 	/*TODO применить свой стиль */
 	gtk_window_set_decorated(GTK_WINDOW(md_info),FALSE);
-	apply_style(md_info);
+	apply_style_main(md_info,NULL);
 	gtk_dialog_run(GTK_DIALOG(md_info));
 	gtk_widget_destroy(md_info);
 	g_info("%s",message);
@@ -89,7 +89,7 @@ flag_t dialog_error(char * message)
 	md_err = gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,"%s",message);
 	/*TODO применить свой стиль */
 	gtk_window_set_decorated(GTK_WINDOW(md_err),FALSE);
-	apply_style(md_err);
+	apply_style_main(md_err,NULL);
 	/*gtk_dialog_run(GTK_DIALOG(md_err));*/
 	gtk_dialog_run(GTK_DIALOG(md_err));
 	gtk_widget_destroy(md_err);
@@ -433,16 +433,27 @@ GdkPixbuf * get_resource_image(int res,const char * name_resource)
 /*****************************************************************************/
 /*  Стили                                                                    */
 /*****************************************************************************/
-static GtkStyleProvider * style_provider;
+static GtkStyleProvider * style_main;
+static GtkStyleProvider * style_message_norm;
 
-flag_t apply_style(GtkWidget * w)
+void apply_style_main(GtkWidget * w,gpointer d)
 {
 	GtkStyleContext * style = gtk_widget_get_style_context(w);
-	gtk_style_context_add_provider(style,style_provider,GTK_STYLE_PROVIDER_PRIORITY_USER);
+	gtk_style_context_add_provider(style,style_main,GTK_STYLE_PROVIDER_PRIORITY_USER);
 	if (GTK_IS_CONTAINER (w)){
-		gtk_container_forall (GTK_CONTAINER (w), (GtkCallback) apply_style,NULL);
+		gtk_container_forall(GTK_CONTAINER (w),apply_style_main,NULL);
+		/*gtk_container_foreach(GTK_CONTAINER (w),apply_style_main,NULL);*/
 	}
-	return SUCCESS;
+}
+
+void apply_style_message_norm(GtkWidget * w,gpointer d)
+{
+	GtkStyleContext * style = gtk_widget_get_style_context(w);
+	gtk_style_context_add_provider(style,style_message_norm,GTK_STYLE_PROVIDER_PRIORITY_USER + 1);
+	if (GTK_IS_CONTAINER (w)){
+		gtk_container_forall(GTK_CONTAINER (w),apply_style_message_norm,NULL);
+		/*gtk_container_foreach(GTK_CONTAINER (w),apply_style_message_norm,NULL);*/
+	}
 }
 
 static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *section,GError *error,gpointer user_data)
@@ -454,14 +465,36 @@ static void css_provider_parsing_error(GtkCssProvider *provider,GtkCssSection *s
 	g_warning("%s : line %d position %d : %s",g_file_get_basename(file),line,pos,error->message);
 }
 
+#if TEST_INTERFACE
+static char STR_NAME_STYLE_MAIN[] = "resource/style/main.css";
+static char STR_NAME_STYLE_MESSAGE_NORM[] = "resource/style/message_norm.css";
+#else
+static char STR_NAME_STYLE_MAIN[] = "/style/main.css";
+static char STR_NAME_STYLE_MESSAGE_NORM[] = "/style/message_norm.css";
+#endif
+
 static flag_t init_style(void)
 {
 	GtkCssProvider * css_provider;
+
  	css_provider = gtk_css_provider_new();
 	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
-	/*gtk_css_provider_load_from_resource(css_provider,"/style/gtk.css");*/
-	gtk_css_provider_load_from_path(css_provider,"resource/style/gtk.css",NULL);
-	style_provider = GTK_STYLE_PROVIDER(css_provider);
+#if TEST_INTERFACE
+	gtk_css_provider_load_from_path(css_provider,STR_NAME_STYLE_MAIN,NULL);
+#else
+	gtk_css_provider_load_from_resource(css_provider,STR_NAME_STYLE_MAIN);
+#endif
+	style_main = GTK_STYLE_PROVIDER(css_provider);
+
+ 	css_provider = gtk_css_provider_new();
+	g_signal_connect(css_provider,"parsing-error",G_CALLBACK(css_provider_parsing_error),NULL);
+#if TEST_INTERFACE
+	gtk_css_provider_load_from_path(css_provider,STR_NAME_STYLE_MESSAGE_NORM,NULL);
+#else
+	gtk_css_provider_load_from_resource(css_provider,STR_NAME_STYLE_MESSAGE_NORM);
+#endif
+	style_message_norm = GTK_STYLE_PROVIDER(css_provider);
+
 	return SUCCESS;
 }
 

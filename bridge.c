@@ -908,7 +908,9 @@ int create_windows_bridge(void)
 	gtk_widget_show(win_bridge);
 	gtk_widget_show(box);
 	gtk_widget_show(exit);
-	apply_style(win_bridge);
+
+	apply_style_main(win_bridge,NULL);
+
 	return SUCCESS;
 }
 

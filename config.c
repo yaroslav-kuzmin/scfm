@@ -407,6 +407,7 @@ static GtkWidget * create_combobox(block_config_s * config)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combox),-1);
 	layout_widget(combox,GTK_ALIGN_FILL,GTK_ALIGN_CENTER,TRUE,FALSE);
 	g_signal_connect(combox,"changed",G_CALLBACK(changed_combobox),config);
+	/*TODO установить стиль через свойства*/
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combox),renderer,TRUE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combox),renderer
@@ -414,7 +415,9 @@ static GtkWidget * create_combobox(block_config_s * config)
 	g_object_unref(model);
 
 	gtk_widget_show(combox);
-	apply_style(combox);
+
+	apply_style_main(combox,NULL);
+
 	return combox;
 }
 
@@ -755,7 +758,7 @@ int create_window_config(GtkWidget * win_main)
 	gtk_widget_show(box);
 	gtk_widget_show(exit);
 
-	apply_style(win_config);
+	apply_style_main(win_config,NULL);
 
 	return SUCCESS;
 }

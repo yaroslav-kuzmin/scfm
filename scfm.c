@@ -251,7 +251,7 @@ int main(int argc,char * argv[])
 
 	win_main = create_main_block();
 
-	apply_style(win_main);
+	apply_style_main(win_main,NULL);
 
 	move_main_block(win_main);
 

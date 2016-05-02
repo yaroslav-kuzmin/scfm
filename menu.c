@@ -171,7 +171,7 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 	gtk_widget_show(menite_s0);
 	gtk_widget_show(menite_exit);
 
-	apply_style(men_job);
+	apply_style_main(men_job,NULL);
 
 	return menite_job;
 }
@@ -193,7 +193,7 @@ static GtkWidget * create_menu_bridge(GtkWidget * win_main,GtkAccelGroup * main_
 	gtk_widget_show(men_bridge);
 	gtk_widget_show(menite_view);
 
-	apply_style(men_bridge);
+	apply_style_main(men_bridge,NULL);
 
 	return menite_bridge;
 }
