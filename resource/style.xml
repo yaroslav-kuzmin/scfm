@@ -58,6 +58,7 @@
 		<file>assets/button-mode-manual.png</file>
 		<file compressed="true">main.css</file>
 		<file compressed="true">message_norm.css</file>
+		<file compressed="true">message_alarm.css</file>
 		<file>borders/entry/entry.svg</file>
 		<file>borders/entry/entry@2.svg</file>
 		<file>borders/entry/entry-focus.svg</file>

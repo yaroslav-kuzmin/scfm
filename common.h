@@ -70,6 +70,7 @@ GdkPixbuf * get_default_icon(void);
 
 void apply_style_main(GtkWidget * w,gpointer d);
 void apply_style_message_norm(GtkWidget * w,gpointer d);
+void apply_style_message_alarm(GtkWidget * w,gpointer d);
 
 GtkWidget * builder_widget(flag_t module, char * name);
 #endif

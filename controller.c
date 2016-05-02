@@ -1111,6 +1111,8 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	gtk_widget_show(lab_mode);
 	gtk_widget_show(lab_state);
 
+	apply_style_message_norm(lab_mode,NULL);
+	apply_style_message_norm(lab_state,NULL);
  	return box;
 }
 
