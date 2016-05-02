@@ -133,8 +133,7 @@ struct _show_control_s
 typedef struct _block_controller_s block_controller_s;
 struct _block_controller_s
 {
-	/*название блока */
-	GtkLabel * name;
+	/*тип контроллера */
 	flag_t type_device;
 	/*отображение блока конторллера*/
 	flag_t stop_show;
@@ -869,6 +868,11 @@ static flag_t show_console(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
+static flag_t show_message(show_state_s * show_state,show_control_s * show_control
+                       ,state_controller_s * controller_state,config_controller_s * controller_config)
+{
+	return SUCCESS;
+}
 static flag_t show_vertical(show_state_s * show_state,show_control_s * show_control
                         ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
@@ -1017,7 +1021,7 @@ static flag_t show_fire_alarm(show_state_s * show_state,show_control_s * show_co
                           ,state_controller_s * controller_state,config_controller_s * controller_config
 													,uint32_t timeout)
 {
- 	int counter;
+ 	uint32_t counter;
 	flag_t fire = get_state_fire_alarm(controller_state);
 	GdkPixbuf * buf;
 
@@ -1033,15 +1037,15 @@ static flag_t show_fire_alarm(show_state_s * show_state,show_control_s * show_co
 		else{
 			buf = images_state[FIRE_ALARM_ON_1];
 		}
+ 		show_state->counter_fire_alarm = counter;
 	}
-	gtk_image_set_from_pixbuf(show_state->image_pipe,buf);
+	gtk_image_set_from_pixbuf(show_state->image_fire_alarm,buf);
 
 	return SUCCESS;
 }
 
 static int show_block_controller(gpointer data)
 {
- 	/*GtkLabel * label;*/
 	block_controller_s * bc = (block_controller_s *)data;
 	communication_controller_s * cc = bc->communication_controller;
 	controller_s * controller = cc->current;
@@ -1067,6 +1071,7 @@ static int show_block_controller(gpointer data)
 	g_mutex_unlock(&(cc->mutex));
 
 	show_console(bc->state,bc->control,&state,controller->config);
+	show_message(bc->state,bc->control,&state,controller->config);
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
 	show_pipe(bc->state,bc->control,&state,controller->config);
@@ -1210,16 +1215,16 @@ static GtkWidget * create_block_state_pipe(block_controller_s * bc)
 	return image;
 }
 
-static GtkWidget * create_block_state_fire(show_state_s * state)
+static GtkWidget * create_block_state_fire(block_controller_s * bc)
 {
 	GtkWidget * fire;
 	GdkPixbuf * buf;
 
 	buf = images_state[FIRE_ALARM_OFF];
-	state->frame_fire_alarm = buf;
+	bc->state->frame_fire_alarm = buf;
 	fire = gtk_image_new_from_pixbuf(buf);
 	layout_widget(fire,GTK_ALIGN_END,GTK_ALIGN_START,FALSE,FALSE);
-	state->image_fire_alarm = GTK_IMAGE(fire);
+	bc->state->image_fire_alarm = GTK_IMAGE(fire);
 	gtk_widget_show(fire);
 	return fire;
 }
@@ -1235,7 +1240,7 @@ static GtkWidget * create_block_state_info(block_controller_s * bc)
 	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	block_pipe = create_block_state_pipe(bc);
-	block_fire = create_block_state_fire(bc->state);
+	block_fire = create_block_state_fire(bc);
 
 	gtk_box_pack_start(GTK_BOX(box),block_pipe,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_fire,TRUE,TRUE,0);
@@ -2322,7 +2327,6 @@ static block_controller_s block_controller;
 int select_block_controller(controller_s * controller)
 {
 	communication_controller_s * cc = block_controller.communication_controller;
-	GtkLabel * label;
 
 	if(cc->tid == NULL){
 		g_info("Нет подключения!");
@@ -2348,11 +2352,10 @@ int select_block_controller(controller_s * controller)
 	if(block_controller.run_show == NOT_OK){
 	 	block_controller.run_show = OK;
 		block_controller.stop_show = NOT_OK;
+ 		block_controller.state->counter_fire_alarm = 0;
 		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
 	}
 
-	label = block_controller.name;
-	gtk_label_set_text(label,controller->name);
 
 	return SUCCESS;
 }
