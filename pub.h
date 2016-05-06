@@ -70,17 +70,18 @@ typedef unsigned int   flag_t;
 extern char STR_NAME_PROGRAMM[];
 
 /* Размеры интерфейса */
-#define DEFAULT_WIDTH_WINDOW      1680
-#define DEFAULT_HEIGHT_WINDOW     1050
+#define DEFAULT_WIDTH_WINDOW                     1680
+#define DEFAULT_HEIGHT_WINDOW                    1050
 
-#define DEFAULT_WIDTH_MENU        DEFAULT_WIDTH_WINDOW
-#define DEFAULT_HEIGHT_MENU       30
+#define DEFAULT_WIDTH_MENU                       DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_MENU                      30
 
-#define DEFAULT_WIDTH_JOB         DEFAULT_WIDTH_WINDOW
-#define DEFAULT_HEIGHT_JOB        820   /*870*/
-#define DEFAULT_BORDER_JOB        3
-#define DEFAULT_WIDTH_JOB_TREE    155
-#define DEFAULT_WIDTH_JOB_OBJECT  (DEFAULT_WIDTH_JOB - DEFAULT_WIDTH_JOB_TREE - (DEFAULT_BORDER_JOB * 4))
+#define DEFAULT_WIDTH_JOB                        DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_JOB                       820   /*870*/
+#define DEFAULT_BORDER_JOB                       5
+#define DEFAULT_WIDTH_JOB_TREE                   160
+#define DEFAULT_WIDTH_JOB_OBJECT                 (DEFAULT_WIDTH_JOB - DEFAULT_WIDTH_JOB_TREE - (DEFAULT_BORDER_JOB * 4))
+#define DEFAULT_WIDTH_CONTROLLER_CONTROL         200
 
 #define DEFAULT_WIDTH_LOG         DEFAULT_WIDTH_WINDOW
 #define DEFAULT_HEIGHT_LOG        200      /* 150*/

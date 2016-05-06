@@ -222,9 +222,6 @@ static flag_t move_main_block(GtkWidget * win_main)
 	return SUCCESS;
 }
 
-#define MIN_WIDTH_SCREEN         1680
-#define MIN_HEIGHT_SCREEN        1050
-
 static flag_t check_size_window(void)
 {
 	GdkDisplay * display = gdk_display_get_default();
@@ -232,7 +229,7 @@ static flag_t check_size_window(void)
 	int width = gdk_screen_get_width(screen);
 	int height = gdk_screen_get_height(screen);
 
-	if( (width < MIN_WIDTH_SCREEN) || (height < MIN_HEIGHT_SCREEN)){
+	if( (width < DEFAULT_WIDTH_WINDOW) || (height < DEFAULT_HEIGHT_WINDOW)){
 		dialog_error("Минимальное разрешение экрана 1680x1050");
 		exit(1);
 	}

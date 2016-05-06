@@ -1322,11 +1322,11 @@ static GtkWidget * create_block_state_video(block_controller_s * bc)
 
 static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 {
-	/*GtkWidget * frame;*/
+	GtkWidget * box;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	/*frame = gtk_frame_new(NULL);*/
+	box = gtk_box_new();
 	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
 
 	buf = get_resource_image(RESOURCE_IMAGE,"auto_work_background");
@@ -2154,6 +2154,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
   layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_widget_set_size_request(box,DEFAULT_WIDTH_CONTROLLER_CONTROL,-1);
 
 	block_mode = create_block_control_mode(bc);
 	block_lafet = create_block_control_lafet(bc);
