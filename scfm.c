@@ -189,7 +189,10 @@ static GtkWidget * create_main_block(void)
 	GtkWidget * block_job;
 	GtkWidget * block_log;
 
-	win_main = builder_widget(MODULE_MAIN_WINDOW,"window");
+	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
+	gtk_window_set_position(GTK_WINDOW(win_main),GTK_WIN_POS_CENTER_ALWAYS);
+	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 
 	g_signal_connect(win_main,"destroy",G_CALLBACK(window_destroy_main), NULL);
@@ -200,11 +203,15 @@ static GtkWidget * create_main_block(void)
 	accgro_main = gtk_accel_group_new();
 	gtk_window_add_accel_group(GTK_WINDOW(win_main),accgro_main);
 
-	box = gtk_bin_get_child(GTK_BIN(win_main));
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	block_menu = create_block_menu(win_main,accgro_main);
 	block_job = create_block_job();
 	block_log = create_block_log();
+
+	gtk_container_add(GTK_CONTAINER(win_main),box);
 
 	gtk_box_pack_start(GTK_BOX(box),block_menu,FALSE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_job,TRUE,TRUE,0);

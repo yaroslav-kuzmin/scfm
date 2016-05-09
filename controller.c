@@ -1333,18 +1333,18 @@ static GtkWidget * create_block_control_auto_work(block_controller_s * bc)
 	GtkWidget * but;
 
 	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
 	label = gtk_label_new("Сектор работы");
-	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,FALSE);
+	layout_widget(label,GTK_ALIGN_START,GTK_ALIGN_CENTER,TRUE,TRUE);
 	bc->state->lab_auto_work = GTK_LABEL(label);
 
-
 	but = gtk_button_new_with_label("Настроить");
-	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,TRUE);
 	g_signal_connect(but,"clicked",G_CALLBACK(button_clicked_set_auto_work),bc);
 
-	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),but,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,30);
+	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,10);
 
 	gtk_widget_show(box);
 	gtk_widget_show(label);
@@ -1373,7 +1373,7 @@ static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
 	bc->state->image_auto_work = GTK_IMAGE(image);
 
-	gtk_box_pack_start(GTK_BOX(box),block_control_auto_work,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_control_auto_work,TRUE,TRUE,8);
 	gtk_box_pack_start(GTK_BOX(box),image,TRUE,TRUE,0);
 	gtk_widget_show(box);
 	gtk_widget_show(image);
@@ -1385,18 +1385,26 @@ static GtkWidget * create_block_state_right(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_state_video;
+	GtkWidget * s_0;
 	GtkWidget * block_state_auto_work;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	block_state_auto_work = create_block_state_auto_work(bc);
+
+	s_0 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	layout_widget(s_0,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_widget_set_size_request(s_0,300,-1);
 	block_state_video = create_block_state_video(bc);
 
-	gtk_box_pack_start(GTK_BOX(box),block_state_auto_work,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_state_video,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_auto_work,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),s_0,FALSE,FALSE,50);
+	gtk_box_pack_start(GTK_BOX(box),block_state_video,FALSE,TRUE,0);
 
 	gtk_widget_show(box);
+	gtk_widget_show(s_0);
 	return box;
 }
 
@@ -1829,8 +1837,8 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
-	gtk_grid_set_row_spacing(GTK_GRID(grid),2);
-	gtk_grid_set_column_spacing(GTK_GRID(grid),2);
+	gtk_grid_set_row_spacing(GTK_GRID(grid),0);
+	gtk_grid_set_column_spacing(GTK_GRID(grid),0);
 
 	buf = get_resource_image(RESOURCE_STYLE,"button-up");
 	img = gtk_image_new_from_pixbuf(buf);

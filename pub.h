@@ -78,14 +78,14 @@ extern char STR_NAME_PROGRAMM[];
 
 #define DEFAULT_WIDTH_JOB                        DEFAULT_WIDTH_WINDOW
 #define DEFAULT_HEIGHT_JOB                       820   /*870*/
-#define DEFAULT_BORDER_JOB                       5
+#define DEFAULT_BORDER_JOB                       2
 #define DEFAULT_WIDTH_JOB_TREE                   160
 #define DEFAULT_WIDTH_JOB_OBJECT                 (DEFAULT_WIDTH_JOB - DEFAULT_WIDTH_JOB_TREE - (DEFAULT_BORDER_JOB * 4))
-#define DEFAULT_WIDTH_CONTROLLER_CONTROL         200
+#define DEFAULT_WIDTH_CONTROLLER_CONTROL         190
 
-#define DEFAULT_WIDTH_LOG         DEFAULT_WIDTH_WINDOW
-#define DEFAULT_HEIGHT_LOG        200      /* 150*/
-#define DEFAULT_BORDER_LOG        3
+#define DEFAULT_WIDTH_LOG                        DEFAULT_WIDTH_WINDOW
+#define DEFAULT_HEIGHT_LOG                       200      /* 150*/
+#define DEFAULT_BORDER_LOG                       2
 
 /**************************************/
 enum

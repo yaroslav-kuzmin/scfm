@@ -254,7 +254,11 @@ static GtkTextView * create_view_buff(void)
 	GtkTextIter text_iter;
 
 	text_view = gtk_text_view_new();
-	gtk_widget_set_size_request(text_view,1600,150);
+	/*gtk_widget_set_size_request(text_view,1600,150);*/
+	gtk_widget_set_margin_start(text_view,5);
+	gtk_widget_set_margin_end(text_view,5);
+	gtk_widget_set_margin_top(text_view,5);
+	gtk_widget_set_margin_bottom(text_view,5);
 	text_buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
 
 	gtk_text_buffer_get_end_iter(text_buff,&text_iter);
@@ -356,7 +360,7 @@ GtkWidget * create_block_log(void)
 	GtkTextView * log;
 
 	frame = gtk_frame_new("Журнал");
-	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,FALSE);
+	layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_END,TRUE,TRUE);
 	gtk_widget_set_size_request(frame,DEFAULT_WIDTH_LOG,DEFAULT_HEIGHT_LOG);
 	gtk_container_set_border_width(GTK_CONTAINER(frame),DEFAULT_BORDER_LOG);
 	gtk_frame_set_label_align(GTK_FRAME(frame),0,1);
