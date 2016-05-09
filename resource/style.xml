@@ -56,6 +56,10 @@
 		<file>assets/actuator-separator-rate.png</file>
 		<file>assets/button-mode-auto.png</file>
 		<file>assets/button-mode-manual.png</file>
+		<file>assets/button-up.png</file>
+		<file>assets/button-bottom.png</file>
+		<file>assets/button-left.png</file>
+		<file>assets/button-right.png</file>
 		<file compressed="true">main.css</file>
 		<file compressed="true">message_norm.css</file>
 		<file compressed="true">message_alarm.css</file>

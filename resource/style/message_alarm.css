@@ -1,9 +1,11 @@
 
+@define-color theme_fg_color #f0f0f0;
+
 .label {
   padding: 0;
-	font-size: 25px;
-  color: #0000ff;
-  background-color: #ff0000;
+	font-size: 20px;
+  color: #ec260c;
+  background-color: #405F7E;
 	border-radius: 4px;
 }
 

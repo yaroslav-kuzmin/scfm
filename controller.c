@@ -85,6 +85,7 @@ struct _show_state_s
 	GtkImage * image_video;
 	GdkPixbuf * frame_video;
 
+	GtkLabel * lab_auto_work;
 	GtkImage * image_auto_work;
 	GdkPixbuf * frame_auto_work;
 
@@ -107,7 +108,7 @@ struct _show_control_s
 
 	/*лафет*/
 	GtkButton * but_up;
-	GtkButton * but_down;
+	GtkButton * but_bottom;
 	GtkButton * but_right;
 	GtkButton * but_left;
 	flag_t lafet_precise;
@@ -1320,14 +1321,49 @@ static GtkWidget * create_block_state_video(block_controller_s * bc)
 	return image;
 }
 
+static void button_clicked_set_auto_work(GtkButton * b,gpointer ud)
+{
+	g_info("настройка автоматической работы");
+}
+
+static GtkWidget * create_block_control_auto_work(block_controller_s * bc)
+{
+	GtkWidget * box;
+	GtkWidget * label;
+	GtkWidget * but;
+
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+
+	label = gtk_label_new("Сектор работы");
+	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,TRUE,FALSE);
+	bc->state->lab_auto_work = GTK_LABEL(label);
+
+
+	but = gtk_button_new_with_label("Настроить");
+	layout_widget(but,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but,"clicked",G_CALLBACK(button_clicked_set_auto_work),bc);
+
+	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),but,FALSE,TRUE,0);
+
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(but);
+
+	return box;
+}
+
 static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 {
 	GtkWidget * box;
+	GtkWidget * block_control_auto_work;
 	GtkWidget * image;
 	GdkPixbuf * buf;
 
-	box = gtk_box_new();
-	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+
+	block_control_auto_work = create_block_control_auto_work(bc);
 
 	buf = get_resource_image(RESOURCE_IMAGE,"auto_work_background");
 	bc->state->frame_auto_work = buf;
@@ -1337,13 +1373,12 @@ static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
 	bc->state->image_auto_work = GTK_IMAGE(image);
 
-	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
-
-	/*gtk_widget_show(frame);*/
+	gtk_box_pack_start(GTK_BOX(box),block_control_auto_work,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),image,TRUE,TRUE,0);
+	gtk_widget_show(box);
 	gtk_widget_show(image);
 
-	/*return frame;*/
-	return image;
+	return box;
 }
 
 static GtkWidget * create_block_state_right(block_controller_s * bc)
@@ -1355,11 +1390,11 @@ static GtkWidget * create_block_state_right(block_controller_s * bc)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 
-	block_state_video = create_block_state_video(bc);
 	block_state_auto_work = create_block_state_auto_work(bc);
+	block_state_video = create_block_state_video(bc);
 
-	gtk_box_pack_start(GTK_BOX(box),block_state_video,TRUE,TRUE,0);
 	gtk_box_pack_start(GTK_BOX(box),block_state_auto_work,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_state_video,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 	return box;
@@ -1461,15 +1496,16 @@ static flag_t init_image_buton_mode(block_controller_s * bc)
 static GtkWidget * create_block_control_mode(block_controller_s * bc)
 {
 	GtkWidget * box;
-	GtkWidget * label;
+	/*GtkWidget * label;*/
 	GtkWidget * but;
 
 	bc->control->mode = STATE_MODE_AUTO;
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-	layout_widget(box,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
 
-	label = gtk_label_new("Режим управления");
-	layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box,GTK_ALIGN_CENTER,GTK_ALIGN_START,FALSE,FALSE);
+
+	/*label = gtk_label_new("Режим управления");*/
+	/*layout_widget(label,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);*/
 
 	init_image_buton_mode(bc);
 	but = gtk_button_new();
@@ -1478,11 +1514,11 @@ static GtkWidget * create_block_control_mode(block_controller_s * bc)
 	g_signal_connect(but,"clicked",G_CALLBACK(button_clicked_control_mode),bc);
 	bc->control->but_mode = GTK_BUTTON(but);
 
-	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,5);
-	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,5);
+	/*gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,5);*/
+	gtk_box_pack_start(GTK_BOX(box),but,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
-	gtk_widget_show(label);
+	/*gtk_widget_show(label);*/
 	gtk_widget_show(but);
 	return box;
 }
@@ -1539,7 +1575,7 @@ static gboolean scale_change_value_valve(GtkRange * r,GtkScrollType s,gdouble v,
 	percent = v * 10;
 	precise = percent * RATE_VALVE_ANALOG;
 
-	g_info("Задвижка %e : %d",v,precise);
+	/*g_info("Задвижка %e : %d",v,precise);*/
 	bc->control->valve_precise = precise;
 
 	gtk_range_set_value(r,v);
@@ -1556,6 +1592,10 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
+	gtk_grid_set_column_homogeneous(GTK_GRID(grid),TRUE);
+	gtk_grid_set_row_spacing(GTK_GRID(grid),5);
+	gtk_grid_set_column_spacing(GTK_GRID(grid),10);
 
 	label = gtk_label_new("Задвижка");
 
@@ -1576,7 +1616,8 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,min_valve,max_valve,step_valve);
 	layout_widget(scale,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_scale_set_digits(GTK_SCALE(scale),1); /*колличество знаков после запятой*/
-	gtk_widget_set_size_request(scale,100,-1);
+	gtk_widget_set_size_request(scale,100,30);
+	gtk_range_set_min_slider_size(GTK_RANGE(scale),20);
 	/*gtk_scale_set_value_pos(GTK_SCALE(scale),GTK_POS_RIGHT);*/
 	g_signal_connect(scale,"change-value",G_CALLBACK(scale_change_value_valve),bc);
 
@@ -1664,6 +1705,7 @@ static GtkWidget * create_block_lafet_precise(block_controller_s * bc)
 	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid),TRUE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
+	gtk_grid_set_row_spacing(GTK_GRID(grid),2);
 
 	label = gtk_label_new("Точное значение");
 
@@ -1701,7 +1743,7 @@ static GtkWidget * create_block_lafet_precise(block_controller_s * bc)
 	return grid;
 }
 
-static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean  button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1709,13 +1751,13 @@ static void button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
-	gtk_button_clicked(b);
+	return TRUE;
 }
-static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1723,13 +1765,13 @@ static void button_press_event_lafet_down(GtkButton * b,GdkEvent * e,gpointer ud
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_DOWN;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
-	gtk_button_clicked(b);
+	return TRUE;
 }
-static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1737,13 +1779,13 @@ static void button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer u
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_RIGHT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
-	gtk_button_clicked(b);
+	return TRUE;
 }
-static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1751,13 +1793,13 @@ static void button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_LEFT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
-	gtk_button_clicked(b);
+	return TRUE;
 }
-static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1765,44 +1807,62 @@ static void button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer 
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
+	return TRUE;
 }
 static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 {
+	GdkPixbuf * buf;
+	GtkWidget * img;
+
 	GtkWidget * grid;
 	GtkWidget * but_up;
-	GtkWidget * but_down;
+	GtkWidget * but_bottom;
 	GtkWidget * but_right;
 	GtkWidget * but_left;
 	GtkWidget * block_precise;
 
 	grid = gtk_grid_new();
-	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid),FALSE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid),FALSE);
+	gtk_grid_set_row_spacing(GTK_GRID(grid),2);
+	gtk_grid_set_column_spacing(GTK_GRID(grid),2);
 
-	but_up = gtk_button_new_with_label("ВВЕРХ");
+	buf = get_resource_image(RESOURCE_STYLE,"button-up");
+	img = gtk_image_new_from_pixbuf(buf);
+	but_up = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_up),img);
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_lafet_up),bc);
 	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_up = GTK_BUTTON(but_up);
 
-	but_down = gtk_button_new_with_label("ВНИЗ");
-	layout_widget(but_down,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	g_signal_connect(but_down,"button-press-event",G_CALLBACK(button_press_event_lafet_down),bc);
-	g_signal_connect(but_down,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
-	bc->control->but_down = GTK_BUTTON(but_down);
+	buf = get_resource_image(RESOURCE_STYLE,"button-bottom");
+	img = gtk_image_new_from_pixbuf(buf);
+	but_bottom = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_bottom),img);
+	layout_widget(but_bottom,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	g_signal_connect(but_bottom,"button-press-event",G_CALLBACK(button_press_event_lafet_bottom),bc);
+	g_signal_connect(but_bottom,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
+	bc->control->but_bottom = GTK_BUTTON(but_bottom);
 
-	but_right = gtk_button_new_with_label("ВПРАВО");
+	buf = get_resource_image(RESOURCE_STYLE,"button-right");
+	img = gtk_image_new_from_pixbuf(buf);
+	but_right = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_right),img);
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_lafet_right),bc);
 	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_right = GTK_BUTTON(but_right);
 
-	but_left = gtk_button_new_with_label("ВЛЕВО");
+	buf = get_resource_image(RESOURCE_STYLE,"button-left");
+	img = gtk_image_new_from_pixbuf(buf);
+	but_left = gtk_button_new();
+	gtk_button_set_image(GTK_BUTTON(but_left),img);
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_lafet_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
@@ -1811,21 +1871,21 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	block_precise = create_block_lafet_precise(bc);
 
 	gtk_grid_attach(GTK_GRID(grid),but_up       ,1,0,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_down     ,1,1,1,1);
+	gtk_grid_attach(GTK_GRID(grid),but_bottom   ,1,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_left     ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_right    ,2,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),block_precise,0,2,3,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(but_up);
-	gtk_widget_show(but_down);
+	gtk_widget_show(but_bottom);
 	gtk_widget_show(but_right);
 	gtk_widget_show(but_left);
 
  	return grid;
 }
 
-static void button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1833,12 +1893,13 @@ static void button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gp
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_SPRAY_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	return TRUE;
 }
-static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1846,12 +1907,13 @@ static void button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gp
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_SPRAY_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	return TRUE;
 }
-static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1859,12 +1921,13 @@ static void button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpo
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_RATE_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	return TRUE;
 }
-static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1872,12 +1935,13 @@ static void button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpo
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_RATE_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	return TRUE;
 }
-static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
+static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	communication_controller_s * communication_controller = bc->communication_controller;
@@ -1885,10 +1949,11 @@ static void button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpoint
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
-		return;
+		return FALSE;
 	}
 	command.part.value = COMMAND_ACTUATOT_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
+	return TRUE;
 }
 
 static GtkWidget * create_block_actuator(block_controller_s * bc)
@@ -1896,30 +1961,30 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	GdkPixbuf * buf;
 	GtkWidget * box;
 
-	GtkWidget * grid_spray;
+	GtkWidget * box_spray;
 	GtkWidget * label_spray;
 	GtkWidget * but_spray_less;
 	GtkWidget * img_separator_spray;
 	GtkWidget * but_spray_more;
 
-	GtkWidget * grid_rate;
+	GtkWidget * box_rate;
 	GtkWidget * label_rate;
 	GtkWidget * img_separator_rate;
 	GtkWidget * but_rate_less;
 	GtkWidget * but_rate_more;
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	layout_widget(box,GTK_ALIGN_CENTER,GTK_ALIGN_START,TRUE,TRUE);
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	layout_widget(box,GTK_ALIGN_CENTER,GTK_ALIGN_START,FALSE,FALSE);
 	gtk_box_set_homogeneous(GTK_BOX(box),TRUE);
 
-	grid_spray = gtk_grid_new();
-	layout_widget(grid_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid_spray),TRUE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid_spray),TRUE);
-	bc->control->actuator_spray = grid_spray;
+	box_spray = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box_spray,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	bc->control->actuator_spray = box_spray;
 
 	label_spray = gtk_label_new("Распыл");
 	layout_widget(label_spray,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_widget_set_margin_start(label_spray,10);
+	gtk_widget_set_margin_end(label_spray,10);
 
 	buf = get_resource_image(RESOURCE_STYLE,"actuator-separator-spray");
 	img_separator_spray = gtk_image_new_from_pixbuf(buf);
@@ -1933,11 +1998,9 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	g_signal_connect(but_spray_more,"button-press-event",G_CALLBACK(button_press_event_actuator_spray_more),bc);
 	g_signal_connect(but_spray_more,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
-	grid_rate = gtk_grid_new();
-	layout_widget(grid_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	gtk_grid_set_row_homogeneous(GTK_GRID(grid_rate),TRUE);
-	gtk_grid_set_column_homogeneous(GTK_GRID(grid_rate),TRUE);
-	bc->control->actuator_rate = grid_rate;
+	box_rate = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	layout_widget(box_rate,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	bc->control->actuator_rate = box_rate;
 
 	label_rate = gtk_label_new("Литраж");
 	layout_widget(label_rate,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
@@ -1953,26 +2016,26 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 	g_signal_connect(but_rate_more,"button-press-event",G_CALLBACK(button_press_event_actuator_rate_more),bc);
 	g_signal_connect(but_rate_more,"button-release-event",G_CALLBACK(button_release_event_actuator_stop),bc);
 
-	gtk_box_pack_start(GTK_BOX(box),grid_spray,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),grid_rate ,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),box_spray,TRUE,TRUE,20);
+	gtk_box_pack_start(GTK_BOX(box),box_rate ,TRUE,TRUE,20);
 
-	gtk_grid_attach(GTK_GRID(grid_spray),label_spray        ,0,0,2,1);
-	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_less     ,0,1,1,1);
-	/*gtk_grid_attach(GTK_GRID(grid_spray),img_separator_spray,1,1,1,1);*/
-	gtk_grid_attach(GTK_GRID(grid_spray),but_spray_more     ,1,1,1,1);
+	gtk_box_pack_start(GTK_BOX(box_spray),label_spray,FALSE,FALSE,10);
+	gtk_box_pack_start(GTK_BOX(box_spray),but_spray_less,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(box_spray),img_separator_spray,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(box_spray),but_spray_more,FALSE,FALSE,0);
 
-	gtk_grid_attach(GTK_GRID(grid_rate),label_rate         ,0,0,2,1);
-	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_less      ,0,1,1,1);
-	/*gtk_grid_attach(GTK_GRID(grid_rate),img_separator_rate,1,1,1,1);*/
-	gtk_grid_attach(GTK_GRID(grid_rate),but_rate_more      ,1,1,1,1);
+	gtk_box_pack_start(GTK_BOX(box_rate),label_rate         ,FALSE,FALSE,10);
+	gtk_box_pack_start(GTK_BOX(box_rate),but_rate_less      ,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(box_rate),img_separator_rate ,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(box_rate),but_rate_more      ,FALSE,FALSE,0);
 
 	gtk_widget_show(box);
-	gtk_widget_show(grid_spray);
+	gtk_widget_show(box_spray);
 	gtk_widget_show(label_spray);
 	gtk_widget_show(img_separator_spray);
 	gtk_widget_show(but_spray_less);
 	gtk_widget_show(but_spray_more);
-	gtk_widget_show(grid_rate);
+	gtk_widget_show(box_rate);
 	gtk_widget_show(label_rate);
 	gtk_widget_show(img_separator_rate);
 	gtk_widget_show(but_rate_less);
@@ -2091,6 +2154,8 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	grid = gtk_grid_new();
 	layout_widget(grid,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_grid_set_row_spacing(GTK_GRID(grid),5);
+	gtk_grid_set_column_spacing(GTK_GRID(grid),10);
 
 	label = gtk_label_new("Осциляция");
 
@@ -2126,10 +2191,11 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	gtk_grid_attach(GTK_GRID(grid),label         ,0,0,2,1);
 	gtk_grid_attach(GTK_GRID(grid),but_run       ,0,1,1,1);
 	gtk_grid_attach(GTK_GRID(grid),but_stop      ,1,1,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_vertical  ,0,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_horizontal,1,2,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_saw       ,0,3,1,1);
-	gtk_grid_attach(GTK_GRID(grid),but_step      ,1,3,1,1);
+
+	gtk_grid_attach(GTK_GRID(grid),but_vertical  ,0,2,2,1);
+	gtk_grid_attach(GTK_GRID(grid),but_horizontal,0,3,2,1);
+	gtk_grid_attach(GTK_GRID(grid),but_saw       ,0,4,2,1);
+	gtk_grid_attach(GTK_GRID(grid),but_step      ,0,5,2,1);
 
 	gtk_widget_show(grid);
 	gtk_widget_show(label);
@@ -2147,6 +2213,10 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * block_mode;
+	GtkWidget * s_0;
+	GtkWidget * s_1;
+	GtkWidget * s_2;
+	GtkWidget * s_3;
 	GtkWidget * block_lafet;
 	GtkWidget * block_actuator;
 	GtkWidget * block_valve;
@@ -2155,20 +2225,45 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
   layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
 	gtk_widget_set_size_request(box,DEFAULT_WIDTH_CONTROLLER_CONTROL,-1);
+	gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
 
 	block_mode = create_block_control_mode(bc);
+	s_0 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_size_request(s_0,170,-1);
+	layout_widget(s_0,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
 	block_lafet = create_block_control_lafet(bc);
+	s_1 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_size_request(s_1,150,-1);
+	layout_widget(s_1,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
 	block_actuator = create_block_actuator(bc);
+	s_2 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_size_request(s_2,150,-1);
+	layout_widget(s_2,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
 	block_valve = create_block_control_valve(bc);
+	s_3 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_size_request(s_3,150,-1);
+	layout_widget(s_3,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+
 	block_oscillation = create_block_oscillation(bc);
 
-	gtk_box_pack_start(GTK_BOX(box),block_mode,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_lafet,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_actuator,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_valve,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),block_oscillation,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box),block_mode,FALSE,FALSE,5);
+	gtk_box_pack_start(GTK_BOX(box),s_0,FALSE,FALSE,30);
+	gtk_box_pack_start(GTK_BOX(box),block_lafet,FALSE,FALSE,5);
+	gtk_box_pack_start(GTK_BOX(box),s_1,FALSE,FALSE,10);
+	gtk_box_pack_start(GTK_BOX(box),block_actuator,FALSE,FALSE,5);
+	gtk_box_pack_start(GTK_BOX(box),s_2,FALSE,FALSE,10);
+	gtk_box_pack_start(GTK_BOX(box),block_valve,FALSE,FALSE,5);
+	gtk_box_pack_start(GTK_BOX(box),s_3,FALSE,FALSE,10);
+	gtk_box_pack_start(GTK_BOX(box),block_oscillation,FALSE,FALSE,5);
 
 	gtk_widget_show(box);
+	gtk_widget_show(s_0);
+	gtk_widget_show(s_1);
+	gtk_widget_show(s_2);
+	gtk_widget_show(s_3);
 
 	return box;
 }
@@ -2185,7 +2280,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 
 	if(!ENGINE_VERTICAL(flag)){
 		set_button_not_active(control->but_up);
-		set_button_not_active(control->but_down);
+		set_button_not_active(control->but_bottom);
 		image_copy(state->frame_vertical,images_state[VERTICAL_BACKGROUND]);
 		gtk_image_set_from_pixbuf(state->image_vertical,state->frame_vertical);
 	}
