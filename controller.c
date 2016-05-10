@@ -2167,7 +2167,7 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 
 	label = gtk_label_new("Осциляция");
 
-	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL; /*выбор по умолчанию */
+	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STOP;
 	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
 
 	but_run = gtk_button_new_with_label("Запустить");
