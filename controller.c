@@ -895,9 +895,13 @@ static flag_t show_message(show_state_s * show_state,show_control_s * show_contr
 
 	if(mode == STATE_MODE_ERROR){
 		apply_style_message_alarm(GTK_WIDGET(label),NULL);
-
+	}
+	else{
+		apply_style_message_norm(GTK_WIDGET(label),NULL);
+	}
 	return SUCCESS;
 }
+
 static flag_t show_vertical(show_state_s * show_state,show_control_s * show_control
                         ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
@@ -1112,6 +1116,10 @@ static int show_block_controller(gpointer data)
 /*****************************************************************************/
 
 static char STR_INFO_STATE_NORM[] = "Установка : Норма";
+static char STR_INFO_STATE_LIMIT_VERTICAL[] = "Предел по вертикале ";
+static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
+static char STR_INFO_STATE_CRASH_VERTICAL[] = "Авария вертикальной оси";
+static char STR_INFO_STATE_CRASH_HORIZONTAL[] = "Авария горизонтальной оси";
 
 static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
@@ -1135,8 +1143,8 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	gtk_widget_show(lab_mode);
 	gtk_widget_show(lab_state);
 
-	apply_style_message_norm(lab_mode,NULL);
-	apply_style_message_norm(lab_state,NULL);
+	apply_style_message_alarm(lab_mode,NULL);
+	apply_style_message_alarm(lab_state,NULL);
  	return box;
 }
 
