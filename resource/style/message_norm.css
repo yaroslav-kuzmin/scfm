@@ -3,10 +3,14 @@
 .label {
 	padding : 0;
 	font-style: oblique;
-	font-size: 20px;
+	font-size: 15px;
 	color: #3dcb7d;
 	background-color: #405F7E;
+	background-image: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(0.2, #2c3949), color-stop(0.8, #2c3949), color-stop(1, #405F7E));
 	border-radius: 4px;
+  outline: red ridge 7px;
+	border-top-color: red;
+	/*border-top-width: 7px; */
 }
 
 

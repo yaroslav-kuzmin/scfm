@@ -869,29 +869,33 @@ static flag_t show_console(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
+static char STR_INFO_MODE_WAIT[] = "Нет Соединения";
+static char STR_INFO_MODE_AUTO[] = "Автоматически режим работы";
+static char STR_INFO_MODE_MANUAL[] = "Ручной режим работы";
+static char STR_INFO_MODE_TEST[] = "Режим тестирования";
+
 static flag_t show_message(show_state_s * show_state,show_control_s * show_control
                        ,state_controller_s * controller_state,config_controller_s * controller_config)
 {
-
-/*
-	static int count = 0;
-	static int state = 0;
-
-	count ++;
-	if(count == 10){
-		count = 0;
-		if(state == 0){
-			state = 1;
-			apply_style_message_alarm(GTK_WIDGET(show_state->lab_mode),NULL);
-			apply_style_message_norm(GTK_WIDGET(show_state->lab_state),NULL);
-		}
-		else{
-			state = 0;
-			apply_style_message_norm(GTK_WIDGET(show_state->lab_mode),NULL);
-			apply_style_message_alarm(GTK_WIDGET(show_state->lab_state),NULL);
-		}
+	GtkLabel * label = show_state->lab_state;
+	flag_t mode = get_mode_controller(controller_state);
+	char * str = STR_INFO_MODE_WAIT;
+	switch(mode){
+		case STATE_MODE_AUTO:
+			str = STR_INFO_MODE_AUTO;
+			break;
+		case STATE_MODE_MANUAL:
+			str = STR_INFO_MODE_MANUAL;
+			break;
+		case STATE_MODE_TEST:
+			str = STR_INFO_MODE_TEST;
+			break;
 	}
-*/
+	gtk_label_set_text(label,str);
+
+	if(mode == STATE_MODE_ERROR){
+		apply_style_message_alarm(GTK_WIDGET(label),NULL);
+
 	return SUCCESS;
 }
 static flag_t show_vertical(show_state_s * show_state,show_control_s * show_control
@@ -1107,7 +1111,6 @@ static int show_block_controller(gpointer data)
 /*                                                                           */
 /*****************************************************************************/
 
-static char STR_INFO_MODE_WAIT[] = "автоматический Режим";
 static char STR_INFO_STATE_NORM[] = "Установка : Норма";
 
 static GtkWidget * create_block_state_message(block_controller_s * bc)

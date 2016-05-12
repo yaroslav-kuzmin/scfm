@@ -694,8 +694,9 @@ flag_t get_state_valve(state_controller_s * state)
 #define BIT_ERROR_ACTUATOR_RATE       0x0008
 #define BIT_ERROR_VALVE               0x0010
 #define BIT_MODE_AUTO                 0x0100
-#define BIT_MODE_MANUAL               0x0200
-#define BIT_MODE_CONFIG               0x0800
+#define BIT_MODE_MANUAL_0             0x0200
+#define BIT_MODE_MANUAL_1             0x0400
+#define BIT_MODE_TEST                 0x0800
 #define BIT_MODE_VERTICAL             0x1000
 #define BIT_MODE_HORIZONTAL           0x2000
 #define BIT_MODE_SAW                  0x4000
@@ -707,8 +708,9 @@ flag_t get_state_valve(state_controller_s * state)
 #define ERROR_ACTUATOR_RATE(b)   (b & BIT_ERROR_ACTUATOR_RATE)
 #define ERROR_VALVE(b)           (b & BIT_ERROR_VALVE)
 #define MODE_AUTO(b)             (b & BIT_MODE_AUTO)
-#define MODE_MANUAL(b)           (b & BIT_MODE_MANUAL)
-#define MODE_CONFIG(b)           (b & BIT_MODE_CONFIG)
+#define MODE_MANUAL_0(b)         (b & BIT_MODE_MANUAL_0)
+#define MODE_MANUAL_1(b)         (b & BIT_MODE_MANUAL_1)
+#define MODE_TEST(b)             (b & BIT_MODE_TEST)
 #define MODE_VERTICAL(b)         (b & BIT_MODE_VERTICAL)
 #define MODE_HORIZONTAL(b)       (b & BIT_MODE_VERTICAL)
 #define MODE_SAW(b)              (b & BIT_MODE_SAW)
@@ -720,10 +722,18 @@ flag_t get_mode_controller(state_controller_s * state)
 	if(MODE_AUTO(work)){
 		return STATE_MODE_AUTO;
 	}
-	if(MODE_MANUAL(work)){
+	if(MODE_MANUAL_0(work)){
+		if(MODE_TEST(work)){
+			return STATE_MODE_TEST;
+		}
 		return STATE_MODE_MANUAL;
 	}
-
+	if(MODE_MANUAL_1(work)){
+		if(MODE_TEST(work)){
+			return STATE_MODE_TEST;
+		}
+		return STATE_MODE_MANUAL;
+	}
 	return STATE_MODE_ERROR;
 }
 
