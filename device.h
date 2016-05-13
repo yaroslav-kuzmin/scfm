@@ -51,6 +51,7 @@ char * get_name_controller(config_controller_s * config);
 flag_t get_state_valve(state_controller_s * state);
 flag_t get_mode_controller(state_controller_s * state);
 flag_t get_state_fire_alarm(state_controller_s * state);
+flag_t get_info_controller(state_controller_s * state,flag_t * info);
 
 flag_t link_state_controller(link_s * link,state_controller_s * state);
 flag_t link_config_controller(link_s * link,config_controller_s * config);

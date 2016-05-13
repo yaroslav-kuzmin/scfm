@@ -869,16 +869,14 @@ static flag_t show_console(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
-static char STR_INFO_MODE_WAIT[] = "Нет Соединения";
-static char STR_INFO_MODE_AUTO[] = "Автоматически режим работы";
+static char STR_INFO_MODE_WAIT[]   = "Нет Соединения";
+static char STR_INFO_MODE_AUTO[]   = "Автоматически режим работы";
 static char STR_INFO_MODE_MANUAL[] = "Ручной режим работы";
-static char STR_INFO_MODE_TEST[] = "Режим тестирования";
+static char STR_INFO_MODE_TEST[]   = "Режим тестирования";
 
-static flag_t show_message(show_state_s * show_state,show_control_s * show_control
-                       ,state_controller_s * controller_state,config_controller_s * controller_config)
+static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 {
-	GtkLabel * label = show_state->lab_state;
-	flag_t mode = get_mode_controller(controller_state);
+	flag_t mode = get_mode_controller(state);
 	char * str = STR_INFO_MODE_WAIT;
 	switch(mode){
 		case STATE_MODE_AUTO:
@@ -899,6 +897,90 @@ static flag_t show_message(show_state_s * show_state,show_control_s * show_contr
 	else{
 		apply_style_message_norm(GTK_WIDGET(label),NULL);
 	}
+	return SUCCESS;
+}
+
+static char STR_INFO_STATE_WAIT[]             = "Установка : Неподключина!";
+static char STR_INFO_STATE_NORM[]             = "Установка : Норма";
+static char STR_INFO_STATE_LIMIT_VERTICAL[]   = "Предел по вертикале ";
+static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
+static char STR_INFO_STATE_CRASH_VERTICAL[]   = "Авария вертикальной оси";
+static char STR_INFO_STATE_CRASH_HORIZONTAL[] = "Авария горизонтальной оси";
+static char STR_INFO_STATE_CRASH_SPARY[]      = "Авария актуатор распыла";
+static char STR_INFO_STATE_CRASH_RATE[]       = "Авария актуатор литраж";
+static char STR_INFO_STATE_CRASH_VALVE[]      = "Авария привода задвижки";
+#define WAIT_MESSAGE_IN_SECOND      2
+static uint32_t count_message = 0;
+static uint32_t next_message = 0;
+
+static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uint32_t timeout)
+{
+	/*колличество сообщений об ошибке */
+	flag_t all_info[] = {STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
+	                    ,STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
+	                    ,STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
+	                    ,STATE_ERROR};
+	flag_t * info = all_info;
+	flag_t i;
+	char * str;
+	get_info_controller(state,info);
+	if(*info == STATE_INFO_NORM){
+		gtk_label_set_text(label,STR_INFO_STATE_NORM);
+		apply_style_message_norm(GTK_WIDGET(label),NULL);
+		return SUCCESS;
+	}
+
+	i = *(info + next_message);
+
+	if((i == STATE_INFO_ERROR) || (i == STATE_ERROR)){
+		next_message = 0;
+		i = *info;
+	}
+
+	switch(i){
+		case STATE_INFO_LIMIT_VERTICAL:
+			str = STR_INFO_STATE_LIMIT_VERTICAL;
+			break;
+		case STATE_INFO_LIMIT_HORIZONTAL:
+			str = STR_INFO_STATE_LIMIT_HORIZONTAL;
+			break;
+		case STATE_INFO_CRASH_VERTICAL:
+			str = STR_INFO_STATE_CRASH_VERTICAL;
+			break;
+		case STATE_INFO_CRASH_HORIZONTAL:
+			str = STR_INFO_STATE_CRASH_HORIZONTAL;
+			break;
+		case STATE_INFO_CRASH_SPARY:
+			str = STR_INFO_STATE_CRASH_SPARY;
+			break;
+		case STATE_INFO_CRASH_RATE:
+			str = STR_INFO_STATE_CRASH_RATE;
+			break;
+		case STATE_INFO_CRASH_VALVE:
+			str = STR_INFO_STATE_CRASH_VALVE;
+			break;
+		default:
+			str = STR_INFO_MODE_WAIT;
+			break;
+	}
+	gtk_label_set_text(label,str);
+	apply_style_message_alarm(GTK_WIDGET(label),NULL);
+
+	count_message += timeout;
+	if(count_message == (MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND)){
+		count_message = 0;
+		next_message ++;
+	}
+	return SUCCESS;
+}
+
+
+static flag_t show_message(show_state_s * show_state,show_control_s * show_control
+                          ,state_controller_s * controller_state,config_controller_s * controller_config
+													,uint32_t timeout)
+{
+	show_message_mode(show_state->lab_mode,controller_state);
+	show_message_state(show_state->lab_state,controller_state,timeout);
 	return SUCCESS;
 }
 
@@ -1100,7 +1182,7 @@ static int show_block_controller(gpointer data)
 	g_mutex_unlock(&(cc->mutex));
 
 	show_console(bc->state,bc->control,&state,controller->config);
-	show_message(bc->state,bc->control,&state,controller->config);
+	show_message(bc->state,bc->control,&state,controller->config,bc->timeout_show);
 	show_vertical(bc->state,bc->control,&state,controller->config);
 	show_horizontal(bc->state,bc->control,&state,controller->config);
 	show_pipe(bc->state,bc->control,&state,controller->config);
@@ -1115,17 +1197,12 @@ static int show_block_controller(gpointer data)
 /*                                                                           */
 /*****************************************************************************/
 
-static char STR_INFO_STATE_NORM[] = "Установка : Норма";
-static char STR_INFO_STATE_LIMIT_VERTICAL[] = "Предел по вертикале ";
-static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
-static char STR_INFO_STATE_CRASH_VERTICAL[] = "Авария вертикальной оси";
-static char STR_INFO_STATE_CRASH_HORIZONTAL[] = "Авария горизонтальной оси";
-
 static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
 	GtkWidget * box;
 	GtkWidget * frame_mode;
 	GtkWidget * lab_mode;
+	GtkWidget * frame_state;
 	GtkWidget * lab_state;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -1137,22 +1214,32 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	lab_mode = gtk_label_new(STR_INFO_MODE_WAIT);
 	layout_widget(lab_mode,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_widget_set_size_request(lab_mode,300,-1);
 	bc->state->lab_mode = GTK_LABEL(lab_mode);
 
-	lab_state = gtk_label_new(STR_INFO_STATE_NORM);
+	frame_state = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame_state),GTK_SHADOW_NONE);
+	gtk_widget_set_size_request(frame_state,-1,40);
+
+	lab_state = gtk_label_new(STR_INFO_STATE_WAIT);
+	layout_widget(lab_state,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
+	gtk_widget_set_size_request(lab_state,300,-1);
 	bc->state->lab_state = GTK_LABEL(lab_state);
 
 	gtk_container_add(GTK_CONTAINER(frame_mode),lab_mode);
+	gtk_container_add(GTK_CONTAINER(frame_state),lab_state);
 
 	gtk_box_pack_start(GTK_BOX(box),frame_mode,TRUE,TRUE,20);
-	gtk_box_pack_start(GTK_BOX(box),lab_state,TRUE,TRUE,20);
+	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,20);
 
 	gtk_widget_show(box);
 	gtk_widget_show(frame_mode);
 	gtk_widget_show(lab_mode);
+	gtk_widget_show(frame_state);
 	gtk_widget_show(lab_state);
 
 	apply_style_message_norm(frame_mode,NULL);
+	apply_style_message_norm(frame_state,NULL);
 	apply_style_message_alarm(lab_mode,NULL);
 	apply_style_message_alarm(lab_state,NULL);
  	return box;
@@ -1845,9 +1932,11 @@ static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpoin
 }
 static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 {
+#define BUTTON_LAFET_IMAGE    0 	
+#if BUTTON_LAFET_IMAGE	
 	GdkPixbuf * buf;
 	GtkWidget * img;
-
+#endif
 	GtkWidget * grid;
 	GtkWidget * but_up;
 	GtkWidget * but_bottom;
@@ -1862,37 +1951,53 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 	gtk_grid_set_row_spacing(GTK_GRID(grid),0);
 	gtk_grid_set_column_spacing(GTK_GRID(grid),0);
 
+#if BUTTON_LAFET_IMAGE
 	buf = get_resource_image(RESOURCE_STYLE,"button-up");
 	img = gtk_image_new_from_pixbuf(buf);
 	but_up = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_up),img);
+#else
+	but_up = gtk_button_new_with_label("ВВЕРХ");
+#endif	
 	layout_widget(but_up,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_up,"button-press-event",G_CALLBACK(button_press_event_lafet_up),bc);
 	g_signal_connect(but_up,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_up = GTK_BUTTON(but_up);
 
+#if BUTTON_LAFET_IMAGE
 	buf = get_resource_image(RESOURCE_STYLE,"button-bottom");
 	img = gtk_image_new_from_pixbuf(buf);
 	but_bottom = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_bottom),img);
+#else
+	but_bottom = gtk_button_new_with_label("ВНИЗ");
+#endif	
 	layout_widget(but_bottom,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_bottom,"button-press-event",G_CALLBACK(button_press_event_lafet_bottom),bc);
 	g_signal_connect(but_bottom,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_bottom = GTK_BUTTON(but_bottom);
 
+#if BUTTON_LAFET_IMAGE
 	buf = get_resource_image(RESOURCE_STYLE,"button-right");
 	img = gtk_image_new_from_pixbuf(buf);
 	but_right = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_right),img);
+#else
+	but_right = gtk_button_new_with_label("ВПРАВО");
+#endif	
 	layout_widget(but_right,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_right,"button-press-event",G_CALLBACK(button_press_event_lafet_right),bc);
 	g_signal_connect(but_right,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);
 	bc->control->but_right = GTK_BUTTON(but_right);
 
+#if BUTTON_LAFET_IMAGE
 	buf = get_resource_image(RESOURCE_STYLE,"button-left");
 	img = gtk_image_new_from_pixbuf(buf);
 	but_left = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(but_left),img);
+#else	
+	but_left = gtk_button_new_with_label("ВЛЕВО");
+#endif	
 	layout_widget(but_left,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	g_signal_connect(but_left,"button-press-event",G_CALLBACK(button_press_event_lafet_left),bc);
 	g_signal_connect(but_left,"button-release-event",G_CALLBACK(button_release_event_lafet_stop),bc);

@@ -667,6 +667,50 @@ flag_t get_state_valve(state_controller_s * state)
 	return STATE_VALVE_ERROR;
 }
 
+/*lafet значение регистра D100*/
+/*
+бит 0 - датчик положения "ВВЕРХ"
+бит 1 - датчик положения "ВНИЗ"
+бит 2 - датчик положения "ВЛЕВО"
+бит 3 - датчик положения "ВПРАВО"
+бит 4 - резерв
+бит 5 - резерв
+бит 6 - резерв
+бит 7 - резерв
+бит 8 - состояние привода вертик. оси "ВВЕРХ"
+бит 9 - состояние привода вертик. оси "ВНИЗ"
+бит 10 - состояние привода горизонт. оси "ВЛЕВО"
+бит 11 - состояние привода горизонт. оси "ВПРАВО"
+бит 12 - состояние привода актуатора 1 "УЖЕ"
+бит 13 - состояние привода актуатора 1 "ШИРЕ"
+бит 14 - состояние привода актуатора 2 "МЕНЬШЕ"
+бит 15 - состояние привода актуатора 2 "БОЛЬШЕ"
+*/
+#define BIT_LIMIT_UP      0x0001
+#define BIT_LIMIT_BOTTOM  0x0002
+#define BIT_LIMIT_LEFT    0x0004
+#define BIT_LIMIT_RIGHT   0x0008
+#define BIT_LAFET_UP      0x0100
+#define BIT_LAFET_BOTTOM  0x0200
+#define BIT_LAFET_LEFT    0x0400
+#define BIT_LAFET_RIGHT   0x0800
+#define BIT_SPRAY_LESS    0x1000
+#define BIT_SPRAY_MORE    0x2000
+#define BIT_RATE_LESS     0x4000
+#define BIT_RATE_MORE     0x8000
+
+#define LIMIT_UP(b)       (b & BIT_LIMIT_UP)
+#define LIMIT_BOTTOM(b)   (b & BIT_LIMIT_BOTTOM)
+#define LIMIT_LEFT(b)     (b & BIT_LIMIT_LEFT)
+#define LIMIT_RIGHT(b)    (b & BIT_LIMIT_RIGHT)
+#define LAFET_UP(b)       (b & BIT_LAFET_UP)
+#define LAFET_BOTTOM(b)   (b & BIT_LAFET_BOTTOM)
+#define LAFET_LEFT(b)     (b & BIT_LAFET_LEFT)
+#define LAFET_RIGHT(b)    (b & BIT_LAFET_RIGHT)
+#define SPRAY_LESS(b)     (b & BIT_SPRAY_LESS)
+#define SPRAY_MORE(b)     (b & BIT_SPRAY_MORE)
+#define RATE_LESS(b)      (b & BIT_RATE_LESS)
+#define RATE_MORE(b)      (b & BIT_RATE_MORE)
 
 /* work значение регистра  D108 */
 /*
@@ -735,6 +779,57 @@ flag_t get_mode_controller(state_controller_s * state)
 		return STATE_MODE_MANUAL;
 	}
 	return STATE_MODE_ERROR;
+}
+
+
+flag_t get_info_controller(state_controller_s * state,flag_t * info)
+{
+	uint16_t work = state->work;
+	uint16_t lafet = state->lafet;
+
+	*info = STATE_INFO_NORM;
+
+	if(LIMIT_UP(lafet)){
+		*info = STATE_INFO_LIMIT_VERTICAL;
+		info ++;
+	}
+	else{
+		if(LIMIT_BOTTOM(lafet)){
+			*info = STATE_INFO_LIMIT_VERTICAL;
+			info ++;
+		}
+	}
+	if(LIMIT_LEFT(lafet)){
+		*info = STATE_INFO_LIMIT_HORIZONTAL;
+		info ++;
+	}
+	else{
+		if(LIMIT_RIGHT(lafet)){
+			*info = STATE_INFO_LIMIT_HORIZONTAL;
+			info ++;
+		}
+	}
+	if(ERROR_VERTICAL(work)){
+		*info = STATE_INFO_CRASH_VERTICAL;
+		info ++;
+	}
+	if(ERROR_HORIZONTAL(work)){
+		*info = STATE_INFO_CRASH_HORIZONTAL;
+		info ++;
+	}
+	if(ERROR_ACTUATOR_SPRAY(work)){
+		*info = STATE_INFO_CRASH_SPARY;
+		info ++;
+	}
+	if(ERROR_ACTUATOR_RATE(work)){
+		*info = STATE_INFO_CRASH_RATE;
+		info ++;
+	}
+	if(ERROR_VALVE(work)){
+		*info = STATE_INFO_CRASH_VALVE;
+		info++;
+	}
+	return SUCCESS;
 }
 
 flag_t get_state_fire_alarm(state_controller_s * state)

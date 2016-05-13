@@ -1,8 +1,8 @@
 
 
 .label {
-	padding: 0px;
-	font-style: oblique;
+	padding: 0px 20px;
+	/*font-style: oblique;*/
 	font-size: 17px;
 	color: #3dcb7d;
 	background-color: #405F7E;

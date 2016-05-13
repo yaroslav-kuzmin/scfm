@@ -167,8 +167,8 @@ column-header .titlebar .button.titlebutton,
   color: shade(@theme_fg_color, 1.2);
   outline-color: #2c3949;
   border-color: transparent;
-	/*background-image: linear-gradient(0,#2C3949,#2C3949);*/
-	background-image: linear-gradient(0,#ff0000,#ff0000);
+	background-image: linear-gradient(0,#2C3949,#2C3949);
+	/*background-image: linear-gradient(0,#ff0000,#ff0000);*/
 	text-shadow: none;
 	icon-shadow: none;
   box-shadow: inset 0 1px rgba(0, 0, 0, 0.06), inset 0 2px 1px -2px rgba(0, 0, 0, 0.6);
