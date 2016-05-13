@@ -1,15 +1,26 @@
 
 @define-color theme_fg_color #f0f0f0;
 
-.label {
-  padding: 0;
+.label
+{
+  padding: 0px;
 	font-size: 17px;
   color: #ec260c;
-  background-color: #405F7E;
-	background-image: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(0.2, #2c3949), color-stop(0.8, #2c3949), color-stop(1, #405F7E));
+  background-color: #2c3949;
+	/*background-image: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(0.2, #2c3949), color-stop(0.8, #2c3949), color-stop(1, #405F7E));*/
 	border-radius: 4px;
+	/*border-top-color: red;*/
+	/*border-top-width: 7px; */
+	/*border-image-source: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(0.2, #2c3949), color-stop(0.8, #2c3949), color-stop(1, #405F7E));*/
+	/*border-image-source: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, red), color-stop(0.2, green), color-stop(0.8, green), color-stop(1, red));*/
 }
 
+.frame
+{
+	padding: 0;
+	border-radius: 4px;
+	background-image: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(1, #405F7E));
+}
 
 
 

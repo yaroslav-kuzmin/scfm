@@ -757,7 +757,7 @@ flag_t control_controllers(flag_t mode)
 }
 
 /* 1 000 000  микросекунд == 1 секунда*/
-#define DEFAULT_TIMEOUT_CURRENR        1000000      /*   250000        250 милесекунд */
+#define DEFAULT_TIMEOUT_CURRENR        500000       /*1000000*/      /*   250000        250 милесекунд */
 #define DEFAULT_TIMEOUT_ALL            3000000      /* 3 секунды */
 #define DEFAULT_TIMEOUT_CONFIG         600000000    /* 600 секунд*/
 
@@ -1124,25 +1124,35 @@ static char STR_INFO_STATE_CRASH_HORIZONTAL[] = "Авария горизонта
 static GtkWidget * create_block_state_message(block_controller_s * bc)
 {
 	GtkWidget * box;
+	GtkWidget * frame_mode;
 	GtkWidget * lab_mode;
 	GtkWidget * lab_state;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
 	layout_widget(box,GTK_ALIGN_FILL,GTK_ALIGN_START,TRUE,TRUE);
 
+	frame_mode = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame_mode),GTK_SHADOW_NONE);
+	gtk_widget_set_size_request(frame_mode,-1,40);
+
 	lab_mode = gtk_label_new(STR_INFO_MODE_WAIT);
+	layout_widget(lab_mode,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	bc->state->lab_mode = GTK_LABEL(lab_mode);
 
 	lab_state = gtk_label_new(STR_INFO_STATE_NORM);
 	bc->state->lab_state = GTK_LABEL(lab_state);
 
-	gtk_box_pack_start(GTK_BOX(box),lab_mode,TRUE,TRUE,20);
+	gtk_container_add(GTK_CONTAINER(frame_mode),lab_mode);
+
+	gtk_box_pack_start(GTK_BOX(box),frame_mode,TRUE,TRUE,20);
 	gtk_box_pack_start(GTK_BOX(box),lab_state,TRUE,TRUE,20);
 
 	gtk_widget_show(box);
+	gtk_widget_show(frame_mode);
 	gtk_widget_show(lab_mode);
 	gtk_widget_show(lab_state);
 
+	apply_style_message_norm(frame_mode,NULL);
 	apply_style_message_alarm(lab_mode,NULL);
 	apply_style_message_alarm(lab_state,NULL);
  	return box;
@@ -1774,6 +1784,7 @@ static gboolean  button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer
 	}
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \'вверх\'");
 	return TRUE;
 }
 static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpointer ud)
