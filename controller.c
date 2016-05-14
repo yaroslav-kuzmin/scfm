@@ -476,6 +476,9 @@ static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_c
 	uint16_t tic = state->tic_vertical;
 	gdouble rate = config->rate_tic_vertical;
 
+	/*TODO для конкретного контролера */
+	tic += 7;
+
 	if(tic > MAX_VERTICAL_TIC){
 		tic = MAX_VERTICAL_TIC;
 	}
@@ -485,6 +488,7 @@ static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_c
 	if(angle > MAX_VERTICAL_ANGLE){
 		angle = MAX_VERTICAL_ANGLE;
 	}
+
  	return angle;
 }
 static uint16_t calculate_angle_encoder_vertical(state_controller_s * state,config_controller_s * config)
