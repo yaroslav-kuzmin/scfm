@@ -781,11 +781,15 @@ flag_t get_mode_controller(state_controller_s * state)
 	return STATE_MODE_ERROR;
 }
 
-
 flag_t get_info_controller(state_controller_s * state,flag_t * info)
 {
 	uint16_t work = state->work;
 	uint16_t lafet = state->lafet;
+	flag_t mode = get_mode_controller(state);
+
+	if(mode == STATE_MODE_ERROR){
+		return STATE_INFO_ERROR;
+	}
 
 	*info = STATE_INFO_NORM;
 

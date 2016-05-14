@@ -5,7 +5,7 @@
 	/*font-style: oblique;*/
 	font-size: 17px;
 	color: #3dcb7d;
-	background-color: #405F7E;
+  background-color: #2c3949;
 	/*background-image: -gtk-gradient(linear, 0 0, 0 1, color-stop(0, #405F7E), color-stop(0.2, #2c3949), color-stop(0.8, #2c3949), color-stop(1, #405F7E));*/
 	border-radius: 4px;
   outline: red ridge 7px;

@@ -600,7 +600,10 @@ static flag_t copy_state(state_controller_s * des,state_controller_s * src)
 	return SUCCESS;
 }
 /*uint32_t debug_id = 0;*/
+
+/*****************************************************************************/
 /* функция  потока комуникации с контролерами */
+/*****************************************************************************/
 static gpointer controllers_communication(gpointer ud)
 {
 	int rc;
