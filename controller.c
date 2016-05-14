@@ -1551,15 +1551,15 @@ static flag_t push_command_queue(communication_controller_s * cc,controller_s * 
 	control_controller_s * control = controller->control;
 
 	g_mutex_lock(&(cc->mutex));
-	g_info("command : %d",control->command.part.value);
+	/*g_info("command : %d",control->command.part.value);*/
 	if(control->command.part.value == COMMAND_EMPTY){
 		control->command.all = command.all;
-		g_info("command write");
+		/*g_info("command write");*/
 	}
 	else{
 		if(rewrite == OK){
 			control->command.all = command.all;
-			g_info("command write");
+			/*g_info("command write");*/
 		}
 	}
 	g_mutex_unlock(&(cc->mutex));
@@ -2092,6 +2092,12 @@ static void button_clicked_valve_open(GtkButton * b,gpointer ud)
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
 
+	uint64_t flag = controller->config->flag;
+
+	if(!VALVE_DRY(flag)){
+		g_info("Нет зажвижки");
+		return ;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return ;
@@ -2107,6 +2113,11 @@ static void button_clicked_valve_close(GtkButton * b,gpointer ud)
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
 
+	uint64_t flag = controller->config->flag;
+	if(!VALVE_DRY(flag)){
+		g_info("Нет зажвижки");
+		return ;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return ;
