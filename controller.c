@@ -926,6 +926,7 @@ static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uin
 	flag_t * info = all_info;
 	flag_t i;
 	char * str;
+
 	get_info_controller(state,info);
 	if(*info == STATE_INFO_NORM){
 		gtk_label_set_text(label,STR_INFO_STATE_NORM);
@@ -1764,6 +1765,7 @@ static gboolean button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer 
 	}
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"ВВЕРХ\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1778,6 +1780,7 @@ static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpoin
 	}
 	command.part.value = COMMAND_LAFET_DOWN;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"ВНИЗ\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1792,6 +1795,7 @@ static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpoint
 	}
 	command.part.value = COMMAND_LAFET_RIGHT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"ВПРАВО\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1806,6 +1810,7 @@ static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointe
 	}
 	command.part.value = COMMAND_LAFET_LEFT;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"ВЛЕВО\"");
 	return FALSE;
 }
 static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1820,6 +1825,7 @@ static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpoin
 	}
 	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
+	g_info("Команда \"СТОП\"");
 	return FALSE;
 }
 #define BUTTON_WIDTH      70
@@ -1925,6 +1931,11 @@ static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * 
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
+	uint64_t flag = controller->config->flag;
+	if(!ACTUATOR_SPRAY(flag)){
+		g_info("Нет привода актуатор распыл");
+		return TRUE;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
@@ -1939,12 +1950,18 @@ static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * 
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
+	uint64_t flag = controller->config->flag;
+	if(!ACTUATOR_SPRAY(flag)){
+		g_info("Нет привода актуатор распыл");
+		return TRUE;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_SPRAY_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"Шире\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1953,12 +1970,18 @@ static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
+	uint64_t flag = controller->config->flag;
+	if(!ACTUATOR_RATE(flag)){
+		g_info("Нет привода актуатор литраж");
+		return TRUE;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_RATE_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"Уже\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1967,6 +1990,11 @@ static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e
 	communication_controller_s * communication_controller = bc->communication_controller;
 	controller_s * controller = communication_controller->current;
 	command_u command = {0};
+	uint64_t flag = controller->config->flag;
+	if(!ACTUATOR_RATE(flag)){
+		g_info("Нет привода актуатор литраж");
+		return TRUE;
+	}
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;

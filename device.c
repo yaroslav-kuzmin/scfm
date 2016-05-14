@@ -796,42 +796,52 @@ flag_t get_info_controller(state_controller_s * state,flag_t * info)
 	if(LIMIT_UP(lafet)){
 		*info = STATE_INFO_LIMIT_VERTICAL;
 		info ++;
+		g_info("предел по вертикали вверх");
 	}
 	else{
 		if(LIMIT_BOTTOM(lafet)){
 			*info = STATE_INFO_LIMIT_VERTICAL;
 			info ++;
+			g_info("предел по вертикали вниз");
 		}
 	}
 	if(LIMIT_LEFT(lafet)){
 		*info = STATE_INFO_LIMIT_HORIZONTAL;
 		info ++;
+		g_info("предел по горизонтали влево");
 	}
 	else{
 		if(LIMIT_RIGHT(lafet)){
 			*info = STATE_INFO_LIMIT_HORIZONTAL;
 			info ++;
+			g_info("предел по горизонтали вправо");
 		}
 	}
+
 	if(ERROR_VERTICAL(work)){
 		*info = STATE_INFO_CRASH_VERTICAL;
 		info ++;
+		g_info("авария вертикальной оси");
 	}
 	if(ERROR_HORIZONTAL(work)){
 		*info = STATE_INFO_CRASH_HORIZONTAL;
 		info ++;
+		g_info("авария горизонтальной оси");
 	}
 	if(ERROR_ACTUATOR_SPRAY(work)){
 		*info = STATE_INFO_CRASH_SPARY;
 		info ++;
+		g_info("авария актуатор распыл");
 	}
 	if(ERROR_ACTUATOR_RATE(work)){
 		*info = STATE_INFO_CRASH_RATE;
 		info ++;
+		g_info("авария актуатор литраж");
 	}
 	if(ERROR_VALVE(work)){
 		*info = STATE_INFO_CRASH_VALVE;
 		info++;
+		g_info("авария привод задвижки");
 	}
 	return SUCCESS;
 }
