@@ -1933,7 +1933,7 @@ static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * 
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
-		g_info("Нет привода актуатор распыл");
+		g_info("Нет привода актуатора распыл");
 		return TRUE;
 	}
 	if( controller == NULL){
@@ -1952,7 +1952,7 @@ static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * 
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
-		g_info("Нет привода актуатор распыл");
+		g_info("Нет привода актуатора распыл");
 		return TRUE;
 	}
 	if( controller == NULL){
@@ -1972,7 +1972,7 @@ static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
-		g_info("Нет привода актуатор литраж");
+		g_info("Нет привода актуатора литраж");
 		return TRUE;
 	}
 	if( controller == NULL){
@@ -1992,7 +1992,7 @@ static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
-		g_info("Нет привода актуатор литраж");
+		g_info("Нет привода актуатора литраж");
 		return TRUE;
 	}
 	if( controller == NULL){
