@@ -793,25 +793,25 @@ flag_t get_info_controller(state_controller_s * state,flag_t * info)
 
 	*info = STATE_INFO_NORM;
 
-	if(LIMIT_UP(lafet)){
+	if(!LIMIT_UP(lafet)){
 		*info = STATE_INFO_LIMIT_VERTICAL;
 		info ++;
 		g_info("предел по вертикали вверх");
 	}
 	else{
-		if(LIMIT_BOTTOM(lafet)){
+		if(!LIMIT_BOTTOM(lafet)){
 			*info = STATE_INFO_LIMIT_VERTICAL;
 			info ++;
 			g_info("предел по вертикали вниз");
 		}
 	}
-	if(LIMIT_LEFT(lafet)){
+	if(!LIMIT_LEFT(lafet)){
 		*info = STATE_INFO_LIMIT_HORIZONTAL;
 		info ++;
 		g_info("предел по горизонтали влево");
 	}
 	else{
-		if(LIMIT_RIGHT(lafet)){
+		if(!LIMIT_RIGHT(lafet)){
 			*info = STATE_INFO_LIMIT_HORIZONTAL;
 			info ++;
 			g_info("предел по горизонтали вправо");
