@@ -1942,6 +1942,7 @@ static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * 
 	}
 	command.part.value = COMMAND_SPRAY_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"Уже\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1981,7 +1982,7 @@ static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e
 	}
 	command.part.value = COMMAND_RATE_LESS;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
-	g_info("Команда \"Уже\"");
+	g_info("Команда \"Меньше\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -2001,6 +2002,7 @@ static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e
 	}
 	command.part.value = COMMAND_RATE_MORE;
 	push_command_queue(communication_controller,controller,command,NOT_OK);
+	g_info("Команда \"Больше\"");
 	return FALSE;
 }
 static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -2015,6 +2017,7 @@ static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gp
 	}
 	command.part.value = COMMAND_ACTUATOT_STOP;
 	push_command_queue(communication_controller,controller,command,OK);
+	g_info("Команда \"Стоп\"");
 	return FALSE;
 }
 
