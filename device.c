@@ -189,6 +189,12 @@ static int set_state_controller(uint16_t * dest,state_controller_s *state)
 	return SUCCESS;
 }
 
+flag_t copy_state_controller(state_controller_s * des,state_controller_s * src)
+{
+	memmove(des,src,sizeof(state_controller_s));
+	return SUCCESS;
+}
+
 static int connect_tcp(link_s * link)
 {
 	int rc;

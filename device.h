@@ -60,6 +60,7 @@ flag_t link_disconnect_controller(link_s * link);
 
 flag_t check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
 flag_t check_config_controller(config_controller_s * config_c,config_controller_s * config_d);
+flag_t copy_state_controller(state_controller_s * des,state_controller_s * src);
 
 #endif
 
