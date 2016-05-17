@@ -112,10 +112,11 @@ enum
 	MODE_CONFIGURATION
 };
 
+/*Состояние обектов */
 enum
 {
-	STATUS_NORM = 0,
-	STATUS_ERROR,
+	STATUS_ERROR= 0,
+	STATUS_NORM,
 	STATUS_WAIT,
 	AMOUNT_STATUS
 };
@@ -497,6 +498,7 @@ extern char STR_EMPTY[];
 typedef struct _link_s link_s;
 struct _link_s
 {
+	flag_t status;
 	void * connect;
 	uint8_t id;
 	int type;

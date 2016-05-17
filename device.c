@@ -69,6 +69,7 @@ int link_disconnect_controller(link_s * link)
 		}
 	}
 	link->connect = NULL;
+	link->status = STATUS_ERROR;
 
 	return SUCCESS;
 }
@@ -219,6 +220,7 @@ static int connect_tcp(link_s * link)
 		return FAILURE;
 	}
 	link->connect = ctx;
+	link->status = STATUS_NORM;
 	link->dest = g_slice_alloc0(MODBUS_TCP_MAX_ADU_LENGTH);
 	return SUCCESS;
 }
@@ -250,9 +252,11 @@ static int connect_uart(link_s * link)
 		return FAILURE;
 	}
 	link->connect = ctx;
+	link->status = STATUS_NORM;
 	link->dest = g_slice_alloc0(MODBUS_RTU_MAX_ADU_LENGTH);
 	return SUCCESS;
 }
+
 int check_config_controller(config_controller_s * config_c,config_controller_s * config_d)
 {
 	if(config_c->type != config_d->type){

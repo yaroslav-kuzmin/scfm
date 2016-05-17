@@ -59,9 +59,11 @@ typedef struct _connect_controller_s connect_controller_s;
 typedef struct _communication_controller_s communication_controller_s;
 struct _communication_controller_s
 {
-	int exit;
+	flag_t exit_communication;
+	flag_t exit_connect;
 
-	GThread * tid;
+	GThread * tid_communication;
+	GThread * tid_connect;
 	GMutex mutex;
 
 	GSList * list;
@@ -145,7 +147,7 @@ struct _block_controller_s
 
 	/*флаги управления*/
 
-	/*поток взыимодействия с конторлером*/
+	/*потоки взаимодействия с конторлером*/
 	communication_controller_s * communication_controller;
 
 	/*отображение блока управления в разных режимах*/
@@ -950,8 +952,8 @@ static int show_block_controller(gpointer data)
 		bc->run_show = NOT_OK;
 		return FALSE;
 	}
-	if(cc->tid == NULL){
-		/*поток не запушен*/
+	if(cc->tid_communication == NULL){
+		/*поток взаимодействия не запушен*/
 		bc->run_show = NOT_OK;
 		return FALSE;
 	}
@@ -2413,7 +2415,9 @@ static flag_t	changed_block_controller(block_controller_s * bc
 }
 
 /*****************************************************************************/
+/*                                                                           */
 /* Создание блока отображения свойств контроллера                            */
+/*                                                                           */
 /*****************************************************************************/
 
 static show_state_s show_state;
@@ -2425,8 +2429,8 @@ int select_block_controller(controller_s * controller)
 {
 	communication_controller_s * cc = block_controller.communication_controller;
 
-	if(cc->tid == NULL){
-		g_info("Нет подключения!");
+	if(cc->tid_communication == NULL){
+		g_info("Нет системы взаимодействия с контроллерами!");
 		cc->current = NULL;
 		return FAILURE;
 	}
@@ -2495,6 +2499,131 @@ GtkWidget * create_block_controller(void)
 /*                                                                           */
 /*****************************************************************************/
 
+/*uint32_t debug_id = 0;*/
+/*****************************************************************************/
+/* функци подключения контроллеров                                           */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/* функция  потока комуникации с контролерами */
+/*****************************************************************************/
+
+static flag_t controller_wr(communication_controller_s * cc,controller_s * controller)
+{
+	flag_t rc;
+	link_s * link = controller->link;
+	command_u command;
+	state_controller_s state;
+
+	rc = link_state_controller(link,&state);
+	if(rc == FAILURE){
+		/*TODO сделать реконнект*/
+		controller->object->status = STATUS_ERROR;
+	}
+	else{
+		/*g_debug("read controller");*/
+		g_mutex_lock(&(cc->mutex));
+		copy_state_controller(controller->state,&state);
+		command.all = controller->control->command.all;
+		controller->control->command.part.value = COMMAND_EMPTY;
+		g_mutex_unlock(&(cc->mutex));
+		if(command.part.value != COMMAND_EMPTY){
+			/*g_debug(" :> %ld ",command);*/
+			rc = command_controller(link,command);
+			if(rc == FAILURE){
+				/*TODO сделать реконнект*/
+				controller->object->status = STATUS_ERROR;
+			}
+		}
+	}
+	return SUCCESS;
+}
+
+static gpointer controllers_communication(gpointer ud)
+{
+	/*int rc;*/
+	communication_controller_s * cc = (communication_controller_s *)ud;
+	controller_s * controller;
+	/*link_s * link;*/
+	/*state_controller_s state;*/
+	/*command_u command;*/
+	/*GSList * list;*/
+
+	for(;;){
+		g_mutex_lock(&(cc->mutex));
+		controller = cc->current;
+		g_mutex_unlock(&(cc->mutex));
+		if(controller != NULL){
+#if 0
+			link = controller->link;
+			rc = link_state_controller(link,&state);
+			if(rc == FAILURE){
+				/*TODO сделать реконнект*/
+				controller->object->status = STATUS_ERROR;
+			}
+			else{
+				/*g_debug("read controller");*/
+				g_mutex_lock(&(cc->mutex));
+				copy_state_controller(controller->state,&state);
+				command.all = controller->control->command.all;
+				controller->control->command.part.value = COMMAND_EMPTY;
+				g_mutex_unlock(&(cc->mutex));
+				if(command.part.value != COMMAND_EMPTY){
+					/*g_debug(" :> %ld ",command);*/
+					rc = command_controller(link,command);
+					if(rc == FAILURE){
+						/*TODO сделать реконнект*/
+						controller->object->status = STATUS_ERROR;
+					}
+				}
+			} /*else*/
+#else
+			controller_wr(cc,controller);
+#endif
+		} /*if(controller != NULL)*/
+#if 0
+		/*проверка всех */
+		list = ac->list;
+		for(;list;){
+			controller = (controller_s*)list->data;
+			control = controller->control;
+			g_mutex_lock(&(cc->flag));
+			if(control->select == OK ){
+				g_mutex_unlock(&(cc->mutex));
+				link = controller->link;
+				state = controller->state;
+				g_mutex_lock(&(cc->m_state));
+				/*TODO вынести заполнение структуры в отдельную функцию*/
+				rc = link_state_controller(link,state);
+				g_mutex_unlock(&(cc->m_state));
+				if(rc == FAILURE){
+					/*TODO сделать реконнект*/
+					g_debug("reconnect");
+				}
+			}
+			g_mutex_unlock(&(cc->flag));
+			list = g_slist_next(list);
+		}
+#endif
+		/*debug_id ++;*/
+		/*g_debug("state controller : %d",debug_id);*/
+		/*TODO сделать возможное в реальном режиме менять таймаут*/
+		g_usleep(cc->timeout_current);
+		g_mutex_lock(&(cc->mutex));
+		if(cc->exit_communication == OK){
+			g_mutex_unlock(&(cc->mutex));
+			g_thread_exit(cc->tid_communication);
+		}
+	 	g_mutex_unlock(&(cc->mutex));
+	}
+	cc->tid_communication = NULL;
+	return NULL;
+}
+
+/*****************************************************************************/
+/* создание потоков подключения и взаимодействия                             */
+/*****************************************************************************/
+
 static int one_connect(controller_s * controller)
 {
 	int rc;
@@ -2532,91 +2661,6 @@ static int one_disconnect(controller_s * controller)
 	return link_disconnect_controller(link);
 }
 
-/*uint32_t debug_id = 0;*/
-/*****************************************************************************/
-/* функци подключения контроллеров                                           */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/* функция  потока комуникации с контролерами */
-/*****************************************************************************/
-static gpointer controllers_communication(gpointer ud)
-{
-	int rc;
-	communication_controller_s * cc = (communication_controller_s *)ud;
-	controller_s * controller;
-	link_s * link;
-	state_controller_s state;
-	command_u command;
-	/*GSList * list;*/
-
-	for(;;){
-		g_mutex_lock(&(cc->mutex));
-		controller = cc->current;
-		g_mutex_unlock(&(cc->mutex));
-		if(controller != NULL){
-			link = controller->link;
-			rc = link_state_controller(link,&state);
-			if(rc == FAILURE){
-				/*TODO сделать реконнект*/
-				controller->object->status = STATUS_ERROR;
-			}
-			else{
-				/*g_debug("read controller");*/
-				g_mutex_lock(&(cc->mutex));
-				copy_state_controller(controller->state,&state);
-				command.all = controller->control->command.all;
-				controller->control->command.part.value = COMMAND_EMPTY;
-				g_mutex_unlock(&(cc->mutex));
-				if(command.part.value != COMMAND_EMPTY){
-					/*g_debug(" :> %ld ",command);*/
-					rc = command_controller(link,command);
-					if(rc == FAILURE){
-						/*TODO сделать реконнект*/
-						controller->object->status = STATUS_ERROR;
-					}
-				}
-			} /*else*/
-		} /*if(controller != NULL)*/
-#if 0
-		/*проверка всех */
-		list = ac->list;
-		for(;list;){
-			controller = (controller_s*)list->data;
-			control = controller->control;
-			g_mutex_lock(&(cc->flag));
-			if(control->select == OK ){
-				g_mutex_unlock(&(cc->mutex));
-				link = controller->link;
-				state = controller->state;
-				g_mutex_lock(&(cc->m_state));
-				/*TODO вынести заполнение структуры в отдельную функцию*/
-				rc = link_state_controller(link,state);
-				g_mutex_unlock(&(cc->m_state));
-				if(rc == FAILURE){
-					/*TODO сделать реконнект*/
-					g_debug("reconnect");
-				}
-			}
-			g_mutex_unlock(&(cc->flag));
-			list = g_slist_next(list);
-		}
-#endif
-		/*debug_id ++;*/
-		/*g_debug("state controller : %d",debug_id);*/
-		/*TODO сделать возможное в реальном режиме менять таймаут*/
-		g_usleep(cc->timeout_current);
-		g_mutex_lock(&(cc->mutex));
-		if(cc->exit == OK){
-			g_mutex_unlock(&(cc->mutex));
-			g_thread_exit(cc->tid);
-		}
-	 	g_mutex_unlock(&(cc->mutex));
-	}
-	cc->tid = NULL;
-	return NULL;
-}
-
 static flag_t control_controllers_on(communication_controller_s * cc)
 {
 	int rc;
@@ -2627,8 +2671,8 @@ static flag_t control_controllers_on(communication_controller_s * cc)
 		return FAILURE;
 	}
 
-	if(cc->tid != NULL){
-		g_info("Поток коммуникации уже запущен!");
+	if(cc->tid_communication != NULL){
+		g_info("Система взаимодействия запущен!");
 		return FAILURE;
 	}
 
@@ -2643,9 +2687,9 @@ static flag_t control_controllers_on(communication_controller_s * cc)
 		list = g_slist_next(list);
 	}
 
-	cc->exit = NOT_OK;
+	cc->exit_communication = NOT_OK;
 	g_mutex_init(&(cc->mutex));
-	cc->tid = g_thread_new("controller",controllers_communication,cc);
+	cc->tid_communication = g_thread_new("controller",controllers_communication,cc);
 
 	return FAILURE;
 }
@@ -2655,11 +2699,12 @@ static flag_t control_controllers_off(communication_controller_s * cc)
 	int rc;
 	GSList * list = cc->list;
 
-	if(cc->tid != NULL){/*поток запущен*/
-		cc->exit = OK;
-		g_thread_join(cc->tid);
+	if(cc->tid_communication != NULL){
+		/*остновить поток */
+		cc->exit_communication = OK;
+		g_thread_join(cc->tid_communication);
 		g_mutex_clear(&(cc->mutex));
-		cc->tid = NULL;
+		cc->tid_communication = NULL;
 	}
 
 	if(list == NULL){
@@ -2678,7 +2723,6 @@ static flag_t control_controllers_off(communication_controller_s * cc)
 	}
 	return FAILURE;
 }
-
 
 flag_t control_controllers(flag_t mode)
 {
@@ -2706,8 +2750,11 @@ int init_all_controllers(void)
 	communication_controller.timeout_current =  DEFAULT_TIMEOUT_CURRENR;
 	communication_controller.timeout_all = DEFAULT_TIMEOUT_ALL;
 	communication_controller.timeout_config = DEFAULT_TIMEOUT_CONFIG;
-	communication_controller.exit = OK;
-	communication_controller.tid = NULL;
+	communication_controller.exit_communication = OK;
+	communication_controller.tid_communication = NULL;
+	communication_controller.exit_connect = OK;
+	communication_controller.tid_connect = NULL;
+
 
 	return SUCCESS;
 }
