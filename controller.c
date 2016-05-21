@@ -2509,8 +2509,7 @@ GtkWidget * create_block_controller(void)
 static gpointer controllers_connect(gpointer ud)
 {
 	communication_controller_s * cc = (communication_controller_s *)ud;
-
-	list = cc->list;
+	GSList * list = cc->list;
 	for(;list;){
 
 		g_usleep(cc->timeout_current);
