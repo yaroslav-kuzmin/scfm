@@ -289,3 +289,9 @@ GtkWidget * create_block_videocamera(void)
 	return label;
 }
 /*****************************************************************************/
+
+flag_t videocamera_status(videocamera_s * videocamera)
+{
+	return STATUS_ERROR;
+}
+/*****************************************************************************/

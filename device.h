@@ -44,23 +44,23 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-flag_t command_controller(link_s * link,command_u command);
+flag_t controller_type_device(config_controller_s * config);
+char * controller_name(config_controller_s * config);
+flag_t controller_state_valve(state_controller_s * state);
+flag_t controller_mode(state_controller_s * state);
+flag_t controller_state_fire_alarm(state_controller_s * state);
+flag_t controller_info(state_controller_s * state,flag_t * info);
 
-flag_t get_type_device(config_controller_s * config);
-char * get_name_controller(config_controller_s * config);
-flag_t get_state_valve(state_controller_s * state);
-flag_t get_mode_controller(state_controller_s * state);
-flag_t get_state_fire_alarm(state_controller_s * state);
-flag_t get_info_controller(state_controller_s * state,flag_t * info);
+flag_t link_controller_command(link_s * link,command_u command);
+flag_t link_controller_state(link_s * link,state_controller_s * state);
+flag_t link_controller_config(link_s * link,config_controller_s * config);
+flag_t link_controller_connect(link_s * link);
+flag_t link_controller_disconnect(link_s * link);
+flag_t link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
+flag_t link_check_connect(link_s * link);
 
-flag_t link_state_controller(link_s * link,state_controller_s * state);
-flag_t link_config_controller(link_s * link,config_controller_s * config);
-flag_t link_connect_controller(link_s * link);
-flag_t link_disconnect_controller(link_s * link);
-
-flag_t check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
-flag_t check_config_controller(config_controller_s * config_c,config_controller_s * config_d);
-flag_t copy_state_controller(state_controller_s * des,state_controller_s * src);
+flag_t controller_check_config(config_controller_s * config_c,config_controller_s * config_d);
+flag_t controller_copy_state(state_controller_s * des,state_controller_s * src);
 
 #endif
 

@@ -58,5 +58,6 @@ int select_block_controller(controller_s * controller);
 
 GtkWidget * create_block_controller(void);
 
+flag_t controller_status(controller_s * controller);
 #endif
 

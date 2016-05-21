@@ -1201,7 +1201,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	config = g_slice_alloc0(sizeof(config_controller_s));
 	state = g_slice_alloc0(sizeof(state_controller_s));
 
-	rc = check_link_controller(link,config,state);
+	rc = link_controller(link,config,state);
 	if(rc == FAILURE){
 		g_slice_free1(sizeof(link_s),link);
 		g_slice_free1(sizeof(config_controller_s),config);
@@ -1212,11 +1212,11 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	bsc->link = link;
 	bsc->config = config;
 	bsc->state = state;
-	bsc->name = get_name_controller(config);
+	bsc->name = controller_name(config);
 	/*TODO сообщенийние что проверка корректна*/
 	fill_block_info(bsc);
 
-	link_disconnect_controller(link);
+	link_controller_disconnect(link);
 }
 
 static void clicked_radio_button_tcp(GtkRadioButton * rb,gpointer ud)

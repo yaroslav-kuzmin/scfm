@@ -44,6 +44,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+flag_t object_status(object_s * object);
+
 int select_object(object_s * object);
 GtkWidget * create_block_object(void);
 

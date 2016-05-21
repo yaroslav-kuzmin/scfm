@@ -160,7 +160,7 @@ struct _object_s
 	uint32_t number;
 	char * name;
 	uint8_t type;
-	int status;
+	flag_t status;
 	object_s * parent;
 
 	void * property;
@@ -650,6 +650,7 @@ struct _control_controller_s
 typedef struct _controller_s controller_s;
 struct _controller_s
 {
+	flag_t status;
 	link_s * link;
 	char * name;
 	object_s * object;

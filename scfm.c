@@ -193,7 +193,7 @@ static GtkWidget * create_main_block(void)
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
 	gtk_window_set_position(GTK_WINDOW(win_main),GTK_WIN_POS_CENTER_ALWAYS);
 	/*TODO отладка*/
-	gtk_window_set_decorated(GTK_WINDOW(win_main),TRUE);
+	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 
 	g_signal_connect(win_main,"destroy",G_CALLBACK(window_destroy_main), NULL);
@@ -240,7 +240,7 @@ static flag_t check_size_window(void)
 	if( (width < DEFAULT_WIDTH_WINDOW) || (height < DEFAULT_HEIGHT_WINDOW)){
 		dialog_error("Минимальное разрешение экрана 1680x1050");
 		/*TODO отладка*/
-		/*exit(1);*/
+		exit(1);
 	}
 	return SUCCESS;
 }

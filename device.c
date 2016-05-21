@@ -50,11 +50,24 @@
 
 /*****************************************************************************/
 /*                                                                           */
+/*  Проверка подключения конторллера                                         */
+/*                                                                           */
+/*****************************************************************************/
+flag_t link_check_connect(link_s * link)
+{
+	if(link->connect == NULL){
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
+/*****************************************************************************/
+/*                                                                           */
 /*   Отключение от конторллера                                               */
 /*                                                                           */
 /*****************************************************************************/
 
-int link_disconnect_controller(link_s * link)
+flag_t link_controller_disconnect(link_s * link)
 {
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
@@ -112,7 +125,7 @@ int link_disconnect_controller(link_s * link)
 #error Увеличить колличество бит
 #endif
 
-static int set_config_controller(uint16_t * reg,config_controller_s * config)
+static flag_t set_config_controller(uint16_t * reg,config_controller_s * config)
 {
 	uint64_t temp;
 	uint32_t type;
@@ -170,7 +183,7 @@ static int set_config_controller(uint16_t * reg,config_controller_s * config)
 #define REG_D117   17
 #define REG_D118   18
 
-static int set_state_controller(uint16_t * dest,state_controller_s *state)
+static flag_t set_state_controller(uint16_t * dest,state_controller_s *state)
 {
 	state->lafet               = dest[REG_D100];
 	state->tic_vertical        = dest[REG_D101];
@@ -190,13 +203,13 @@ static int set_state_controller(uint16_t * dest,state_controller_s *state)
 	return SUCCESS;
 }
 
-flag_t copy_state_controller(state_controller_s * des,state_controller_s * src)
+flag_t controller_copy_state(state_controller_s * des,state_controller_s * src)
 {
 	memmove(des,src,sizeof(state_controller_s));
 	return SUCCESS;
 }
 
-static int connect_tcp(link_s * link)
+static flag_t connect_tcp(link_s * link)
 {
 	int rc;
 	char * address = link->address;
@@ -225,7 +238,7 @@ static int connect_tcp(link_s * link)
 	return SUCCESS;
 }
 
-static int connect_uart(link_s * link)
+static flag_t connect_uart(link_s * link)
 {
 	int rc;
 	char * device = link->device;
@@ -257,7 +270,7 @@ static int connect_uart(link_s * link)
 	return SUCCESS;
 }
 
-int check_config_controller(config_controller_s * config_c,config_controller_s * config_d)
+flag_t controller_check_config(config_controller_s * config_c,config_controller_s * config_d)
 {
 	if(config_c->type != config_d->type){
 		return FAILURE;
@@ -290,7 +303,7 @@ static uint16_t reg_D100 = 0x1064;
 #define AMOUNT_STATE_REGISTER    19
 
 /*считать состояние*/
-int link_state_controller(link_s * link,state_controller_s * state)
+flag_t link_controller_state(link_s * link,state_controller_s * state)
 {
  	int rc;
 	uint16_t * dest = link->dest;
@@ -301,7 +314,7 @@ int link_state_controller(link_s * link,state_controller_s * state)
 	}
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-		link_disconnect_controller(link);
+	link_controller_disconnect(link);
 		return FAILURE;
 	}
 	/*TODO запись чтение в разных потоках */
@@ -320,7 +333,7 @@ static uint16_t reg_D300 = 0x112C;
 #define AMOUNT_CONFIG_REGISTER    8
 
 /*считать конфигурацию*/
-int link_config_controller(link_s * link,config_controller_s * config)
+flag_t link_controller_config(link_s * link,config_controller_s * config)
 {
 	int rc;
 	uint16_t * dest = link->dest;
@@ -331,7 +344,7 @@ int link_config_controller(link_s * link,config_controller_s * config)
 	}
 	rc = modbus_read_registers(ctx,reg_D300,AMOUNT_CONFIG_REGISTER,dest);
 	if(rc == -1){
-		link_disconnect_controller(link);
+		link_controller_disconnect(link);
 		return FAILURE;
 	}
 	/*TODO запись чтение в разных потоках */
@@ -340,7 +353,7 @@ int link_config_controller(link_s * link,config_controller_s * config)
 	return SUCCESS;
 }
 
-int link_connect_controller(link_s * link)
+flag_t link_controller_connect(link_s * link)
 {
 	int rc;
 	switch(link->type){
@@ -357,18 +370,18 @@ int link_connect_controller(link_s * link)
 	return rc;
 }
 
-int check_link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+flag_t link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
 {
 	int rc;
-	rc = link_connect_controller(link);
+	rc = link_controller_connect(link);
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = link_config_controller(link,config);
+	rc = link_controller_config(link,config);
 	if(rc == FAILURE){
 		return rc;
 	}
-	rc = link_state_controller(link,state);
+	rc = link_controller_state(link,state);
 	if(rc == FAILURE){
 		return rc;
 	}
@@ -435,7 +448,7 @@ static uint16_t VALUE_MODE_AUTO   = 0x0001;
 static uint16_t VALUE_MODE_MANUAL = 0x0002;
 static uint16_t VALUE_MODE_CONFIG = 0x0004;
 
-static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
+static flag_t set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 {
 	switch(command.part.value){
 		case COMMAND_LAFET_UP:
@@ -555,7 +568,7 @@ static int set_value_command(command_u command,uint16_t * reg,uint16_t * value)
 	return SUCCESS;
 }
 
-int command_controller(link_s * link,command_u command)
+flag_t link_controller_command(link_s * link,command_u command)
 {
 	int rc;
 	modbus_t * ctx = (modbus_t*)link->connect;
@@ -570,7 +583,7 @@ int command_controller(link_s * link,command_u command)
 
 	rc = modbus_write_register(ctx,reg,value);
 	if(rc == -1){
-		link_disconnect_controller(link);
+		link_controller_disconnect(link);
 		return FAILURE;
 	}
 	return SUCCESS;
@@ -584,7 +597,7 @@ int command_controller(link_s * link,command_u command)
 /*****************************************************************************/
 
 static uint16_t min_type_lsd = 6;
-flag_t get_type_device(config_controller_s * config)
+flag_t controller_type_device(config_controller_s * config)
 {
 	flag_t type_device;
 	uint32_t type = config->type;
@@ -600,8 +613,8 @@ flag_t get_type_device(config_controller_s * config)
 
 	return type_device;
 }
-
-char * get_name_controller(config_controller_s * config)
+/*TODO  принимает и указатель в который записывет имя*/
+char * controller_name(config_controller_s * config)
 {
 	uint16_t name_device;
 	uint16_t liter_device;
@@ -644,7 +657,7 @@ char * get_name_controller(config_controller_s * config)
 	return g_strdup(pub->str);
 }
 
-flag_t get_state_valve(state_controller_s * state)
+flag_t controller_state_valve(state_controller_s * state)
 {
 	/*valve значение регистра  D110 */
 	/*
@@ -770,7 +783,7 @@ flag_t get_state_valve(state_controller_s * state)
 #define MODE_SAW(b)              (b & BIT_MODE_SAW)
 #define MODE_STEP(b)             (b & BIT_MODE_STEP)
 
-flag_t get_mode_controller(state_controller_s * state)
+flag_t controller_mode(state_controller_s * state)
 {
 	uint16_t work = state->work;
 	if(MODE_AUTO(work)){
@@ -791,11 +804,11 @@ flag_t get_mode_controller(state_controller_s * state)
 	return STATE_MODE_ERROR;
 }
 
-flag_t get_info_controller(state_controller_s * state,flag_t * info)
+flag_t controller_info(state_controller_s * state,flag_t * info)
 {
 	uint16_t work = state->work;
 	uint16_t lafet = state->lafet;
-	flag_t mode = get_mode_controller(state);
+	flag_t mode = controller_mode(state);
 
 	if(mode == STATE_MODE_ERROR){
 		return STATE_INFO_ERROR;
@@ -856,7 +869,7 @@ flag_t get_info_controller(state_controller_s * state,flag_t * info)
 	return SUCCESS;
 }
 
-flag_t get_state_fire_alarm(state_controller_s * state)
+flag_t controller_state_fire_alarm(state_controller_s * state)
 {
 	if(state->fire_alarm){
 		return STATE_FIRE_ALARM_ON;

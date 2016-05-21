@@ -238,35 +238,6 @@ static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkT
 
 	return rc;
 }
-/*TODO перенести в kernel*/
-static flag_t set_status_list(GSList * list)
-{
-	int rc;
-	int status = STATUS_NORM;
-
-	for(;list;){
-		object_s * o = (object_s*)list->data;
-		if(o->type == TYPE_GROUP){
-			rc = set_status_list(o->list);
-			o->status = rc;
-		}
-		else{
-			rc = o->status;
-		}
-		switch(rc){
-			case STATUS_ERROR:
-				status = rc;
-				break;
-			case STATUS_WAIT:
-			case STATUS_NORM:
-			default:
-				break;
-		}
-		list = g_slist_next(list);
-	}
-	return status;
-}
-
 
 static int show_block_tree(gpointer ud)
 {
@@ -281,7 +252,7 @@ static int show_block_tree(gpointer ud)
 		return TRUE;
 	}
 */
-	set_status_list(list_kernel());
+	kernel_status();
 
 	set_status_all_objects(bt,tree_model,&iter,NULL);
 

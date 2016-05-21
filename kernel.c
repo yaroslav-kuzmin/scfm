@@ -51,11 +51,9 @@
 #include "controller.h"
 
 /*****************************************************************************/
-/*    Общие переменые                                                        */
 /*****************************************************************************/
 
 /*****************************************************************************/
-/*    Локальные функции                                                      */
 /*****************************************************************************/
 
 static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object_s * parent)
@@ -90,6 +88,7 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object
 		object->parent = parent;
 		object->status = STATUS_WAIT;
 
+		/*TODO перенести в object*/
 		switch(type){
 			case TYPE_GROUP:
 				object->list = fill_gslict(number,&amount,object);
@@ -109,7 +108,6 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object
 		if(object != NULL){
 			list = g_slist_append(list,object);
 		}
-
 	}
 	*total_amount = amount;
 
@@ -117,9 +115,8 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object
 }
 
 /*****************************************************************************/
-/*    Общие функции                                                          */
 /*****************************************************************************/
-
+/*TODO переместить в object*/
 int add_object(object_s * parent,object_s * child)
 {
 	int rc;
@@ -216,6 +213,8 @@ int del_object(object_s * parent,object_s * child)
 	return SUCCESS;
 }
 
+/*****************************************************************************/
+/*****************************************************************************/
 #define MAX_NUMBER_OBJECT    0x000fffff
 object_s kernel;
 
@@ -270,4 +269,41 @@ int deinit_kernel(void)
 	g_slist_free_full(kernel.list,kernel_free);
 	return SUCCESS;
 }
+
 /*****************************************************************************/
+flag_t set_status_list(GSList * list)
+{
+	int rc;
+	int status = STATUS_NORM;
+
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		if(o->type == TYPE_GROUP){
+			rc = set_status_list(o->list);
+	 		o->status = rc;
+		}
+		else{
+			rc = object_status(o);
+		}
+		switch(rc){
+			case STATUS_ERROR:
+				status = rc;
+				break;
+			case STATUS_WAIT:
+			case STATUS_NORM:
+			default:
+				break;
+		}
+		list = g_slist_next(list);
+	}
+	return status;
+}
+
+flag_t kernel_status()
+{
+	GSList * list = kernel.list;
+	set_status_list(list);
+	return SUCCESS;
+}
+/*****************************************************************************/
+

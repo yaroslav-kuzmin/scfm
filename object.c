@@ -72,8 +72,8 @@ struct _block_object_s
 	GtkWidget * controller;
 };
 typedef struct _block_object_s block_object_s;
+
 /*****************************************************************************/
-/* локальные функции                                                         */
 /*****************************************************************************/
 static int change_object(block_object_s * block_object,int type)
 {
@@ -116,8 +116,8 @@ static GtkWidget * create_block_empty(void)
 	return label;
 }
 
+
 /*****************************************************************************/
-/*    Общие функции                                                          */
 /*****************************************************************************/
 block_object_s block_object;
 
@@ -198,3 +198,25 @@ GtkWidget * create_block_object(void)
 }
 
 /*****************************************************************************/
+flag_t object_status(object_s * object)
+{
+	flag_t rc = STATUS_ERROR;
+	int type = object->type;
+
+	switch (type){
+		case TYPE_CONTROLLER:
+			rc = controller_status(object->property);
+			break;
+		case TYPE_VIDEOCAMERA:
+			rc = videocamera_status(object->property);
+			break;
+		case TYPE_GROUP:
+		case TYPE_KERNEL:
+		case TYPE_UNKNOWN:
+		default:
+			break;
+	}
+	return rc;
+}
+/*****************************************************************************/
+

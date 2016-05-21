@@ -56,5 +56,6 @@ int select_block_videcamera(videocamera_s * videocamera);
 GtkWidget * create_block_setting_videocamera(void);
 GtkWidget * create_block_videocamera(void);
 
+flag_t videocamera_status(videocamera_s * videocamera);
 #endif
 
