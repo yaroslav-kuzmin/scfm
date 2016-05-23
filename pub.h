@@ -658,6 +658,7 @@ struct _controller_s
 	config_controller_s * config;
 	state_controller_s * state;
 	control_controller_s * control;
+	GMutex mutex;
 };
 /**************************************/
 #endif

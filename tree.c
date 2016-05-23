@@ -195,7 +195,6 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 #endif
 }
 
-
 static flag_t init_image(block_tree_s * bt)
 {
 	GdkPixbuf * buf;

@@ -73,6 +73,7 @@ struct _communication_controller_s
 	uint32_t timeout_current;
 	uint32_t timeout_all;
 	uint32_t timeout_config;
+	uint32_t timeout_reconnect;
 };
 
 typedef struct _show_state_s show_state_s;
@@ -1325,11 +1326,15 @@ static GtkWidget * create_block_state(block_controller_s * bc)
 /*                                                                           */
 /*****************************************************************************/
 
-static flag_t push_command_queue(communication_controller_s * cc,controller_s * controller,command_u command,flag_t rewrite)
+static flag_t push_command_queue(controller_s * controller,command_u command,flag_t rewrite)
 {
 	control_controller_s * control = controller->control;
+	flag_t rc;
 
-	g_mutex_lock(&(cc->mutex_communication));
+	rc = g_mutex_trylock(&(controller->mutex));
+	if(rc == FALSE){
+		return SUCCESS;
+	}
 	/*g_info("command : %d",control->command.part.value);*/
 	if(control->command.part.value == COMMAND_EMPTY){
 		control->command.all = command.all;
@@ -1341,7 +1346,7 @@ static flag_t push_command_queue(communication_controller_s * cc,controller_s * 
 			/*g_info("command write");*/
 		}
 	}
-	g_mutex_unlock(&(cc->mutex_communication));
+	g_mutex_unlock(&(controller->mutex));
 
 	return SUCCESS;
 }
@@ -1354,12 +1359,17 @@ static flag_t set_button_not_active(GtkButton * but)
 static void button_clicked_control_mode(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 
-	if( controller == NULL){
+	if(controller == NULL){
 		g_info("Не выбран контролер");
+		return ;
+	}
+
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
 		return ;
 	}
 
@@ -1370,11 +1380,11 @@ static void button_clicked_control_mode(GtkButton * b,gpointer ud)
 
 	if(bc->control->mode == STATE_MODE_AUTO){
 		command.part.value = COMMAND_MODE_MANUAL;
-		push_command_queue(communication_controller,controller,command,NOT_OK);
+		push_command_queue(controller,command,NOT_OK);
 	}
 	else{
 		command.part.value = COMMAND_MODE_AUTO;
-		push_command_queue(communication_controller,controller,command,NOT_OK);
+		push_command_queue(controller,command,NOT_OK);
 	}
 }
 
@@ -1534,75 +1544,95 @@ static GtkWidget * create_block_lafet_precise(block_controller_s * bc)
 static gboolean button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_LAFET_UP;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"ВВЕРХ\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_LAFET_DOWN;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"ВНИЗ\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_LAFET_RIGHT;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"ВПРАВО\"");
 	return FALSE;
 }
 static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_LAFET_LEFT;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"ВЛЕВО\"");
 	return FALSE;
 }
 static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_LAFET_STOP;
-	push_command_queue(communication_controller,controller,command,OK);
+	push_command_queue(controller,command,OK);
 	g_info("Команда \"СТОП\"");
 	return FALSE;
 }
@@ -1706,8 +1736,8 @@ static GtkWidget * create_block_control_lafet(block_controller_s * bc)
 static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
@@ -1718,16 +1748,20 @@ static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * 
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_SPRAY_LESS;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"Уже\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
@@ -1738,16 +1772,20 @@ static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * 
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_SPRAY_MORE;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"Шире\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
@@ -1758,16 +1796,20 @@ static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_RATE_LESS;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"Меньше\"");
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	uint64_t flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
@@ -1778,23 +1820,31 @@ static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_RATE_MORE;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 	g_info("Команда \"Больше\"");
 	return FALSE;
 }
 static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return FALSE;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return FAILURE;
+	}
 	command.part.value = COMMAND_ACTUATOT_STOP;
-	push_command_queue(communication_controller,controller,command,OK);
+	push_command_queue(controller,command,OK);
 	g_info("Команда \"Стоп\"");
 	return FALSE;
 }
@@ -1897,8 +1947,8 @@ static GtkWidget * create_block_actuator(block_controller_s * bc)
 static void button_clicked_valve_open(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 
 	uint64_t flag = controller->config->flag;
@@ -1911,15 +1961,19 @@ static void button_clicked_valve_open(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return ;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return;
+	}
 	command.part.value = COMMAND_VALVE_OPEN;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 }
 
 static void button_clicked_valve_close(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 
 	uint64_t flag = controller->config->flag;
@@ -1931,8 +1985,12 @@ static void button_clicked_valve_close(GtkButton * b,gpointer ud)
 		g_info("Не выбран контролер");
 		return ;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return;
+	}
 	command.part.value = COMMAND_VALVE_CLOSE;
-	push_command_queue(communication_controller,controller,command,NOT_OK);
+	push_command_queue(controller,command,NOT_OK);
 }
 
 static void button_clicked_valve_run(GtkButton * b,gpointer ud)
@@ -2025,32 +2083,40 @@ static GtkWidget * create_block_control_valve(block_controller_s * bc)
 static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command ={0};
 	if( controller == NULL){
 		g_info("Не выбран контролер");
 		return;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return ;
+	}
 	if(bc->control->oscillation_flag == COMMAND_OSCILLATION_STOP){
 		command.part.value = bc->control->oscillation_command.part.value;
 		bc->control->oscillation_flag = COMMAND_OSCILLATION_RUN;
-		push_command_queue(communication_controller,controller,command,NOT_OK);
+		push_command_queue(controller,command,NOT_OK);
 	}
 }
 static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 {
  	block_controller_s * bc = (block_controller_s*)ud;
-	communication_controller_s * communication_controller = bc->communication_controller;
-	controller_s * controller = communication_controller->current;
+	communication_controller_s * cc = bc->communication_controller;
+	controller_s * controller = cc->current;
 	command_u command = {0};
 	if( controller == NULL){
 	 	g_info("Не выбран контролер");
 		return;
 	}
+	if(cc->tid_communication == NULL){
+		g_info("Система взаимодействия не запущена!");
+		return ;
+	}
 	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
 	command.part.value = COMMAND_OSCILLATION_STOP;
-	push_command_queue(communication_controller,controller,command,OK);
+	push_command_queue(controller,command,OK);
 }
 static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
@@ -2248,6 +2314,14 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 	return box;
 }
 
+/*****************************************************************************/
+/*                                                                           */
+/* Создание блока отображения свойств контроллера                            */
+/*                                                                           */
+/* Выбор контроллера                                                         */
+/*                                                                           */
+/*****************************************************************************/
+
 static flag_t	changed_block_controller(block_controller_s * bc
                                       ,config_controller_s * controller_config
                                       ,state_controller_s * controller_state)
@@ -2416,14 +2490,6 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	return SUCCESS;
 }
 
-/*****************************************************************************/
-/*                                                                           */
-/* Создание блока отображения свойств контроллера                            */
-/*                                                                           */
-/* Выбор контроллера                                                         */
-/*                                                                           */
-/*****************************************************************************/
-
 static show_state_s show_state;
 static show_control_s show_control;
 static block_controller_s block_controller;
@@ -2501,18 +2567,70 @@ GtkWidget * create_block_controller(void)
 /* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
 /*                                                                           */
 /*****************************************************************************/
+static flag_t controller_link(controller_s * controller)
+{
+	int rc;
+	link_s * link = controller->link;
+	config_controller_s check;
+	config_controller_s * config = controller->config;
+	state_controller_s * state = controller->state;
 
-/*uint32_t debug_id = 0;*/
+	if(link->connect != NULL){
+		/*TODO сообщать о неполадке из потока  */
+		/*g_info("Контролер уже подключен : %s",controller->name);*/
+		controller->status = STATUS_NORM;
+		return SUCCESS;
+	}
+	rc = link_controller(link,&check,state);
+	if(rc == FAILURE){
+		controller->status = STATUS_ERROR;
+		return rc;
+	}
+	rc = controller_check_config(&check,config);
+	if(rc == FAILURE){
+		/*TODO перезапись базы данных*/
+		/*g_info("Данные из контроллера %s не совпадают с данными из базы данных!",controller->name);*/
+		link_controller_disconnect(link);
+		controller->status = STATUS_ERROR;
+		return rc;
+	}
+	controller->status = STATUS_NORM;
+	return SUCCESS;
+}
+
 /*****************************************************************************/
-/* функци подключения контроллеров                                           */
+/* функци переподключения контроллеров                                           */
 /*****************************************************************************/
-static gpointer controllers_connect(gpointer ud)
+static gpointer controllers_reconnect(gpointer ud)
 {
 	communication_controller_s * cc = (communication_controller_s *)ud;
+	controller_s * controller;
 	GSList * list = cc->list;
-	for(;list;){
+	uint32_t timeout_reconnect;
 
-		g_usleep(cc->timeout_current);
+	for(;;){
+		g_mutex_lock(&(cc->mutex_connect));
+		timeout_reconnect = cc->timeout_reconnect;
+		g_mutex_unlock(&(cc->mutex_connect));
+
+		g_usleep(timeout_reconnect);
+		list = cc->list;
+		for(;list;){
+			controller = (controller_s*)list->data;
+			g_mutex_lock(&(controller->mutex));
+			if(controller->status == STATUS_ERROR){
+				controller_link(controller);
+			}
+			g_mutex_unlock(&(controller->mutex));
+		}
+
+		g_mutex_lock(&(cc->mutex_connect));
+		if(cc->exit_connect == OK){
+			g_mutex_unlock(&(cc->mutex_connect));
+			g_thread_exit(cc->tid_connect);
+		}
+	 	g_mutex_unlock(&(cc->mutex_connect));
+		cc->tid_connect = NULL;
 	}
 	return NULL;
 }
@@ -2520,36 +2638,35 @@ static gpointer controllers_connect(gpointer ud)
 /* функция  потока комуникации с контролерами */
 /*****************************************************************************/
 
-static flag_t controller_wr(communication_controller_s * cc,controller_s * controller)
+static flag_t controller_wr(controller_s * controller)
 {
 	flag_t rc;
 	link_s * link = controller->link;
 	command_u command;
 	state_controller_s state;
 
+	rc = g_mutex_trylock(&(controller->mutex));
+	if(rc == FALSE){
+		return SUCCESS;
+	}
 	rc = link_controller_state(link,&state);
 	if(rc == FAILURE){
-		g_mutex_lock(&(cc->mutex_communication));
 		controller->status = STATUS_ERROR;
-		g_mutex_unlock(&(cc->mutex_communication));
 	}
 	else{
 		/*g_debug("read controller");*/
-		g_mutex_lock(&(cc->mutex_communication));
 		controller_copy_state(controller->state,&state);
 		command.all = controller->control->command.all;
 		controller->control->command.part.value = COMMAND_EMPTY;
-		g_mutex_unlock(&(cc->mutex_communication));
 		if(command.part.value != COMMAND_EMPTY){
 			/*g_debug(" :> %ld ",command);*/
 			rc = link_controller_command(link,command);
 			if(rc == FAILURE){
-				g_mutex_lock(&(cc->mutex_communication));
 				controller->status = STATUS_ERROR;
-				g_mutex_unlock(&(cc->mutex_communication));
 			}
 		}
 	}
+	g_mutex_unlock(&(controller->mutex));
 	return SUCCESS;
 }
 
@@ -2565,7 +2682,7 @@ static gpointer controllers_communication(gpointer ud)
 		controller = cc->current;
 		g_mutex_unlock(&(cc->mutex_communication));
 		if(controller != NULL){
-			controller_wr(cc,controller);
+			controller_wr(controller);
 		}
 #if 0
 		/*проверка всех */
@@ -2614,43 +2731,29 @@ static gpointer controllers_communication(gpointer ud)
 /*****************************************************************************/
 /* создание потоков подключения и взаимодействия                             */
 /*****************************************************************************/
-
-static int one_connect(controller_s * controller)
+static flag_t controller_init_connect(controller_s * controller)
 {
-	int rc;
-	link_s * link = controller->link;
-	config_controller_s check;
-	config_controller_s * config = controller->config;
-	state_controller_s * state = controller->state;
-
-	if(link->connect != NULL){
-		g_info("Контролер уже подключен : %s",controller->name);
-		return SUCCESS;
-	}
-	rc = link_controller(link,&check,state);
+	flag_t rc = controller_link(controller);
 	if(rc == FAILURE){
 		g_info("Нет подключения к контроллеру : %s",controller->name);
 		return rc;
 	}
-	rc = controller_check_config(&check,config);
-	if(rc == FAILURE){
-		/*TODO перезапись базы данных*/
-		g_info("Данные из контроллера %s не совпадают с данными из базы данных!",controller->name);
-		link_controller_disconnect(link);
-		return rc;
-	}
-	controller->status = STATUS_NORM;
+	g_mutex_init(&(controller->mutex));
 	return SUCCESS;
 }
 
-static int one_disconnect(controller_s * controller)
+static flag_t controller_deinit_connect(controller_s * controller)
 {
+	flag_t rc;
 	link_s * link = controller->link;
 	if(link->connect == NULL){
 		g_info("Контролер не подключен : %s",controller->name);
 		return FAILURE;
 	}
-	return link_controller_disconnect(link);
+	rc = link_controller_disconnect(link);
+	g_mutex_clear(&(controller->mutex));
+	controller->status = STATUS_ERROR;
+	return rc;
 }
 
 static flag_t control_controllers_on(communication_controller_s * cc)
@@ -2671,11 +2774,14 @@ static flag_t control_controllers_on(communication_controller_s * cc)
 	/*TODO перенести в отдельный поток*/
 	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
-		rc = one_connect(controller);
+		rc = controller_init_connect(controller);
 		if(rc == SUCCESS){
 			g_info("Подключился к %s",controller->name);
-			/*TODO установить статус */
 			controller->object->status = STATUS_NORM;
+		}
+		else{
+			g_info("Несмог подключится к %s",controller->name);
+			controller->object->status = STATUS_ERROR;
 		}
 		list = g_slist_next(list);
 	}
@@ -2683,6 +2789,10 @@ static flag_t control_controllers_on(communication_controller_s * cc)
 	cc->exit_communication = NOT_OK;
 	g_mutex_init(&(cc->mutex_communication));
 	cc->tid_communication = g_thread_new("communication",controllers_communication,cc);
+
+	cc->exit_connect = NOT_OK;
+	g_mutex_init(&(cc->mutex_connect));
+	cc->tid_connect = g_thread_new("reconnect",controllers_reconnect,cc);
 
 	return FAILURE;
 }
@@ -2698,16 +2808,28 @@ static flag_t control_controllers_off(communication_controller_s * cc)
 	}
 	if(cc->tid_communication != NULL){
 		/*остновить поток */
+		g_mutex_lock(&(cc->mutex_communication));
 		cc->exit_communication = OK;
+		g_mutex_unlock(&(cc->mutex_communication));
 		g_thread_join(cc->tid_communication);
 		g_mutex_clear(&(cc->mutex_communication));
 		cc->tid_communication = NULL;
 	}
 
+	if(cc->tid_connect != NULL){
+		/*остновить поток */
+		g_mutex_lock(&(cc->mutex_connect));
+		cc->exit_connect = OK;
+		g_mutex_lock(&(cc->mutex_connect));
+		g_thread_join(cc->tid_connect);
+		g_mutex_clear(&(cc->mutex_connect));
+		cc->tid_connect = NULL;
+	}
+
   /*TODO перенести в отдельный поток*/
 	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
-		rc = one_disconnect(controller);
+		rc = controller_deinit_connect(controller);
 		if(rc == SUCCESS){
 			g_info("Отключился от %s",controller->name);
 			controller->object->status = STATUS_WAIT;
@@ -2735,7 +2857,8 @@ flag_t controller_status(controller_s * controller)
 {
 	communication_controller_s * cc = &communication_controller;
 	GSList * list = cc->list;
-	flag_t flag = STATUS_WAIT;
+	flag_t flag = controller->object->status;
+	flag_t rc;
 
 	if(list == NULL){
 		return flag;
@@ -2743,10 +2866,14 @@ flag_t controller_status(controller_s * controller)
 	if(cc->tid_communication == NULL){
 		return flag;
 	}
-	g_mutex_lock(&(cc->mutex_communication));
-	flag = controller->status;
-	g_mutex_unlock(&(cc->mutex_communication));
-	controller->object->status = flag;
+
+	rc = g_mutex_trylock(&(controller->mutex));
+	if(rc == TRUE){
+		flag = controller->status;
+		g_mutex_unlock(&(controller->mutex));
+		controller->object->status = flag;
+	}
+
 	return flag;
 }
 
@@ -2754,6 +2881,7 @@ flag_t controller_status(controller_s * controller)
 #define DEFAULT_TIMEOUT_CURRENR        500000       /*1000000*/      /*   250000        250 милесекунд */
 #define DEFAULT_TIMEOUT_ALL            3000000      /* 3 секунды */
 #define DEFAULT_TIMEOUT_CONFIG         600000000    /* 600 секунд*/
+#define DEFAULT_TIMEOUT_RECONNECT      3000000      /* 3 секунды */
 
 int init_all_controllers(void)
 {
@@ -2764,6 +2892,7 @@ int init_all_controllers(void)
 	cc->timeout_current =  DEFAULT_TIMEOUT_CURRENR;
 	cc->timeout_all = DEFAULT_TIMEOUT_ALL;
 	cc->timeout_config = DEFAULT_TIMEOUT_CONFIG;
+	cc->timeout_reconnect = DEFAULT_TIMEOUT_RECONNECT;
 	cc->exit_communication = OK;
 	cc->tid_communication = NULL;
 	cc->exit_connect = OK;
