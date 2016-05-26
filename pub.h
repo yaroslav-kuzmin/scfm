@@ -498,7 +498,6 @@ extern char STR_EMPTY[];
 typedef struct _link_s link_s;
 struct _link_s
 {
-	flag_t status;
 	void * connect;
 	uint8_t id;
 	int type;
@@ -536,7 +535,6 @@ struct _config_controller_s
 	double rate_pressure;
 	double rate_valve_analog;
 };
-
 
 /* Состояние контроллера */
 enum
@@ -643,22 +641,29 @@ typedef struct _control_controller_s control_controller_s;
 struct _control_controller_s
 {
 	command_u	command;
+	GMutex mutex;
+	GThread * thread;
+	uint32_t timeout;
 };
+
+extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];
+extern char STATUS_ERROR_DISCONNECT[];
 
 #define MIN_ID     1
 #define MAX_ID     247
 typedef struct _controller_s controller_s;
 struct _controller_s
 {
-	flag_t status;
-	link_s * link;
-	char * name;
 	object_s * object;
+	char * name;
 
+	flag_t status;
+	char * str_status;
+
+	link_s * link;
 	config_controller_s * config;
 	state_controller_s * state;
 	control_controller_s * control;
-	GMutex mutex;
 };
 /**************************************/
 #endif
