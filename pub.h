@@ -112,7 +112,7 @@ enum
 	MODE_CONFIGURATION
 };
 
-/*Состояние обектов */
+/*Состояние обектов и состояние конторллера*/
 enum
 {
 	STATUS_ERROR= 0,
@@ -120,6 +120,11 @@ enum
 	STATUS_WAIT,
 	AMOUNT_STATUS
 };
+
+/* расширеная информация о состоянии*/
+extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];
+extern char STATUS_ERROR_DISCONNECT[];
+
 /**************************************/
 
 #define FIRST_NUMBER_GROUP     0
@@ -513,12 +518,6 @@ struct _link_s
 	uint8_t stop_bit;
 };
 
-enum
-{
-	TYPE_DEVICE_LSD = 0,
-	TYPE_DEVICE_ROBOT,
-	AMOUNT_TYPE_DEVICE
-};
 
 typedef struct _config_controller_s config_controller_s;
 struct _config_controller_s
@@ -637,6 +636,7 @@ union _command_u
 	uint64_t all;
 	command_part_s part;
 };
+
 typedef struct _control_controller_s control_controller_s;
 struct _control_controller_s
 {
@@ -646,9 +646,12 @@ struct _control_controller_s
 	uint32_t timeout;
 };
 
-extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];
-extern char STATUS_ERROR_DISCONNECT[];
-
+enum
+{
+	TYPE_DEVICE_LSD = 0,
+	TYPE_DEVICE_ROBOT,
+	AMOUNT_TYPE_DEVICE
+};
 #define MIN_ID     1
 #define MAX_ID     247
 typedef struct _controller_s controller_s;
@@ -656,6 +659,7 @@ struct _controller_s
 {
 	object_s * object;
 	char * name;
+	flag_t type;
 
 	flag_t status;
 	char * str_status;
