@@ -239,7 +239,6 @@ static flag_t check_size_window(void)
 
 	if( (width < DEFAULT_WIDTH_WINDOW) || (height < DEFAULT_HEIGHT_WINDOW)){
 		dialog_error("Минимальное разрешение экрана 1680x1050");
-		/*TODO отладка*/
 		exit(1);
 	}
 	return SUCCESS;
