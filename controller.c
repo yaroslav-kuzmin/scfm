@@ -658,8 +658,8 @@ static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 	return SUCCESS;
 }
 
-static char STR_INFO_STATE_WAIT[]             = "Установка : Неподключина!";
-static char STR_INFO_STATE_NORM[]             = "Установка : Норма";
+static char STR_INFO_STATE_WAIT[]             = "Нет подключина!";
+static char STR_INFO_STATE_NORM[]             = "Норма";
 static char STR_INFO_STATE_LIMIT_VERTICAL[]   = "Предел по вертикале ";
 static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
 static char STR_INFO_STATE_CRASH_VERTICAL[]   = "Авария вертикальной оси";
@@ -956,6 +956,8 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	GtkWidget * frame_mode;
 	GtkWidget * lab_mode;
 	GtkWidget * frame_state;
+	GtkWidget * box_state;
+	GtkWidget * lab_static;
 	GtkWidget * lab_state;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -974,26 +976,36 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	gtk_frame_set_shadow_type(GTK_FRAME(frame_state),GTK_SHADOW_NONE);
 	gtk_widget_set_size_request(frame_state,-1,40);
 
+	box_state = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+
+	lab_static = gtk_label_new("Cостояние установки :");
+
 	lab_state = gtk_label_new(STR_INFO_STATE_WAIT);
 	layout_widget(lab_state,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_widget_set_size_request(lab_state,300,-1);
 	bc->state->lab_state = GTK_LABEL(lab_state);
 
-	gtk_container_add(GTK_CONTAINER(frame_mode),lab_mode);
-	gtk_container_add(GTK_CONTAINER(frame_state),lab_state);
-
 	gtk_box_pack_start(GTK_BOX(box),frame_mode,TRUE,TRUE,20);
 	gtk_box_pack_start(GTK_BOX(box),frame_state,TRUE,TRUE,20);
+
+	gtk_container_add(GTK_CONTAINER(frame_mode),lab_mode);
+	gtk_container_add(GTK_CONTAINER(frame_state),box_state);
+
+	gtk_box_pack_start(GTK_BOX(box_state),lab_static,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(box_state),lab_state,TRUE,TRUE,0);
 
 	gtk_widget_show(box);
 	gtk_widget_show(frame_mode);
 	gtk_widget_show(lab_mode);
 	gtk_widget_show(frame_state);
+	gtk_widget_show(box_state);
+ 	gtk_widget_show(lab_static);
 	gtk_widget_show(lab_state);
 
 	apply_style_message_norm(frame_mode,NULL);
 	apply_style_message_norm(frame_state,NULL);
 	apply_style_message_alarm(lab_mode,NULL);
+	apply_style_message_norm(lab_static,NULL);
 	apply_style_message_alarm(lab_state,NULL);
  	return box;
 }
@@ -1301,6 +1313,11 @@ static flag_t push_command_queue(controller_s * controller,command_u command,fla
 	control_controller_s * control = controller->control;
 
 	g_mutex_lock(&(control->mutex));
+	if(control->thread == NULL){
+		g_mutex_unlock(&(control->mutex));
+		return FAILURE;
+	}
+
 	/*g_info("command : %d",control->command.part.value);*/
 	if(control->command.part.value == COMMAND_EMPTY){
 		control->command.all = command.all;
@@ -2389,19 +2406,25 @@ static block_controller_s block_controller;
 int select_block_controller(controller_s * controller)
 {
 	controller_s * old_controller = block_controller.current;
+	control_controller_s * control;
+	GThread * thread;
 
 	if(controller == NULL){
 		block_controller.stop_show = OK;
 		block_controller.current = NULL;
 		if(old_controller != NULL){
-			g_mutex_lock(&(old_controller->control->mutex));
+			control = old_controller->control;
+			g_mutex_lock(&(control->mutex));
 			controller->control->timeout = DEFAULT_TIMEOUT_ALL;
-			g_mutex_unlock(&(old_controller->control->mutex));
+			g_mutex_unlock(&(control->mutex));
 		}
 		return SUCCESS;
 	}
-
-	if(controller->control->thread == NULL){
+	control = controller->control;
+	g_mutex_lock(&(control->mutex));
+	thread = control->thread;
+	g_mutex_unlock(&(control->mutex));
+	if(thread == NULL){
 		g_info("Поток управления контроллером %s не запушен!",controller->name);
 		block_controller.current = NULL;
 		return FAILURE;
@@ -2411,10 +2434,10 @@ int select_block_controller(controller_s * controller)
 
 	block_controller.current = controller;
 
-	g_mutex_lock(&(controller->control->mutex));
-	controller->control->command.all = COMMAND_EMPTY;
-	controller->control->timeout = DEFAULT_TIMEOUT_CURRENR;
-	g_mutex_unlock(&(controller->control->mutex));
+	g_mutex_lock(&(control->mutex));
+	control->command.all = COMMAND_EMPTY;
+	control->timeout = DEFAULT_TIMEOUT_CURRENR;
+	g_mutex_unlock(&(control->mutex));
 
 	if(block_controller.run_show == NOT_OK){
 	 	block_controller.run_show = OK;
@@ -2572,7 +2595,11 @@ static gpointer controller_communication(gpointer ud)
 		g_usleep(timeout);
 	}
 	/*TODO возможна колизия*/
+
+	g_mutex_lock(&(control->mutex));
 	control->thread = NULL;
+	controller->status = STATUS_OFF;
+	g_mutex_unlock(&(control->mutex));
 	return NULL;
 }
 
@@ -2584,6 +2611,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 {
 	int i;
 	GSList * list = bc->list_controllers;
+	GThread * thread;
 
 	if( list == NULL){
 		g_info("Нет контролеров 1");
@@ -2594,7 +2622,10 @@ static flag_t control_controllers_on(block_controller_s * bc)
 		controller_s * controller = (controller_s*)list->data;
 		control_controller_s * control = controller->control;
 
-		if(control->thread == NULL){
+		g_mutex_lock(&(control->mutex));
+		thread = control->thread;
+		g_mutex_unlock(&(control->mutex));
+		if(thread == NULL){
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_string_printf(pub,"controller_%04d",i);
 			control->thread = g_thread_new(pub->str,controller_communication,controller);
@@ -2612,6 +2643,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 static flag_t control_controllers_off(block_controller_s * bc)
 {
 	GSList * list = bc->list_controllers;
+	GThread * thread;
 
 	if(list == NULL){
 		g_info("Нет контролеров 2");
@@ -2622,7 +2654,10 @@ static flag_t control_controllers_off(block_controller_s * bc)
 		controller_s * controller = (controller_s*)list->data;
 		control_controller_s *control = controller->control;
 
-		if(control->thread != NULL){
+		g_mutex_lock(&(control->mutex));
+		thread = control->thread;
+		g_mutex_unlock(&(control->mutex));
+		if(thread != NULL){
 			g_mutex_lock(&(control->mutex));
 			control->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
 			g_mutex_unlock(&(control->mutex));
@@ -2648,19 +2683,25 @@ flag_t control_controllers(flag_t mode)
 
 flag_t controller_status(controller_s * controller)
 {
-	flag_t flag;
+	flag_t flag = STATUS_OFF;
 	control_controller_s * control;
+	GThread * thread;
 
 	if(controller == NULL){
-		return FAILURE;
+		return flag;
+	}
+
+	control = controller->control;
+
+	g_mutex_lock(&(control->mutex));
+	thread = control->thread;
+	g_mutex_unlock(&(control->mutex));
+	if(thread == NULL){
+		controller->object->status = flag;
+		return flag;
 	}
 
 	flag = controller->object->status;
-	control = controller->control;
-
-	if(control->thread == NULL){
-		return flag;
-	}
 
 	g_mutex_lock(&(control->mutex));
 	flag = controller->status;
@@ -2697,7 +2738,7 @@ controller_s * init_controller(object_s * object)
 	GSList * list = block_controller.list_controllers;
 
 	controller = g_slice_alloc0(sizeof(controller_s));
-	controller->status = STATUS_WAIT;
+	controller->status = STATUS_OFF;
 	controller->link = g_slice_alloc0(sizeof(link_s));
 	controller->config = g_slice_alloc0(sizeof(config_controller_s));
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));

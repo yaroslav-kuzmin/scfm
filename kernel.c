@@ -87,7 +87,7 @@ static GSList * fill_gslict(uint32_t number_group,uint32_t * total_amount,object
 		object->property = NULL;
 		object->list = NULL;
 		object->parent = parent;
-		object->status = STATUS_WAIT;
+		object->status = STATUS_OFF;
 
 		/*TODO перенести в object*/
 		switch(type){
@@ -288,6 +288,7 @@ flag_t set_status_list(GSList * list)
 		}
 		switch(rc){
 			case STATUS_ERROR:
+			case STATUS_OFF:
 				status = rc;
 				break;
 			case STATUS_WAIT:
@@ -295,6 +296,7 @@ flag_t set_status_list(GSList * list)
 			default:
 				break;
 		}
+
 		list = g_slist_next(list);
 	}
 	return status;

@@ -134,7 +134,7 @@ static flag_t fill_treeview(block_tree_s * bt)
 	GtkTreeModel * tree_model;
 	GtkTreeIter tree_iter;
 	GSList * list;
-	GdkPixbuf * image = bt->image[STATUS_WAIT];
+	GdkPixbuf * image = bt->image[STATUS_OFF];
 
 	select =	gtk_tree_view_get_selection (treeview);
 	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter);
@@ -204,6 +204,8 @@ static flag_t init_image(block_tree_s * bt)
 	bt->image[STATUS_ERROR] = buf;
 	buf = get_resource_image(RESOURCE_STYLE,"tree-wait");
 	bt->image[STATUS_WAIT] = buf;
+	buf = get_resource_image(RESOURCE_STYLE,"tree-off");
+	bt->image[STATUS_OFF] = buf;
 
 	return SUCCESS;
 }
@@ -217,6 +219,7 @@ static flag_t set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkT
 	gtk_tree_store_set(GTK_TREE_STORE(tree_model),iter,COLUMN_IMAGE_TREE,image,-1);
 	return SUCCESS;
 }
+
 static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkTreeIter * c_iter,GtkTreeIter * p_iter)
 {
 	int rc;
@@ -241,16 +244,10 @@ static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkT
 static int show_block_tree(gpointer ud)
 {
 	block_tree_s * bt = (block_tree_s*)ud;
-	/*int rc;*/
 	GtkTreeView * tree_view = bt->view;
 	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
 	GtkTreeIter iter;
-/*
-	rc = get_mode_work();
-	if(rc != MODE_CONTROL_ON){
-		return TRUE;
-	}
-*/
+
 	kernel_status();
 
 	set_status_all_objects(bt,tree_model,&iter,NULL);
