@@ -2405,21 +2405,24 @@ static block_controller_s block_controller;
 
 int select_block_controller(controller_s * controller)
 {
-	controller_s * old_controller = block_controller.current;
+	controller_s * old_controller;
 	control_controller_s * control;
 	GThread * thread;
 
 	if(controller == NULL){
 		block_controller.stop_show = OK;
+		old_controller = block_controller.current;
 		block_controller.current = NULL;
 		if(old_controller != NULL){
 			control = old_controller->control;
 			g_mutex_lock(&(control->mutex));
-			controller->control->timeout = DEFAULT_TIMEOUT_ALL;
+			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(&(control->mutex));
 		}
+		g_info("контроллер не выбран : %s",old_controller->name);
 		return SUCCESS;
 	}
+
 	control = controller->control;
 	g_mutex_lock(&(control->mutex));
 	thread = control->thread;
@@ -2632,6 +2635,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_string_printf(pub,"controller_%04d",i);
 			control->thread = g_thread_new(pub->str,controller_communication,controller);
+			g_info("Контролер инициализирован : %s",controller->name);
 		}
 		else{
 			g_mutex_lock(&(control->mutex));
@@ -2664,7 +2668,7 @@ static flag_t control_controllers_off(block_controller_s * bc)
 			g_mutex_lock(&(control->mutex));
 			control->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
 			g_mutex_unlock(&(control->mutex));
-			g_info("стоп поток : %s",controller->name);
+			g_info("Контроллер деинициализирован : %s",controller->name);
 		}
 		list = g_slist_next(list);
 	}
