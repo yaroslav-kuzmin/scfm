@@ -2396,7 +2396,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 }
 
 /* 1 000 000  микросекунд == 1 секунда*/
-#define DEFAULT_TIMEOUT_CURRENR        500000       /*1000000*/      /*   250000        250 милесекунд */
+#define DEFAULT_TIMEOUT_CURRENT        500000       /*1000000*/      /*   250000        250 милесекунд */
 #define DEFAULT_TIMEOUT_ALL            3000000      /* 3 секунды */
 
 static show_state_s show_state;
@@ -2436,7 +2436,7 @@ int select_block_controller(controller_s * controller)
 
 	g_mutex_lock(&(control->mutex));
 	control->command.all = COMMAND_EMPTY;
-	control->timeout = DEFAULT_TIMEOUT_CURRENR;
+	control->timeout = DEFAULT_TIMEOUT_CURRENT;
 	g_mutex_unlock(&(control->mutex));
 
 	if(block_controller.run_show == NOT_OK){
@@ -2555,6 +2555,7 @@ static gpointer controller_communication(gpointer ud)
 	link_s * link = controller->link;
 	state_controller_s * state = controller->state;
 	control_controller_s * control = controller->control;
+	GThread * thread;
 
 	for(;;){
 		g_mutex_lock(&(control->mutex));
@@ -2597,9 +2598,11 @@ static gpointer controller_communication(gpointer ud)
 	/*TODO возможна колизия*/
 
 	g_mutex_lock(&(control->mutex));
+	thread = control->thread;
 	control->thread = NULL;
 	controller->status = STATUS_OFF;
 	g_mutex_unlock(&(control->mutex));
+	g_thread_exit(thread);
 	return NULL;
 }
 
@@ -2661,6 +2664,7 @@ static flag_t control_controllers_off(block_controller_s * bc)
 			g_mutex_lock(&(control->mutex));
 			control->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
 			g_mutex_unlock(&(control->mutex));
+			g_info("стоп поток : %s",controller->name);
 		}
 		list = g_slist_next(list);
 	}
