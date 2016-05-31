@@ -2413,13 +2413,13 @@ int select_block_controller(controller_s * controller)
 		block_controller.stop_show = OK;
 		old_controller = block_controller.current;
 		block_controller.current = NULL;
-		if(old_controller != NULL){
+		if( old_controller ){
 			control = old_controller->control;
 			g_mutex_lock(&(control->mutex));
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(&(control->mutex));
-		}
 		g_info("контроллер не выбран : %s",old_controller->name);
+		}
 		return SUCCESS;
 	}
 
@@ -2465,6 +2465,7 @@ GtkWidget * create_block_controller(void)
 	block_controller.timeout_show = DEFAULT_TIMEOUT_SHOW;
 	block_controller.state = &show_state;
 	block_controller.control = &show_control;
+	block_controller.current = NULL;
 
 	init_image(&block_controller);
 
