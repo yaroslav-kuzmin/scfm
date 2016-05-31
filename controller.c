@@ -2570,10 +2570,20 @@ static gpointer controller_communication(gpointer ud)
 			g_mutex_lock(&(control->mutex));
 			controller->status = STATUS_WAIT;
 			g_mutex_unlock(&(control->mutex));
+
 			link_controller_disconnect(link);
+
 			g_mutex_lock(&(control->mutex));
 			controller->status = STATUS_ERROR;
 			g_mutex_unlock(&(control->mutex));
+
+	g_mutex_lock(&(control->mutex));
+	thread = control->thread;
+	control->thread = NULL;
+	controller->status = STATUS_OFF;
+	g_mutex_unlock(&(control->mutex));
+	g_thread_exit(thread);
+
 			break;
 		}
 		rc = link_check_connect(link);
@@ -2642,6 +2652,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 			g_mutex_lock(&(control->mutex));
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(&(control->mutex));
+			g_info("Контролер инициализирован повторно : %s",controller->name);
 		}
 		list = g_slist_next(list);
 	}
