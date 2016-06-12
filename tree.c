@@ -66,6 +66,7 @@ struct _block_tree_s
 	GtkTreeView * view;
 	GdkPixbuf * image[AMOUNT_STATUS];
 	uint32_t timeout_show;
+	flag_t show;
 };
 typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
@@ -211,7 +212,7 @@ static flag_t init_image(block_tree_s * bt)
 }
 
 /*****************************************************************************/
-/*    Общие функции                                                          */
+/*                                                                           */
 /*****************************************************************************/
 static flag_t set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
 {
@@ -224,13 +225,12 @@ static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkT
 {
 	int rc;
 	object_s * object;
+	GtkTreeIter cc_iter;
 
 	rc = gtk_tree_model_iter_children(model,c_iter,p_iter);
 	for(;rc;){
-		GtkTreeIter cc_iter;
 		gtk_tree_model_get(model,c_iter,COLUMN_POINT_TREE,&object,-1);
 		set_status_object(bt,model,c_iter,object->status);
-
 		rc = set_status_all_objects(bt,model,&cc_iter,c_iter);
 		if(rc){
 			break;
@@ -245,29 +245,45 @@ static int show_block_tree(gpointer ud)
 {
 	block_tree_s * bt = (block_tree_s*)ud;
 	GtkTreeView * tree_view = bt->view;
-	GtkTreeModel * tree_model = gtk_tree_view_get_model(tree_view);
+	GtkTreeModel * tree_model;
 	GtkTreeIter iter;
 
+	if(bt->show == NOT_OK){
+		return FALSE;
+	}
+
+	tree_model = gtk_tree_view_get_model(tree_view);
+	if(tree_model == NULL){
+		return FALSE;
+	}
 	kernel_status();
-
 	set_status_all_objects(bt,tree_model,&iter,NULL);
-
 	return TRUE;
 }
 
-#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
-
 static void tree_view_realize_main(GtkWidget * w,gpointer ud)
 {
-	block_tree_s * bt = (block_tree_s*)ud;
-	bt->timeout_show = DEFAULT_TIMEOUT_SHOW;
-	/*запускаем функцию отображения */
-	g_timeout_add(bt->timeout_show,show_block_tree,bt);
+	/*block_tree_s * bt = (block_tree_s*)ud;*/
 }
+
+/*****************************************************************************/
 
 block_tree_s block_tree;
 
-int reread_tree(void)
+flag_t tree_check_status(flag_t mode)
+{
+	if(mode == MODE_CONTROL_ON){
+		block_tree.show = OK;
+		g_timeout_add(block_tree.timeout_show,show_block_tree,&block_tree);
+	}
+	else{
+		block_tree.show = NOT_OK;
+	}
+
+	return SUCCESS;
+}
+
+flag_t reread_tree(void)
 {
 	GtkTreeModel * tree_model = gtk_tree_view_get_model(block_tree.view);
 
@@ -281,12 +297,17 @@ int reread_tree(void)
 }
 
 
+#define DEFAULT_TIMEOUT_SHOW          200    /*5 кадров в секунду отбражение информации*/
+
 GtkWidget * create_block_tree_object(void)
 {
 	GtkWidget * frame;
 	GtkWidget * scrwin;
 	GtkWidget * treeview;
 	GtkTreeStore * model;
+
+	block_tree.timeout_show = DEFAULT_TIMEOUT_SHOW;
+	block_tree.show = NOT_OK;
 
 	init_image(&block_tree);
 

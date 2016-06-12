@@ -169,15 +169,12 @@ int del_object(object_s * parent,object_s * child)
 	uint32_t number = FIRST_NUMBER_GROUP;
 	GSList * list;
 
-	g_debug("del_object 0");
 	if(child == NULL){
 		return FAILURE;
 	}
-	g_debug("del_object 0");
 	if( (parent == NULL) && (child->type != TYPE_KERNEL) ){
 		return FAILURE;
 	}
-	g_debug("del_object 0");
 	if( (parent == NULL) && (child->type == TYPE_KERNEL)){
 		/*удаление всех обектов из ядра*/
 		object_s * object;
@@ -189,7 +186,6 @@ int del_object(object_s * parent,object_s * child)
 		}
 		return SUCCESS;
 	}
-	g_debug("del_object 1");
 	if( child->type == TYPE_GROUP ){
 		object_s * object;
 		list = child->list;
@@ -200,21 +196,18 @@ int del_object(object_s * parent,object_s * child)
 		}
 	}
 
-	g_debug("del_object 2");
 	if( (parent->type != TYPE_KERNEL) && (parent->type != TYPE_GROUP)){
 		return FAILURE;
 	}
 
-	g_debug("del_object 3");
 	if(parent->type == TYPE_GROUP){
 		number = parent->number;
 	}
-	g_debug("del_object 4");
 	rc = del_object_database(number,child->number,child->type);
 	if(rc != SUCCESS){
 		return FAILURE;
 	}
-	g_debug("del_object 5");
+	/*TODO удалить из основного дерева обектов*/
 	parent->list = g_slist_remove(parent->list,child);
 	del_property(child->type,child->property);
 	g_slice_free1(sizeof(object_s),child);
@@ -304,7 +297,6 @@ flag_t set_status_list(GSList * list)
 			default:
 				break;
 		}
-
 		list = g_slist_next(list);
 	}
 	return status;

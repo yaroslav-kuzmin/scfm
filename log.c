@@ -141,7 +141,8 @@ static void print_logging(const gchar *log_domain,GLogLevelFlags log_level,
 	GDateTime * cdt;
 
 	if(log_level == G_LOG_LEVEL_DEBUG){
-		g_printf("%s%s\n",STR_DEBUG,message);
+		fprintf(stderr,"%s%s\n",STR_DEBUG,message);
+		fflush(stderr);
 		return;
 	}
 

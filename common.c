@@ -52,6 +52,7 @@
 #include "videocamera.h"
 #include "controller.h"
 #include "object.h"
+#include "tree.h"
 
 /*****************************************************************************/
 /*    Общие переменые                                                        */
@@ -568,12 +569,15 @@ flag_t set_mode_work(int mode,GtkWidget * win_main)
 			select_object(NULL);
 		case MODE_CONTROL_ON:
 			control_controllers(mode_work);
+			tree_check_status(mode_work);
 			break;
 		case MODE_CONFIGURATION:
 			create_window_config(win_main);
+			tree_check_status(MODE_CONTROL_OFF);
 			break;
 		default:
 			mode_work = MODE_NOT_WORK;
+			tree_check_status(MODE_CONTROL_OFF);
 			break;
 	}
 	return SUCCESS;
