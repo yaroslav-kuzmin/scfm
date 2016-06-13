@@ -67,6 +67,7 @@ struct _block_tree_s
 	GdkPixbuf * image[AMOUNT_STATUS];
 	uint32_t timeout_show;
 	flag_t show;
+	flag_t mode;
 };
 typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
@@ -216,7 +217,15 @@ static flag_t init_image(block_tree_s * bt)
 /*****************************************************************************/
 static flag_t set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
 {
-	GdkPixbuf * image = bt->image[status];
+	GdkPixbuf * image;
+
+	if(bt->mode == MODE_CONTROL_ON){
+		image = bt->image[status];
+	}
+	else{
+		image = bt->image[STATUS_OFF];
+	}
+
 	gtk_tree_store_set(GTK_TREE_STORE(tree_model),iter,COLUMN_IMAGE_TREE,image,-1);
 	return SUCCESS;
 }
@@ -241,23 +250,33 @@ static flag_t set_status_all_objects(block_tree_s * bt,GtkTreeModel * model,GtkT
 	return rc;
 }
 
-static int show_block_tree(gpointer ud)
+static flag_t tree_view_status(block_tree_s * bt)
 {
-	block_tree_s * bt = (block_tree_s*)ud;
 	GtkTreeView * tree_view = bt->view;
 	GtkTreeModel * tree_model;
 	GtkTreeIter iter;
+
+	tree_model = gtk_tree_view_get_model(tree_view);
+	if(tree_model == NULL){
+		return FAILURE;
+	}
+
+	set_status_all_objects(bt,tree_model,&iter,NULL);
+
+	return SUCCESS;
+}
+
+static int show_block_tree(gpointer ud)
+{
+	block_tree_s * bt = (block_tree_s*)ud;
 
 	if(bt->show == NOT_OK){
 		return FALSE;
 	}
 
-	tree_model = gtk_tree_view_get_model(tree_view);
-	if(tree_model == NULL){
-		return FALSE;
-	}
 	kernel_status();
-	set_status_all_objects(bt,tree_model,&iter,NULL);
+	tree_view_status(bt);
+
 	return TRUE;
 }
 
@@ -273,11 +292,14 @@ block_tree_s block_tree;
 flag_t tree_check_status(flag_t mode)
 {
 	if(mode == MODE_CONTROL_ON){
+		block_tree.mode = MODE_CONTROL_ON;
 		block_tree.show = OK;
 		g_timeout_add(block_tree.timeout_show,show_block_tree,&block_tree);
 	}
 	else{
+		block_tree.mode = MODE_CONTROL_OFF;
 		block_tree.show = NOT_OK;
+		tree_view_status(&block_tree);
 	}
 
 	return SUCCESS;

@@ -192,7 +192,6 @@ static GtkWidget * create_main_block(void)
 	win_main = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_container_set_border_width(GTK_CONTAINER(win_main),0);
 	gtk_window_set_position(GTK_WINDOW(win_main),GTK_WIN_POS_CENTER_ALWAYS);
-	/*TODO отладка*/
 	gtk_window_set_decorated(GTK_WINDOW(win_main),FALSE);
 	gtk_window_set_title(GTK_WINDOW(win_main),STR_NAME_PROGRAMM);
 

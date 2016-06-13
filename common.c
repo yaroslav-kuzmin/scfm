@@ -558,7 +558,7 @@ GtkWidget * builder_widget(flag_t module, char * name)
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
-/*TODO  нужна не нужна ?*/
+
 static int mode_work = MODE_NOT_WORK;
 
 flag_t set_mode_work(int mode,GtkWidget * win_main)
@@ -582,10 +582,12 @@ flag_t set_mode_work(int mode,GtkWidget * win_main)
 	}
 	return SUCCESS;
 }
+
 flag_t get_mode_work(void)
 {
 	return mode_work;
 }
+
 #ifdef G_OS_WIN32
 /*static const char STR_HOME_PATH[] = "HOME";*/
 /*static char STR_HOME_PATH[] = "APPDATA";*/
