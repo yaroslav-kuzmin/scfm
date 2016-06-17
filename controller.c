@@ -2581,6 +2581,7 @@ static gpointer controller_communication(gpointer ud)
 	thread = control->thread;
 	control->thread = NULL;
 	controller->status = STATUS_OFF;
+	controller_null_state(state);
 	g_mutex_unlock(&(control->mutex));
 	g_thread_exit(thread);
 

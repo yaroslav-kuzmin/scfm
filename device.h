@@ -61,6 +61,7 @@ flag_t link_check_connect(link_s * link);
 
 flag_t controller_check_config(config_controller_s * config_c,config_controller_s * config_d);
 flag_t controller_copy_state(state_controller_s * des,state_controller_s * src);
+flag_t controller_null_state(state_controller_s * state);
 
 #endif
 

@@ -208,6 +208,11 @@ flag_t controller_copy_state(state_controller_s * des,state_controller_s * src)
 	return SUCCESS;
 }
 
+flag_t controller_null_state(state_controller_s * state)
+{
+	memset(state,0,sizeof(state_controller_s));
+	return SUCCESS;
+}
 static flag_t connect_tcp(link_s * link)
 {
 	int rc;
