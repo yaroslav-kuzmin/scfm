@@ -541,7 +541,7 @@ GtkWidget * builder_widget(flag_t module, char * name)
 			g_string_append_printf(pub,"/ui/%s.ui",STR_MODULE_MAIN_WINDOW);
 			break;
 		default:
-			g_critical("No name module : %d",module);
+			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 			return NULL;
 	}
 
