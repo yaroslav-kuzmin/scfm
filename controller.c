@@ -711,7 +711,7 @@ static flag_t info_controller_number(state_controller_s * state,flag_t number)
 	flag_t * info;
 
 	if(number > AMOUNT_STATE_CONTROLLER){
-		g_critical("Ошибка программы 001");
+		g_critical("Ошибка программы %s:%d",__FILE__.__LINE__);
 		return STATE_INFO_ERROR;;
 	}
 
@@ -2649,7 +2649,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 	GThread * thread;
 
 	if( list == NULL){
-		g_critical("Ошибка программы 0003");
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 		return FAILURE;
 	}
 
