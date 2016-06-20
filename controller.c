@@ -694,6 +694,9 @@ static char * info_controller_string(flag_t info)
 		case STATE_INFO_CRASH_VALVE:
 			str = STR_INFO_STATE_CRASH_VALVE;
 			break;
+		case STATE_INFO_NORM:
+			str = STR_INFO_STATE_NORM;
+			break;
 		default:
 			str = STR_INFO_MODE_WAIT;
 			break;
@@ -2646,7 +2649,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 	GThread * thread;
 
 	if( list == NULL){
-		g_info("Нет контролеров 1");
+		g_critical("Ошибка программы 0003");
 		return FAILURE;
 	}
 
@@ -2658,6 +2661,8 @@ static flag_t control_controllers_on(block_controller_s * bc)
 		thread = control->thread;
 		g_mutex_unlock(&(control->mutex));
 		if(thread == NULL){
+			controller_null_state(controller->state);
+			controller_null_state(controller->state_past);
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_string_printf(pub,"controller_%04d",i);
 			control->thread = g_thread_new(pub->str,controller_communication,controller);
@@ -2775,6 +2780,14 @@ flag_t controller_status(controller_s * controller)
 	g_mutex_unlock(&(control->mutex));
 	if( flag != controller->object->status){
 	 	controller->object->status = flag;
+		switch(flag){
+			case STATUS_NORM:
+				g_info("Контроллер %s : Подключен",controller->object->name);
+				break;
+			case STATUS_ERROR:
+				g_info("Контроллер %s : Не подключен",controller->object->name);
+				break;
+		}
 	}
 
 	input_controller_status(controller,control);

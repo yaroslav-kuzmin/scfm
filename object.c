@@ -236,7 +236,7 @@ flag_t object_status(object_s * object)
 				str = MESSAGE_STATUS_OFF;
 				break;
 		}
-		g_info("Сосотояние %s : %s",object->name,str);
+		g_info("Состояние %s : %s",object->name,str);
 	}
 
 	return status;
