@@ -657,8 +657,8 @@ static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 	}
 	return SUCCESS;
 }
-
-static char STR_INFO_STATE_WAIT[]             = "Нет подключина!";
+/*используется при выводе сообщений для каждого контроллера*/
+static char STR_INFO_STATE_WAIT[]             = "Нет подключения!";
 static char STR_INFO_STATE_NORM[]             = "Норма";
 static char STR_INFO_STATE_LIMIT_VERTICAL[]   = "Предел по вертикале ";
 static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
@@ -667,36 +667,12 @@ static char STR_INFO_STATE_CRASH_HORIZONTAL[] = "Авария горизонта
 static char STR_INFO_STATE_CRASH_SPARY[]      = "Авария актуатор распыла";
 static char STR_INFO_STATE_CRASH_RATE[]       = "Авария актуатор литраж";
 static char STR_INFO_STATE_CRASH_VALVE[]      = "Авария привода задвижки";
-#define WAIT_MESSAGE_IN_SECOND      2
-static uint32_t count_message = 0;
-static uint32_t next_message = 0;
 
-static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uint32_t timeout)
+static char * info_controller_string(flag_t info)
 {
-	/*колличество сообщений об ошибке */
-	flag_t all_info[] = {STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
-	                    ,STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
-	                    ,STATE_INFO_ERROR,STATE_INFO_ERROR,STATE_INFO_ERROR
-	                    ,STATE_ERROR};
-	flag_t * info = all_info;
-	flag_t i;
 	char * str;
 
-	controller_info(state,info);
-	if(*info == STATE_INFO_NORM){
-		gtk_label_set_text(label,STR_INFO_STATE_NORM);
-		apply_style_message_norm(GTK_WIDGET(label),NULL);
-		return SUCCESS;
-	}
-
-	i = *(info + next_message);
-
-	if((i == STATE_INFO_ERROR) || (i == STATE_ERROR)){
-		next_message = 0;
-		i = *info;
-	}
-
-	switch(i){
+	switch(info){
 		case STATE_INFO_LIMIT_VERTICAL:
 			str = STR_INFO_STATE_LIMIT_VERTICAL;
 			break;
@@ -722,13 +698,87 @@ static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uin
 			str = STR_INFO_MODE_WAIT;
 			break;
 	}
+	return str;
+}
+
+static flag_t all_info_controller[AMOUNT_STATE_CONTROLLER];
+static flag_t info_controller_number(state_controller_s * state,flag_t number)
+{
+	flag_t i;
+	flag_t * info;
+
+	if(number > AMOUNT_STATE_CONTROLLER){
+		g_critical("Ошибка программы 001");
+		return STATE_INFO_ERROR;;
+	}
+
+	info = all_info_controller;
+	for(i=0;i< AMOUNT_STATE_CONTROLLER;i++){
+		*info = STATE_INFO_ERROR;
+		info++;
+	}
+	info = all_info_controller;
+
+	controller_info(state,info);
+
+	i = *(info + number);
+
+	return i;
+}
+
+static flag_t current_info_message = 0;
+static flag_t info_controller_first(void)
+{
+	flag_t rc;
+	current_info_message = 0;
+	flag_t * info = all_info_controller;
+	rc = *info;
+	return rc;
+}
+static flag_t info_controller_next(void)
+{
+	flag_t rc;
+	flag_t * info = all_info_controller;
+	current_info_message ++;
+	if(current_info_message > AMOUNT_STATE_CONTROLLER){
+		current_info_message = 0;
+	}
+	rc = *(info + current_info_message);
+	return rc;
+}
+
+#define WAIT_MESSAGE_IN_SECOND      2
+static uint32_t show_count_message = 0;
+static uint32_t show_next_message = 0;
+
+static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uint32_t timeout)
+{
+	char * str;
+	flag_t info;
+
+	info = info_controller_number(state,show_next_message);
+
+	if(info == STATE_INFO_NORM){
+		gtk_label_set_text(label,STR_INFO_STATE_NORM);
+		apply_style_message_norm(GTK_WIDGET(label),NULL);
+		show_next_message = 0;
+		return SUCCESS;
+	}
+
+	if((info == STATE_INFO_ERROR) || (info == STATE_ERROR)){
+		info = info_controller_first();
+		show_next_message = 0;
+	}
+
+	str = info_controller_string(info);
+
 	gtk_label_set_text(label,str);
 	apply_style_message_alarm(GTK_WIDGET(label),NULL);
 
-	count_message += timeout;
-	if(count_message == (MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND)){
-		count_message = 0;
-		next_message ++;
+	show_count_message += timeout;
+	if(show_count_message == (MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND)){
+		show_count_message = 0;
+		show_next_message ++;
 	}
 	return SUCCESS;
 }
@@ -1168,32 +1218,6 @@ static GtkWidget * create_block_state_left(block_controller_s * bc)
 	return box;
 }
 
-static GtkWidget * create_block_state_video(block_controller_s * bc)
-{
-	/*GtkWidget * frame;*/
-	GtkWidget * image;
-	GdkPixbuf * buf;
-
-	/*frame = gtk_frame_new(NULL);*/
-	/*layout_widget(frame,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);*/
-
-	buf = get_resource_image(RESOURCE_IMAGE,"state_video_background");
-	bc->state->frame_video = buf;
-	image = gtk_image_new_from_pixbuf(buf);
-	layout_widget(image,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
-	/*TODO маштабирование*/
-	/*gtk_widget_set_size_request(image,DEFAULT_SIZE_WIDTH_PRESSURE_VALVE,DEFAULT_SIZE_HEIGHT_PRESSURE_VALVE);*/
-	bc->state->image_video = GTK_IMAGE(image);
-
-	/*gtk_container_add(GTK_CONTAINER(frame),image);*/
-
-	/*gtk_widget_show(frame);*/
-	gtk_widget_show(image);
-
-	/*return frame;*/
-	return image;
-}
-
 static void button_clicked_set_auto_work(GtkButton * b,gpointer ud)
 {
 	g_info("настройка автоматической работы");
@@ -1257,8 +1281,6 @@ static GtkWidget * create_block_state_auto_work(block_controller_s * bc)
 static GtkWidget * create_block_state_right(block_controller_s * bc)
 {
 	GtkWidget * box;
-	GtkWidget * block_state_video;
-	GtkWidget * s_0;
 	GtkWidget * block_state_auto_work;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -1267,17 +1289,9 @@ static GtkWidget * create_block_state_right(block_controller_s * bc)
 
 	block_state_auto_work = create_block_state_auto_work(bc);
 
-	s_0 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
-	layout_widget(s_0,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
-	gtk_widget_set_size_request(s_0,300,-1);
-	block_state_video = create_block_state_video(bc);
-
 	gtk_box_pack_start(GTK_BOX(box),block_state_auto_work,FALSE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(box),s_0,FALSE,FALSE,50);
-	gtk_box_pack_start(GTK_BOX(box),block_state_video,FALSE,TRUE,0);
 
 	gtk_widget_show(box);
-	gtk_widget_show(s_0);
 	return box;
 }
 
@@ -2577,13 +2591,13 @@ static gpointer controller_communication(gpointer ud)
 			controller->status = STATUS_ERROR;
 			g_mutex_unlock(&(control->mutex));
 
-	g_mutex_lock(&(control->mutex));
-	thread = control->thread;
-	control->thread = NULL;
-	controller->status = STATUS_OFF;
-	controller_null_state(state);
-	g_mutex_unlock(&(control->mutex));
-	g_thread_exit(thread);
+			g_mutex_lock(&(control->mutex));
+			thread = control->thread;
+			control->thread = NULL;
+			controller->status = STATUS_OFF;
+			controller_null_state(state);
+			g_mutex_unlock(&(control->mutex));
+			g_thread_exit(thread);
 
 			break;
 		}
@@ -2702,6 +2716,40 @@ flag_t control_controllers(flag_t mode)
 	return rc;
 }
 
+/*****************************************************************************/
+/*  опрос состояние и отображения                                            */
+/*****************************************************************************/
+static flag_t input_controller_status(controller_s * controller,control_controller_s * control)
+{
+	char * str;
+	flag_t info;
+	flag_t info_past;
+	state_controller_s state;
+	state_controller_s * state_past = controller->state_past;
+
+	g_mutex_lock(&(control->mutex));
+	controller_copy_state(&state,controller->state);
+	g_mutex_unlock(&(control->mutex));
+
+
+	info = info_controller_number(&state,0);
+	info_past = info_controller_number(state_past,0);
+
+	if(info != info_past){
+		for(;;){
+			str = info_controller_string(info);
+			g_info("Контроллер %s : %s",controller->object->name,str);
+			info = info_controller_next();
+			if((info == STATE_INFO_ERROR) || (info == STATE_ERROR)){
+				break;
+			}
+		}
+		controller_copy_state(state_past,&state);
+	}
+
+	return SUCCESS;
+}
+
 flag_t controller_status(controller_s * controller)
 {
 	flag_t flag = STATUS_OFF;
@@ -2722,13 +2770,14 @@ flag_t controller_status(controller_s * controller)
 		return flag;
 	}
 
-	flag = controller->object->status;
-
 	g_mutex_lock(&(control->mutex));
 	flag = controller->status;
 	g_mutex_unlock(&(control->mutex));
-	/*TODO если флаг изменился вывести сообшение*/
-	controller->object->status = flag;
+	if( flag != controller->object->status){
+	 	controller->object->status = flag;
+	}
+
+	input_controller_status(controller,control);
 
 	return flag;
 }
@@ -2763,6 +2812,7 @@ controller_s * init_controller(object_s * object)
 	controller->link = g_slice_alloc0(sizeof(link_s));
 	controller->config = g_slice_alloc0(sizeof(config_controller_s));
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));
+	controller->state_past = g_slice_alloc0(sizeof(state_controller_s));
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
 	g_mutex_init(&(controller->control->mutex));
 	controller->control->thread = NULL;
@@ -2826,6 +2876,8 @@ int del_property_controller(controller_s * property)
 	config = property->config;
 	g_slice_free1(sizeof(config_controller_s),config);
 	state = property->state;
+	g_slice_free1(sizeof(state_controller_s),state);
+	state = property->state_past;
 	g_slice_free1(sizeof(state_controller_s),state);
 	control = property->control;
 	g_mutex_clear(&(control->mutex));

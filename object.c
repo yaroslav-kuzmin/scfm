@@ -200,15 +200,15 @@ GtkWidget * create_block_object(void)
 /*****************************************************************************/
 flag_t object_status(object_s * object)
 {
-	flag_t rc = STATUS_ERROR;
+	flag_t status = STATUS_OFF;
 	int type = object->type;
 
 	switch (type){
 		case TYPE_CONTROLLER:
-			rc = controller_status(object->property);
+			status = controller_status(object->property);
 			break;
 		case TYPE_VIDEOCAMERA:
-			rc = videocamera_status(object->property);
+			status = videocamera_status(object->property);
 			break;
 		case TYPE_GROUP:
 		case TYPE_KERNEL:
@@ -216,7 +216,30 @@ flag_t object_status(object_s * object)
 		default:
 			break;
 	}
-	return rc;
+
+	if(status != object->status){
+		char * str;
+		switch(status){
+			case STATUS_OFF:
+				str = MESSAGE_STATUS_OFF;
+			 	break;
+			case STATUS_ERROR:
+				str = MESSAGE_STATUS_ERROR;
+				break;
+			case STATUS_WAIT:
+				str = MESSAGE_STATUS_WAIT;
+				break;
+			case STATUS_NORM:
+				str = MESSAGE_STATUS_NORM;
+				break;
+			default:
+				str = MESSAGE_STATUS_OFF;
+				break;
+		}
+		g_info("Сосотояние %s : %s",object->name,str);
+	}
+
+	return status;
 }
 /*****************************************************************************/
 

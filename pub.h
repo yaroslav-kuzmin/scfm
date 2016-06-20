@@ -115,12 +115,17 @@ enum
 /*Состояние обектов и состояние конторллера*/
 enum
 {
-	STATUS_ERROR= 0,
+ 	STATUS_ERROR= 0,
 	STATUS_NORM,
 	STATUS_WAIT,
 	STATUS_OFF,
 	AMOUNT_STATUS
 };
+
+extern char MESSAGE_STATUS_ERROR[];
+extern char MESSAGE_STATUS_NORM[];
+extern char MESSAGE_STATUS_WAIT[];
+extern char MESSAGE_STATUS_OFF[];
 
 /* расширеная информация о состоянии*/
 extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];
@@ -585,6 +590,7 @@ struct _state_controller_s
 	uint16_t fire_sensor;
 	uint16_t fire_alarm;
 	uint16_t device;
+
 };
 
 /*комманды контроллера*/
@@ -668,6 +674,7 @@ struct _controller_s
 	link_s * link;
 	config_controller_s * config;
 	state_controller_s * state;
+	state_controller_s * state_past;
 	control_controller_s * control;
 };
 /**************************************/
