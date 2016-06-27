@@ -711,7 +711,7 @@ static flag_t info_controller_number(state_controller_s * state,flag_t number)
 	flag_t * info;
 
 	if(number > AMOUNT_STATE_CONTROLLER){
-		g_critical("Ошибка программы %s:%d",__FILE__.__LINE__);
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 		return STATE_INFO_ERROR;;
 	}
 
