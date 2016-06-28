@@ -92,11 +92,18 @@ read if you used those and something break with a version upgrade you're on your
 /*дерево объектов */
 .view
 {
+  -GtkTreeView-expander-size: 10;
+
   color: @theme_fg_color;
 	background-color: #2C3949;
 	/*background-color: #405F7E;*/
 	font-size: medium;
 }
+
+.expander{
+	-gtk-icon-source: url("assets/expander.png");
+}
+
 /*выбор в дереве обектов */
 .view:selected, GtkCalendar:selected, .label:selected,
 .label:selected:focus, .label:selected:hover,
@@ -108,7 +115,6 @@ read if you used those and something break with a version upgrade you're on your
   background-color: @theme_selected_bg_color;
   color: @insensitive_base_color;
 }
-
 /*  заголовок списка дерева */
 column-header .button, column-header .header-bar .button.titlebutton, .header-bar column-header .button.titlebutton,
 column-header .titlebar .button.titlebutton,
