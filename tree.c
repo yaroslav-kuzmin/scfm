@@ -117,7 +117,7 @@ static flag_t fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_i
 	for(;list;){
 		object_s * o = (object_s*)list->data;
 		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
-		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter
+		gtk_tree_store_set(tree_model,&child_iter
 		,COLUMN_NAME_TREE,o->name
 		,COLUMN_POINT_TREE,o
 		,COLUMN_IMAGE_TREE,image,-1);
@@ -355,6 +355,7 @@ GtkWidget * create_block_tree_object(void)
 	block_tree.view = GTK_TREE_VIEW(treeview);
 	tree_add_column(&block_tree);
 	fill_treeview(&block_tree);
+	gtk_tree_view_expand_all(GTK_TREE_VIEW(treeview));
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);

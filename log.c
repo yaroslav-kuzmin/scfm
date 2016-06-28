@@ -118,7 +118,15 @@ static flag_t add_string_view_buff(GtkTextView * view,GString * buf)
 	}
 
 	text_buff = gtk_text_view_get_buffer(view);
+	if(text_buff == NULL){
+		fprintf(stderr,"text_buff NULL\n");
+		return SUCCESS;
+	}
 	mark = gtk_text_buffer_get_mark(text_buff,mark_end_buff);
+	if(mark == NULL){
+		fprintf(stderr,"mark NULL\n");
+		return SUCCESS;
+	}
 	gtk_text_buffer_get_iter_at_mark(text_buff,&iter,mark);
 	gtk_text_buffer_insert(text_buff,&iter,buf->str,buf->len);
 	gtk_text_view_scroll_mark_onscreen(view,mark);

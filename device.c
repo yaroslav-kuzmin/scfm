@@ -47,6 +47,7 @@
 #include "common.h"
 #include "modbus.h"
 
+#include <string.h>
 
 /*****************************************************************************/
 /*                                                                           */
@@ -232,7 +233,6 @@ static flag_t connect_tcp(link_s * link)
 
 	rc = modbus_connect(ctx);
 	if(rc == -1){
-		g_info("Несмог подключится к : %d",id);
 		modbus_free(ctx);
 		return FAILURE;
 	}
@@ -263,7 +263,6 @@ static flag_t connect_uart(link_s * link)
 
 	rc = modbus_connect(ctx);
 	if(rc == -1){
-		g_info("Несмог подключится к : %d",id);
 		modbus_free(ctx);
 		return FAILURE;
 	}

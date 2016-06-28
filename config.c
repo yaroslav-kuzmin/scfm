@@ -93,6 +93,7 @@ static int tree_add_column(GtkTreeView * treeview)
 	GtkCellRenderer * render;
 	GtkTreeViewColumn * column;
 
+
 	render = gtk_cell_renderer_text_new();
 	g_object_set(render,"editable",FALSE,NULL);
 	g_object_set(render,"width",100,NULL);
@@ -119,8 +120,8 @@ int fill_treeview_group(GtkTreeStore * tree_model,GtkTreeIter * tree_iter,object
 		object_s * o = (object_s*)list->data;
 		gtk_tree_store_append(tree_model,&child_iter,tree_iter);
 		gtk_tree_store_set(GTK_TREE_STORE(tree_model),&child_iter
-		,COLUMN_NAME_TREE,o->name
-		,COLUMN_POINT_TREE,o,-1);
+		                  ,COLUMN_NAME_TREE,o->name
+		                  ,COLUMN_POINT_TREE,o,-1);
 		if(o->type == TYPE_GROUP){
 			fill_treeview_group(tree_model,&child_iter,o);
 		}
@@ -140,7 +141,7 @@ static int fill_treeview(GtkTreeView * treeview)
 	GSList * list;
 	object_s * object;
 
-	select =	gtk_tree_view_get_selection (treeview);
+	select = gtk_tree_view_get_selection(treeview);
 	gtk_tree_selection_get_selected(select,&tree_model,&tree_iter_root);
 
 	object = get_kernel();
@@ -210,7 +211,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	object_s * object;
 	GtkTreeModel * model = NULL;
 	GtkTreeIter * iter_parent = config->iter_parent_group;
-	GtkTreeIter * iter = config->iter_group ;
+	GtkTreeIter * iter = config->iter_group;
 	GtkTreeSelection * select = gtk_tree_view_get_selection(tv);
 
 	gtk_label_set_text(config->select_group,STR_ROOT_TREE);
@@ -220,7 +221,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 
 	rc = gtk_tree_selection_get_selected(select,&model,iter_parent);
 	if(rc != TRUE){
-		return;
+		return ;
 	}
 
 	if(model == NULL){
@@ -230,7 +231,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	config->model_group = model;
 	gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 	if(group == NULL){
-		g_warning("Некорректное дерево объектов 0!");
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 		return ;
 	}
 
@@ -245,7 +246,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 		gtk_tree_model_iter_parent(model,&iter_parent_group,iter_parent);
 		gtk_tree_model_get(model,&iter_parent_group,COLUMN_POINT_TREE,&object,-1);
 		if(group == NULL){
-			g_warning("Некорректное дерево объектов 1!");
+			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 			return ;
 		}
 		config->parent_group = object;
@@ -259,7 +260,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 		gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
 		if( (group == NULL) || (object == NULL)){
-			g_warning("Некорректное дерево объектов 2!");
+			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 			return ;
 		}
 		config->group = group;
@@ -271,7 +272,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 			gtk_label_set_text(config->select_group,group->name);
 		}
 		else{
-			g_warning("Некорректное дерево объектов 3!");
+			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 			config->group = NULL;
 			config->object = NULL;
 		}
@@ -280,6 +281,30 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 
 static GtkTreeIter iter = {0};
 static GtkTreeIter iter_parent = {0};
+static flag_t	select_first_group(GtkTreeView * treeview,block_config_s * config)
+{
+	flag_t rc;
+	object_s * group = NULL;
+	GtkTreeModel * model = gtk_tree_view_get_model(treeview);
+
+	rc = gtk_tree_model_get_iter_first(model,&iter_parent);
+	if(rc != TRUE){
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		return FAILURE;
+	}
+	gtk_tree_model_get(model,&iter_parent,COLUMN_POINT_TREE,&group,-1);
+	if(group == NULL){
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		return FAILURE;
+	}
+
+	config->model_group = model;
+	config->iter_group = &iter;
+	config->iter_parent_group = &iter_parent;
+	config->group = group;
+	return SUCCESS;
+}
+
 static GtkWidget * create_block_tree(block_config_s * config)
 {
 	GtkWidget * frame;
@@ -299,6 +324,12 @@ static GtkWidget * create_block_tree(block_config_s * config)
 	/*TODO настроить дерево */
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
 	layout_widget(treeview,GTK_ALIGN_FILL,GTK_ALIGN_FILL,TRUE,TRUE);
+	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview),TRUE);
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview),TRUE);
+	gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW(treeview),TRUE);
+	/*gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(treeview),1);*/
+	gtk_tree_view_set_show_expanders(GTK_TREE_VIEW(treeview),TRUE);
+	gtk_tree_view_set_expander_column(GTK_TREE_VIEW(treeview),NULL);
 	tree_add_column(GTK_TREE_VIEW(treeview));
 
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),config);
@@ -306,10 +337,8 @@ static GtkWidget * create_block_tree(block_config_s * config)
 	g_object_unref(model);
 
 	fill_treeview(GTK_TREE_VIEW(treeview));
-	config->model_group = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
-	config->iter_group = &iter;
-	config->iter_parent_group = &iter_parent;
-	config->group = NULL;
+	gtk_tree_view_expand_all(GTK_TREE_VIEW(treeview));
+	select_first_group(GTK_TREE_VIEW(treeview),config);
 
 	gtk_container_add(GTK_CONTAINER(frame),scrwin);
 	gtk_container_add(GTK_CONTAINER(scrwin),treeview);

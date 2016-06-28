@@ -619,7 +619,7 @@ static gpointer work_bridge(gpointer ud)
 			g_string_printf(cell_client->buf,"[%05lld] client : 03 %04x ",position,cell_server->query_reg);
 			rc = modbus_read_registers(ctx_client,cell_server->query_reg,cell_server->query_amount_reg,dest);
 			if(rc == -1){
-				g_warning("Сервер разорвал соединение");
+				/*g_warning("Сервер разорвал соединение");*/
 				bb->connect = NOT_OK;
 				g_string_append_printf(cell_client->buf,"\n");
 				continue;
@@ -636,7 +636,7 @@ static gpointer work_bridge(gpointer ud)
 			g_string_printf(cell_client->buf,"[%05lld] client : 06 %04x ",position,cell_server->query_reg);
 			rc = modbus_write_register(ctx_client,cell_server->query_reg,cell_server->query_value_reg[0]);
 			if(rc == -1){
-				g_warning("Сервер разорвал соединение");
+				/*g_warning("Сервер разорвал соединение");*/
 				bb->connect = NOT_OK;
 				g_string_append_printf(cell_client->buf,"\n");
 				continue;
@@ -650,7 +650,7 @@ static gpointer work_bridge(gpointer ud)
 			rc = modbus_write_registers(ctx_client,cell_server->query_reg
 			                           ,cell_server->query_amount_reg,cell_server->query_value_reg);
 			if(rc == -1){
-				g_warning("Сервер разорвал соединение");
+				/*g_warning("Сервер разорвал соединение");*/
 				bb->connect = NOT_OK;
 				g_string_append_printf(cell_client->buf,"\n");
 				continue;
