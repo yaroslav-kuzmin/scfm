@@ -2474,6 +2474,10 @@ int select_block_controller(controller_s * controller)
 		return SUCCESS;
 	}
 
+	if(block_controller.current == controller){
+		goto current_controller_true;
+	}
+
 	control = controller->control;
 	g_mutex_lock(&(control->mutex));
 	thread = control->thread;
@@ -2499,6 +2503,7 @@ int select_block_controller(controller_s * controller)
  		block_controller.state->counter_fire_alarm = 0;
 		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
 	}
+current_controller_true:
 	g_info("Контроллер %s : Наблюдение установлено",controller->object->name);
 
 	return SUCCESS;
@@ -2794,7 +2799,7 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 	if(fire != fire_past){
 		if(fire == STATE_FIRE_ALARM_ON){
 			g_info("Контроллер %s : ПОЖАР",controller->object->name);
-		}	
+		}
 		else{
 			g_info("Контроллер %s : Отбой ПОЖАР",controller->object->name);
 		}
