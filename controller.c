@@ -459,7 +459,7 @@ static uint16_t calculate_angle_tic_vertical(state_controller_s * state,config_c
 	uint16_t tic = state->tic_vertical;
 	gdouble rate = config->rate_tic_vertical;
 
-	/*TODO для конкретного контролера */
+	/*TODO для конкретного контроллера */
 	tic += 7;
 
 	if(tic > MAX_VERTICAL_TIC){
@@ -978,7 +978,7 @@ static int show_block_controller(gpointer data)
 		return FALSE; /*завершить работу*/
 	}
 	if(controller == NULL){
- 		/*контролер не выбран*/
+ 		/*контроллер не выбран*/
 		bc->run_show = NOT_OK;
 		return FALSE;
 	}
@@ -1363,7 +1363,7 @@ static void button_clicked_control_mode(GtkButton * b,gpointer ud)
 	command_u command = {0};
 
 	if(controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return ;
 	}
 
@@ -1541,12 +1541,12 @@ static gboolean button_press_event_lafet_up(GtkButton * b,GdkEvent * e,gpointer 
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_UP;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"ВВЕРХ\"");
+	g_info("Контроллер %s : команда \"ВВЕРХ\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1555,12 +1555,12 @@ static gboolean button_press_event_lafet_bottom(GtkButton * b,GdkEvent * e,gpoin
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_DOWN;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"ВНИЗ\"");
+	g_info("Контроллер %s : команда \"ВНИЗ\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1569,12 +1569,12 @@ static gboolean button_press_event_lafet_right(GtkButton * b,GdkEvent * e,gpoint
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_RIGHT;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"ВПРАВО\"");
+	g_info("Контроллер %s : команда \"ВПРАВО\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1583,12 +1583,12 @@ static gboolean button_press_event_lafet_left(GtkButton * b,GdkEvent * e,gpointe
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_LEFT;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"ВЛЕВО\"");
+	g_info("Контроллер %s : команда \"ВЛЕВО\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1597,12 +1597,12 @@ static gboolean button_release_event_lafet_stop(GtkButton * b,GdkEvent * e,gpoin
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_LAFET_STOP;
 	push_command_queue(controller,command,OK);
-	g_info("Команда \"СТОП\"");
+	g_info("Контроллер %s : команда \"СТОП\"",controller->object->name);
 	return FALSE;
 }
 #define BUTTON_WIDTH      70
@@ -1707,18 +1707,20 @@ static gboolean button_press_event_actuator_spray_less(GtkButton * b,GdkEvent * 
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command = {0};
-	uint64_t flag = controller->config->flag;
+	uint64_t flag;
+
+	if( controller == NULL){
+		g_info("Не выбран контроллер");
+		return FALSE;
+	}
+	flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
 		g_info("Нет привода актуатора распыл");
 		return TRUE;
 	}
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return FALSE;
-	}
 	command.part.value = COMMAND_SPRAY_LESS;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"Уже\"");
+	g_info("Контроллер %s : команда \"Уже\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1726,18 +1728,20 @@ static gboolean button_press_event_actuator_spray_more(GtkButton * b,GdkEvent * 
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command = {0};
-	uint64_t flag = controller->config->flag;
+	uint64_t flag;
+
+	if( controller == NULL){
+		g_info("Не выбран контроллер");
+		return FALSE;
+	}
+	flag = controller->config->flag;
 	if(!ACTUATOR_SPRAY(flag)){
 		g_info("Нет привода актуатора распыл");
 		return TRUE;
 	}
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return FALSE;
-	}
 	command.part.value = COMMAND_SPRAY_MORE;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"Шире\"");
+	g_info("Контроллер %s : команда \"Шире\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1745,18 +1749,20 @@ static gboolean button_press_event_actuator_rate_less(GtkButton * b,GdkEvent * e
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command = {0};
-	uint64_t flag = controller->config->flag;
+	uint64_t flag;
+
+	if( controller == NULL){
+		g_info("Не выбран контроллер");
+		return FALSE;
+	}
+	flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
 		g_info("Нет привода актуатора литраж");
 		return TRUE;
 	}
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return FALSE;
-	}
 	command.part.value = COMMAND_RATE_LESS;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"Меньше\"");
+	g_info("Контроллер %s : команда \"Меньше\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1764,18 +1770,20 @@ static gboolean button_press_event_actuator_rate_more(GtkButton * b,GdkEvent * e
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command = {0};
-	uint64_t flag = controller->config->flag;
+	uint64_t flag;
+
+	if( controller == NULL){
+		g_info("Не выбран контроллер");
+		return FALSE;
+	}
+	flag = controller->config->flag;
 	if(!ACTUATOR_RATE(flag)){
 		g_info("Нет привода актуатора литраж");
 		return TRUE;
 	}
-	if( controller == NULL){
-		g_info("Не выбран контролер");
-		return FALSE;
-	}
 	command.part.value = COMMAND_RATE_MORE;
 	push_command_queue(controller,command,NOT_OK);
-	g_info("Команда \"Больше\"");
+	g_info("Контроллер %s : команда \"Больше\"",controller->object->name);
 	return FALSE;
 }
 static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gpointer ud)
@@ -1784,12 +1792,12 @@ static gboolean button_release_event_actuator_stop(GtkButton * b,GdkEvent * e,gp
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return FALSE;
 	}
 	command.part.value = COMMAND_ACTUATOT_STOP;
 	push_command_queue(controller,command,OK);
-	g_info("Команда \"Стоп\"");
+	g_info("Контроллер %s : команда \"СТОП\"",controller->object->name);
 	return FALSE;
 }
 
@@ -1901,7 +1909,7 @@ static void button_clicked_valve_open(GtkButton * b,gpointer ud)
 		return ;
 	}
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return ;
 	}
 	command.part.value = COMMAND_VALVE_OPEN;
@@ -1920,7 +1928,7 @@ static void button_clicked_valve_close(GtkButton * b,gpointer ud)
 		return ;
 	}
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return ;
 	}
 	command.part.value = COMMAND_VALVE_CLOSE;
@@ -2020,13 +2028,14 @@ static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 	controller_s * controller = bc->current;
 	command_u command ={0};
 	if( controller == NULL){
-		g_info("Не выбран контролер");
+		g_info("Не выбран контроллер");
 		return;
 	}
 	if(bc->control->oscillation_flag == COMMAND_OSCILLATION_STOP){
 		command.part.value = bc->control->oscillation_command.part.value;
 		bc->control->oscillation_flag = COMMAND_OSCILLATION_RUN;
 		push_command_queue(controller,command,NOT_OK);
+		g_info("Контроллер %s : команда \"Запуск Осциляции\"",controller->object->name);
 	}
 }
 static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
@@ -2035,19 +2044,25 @@ static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 	controller_s * controller = bc->current;
 	command_u command = {0};
 	if( controller == NULL){
-	 	g_info("Не выбран контролер");
+	 	g_info("Не выбран контроллер");
 		return;
 	}
 	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
 	command.part.value = COMMAND_OSCILLATION_STOP;
 	push_command_queue(controller,command,OK);
+	g_info("Контроллер %s : команда \"Стоп Осциляции\"",controller->object->name);
 }
 static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
+	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
 	GtkToggleButton * set;
 
+	if( controller == NULL){
+	 	g_info("Не выбран контроллер");
+		return;
+	}
 	if(state){
 		set = bc->control->but_oscillation_horizontal;
 		gtk_toggle_button_set_active(set,FALSE);
@@ -2056,14 +2071,20 @@ static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 		set = bc->control->but_oscillation_step;
 		gtk_toggle_button_set_active(set,FALSE);
 		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL;
+		g_info("Контроллер %s : Установить вертикальную осциляцию",controller->object->name);
 	}
 }
 static void button_clicked_oscillation_horizontal(GtkToggleButton * b,gpointer ud)
 {
  	block_controller_s * bc = (block_controller_s*)ud;
+	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
 	GtkToggleButton * set;
 
+	if( controller == NULL){
+	 	g_info("Не выбран контроллер");
+		return;
+	}
 	if(state){
 		set = bc->control->but_oscillation_vertical;
 		gtk_toggle_button_set_active(set,FALSE);
@@ -2072,15 +2093,21 @@ static void button_clicked_oscillation_horizontal(GtkToggleButton * b,gpointer u
 		set = bc->control->but_oscillation_step;
 		gtk_toggle_button_set_active(set,FALSE);
 		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+		g_info("Контроллер %s : Установить горизонтальную осциляцию",controller->object->name);
 	}
 }
 
 static void button_clicked_oscillation_saw(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
+	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
 	GtkToggleButton * set;
 
+	if( controller == NULL){
+	 	g_info("Не выбран контроллер");
+		return;
+	}
 	if(state){
 		set = bc->control->but_oscillation_vertical;
 		gtk_toggle_button_set_active(set,FALSE);
@@ -2089,14 +2116,20 @@ static void button_clicked_oscillation_saw(GtkToggleButton * b,gpointer ud)
 		set = bc->control->but_oscillation_step;
 		gtk_toggle_button_set_active(set,FALSE);
 		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_SAW;
+		g_info("Контроллер %s : Установить осциляцию пилой",controller->object->name);
 	}
 }
 static void button_clicked_oscillation_step(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
+	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
 	GtkToggleButton * set;
 
+	if( controller == NULL){
+	 	g_info("Не выбран контроллер");
+		return;
+	}
 	if(state){
 		set = bc->control->but_oscillation_vertical;
 		gtk_toggle_button_set_active(set,FALSE);
@@ -2105,6 +2138,7 @@ static void button_clicked_oscillation_step(GtkToggleButton * b,gpointer ud)
 		set = bc->control->but_oscillation_saw;
 		gtk_toggle_button_set_active(set,FALSE);
 		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STEP;
+		g_info("Контроллер %s : Установить ступенчатую осциляцию",controller->object->name);
 	}
 }
 
@@ -2435,7 +2469,7 @@ int select_block_controller(controller_s * controller)
 			g_mutex_lock(&(control->mutex));
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(&(control->mutex));
-		g_info("контроллер не выбран : %s",old_controller->name);
+			g_info("Контроллер %s : Наблюдение снято",old_controller->object->name);
 		}
 		return SUCCESS;
 	}
@@ -2445,7 +2479,7 @@ int select_block_controller(controller_s * controller)
 	thread = control->thread;
 	g_mutex_unlock(&(control->mutex));
 	if(thread == NULL){
-		g_info("Поток управления контроллером %s не запушен!",controller->name);
+		g_info("Поток управления контроллером %s не запушен!",controller->object->name);
 		block_controller.current = NULL;
 		return FAILURE;
 	}
@@ -2465,6 +2499,7 @@ int select_block_controller(controller_s * controller)
  		block_controller.state->counter_fire_alarm = 0;
 		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
 	}
+	g_info("Контроллер %s : Наблюдение установлено",controller->object->name);
 
 	return SUCCESS;
 }
@@ -2565,7 +2600,7 @@ static flag_t controller_write_read(link_s * link,state_controller_s * state,con
 }
 
 /*****************************************************************************/
-/* функция  потока комуникации с контролерами                                */
+/* функция  потока комуникации с контроллерами                                */
 /*****************************************************************************/
 
 static gpointer controller_communication(gpointer ud)
@@ -2666,13 +2701,13 @@ static flag_t control_controllers_on(block_controller_s * bc)
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_string_printf(pub,"controller_%04d",i);
 			control->thread = g_thread_new(pub->str,controller_communication,controller);
-			g_info("Контролер инициализирован : %s",controller->name);
+			g_info("Контроллер инициализирован : %s",controller->name);
 		}
 		else{
 			g_mutex_lock(&(control->mutex));
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(&(control->mutex));
-			g_info("Контролер инициализирован повторно : %s",controller->name);
+			g_info("Контроллер инициализирован повторно : %s",controller->name);
 		}
 		list = g_slist_next(list);
 	}
@@ -2685,7 +2720,7 @@ static flag_t control_controllers_off(block_controller_s * bc)
 	GThread * thread;
 
 	if(list == NULL){
-		g_info("Нет контролеров 2");
+		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 		return SUCCESS;
 	}
 
@@ -2729,13 +2764,15 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 	char * str;
 	flag_t info;
 	flag_t info_past;
+	flag_t fire;
+	flag_t fire_past;
+	flag_t copy = NOT_OK;
 	state_controller_s state;
 	state_controller_s * state_past = controller->state_past;
 
 	g_mutex_lock(&(control->mutex));
 	controller_copy_state(&state,controller->state);
 	g_mutex_unlock(&(control->mutex));
-
 
 	info = info_controller_number(&state,0);
 	info_past = info_controller_number(state_past,0);
@@ -2749,9 +2786,23 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 				break;
 			}
 		}
-		controller_copy_state(state_past,&state);
+		copy = OK;
 	}
 
+	fire = controller_state_fire_alarm(&state);
+	fire_past = controller_state_fire_alarm(state_past);
+	if(fire != fire_past){
+		if(fire == STATE_FIRE_ALARM_ON){
+			g_info("Контроллер %s : ПОЖАР",controller->object->name);
+		}	
+		else{
+			g_info("Контроллер %s : Отбой ПОЖАР",controller->object->name);
+		}
+		copy = OK;
+	}
+	if(copy == OK){
+		controller_copy_state(state_past,&state);
+	}
 	return SUCCESS;
 }
 
@@ -2809,7 +2860,7 @@ int deinit_all_controllers(void)
 }
 
 /*****************************************************************************/
-/* Выделение и высвобождения памяти для структур контролера                  */
+/* Выделение и высвобождения памяти для структур контроллера                  */
 /*****************************************************************************/
 
 /*Выделение памяти и считывание из базы данных*/
