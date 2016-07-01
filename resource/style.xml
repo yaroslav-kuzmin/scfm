@@ -46,10 +46,11 @@
 <gresources>
 	<gresource prefix="/style">
 		<file>assets/scfm.png</file>
-		<file>assets/tree-normal.png</file>
-		<file>assets/tree-error.png</file>
-		<file>assets/tree-wait.png</file>
-		<file>assets/tree-off.png</file>
+		<file>assets/tree-status-on-normal.png</file>
+		<file>assets/tree-status-on-error-link.png</file>
+		<file>assets/tree-status-on-crash.png</file>
+		<file>assets/tree-status-on-warning.png</file>
+		<file>assets/tree-status-off.png</file>
 		<file>assets/close-focused-normal.png</file>
 		<file>assets/minimize-focused-normal.png</file>
 		<file>assets/maximize-focused-normal.png</file>

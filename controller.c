@@ -627,15 +627,15 @@ static flag_t show_console(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
-static char STR_INFO_MODE_WAIT[]   = "Нет Соединения";
-static char STR_INFO_MODE_AUTO[]   = "Автоматически режим работы";
-static char STR_INFO_MODE_MANUAL[] = "Ручной режим работы";
-static char STR_INFO_MODE_TEST[]   = "Режим тестирования";
+static char STR_INFO_MODE_ERROR_LINK[] = "Нет Соединения";
+static char STR_INFO_MODE_AUTO[]       = "Автоматически режим работы";
+static char STR_INFO_MODE_MANUAL[]     = "Ручной режим работы";
+static char STR_INFO_MODE_TEST[]       = "Режим тестирования";
 
 static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 {
 	flag_t mode = controller_mode(state);
-	char * str = STR_INFO_MODE_WAIT;
+	char * str = STR_INFO_MODE_ERROR_LINK;
 	switch(mode){
 		case STATE_MODE_AUTO:
 			str = STR_INFO_MODE_AUTO;
@@ -658,7 +658,7 @@ static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 	return SUCCESS;
 }
 /*используется при выводе сообщений для каждого контроллера*/
-static char STR_INFO_STATE_WAIT[]             = "Нет подключения!";
+static char STR_INFO_STATE_ERROR_LINK[]       = "Нет подключения!";
 static char STR_INFO_STATE_NORM[]             = "Норма";
 static char STR_INFO_STATE_LIMIT_VERTICAL[]   = "Предел по вертикале ";
 static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
@@ -698,7 +698,7 @@ static char * info_controller_string(flag_t info)
 			str = STR_INFO_STATE_NORM;
 			break;
 		default:
-			str = STR_INFO_MODE_WAIT;
+			str = STR_INFO_STATE_ERROR_LINK;
 			break;
 	}
 	return str;
@@ -1020,7 +1020,7 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	gtk_frame_set_shadow_type(GTK_FRAME(frame_mode),GTK_SHADOW_NONE);
 	gtk_widget_set_size_request(frame_mode,-1,40);
 
-	lab_mode = gtk_label_new(STR_INFO_MODE_WAIT);
+	lab_mode = gtk_label_new(STR_INFO_MODE_ERROR_LINK);
 	layout_widget(lab_mode,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_widget_set_size_request(lab_mode,300,-1);
 	bc->state->lab_mode = GTK_LABEL(lab_mode);
@@ -1033,7 +1033,7 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	lab_static = gtk_label_new("Cостояние установки :");
 
-	lab_state = gtk_label_new(STR_INFO_STATE_WAIT);
+	lab_state = gtk_label_new(STR_INFO_STATE_ERROR_LINK);
 	layout_widget(lab_state,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_widget_set_size_request(lab_state,300,-1);
 	bc->state->lab_state = GTK_LABEL(lab_state);
@@ -2543,7 +2543,7 @@ GtkWidget * create_block_controller(void)
 
 /*****************************************************************************/
 /*                                                                           */
-/* Функции взаимодействия с конторлером отдельный поток вывод в основном окне*/
+/* Функции взаимодействия с конторлером в отдельном потоке                   */
 /*                                                                           */
 /*****************************************************************************/
 static flag_t controller_link(controller_s * controller)
@@ -2558,25 +2558,20 @@ static flag_t controller_link(controller_s * controller)
 
 	rc = link_controller(link,&check_config,&new_state);
 	if(rc == FAILURE){
-		g_mutex_lock(&(control->mutex));
-		controller->status = STATUS_ERROR;
-		g_mutex_unlock(&(control->mutex));
 		return rc;
 	}
 
 	rc = controller_check_config(&check_config,config);
 	if(rc == FAILURE){
+		/*TODO выставить статус не корректная база данных*/
 		link_controller_disconnect(link);
-		g_mutex_lock(&(control->mutex));
-		controller->status = STATUS_ERROR;
-		g_mutex_unlock(&(control->mutex));
 		return rc;
 	}
-
 	g_mutex_lock(&(control->mutex));
 	controller_copy_state(state,&new_state);
-	controller->status = STATUS_NORM;
+	controller->status = STATUS_ON_NORM;
 	g_mutex_unlock(&(control->mutex));
+
 	return SUCCESS;
 }
 
@@ -2604,10 +2599,6 @@ static flag_t controller_write_read(link_s * link,state_controller_s * state,con
 	return SUCCESS;
 }
 
-/*****************************************************************************/
-/* функция  потока комуникации с контроллерами                                */
-/*****************************************************************************/
-
 static gpointer controller_communication(gpointer ud)
 {
 	controller_s * controller = (controller_s *)ud;
@@ -2624,15 +2615,7 @@ static gpointer controller_communication(gpointer ud)
 		g_mutex_unlock(&(control->mutex));
 
 		if(timeout == 0){
-			g_mutex_lock(&(control->mutex));
-			controller->status = STATUS_WAIT;
-			g_mutex_unlock(&(control->mutex));
-
 			link_controller_disconnect(link);
-
-			g_mutex_lock(&(control->mutex));
-			controller->status = STATUS_ERROR;
-			g_mutex_unlock(&(control->mutex));
 
 			g_mutex_lock(&(control->mutex));
 			thread = control->thread;
@@ -2645,23 +2628,18 @@ static gpointer controller_communication(gpointer ud)
 			break;
 		}
 		rc = link_check_connect(link);
-		if(rc == STATUS_ERROR){
+		if(rc == STATUS_ON_ERROR_LINK){
 			/*нет соединения*/
 			g_mutex_lock(&(control->mutex));
-			controller->status = STATUS_WAIT;
+			controller->status = STATUS_ON_ERROR_LINK;
 			g_mutex_unlock(&(control->mutex));
-			rc = controller_link(controller);
-			if(rc == SUCCESS){
-				g_mutex_lock(&(control->mutex));
-				controller->status = STATUS_NORM;
-				g_mutex_unlock(&(control->mutex));
-			}
+			controller_link(controller);
 		}
 		else{
 			rc = controller_write_read(link,state,control);
 			if(rc == FAILURE){
 				g_mutex_lock(&(control->mutex));
-				controller->status = STATUS_ERROR;
+				controller->status = STATUS_ON_ERROR_LINK;
 				g_mutex_unlock(&(control->mutex));
 			}
 		}
@@ -2779,10 +2757,42 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 	controller_copy_state(&state,controller->state);
 	g_mutex_unlock(&(control->mutex));
 
+	fire = controller_state_fire_alarm(&state);
+	fire_past = controller_state_fire_alarm(state_past);
+
+	if(fire != fire_past){
+		if(fire == STATE_FIRE_ALARM_ON){
+			g_info("Контроллер %s : ПОЖАР",controller->object->name);
+			g_mutex_lock(&(control->mutex));
+			controller->status = STATUS_ON_CRASH;
+			g_mutex_unlock(&(control->mutex));
+		}
+		else{
+			g_info("Контроллер %s : Отбой ПОЖАР",controller->object->name);
+			g_mutex_lock(&(control->mutex));
+			controller->status = STATUS_ON_NORM;
+			g_mutex_unlock(&(control->mutex));
+		}
+		copy = OK;
+	}
+
 	info = info_controller_number(&state,0);
 	info_past = info_controller_number(state_past,0);
 
 	if(info != info_past){
+		if(fire == STATE_FIRE_ALARM_OFF){
+			if(info == STATE_INFO_NORM){
+				g_mutex_lock(&(control->mutex));
+				controller->status = STATUS_ON_NORM;
+				g_mutex_unlock(&(control->mutex));
+
+			}
+			else{
+				g_mutex_lock(&(control->mutex));
+				controller->status = STATUS_ON_WARNING;
+				g_mutex_unlock(&(control->mutex));
+			}
+		}
 		for(;;){
 			str = info_controller_string(info);
 			g_info("Контроллер %s : %s",controller->object->name,str);
@@ -2794,17 +2804,6 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 		copy = OK;
 	}
 
-	fire = controller_state_fire_alarm(&state);
-	fire_past = controller_state_fire_alarm(state_past);
-	if(fire != fire_past){
-		if(fire == STATE_FIRE_ALARM_ON){
-			g_info("Контроллер %s : ПОЖАР",controller->object->name);
-		}
-		else{
-			g_info("Контроллер %s : Отбой ПОЖАР",controller->object->name);
-		}
-		copy = OK;
-	}
 	if(copy == OK){
 		controller_copy_state(state_past,&state);
 	}
@@ -2818,7 +2817,7 @@ flag_t controller_status(controller_s * controller)
 	GThread * thread;
 
 	if(controller == NULL){
-		return flag;
+		return FAILURE;
 	}
 
 	control = controller->control;
@@ -2828,27 +2827,20 @@ flag_t controller_status(controller_s * controller)
 	g_mutex_unlock(&(control->mutex));
 	if(thread == NULL){
 		controller->object->status = flag;
-		return flag;
-	}
-
-	g_mutex_lock(&(control->mutex));
-	flag = controller->status;
-	g_mutex_unlock(&(control->mutex));
-	if( flag != controller->object->status){
-	 	controller->object->status = flag;
-		switch(flag){
-			case STATUS_NORM:
-				g_info("Контроллер %s : Подключен",controller->object->name);
-				break;
-			case STATUS_ERROR:
-				g_info("Контроллер %s : Не подключен",controller->object->name);
-				break;
-		}
+		return FAILURE;
 	}
 
 	input_controller_status(controller,control);
 
-	return flag;
+	g_mutex_lock(&(control->mutex));
+	flag = controller->status;
+	g_mutex_unlock(&(control->mutex));
+
+	if( flag != controller->object->status){
+	 	controller->object->status = flag;
+	}
+
+	return SUCCESS;
 }
 
 int init_all_controllers(void)

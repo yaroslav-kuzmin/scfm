@@ -246,7 +246,7 @@ int init_kernel(void)
 	kernel.name = STR_NAME_PROGRAMM;
 	kernel.property = NULL;
 	kernel.parent = NULL;
-	kernel.status = STATUS_WAIT;
+	kernel.status = STATUS_ON_NORM;
 
 	return SUCCESS;
 }
@@ -276,7 +276,7 @@ int deinit_kernel(void)
 flag_t set_status_list(GSList * list)
 {
 	int rc;
-	int status = STATUS_NORM;
+	int status = STATUS_ON_NORM;
 
 	for(;list;){
 		object_s * o = (object_s*)list->data;
@@ -287,13 +287,19 @@ flag_t set_status_list(GSList * list)
 		else{
 			rc = object_status(o);
 		}
+
 		switch(rc){
-			case STATUS_ERROR:
+			case STATUS_ON_CRASH:
 			case STATUS_OFF:
 				status = rc;
 				break;
-			case STATUS_WAIT:
-			case STATUS_NORM:
+			case STATUS_ON_ERROR_LINK:
+			case STATUS_ON_WARNING:
+				if(status != STATUS_ON_CRASH){
+					status = STATUS_ON_WARNING;
+				}
+				break;
+			case STATUS_ON_NORM:
 			default:
 				break;
 		}

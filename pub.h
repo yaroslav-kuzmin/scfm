@@ -115,17 +115,19 @@ enum
 /*Состояние обектов и состояние конторллера*/
 enum
 {
- 	STATUS_ERROR= 0,
-	STATUS_NORM,
-	STATUS_WAIT,
-	STATUS_OFF,
+	STATUS_OFF = 0,
+	STATUS_ON_NORM,
+	STATUS_ON_CRASH,
+	STATUS_ON_WARNING,
+ 	STATUS_ON_ERROR_LINK,
 	AMOUNT_STATUS
 };
 
-extern char MESSAGE_STATUS_ERROR[];
-extern char MESSAGE_STATUS_NORM[];
-extern char MESSAGE_STATUS_WAIT[];
 extern char MESSAGE_STATUS_OFF[];
+extern char MESSAGE_STATUS_ON_NORM[];
+extern char MESSAGE_STATUS_ON_CRASH[];
+extern char MESSAGE_STATUS_ON_WARNING[];
+extern char MESSAGE_STATUS_ON_ERROR_LINK[];
 
 /* расширеная информация о состоянии*/
 extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];

@@ -57,9 +57,9 @@
 flag_t link_check_connect(link_s * link)
 {
 	if(link->connect == NULL){
-		return STATUS_ERROR;
+		return STATUS_ON_ERROR_LINK;
 	}
-	return STATUS_NORM;
+	return STATUS_ON_NORM;
 }
 
 /*****************************************************************************/
@@ -315,7 +315,7 @@ flag_t link_controller_state(link_s * link,state_controller_s * state)
 	}
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-	link_controller_disconnect(link);
+		link_controller_disconnect(link);
 		return FAILURE;
 	}
 	/*TODO запись чтение в разных потоках */
@@ -815,7 +815,6 @@ flag_t controller_info(state_controller_s * state,flag_t * info)
 	if(mode == STATE_MODE_ERROR){
 		return STATE_INFO_ERROR;
 	}
-
 
 	*info = STATE_INFO_NORM;
 

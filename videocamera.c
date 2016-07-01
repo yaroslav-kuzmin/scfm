@@ -292,7 +292,7 @@ GtkWidget * create_block_videocamera(void)
 
 flag_t videocamera_status(videocamera_s * videocamera)
 {
-	videocamera->object->status = STATUS_ERROR;
-	return STATUS_ERROR;
+	videocamera->object->status = STATUS_ON_ERROR_LINK;
+	return SUCCESS;
 }
 /*****************************************************************************/

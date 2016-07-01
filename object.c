@@ -200,15 +200,15 @@ GtkWidget * create_block_object(void)
 /*****************************************************************************/
 flag_t object_status(object_s * object)
 {
-	flag_t status = STATUS_OFF;
+	flag_t status = object->status;
 	int type = object->type;
 
 	switch (type){
 		case TYPE_CONTROLLER:
-			status = controller_status(object->property);
+			controller_status(object->property);
 			break;
 		case TYPE_VIDEOCAMERA:
-			status = videocamera_status(object->property);
+			videocamera_status(object->property);
 			break;
 		case TYPE_GROUP:
 		case TYPE_KERNEL:
@@ -216,29 +216,28 @@ flag_t object_status(object_s * object)
 		default:
 			break;
 	}
-
 	if(status != object->status){
-		char * str;
+		char * str = MESSAGE_STATUS_OFF;
+		status = object->status;
 		switch(status){
+			case STATUS_ON_NORM:
+				str = MESSAGE_STATUS_ON_NORM;
+				break;
+			case STATUS_ON_ERROR_LINK:
+				str = MESSAGE_STATUS_ON_ERROR_LINK;
+				break;
+			case STATUS_ON_CRASH:
+				str = MESSAGE_STATUS_ON_CRASH;
+				break;
+			case STATUS_ON_WARNING:
+				str = MESSAGE_STATUS_ON_WARNING;
+				break;
 			case STATUS_OFF:
-				str = MESSAGE_STATUS_OFF;
-			 	break;
-			case STATUS_ERROR:
-				str = MESSAGE_STATUS_ERROR;
-				break;
-			case STATUS_WAIT:
-				str = MESSAGE_STATUS_WAIT;
-				break;
-			case STATUS_NORM:
-				str = MESSAGE_STATUS_NORM;
-				break;
 			default:
-				str = MESSAGE_STATUS_OFF;
 				break;
 		}
-		g_info("Состояние %s : %s",object->name,str);
+		g_info("Состояние Объекта %s : %s",object->name,str);
 	}
-
 	return status;
 }
 /*****************************************************************************/

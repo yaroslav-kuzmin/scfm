@@ -200,13 +200,20 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 static flag_t init_image(block_tree_s * bt)
 {
 	GdkPixbuf * buf;
-	buf = get_resource_image(RESOURCE_STYLE,"tree-normal");
-	bt->image[STATUS_NORM] = buf;
-	buf = get_resource_image(RESOURCE_STYLE,"tree-error");
-	bt->image[STATUS_ERROR] = buf;
-	buf = get_resource_image(RESOURCE_STYLE,"tree-wait");
-	bt->image[STATUS_WAIT] = buf;
-	buf = get_resource_image(RESOURCE_STYLE,"tree-off");
+
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-normal");
+	bt->image[STATUS_ON_NORM] = buf;
+
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-error-link");
+	bt->image[STATUS_ON_ERROR_LINK] = buf;
+
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-crash");
+	bt->image[STATUS_ON_CRASH] = buf;
+
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-warning");
+	bt->image[STATUS_ON_WARNING] = buf;
+
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-off");
 	bt->image[STATUS_OFF] = buf;
 
 	return SUCCESS;
