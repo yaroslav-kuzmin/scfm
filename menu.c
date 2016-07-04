@@ -144,11 +144,13 @@ static GtkWidget * create_menu_job(GtkWidget * win_main,GtkAccelGroup * main_acc
 	menite_config = gtk_menu_item_new_with_label("Конфигурирование");
 	g_signal_connect(menite_config,"activate",G_CALLBACK(activate_menu_job_config),win_main);
 	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
-	                          ,GDK_KEY_C,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	                          ,GDK_KEY_S,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
 	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
-	                          ,0x0063,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+	                          ,0x0073,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+/*
 	gtk_widget_add_accelerator(menite_config,"activate",main_accgro
 	                          ,0x06D3,GDK_CONTROL_MASK,GTK_ACCEL_VISIBLE);
+*/
 	gtk_menu_shell_append(GTK_MENU_SHELL(men_job),menite_config);
 
 	menite_s0 = gtk_separator_menu_item_new();

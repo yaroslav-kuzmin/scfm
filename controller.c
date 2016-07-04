@@ -2657,6 +2657,15 @@ static gpointer controller_communication(gpointer ud)
 }
 
 /*****************************************************************************/
+/* создание потока подключения и взаимодействия по компорту                  */
+/*****************************************************************************/
+#ifdef SINGLE_CONNECT
+typedef
+
+#endif
+
+
+/*****************************************************************************/
 /* создание потоков подключения и взаимодействия                             */
 /*****************************************************************************/
 
@@ -2793,6 +2802,7 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 				g_mutex_unlock(&(control->mutex));
 			}
 		}
+
 		for(;;){
 			str = info_controller_string(info);
 			g_info("Контроллер %s : %s",controller->object->name,str);
@@ -2800,6 +2810,7 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 			if((info == STATE_INFO_ERROR) || (info == STATE_ERROR)){
 				break;
 			}
+
 		}
 		copy = OK;
 	}
