@@ -650,7 +650,7 @@ typedef struct _control_controller_s control_controller_s;
 struct _control_controller_s
 {
 	command_u	command;
-	GMutex mutex;
+	GMutex * mutex;
 	GThread * thread;
 	uint32_t timeout;
 };

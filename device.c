@@ -313,6 +313,9 @@ flag_t link_controller_state(link_s * link,state_controller_s * state)
 	if(ctx == NULL){
 		return FAILURE;
 	}
+
+	modbus_set_slave(ctx,link->id);
+
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
 		link_controller_disconnect(link);
@@ -343,6 +346,9 @@ flag_t link_controller_config(link_s * link,config_controller_s * config)
 	if(ctx == NULL){
 		return FAILURE;
 	}
+
+	modbus_set_slave(ctx,link->id);
+
 	rc = modbus_read_registers(ctx,reg_D300,AMOUNT_CONFIG_REGISTER,dest);
 	if(rc == -1){
 		link_controller_disconnect(link);
@@ -582,6 +588,7 @@ flag_t link_controller_command(link_s * link,command_u command)
 
 	set_value_command(command,&reg,&value);
 
+	modbus_set_slave(ctx,link->id);
 	rc = modbus_write_register(ctx,reg,value);
 	if(rc == -1){
 		link_controller_disconnect(link);
