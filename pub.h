@@ -65,6 +65,9 @@
 
 typedef unsigned int   flag_t;
 #define MILLISECOND_PER_SECOND       1000
+
+
+#define ERROR_PORGRAM        		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__)
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];

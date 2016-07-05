@@ -539,6 +539,9 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		}
 		/*TODO проверка на тип колонок и название */
 		/*TODO где делать проверки на корректность*/
+
+		/*Информация по типу подключения и параметры подключения*/
+		/*TODO перенести в отдельную таблицу*/
 		controller->link->type = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_TYPE_LINK);
 		controller->link->id = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_ID);
 		address = (const char*)sqlite3_column_text(stmt,COLUMN_TABLE_CONTROLLER_ADDRESS);
@@ -550,6 +553,7 @@ int read_database_controller(uint32_t number,controller_s * controller)
 		controller->link->parity = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_PARITY);
 		controller->link->data_bit = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_DATA_BIT);
 		controller->link->stop_bit = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_STOP_BIT);
+		/*Информация по типу и параметрам контроллера */
 		controller->config->type = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_TYPE);
 		controller->config->flag = sqlite3_column_int64(stmt,COLUMN_TABLE_CONTROLLER_FLAG);
 		controller->config->rate_tic_vertical = sqlite3_column_double(stmt,COLUMN_TABLE_CONTROLLER_TIC_VERTICAL);

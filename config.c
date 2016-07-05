@@ -231,7 +231,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	config->model_group = model;
 	gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 	if(group == NULL){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		ERROR_PORGRAM;
 		return ;
 	}
 
@@ -246,7 +246,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 		gtk_tree_model_iter_parent(model,&iter_parent_group,iter_parent);
 		gtk_tree_model_get(model,&iter_parent_group,COLUMN_POINT_TREE,&object,-1);
 		if(group == NULL){
-			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+			ERROR_PORGRAM;
 			return ;
 		}
 		config->parent_group = object;
@@ -260,7 +260,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 		gtk_tree_model_get(model,iter_parent,COLUMN_POINT_TREE,&group,-1);
 		gtk_tree_model_get(model,iter,COLUMN_POINT_TREE,&object,-1);
 		if( (group == NULL) || (object == NULL)){
-			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+			ERROR_PORGRAM;
 			return ;
 		}
 		config->group = group;
@@ -272,9 +272,9 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 			gtk_label_set_text(config->select_group,group->name);
 		}
 		else{
-			g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
 			config->group = NULL;
 			config->object = NULL;
+			ERROR_PORGRAM;
 		}
 	}
 }
@@ -289,12 +289,12 @@ static flag_t	select_first_group(GtkTreeView * treeview,block_config_s * config)
 
 	rc = gtk_tree_model_get_iter_first(model,&iter_parent);
 	if(rc != TRUE){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		ERROR_PORGRAM;
 		return FAILURE;
 	}
 	gtk_tree_model_get(model,&iter_parent,COLUMN_POINT_TREE,&group,-1);
 	if(group == NULL){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		ERROR_PORGRAM;
 		return FAILURE;
 	}
 

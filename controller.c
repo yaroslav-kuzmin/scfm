@@ -115,12 +115,14 @@ struct _show_control_s
 	command_u oscillation_command;
 };
 
-typedef struct _communication_controller_s  communication_controller;
-struct _communication_controller_s
+typedef struct _connect_s  connect_s;
+struct _connect_s
 {
 	link_s * link;
-	GSList * controllers;
+	GSList * list_controllers;
 
+	GMutex mutex;
+	GThread * thread;
 };
 
 typedef struct _block_controller_s block_controller_s;
@@ -135,7 +137,8 @@ struct _block_controller_s
 
 	/*потоки взаимодействия с конторлером*/
 	controller_s * current;
-	GSList * list_controllers;
+
+	GSList * list_connect;
 
 	/*отображение блока управления в разных режимах*/
 	show_state_s * state;
@@ -719,7 +722,7 @@ static flag_t info_controller_number(state_controller_s * state,flag_t number)
 	flag_t * info;
 
 	if(number > AMOUNT_STATE_CONTROLLER){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		ERROR_PORGRAM;
 		return STATE_INFO_ERROR;;
 	}
 
@@ -2672,41 +2675,57 @@ static gpointer communication_devices(gpointer ud)
 /*****************************************************************************/
 /* создание потоков подключения и взаимодействия                             */
 /*****************************************************************************/
-
-static flag_t control_controllers_on(block_controller_s * bc)
+static flag_t connect_controllers(connect_s * connect)
 {
-	int i;
-	GSList * list = bc->list_controllers;
-	GThread * thread;
+	GSList * list = connect->list_controllers;
+	GThread thread;
 
-	if( list == NULL){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
-		return FAILURE;
-	}
+	g_mutex_lock(&(connect->mutex));
+	thread = connect->thread;
+	g_mutex_unlock(&(connect->mutex));
 
-	for(i = 0;list;i++){
+	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
 		control_controller_s * control = controller->control;
 
-		g_mutex_lock(control->mutex);
-		thread = control->thread;
-		g_mutex_unlock(control->mutex);
 		if(thread == NULL){
 			controller_null_state(controller->state);
 			controller_null_state(controller->state_past);
 			control->timeout = DEFAULT_TIMEOUT_ALL;
-			g_string_printf(pub,"controller_%04d",i);
-			control->thread = g_thread_new(pub->str,controller_communication,controller);
-			g_info("Контроллер инициализирован : %s",controller->name);
+			g_info("Контроллер инициализирован : %s",controller->object->name);
 		}
 		else{
 			g_mutex_lock(control->mutex);
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			g_mutex_unlock(control->mutex);
-			g_info("Контроллер инициализирован повторно : %s",controller->name);
+			g_info("Контроллер инициализирован повторно : %s",controller->object->name);
 		}
 		list = g_slist_next(list);
 	}
+
+	if(thread == NULL){
+		connect->thread = g_thread_new("connect",connect_communication,connect);
+	}
+
+}
+
+static flag_t control_controllers_on(block_controller_s * bc)
+{
+	int i;
+	GSList * list = bc->list_connect;
+	connect_s * connect;
+
+	if( list == NULL){
+		ERROR_PORGRAM;
+		return FAILURE;
+	}
+
+	for(;list;){
+		connect = list->data;
+		connect_controllers(connect);
+		list = g_slist_next(list);
+	}
+
 	return SUCCESS;
 }
 
@@ -2716,7 +2735,7 @@ static flag_t control_controllers_off(block_controller_s * bc)
 	GThread * thread;
 
 	if(list == NULL){
-		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__);
+		ERROR_PORGRAM;
 		return SUCCESS;
 	}
 
@@ -2860,13 +2879,13 @@ flag_t controller_status(controller_s * controller)
 
 int init_all_controllers(void)
 {
-	block_controller.list_controllers = NULL;
+	block_controller.list_connect = NULL;
 	return SUCCESS;
 }
 
 int deinit_all_controllers(void)
 {
-	GSList * list = block_controller.list_controllers;
+	GSList * list = block_controller.list_connect;
 	g_slist_free(list);
 	return SUCCESS;
 }
@@ -2874,14 +2893,122 @@ int deinit_all_controllers(void)
 /*****************************************************************************/
 /* Выделение и высвобождения памяти для структур контроллера                  */
 /*****************************************************************************/
+static flag_t check_link(link_s * connect,link_s * controller)
+{
+	flag_t rc;
 
+	if(connect->type != controller->type){
+		return FAILURE;
+	}
+
+	if(connect->type == TYPE_LINK_UART){
+		rc = g_strcmp0(connect->device,controller->device);
+		if(rc != 0){
+			return FAILURE;
+		}
+	}
+	else{
+		if(connect->type == TYPE_LINK_TCP){
+			rc = g_strcmp0(connect->address,controller->address);
+			if(rc != 0){
+				return FAILURE;
+			}
+			if(connect->port != controller->port){
+				return FAILURE;
+			}
+		}
+		else{
+			ERROR_PORGRAM;
+			return FAILURE;
+		}
+	}
+	return SUCCESS;
+}
+static flag_t copy_link(link_s * connect,link_s * controller)
+{
+	connect->type = controller->type;
+	if(connect->type == TYPE_LINK_UART){
+			connect->device = g_strdup(controller->device);
+			connect->baud = controller->baud;
+			connect->parity = controller->parity;
+			connect->data_bit = controller->data_bit;
+			connect->stop_bit = controller->stop_bit;
+	}
+	else{
+		if(connect->type == TYPE_LINK_TCP){
+				connect->address = g_strdup(controller->address);
+				connect->port = controller->port;
+		}
+		else{
+			ERROR_PORGRAM;
+			return FAILURE;
+		}
+	}
+	return SUCCESS;
+}
+static connect_s * new_connect(controller_s * controller)
+{
+	connect_s * connect;
+
+	connect = g_slice_alloc0(sizeof(connect_s));
+	connect->link = g_slice_alloc0(sizeof(link_s));
+	copy_link(connect->link,controller->link);
+
+	g_mutex_init(&(connect->mutex));
+
+	return connect;
+}
+static flag_t del_connect(connect_s * connect)
+{
+	link_s * link = connect->link;
+	if(link->type == TYPE_LINK_UART){
+		g_free(link->device);
+	}
+	else{
+		if(link->type == TYPE_LINK_TCP){
+			g_free(link->address);
+		}
+	}
+	g_slice_free1(sizeof(link_s),link);
+	g_slist_free(connect->list_controllers);
+	g_mutex_clear(&(connect->mutex));
+	g_slice_free1(sizeof(connect_s),connect);
+
+	return SUCCESS;
+}
+
+static flag_t add_connect(block_controller_s * bc,controller_s * controller)
+{
+	flag_t rc;
+	GSList * list = bc->list_connect;
+	connect_s * connect = NULL;
+
+	/*проверка на наличие одинакового подключения*/
+	for(;list;){
+		connect = list->data;
+		rc = check_link(connect->link,controller->link);
+		if(rc == SUCCESS){
+			break;
+		}
+		list = g_slist_next(list);
+	}
+
+	if(list == NULL){
+		connect = new_connect(controller);
+		list = g_slist_append(list,connect);
+		bc->list_connect = list;
+	}
+
+	connect->list_controllers = g_slist_append(connect->list_controllers,controller);
+	controller->control->mutex = &(connect->mutex);
+	return SUCCESS;
+}
 /*Выделение памяти и считывание из базы данных*/
 controller_s * init_controller(object_s * object)
 {
 	int rc;
 	uint32_t number = object->number;
 	controller_s * controller = NULL;
-	GSList * list = block_controller.list_controllers;
 
 	controller = g_slice_alloc0(sizeof(controller_s));
 	controller->status = STATUS_OFF;
@@ -2909,12 +3036,10 @@ controller_s * init_controller(object_s * object)
 	}
 	controller->name = controller_name(controller->config);
 	controller->type = controller_type_device(controller->config);
-
-	list = g_slist_append(list,controller);
-
-	block_controller.list_controllers = list;
-
 	controller->object = object;
+
+	add_connect(&block_controller,controller);
+
 #if 0
 	g_info(" %s ",controller->name);
 	g_debug("type               :> %d",controller->config->type);
