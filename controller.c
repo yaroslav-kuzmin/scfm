@@ -118,6 +118,7 @@ struct _show_control_s
 typedef struct _connect_s  connect_s;
 struct _connect_s
 {
+	char * name;
 	link_s * link;
 	GSList * list_controllers;
 
@@ -722,7 +723,7 @@ static flag_t info_controller_number(state_controller_s * state,flag_t number)
 	flag_t * info;
 
 	if(number > AMOUNT_STATE_CONTROLLER){
-		ERROR_PORGRAM;
+		ERROR_PROGRAM;
 		return STATE_INFO_ERROR;;
 	}
 
@@ -2610,68 +2611,58 @@ static flag_t controller_write_read(link_s * link,state_controller_s * state,con
 	return SUCCESS;
 }
 
-static gpointer controller_communication(gpointer ud)
+static flag_t set_status_controllers(connect_s * connect,flag_t status)
 {
-	controller_s * controller = (controller_s *)ud;
+	GSList * list = connect->list_controllers;
+
+	for(;list;){
+		controller_s * controller = list->data;
+		controller->status = status;
+		list = g_slist_next(list);
+	}
+
+	return SUCCESS;
+}
+static flag_t connect_link(connect_s * connect)
+{
+
+}
+static gpointer connect_communication(gpointer ud)
+{
+	connect_s * connect = (connect_s*)ud;
 	uint32_t timeout;
-	flag_t rc;
-	link_s * link = controller->link;
-	state_controller_s * state = controller->state;
-	control_controller_s * control = controller->control;
-	GThread * thread;
+	link_s * link = connect->link;
 
 	for(;;){
-		g_mutex_lock(control->mutex);
-		timeout = control->timeout;
-		g_mutex_unlock(control->mutex);
-
+		g_mutex_lock(&(connect->mutex));
+		timeout = connect->timeout;
+		g_mutex_unlock(&(connect->mutex));
 		if(timeout == 0){
-			link_controller_disconnect(link);
-
-			g_mutex_lock(control->mutex);
-			thread = control->thread;
-			control->thread = NULL;
-			controller->status = STATUS_OFF;
-			controller_null_state(state);
-			g_mutex_unlock(control->mutex);
-			g_thread_exit(thread);
-
 			break;
 		}
 		rc = link_check_connect(link);
-		if(rc == STATUS_ON_ERROR_LINK){
-			/*нет соединения*/
-			g_mutex_lock(control->mutex);
-			controller->status = STATUS_ON_ERROR_LINK;
-			g_mutex_unlock(control->mutex);
-			controller_link(controller);
+		if(rc == STATUS_ON_LINK_OFF){
+			g_mutex_lock(&(connect->mutex));
+			set_status_controllers(connect,STATUS_ON_LINK_OFF);
+			g_mutex_unlock(&(connect->mutex));
+			connect_link(connect);
 		}
-		else{
-			rc = controller_write_read(link,state,control);
-			if(rc == FAILURE){
-				g_mutex_lock(control->mutex);
-				controller->status = STATUS_ON_ERROR_LINK;
-				g_mutex_unlock(control->mutex);
-			}
-		}
+
 		g_usleep(timeout);
 	}
-	/*TODO возможна колизия*/
 
-	g_mutex_lock(control->mutex);
-	thread = control->thread;
-	control->thread = NULL;
-	controller->status = STATUS_OFF;
+	link_controller_disconnect(link);
+
+	g_mutex_lock(&(connect->mutex));
+	thread = connect->thread;
+	connect->thread = NULL;
+	set_status_controllers(connect,STATUS_OFF);
 	g_mutex_unlock(control->mutex);
+
 	g_thread_exit(thread);
+
 	return NULL;
 }
-
-static gpointer communication_devices(gpointer ud)
-{
-	return NULL;
-}
-
 /*****************************************************************************/
 /* создание потоков подключения и взаимодействия                             */
 /*****************************************************************************/
@@ -2704,9 +2695,11 @@ static flag_t connect_controllers(connect_s * connect)
 	}
 
 	if(thread == NULL){
+		connect->timeout = DEFAULT_TIMEOUT_CURRENT;
 		connect->thread = g_thread_new("connect",connect_communication,connect);
+		g_info("Подключение к интерфейсу : <%s>",connect->name;
 	}
-
+	return SUCCESS;
 }
 
 static flag_t control_controllers_on(block_controller_s * bc)
@@ -2716,7 +2709,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 	connect_s * connect;
 
 	if( list == NULL){
-		ERROR_PORGRAM;
+		ERROR_PROGRAM;
 		return FAILURE;
 	}
 
@@ -2729,31 +2722,43 @@ static flag_t control_controllers_on(block_controller_s * bc)
 	return SUCCESS;
 }
 
-static flag_t control_controllers_off(block_controller_s * bc)
+static flag_t disconnect_controllers(connect_s * connect)
 {
-	GSList * list = bc->list_controllers;
-	GThread * thread;
+	GThread * tread;
 
-	if(list == NULL){
-		ERROR_PORGRAM;
-		return SUCCESS;
+	g_mutex_lock(&(connect->mutex));
+	thread = connect->thread;
+	g_mutex_unlock(&(connect->mutex));
+	if(thread != NULL){
+		g_mutex_lock(&(connect->mutex));
+		connect->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
+		g_mutex_unlock(&(connect->mutex));
+		g_info("Отключение от интерфейса : <%s>",connect->name;
 	}
 
 	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
-		control_controller_s *control = controller->control;
-
-		g_mutex_lock(control->mutex);
-		thread = control->thread;
-		g_mutex_unlock(control->mutex);
-		if(thread != NULL){
-			g_mutex_lock(control->mutex);
-			control->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
-			g_mutex_unlock(control->mutex);
-			g_info("Контроллер деинициализирован : %s",controller->name);
-		}
+		g_info("Контроллер деинициализирован : %s",controller->object->name);
 		list = g_slist_next(list);
 	}
+	return SUCCESS;
+}
+
+static flag_t control_controllers_off(block_controller_s * bc)
+{
+	GSList * list = bc->list_connect;
+
+	if(list == NULL){
+		ERROR_PROGRAM;
+		return SUCCESS;
+	}
+
+	for(;list;){
+		connect = list->data;
+		disconnect_controllers(connect);
+		list = g_slist_next(list);
+	}
+
 	return FAILURE;
 }
 
@@ -2918,7 +2923,7 @@ static flag_t check_link(link_s * connect,link_s * controller)
 			}
 		}
 		else{
-			ERROR_PORGRAM;
+			ERROR_PROGRAM;
 			return FAILURE;
 		}
 	}
@@ -2940,7 +2945,7 @@ static flag_t copy_link(link_s * connect,link_s * controller)
 				connect->port = controller->port;
 		}
 		else{
-			ERROR_PORGRAM;
+			ERROR_PROGRAM;
 			return FAILURE;
 		}
 	}
@@ -2955,9 +2960,22 @@ static connect_s * new_connect(controller_s * controller)
 	copy_link(connect->link,controller->link);
 
 	g_mutex_init(&(connect->mutex));
-
+	if(connect->type == TYPE_LINK_UART){
+		g_string_printf(pub,"file : %s",connect->link->device);
+		connect->name = g_strdup(pub->str);
+	}
+	else{
+		if(connect->type == TYPE_LINK_TCP){
+			g_string_printf(pub,"address : %s:%d",connect->link->address,connect->link->port);
+			connect->name = g_strdup(pub->str);
+		}
+		else{
+			ERROR_PROGRAM;
+		}
+	}
 	return connect;
 }
+
 static flag_t del_connect(connect_s * connect)
 {
 	link_s * link = connect->link;

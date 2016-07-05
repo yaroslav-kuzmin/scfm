@@ -54,12 +54,12 @@
 /*  Проверка подключения конторллера                                         */
 /*                                                                           */
 /*****************************************************************************/
-flag_t link_check_connect(link_s * link)
+flag_t device_check_connect(link_s * link)
 {
 	if(link->connect == NULL){
-		return STATUS_ON_ERROR_LINK;
+		return STATUS_ON_LINK_OFF;
 	}
-	return STATUS_ON_NORM;
+	return STATUS_ON_LINK_ON;
 }
 
 /*****************************************************************************/
@@ -68,7 +68,7 @@ flag_t link_check_connect(link_s * link)
 /*                                                                           */
 /*****************************************************************************/
 
-flag_t link_controller_disconnect(link_s * link)
+flag_t device_disconnect(link_s * link)
 {
 	uint16_t * dest = link->dest;
 	modbus_t * ctx = (modbus_t*)link->connect;
@@ -304,7 +304,7 @@ static uint16_t reg_D100 = 0x1064;
 #define AMOUNT_STATE_REGISTER    19
 
 /*считать состояние*/
-flag_t link_controller_state(link_s * link,state_controller_s * state)
+flag_t device_read_state(link_s * link,state_controller_s * state)
 {
  	int rc;
 	uint16_t * dest = link->dest;
@@ -337,7 +337,7 @@ static uint16_t reg_D300 = 0x112C;
 #define AMOUNT_CONFIG_REGISTER    8
 
 /*считать конфигурацию*/
-flag_t link_controller_config(link_s * link,config_controller_s * config)
+flag_t device_read_config(link_s * link,config_controller_s * config)
 {
 	int rc;
 	uint16_t * dest = link->dest;
@@ -360,7 +360,7 @@ flag_t link_controller_config(link_s * link,config_controller_s * config)
 	return SUCCESS;
 }
 
-flag_t link_controller_connect(link_s * link)
+flag_t device_connect(link_s * link)
 {
 	int rc;
 	switch(link->type){
@@ -375,24 +375,6 @@ flag_t link_controller_connect(link_s * link)
 			break;
 	}
 	return rc;
-}
-
-flag_t link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
-{
-	int rc;
-	rc = link_controller_connect(link);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_controller_config(link,config);
-	if(rc == FAILURE){
-		return rc;
-	}
-	rc = link_controller_state(link,state);
-	if(rc == FAILURE){
-		return rc;
-	}
-	return SUCCESS;
 }
 
 /*****************************************************************************/
@@ -575,7 +557,7 @@ static flag_t set_value_command(command_u command,uint16_t * reg,uint16_t * valu
 	return SUCCESS;
 }
 
-flag_t link_controller_command(link_s * link,command_u command)
+flag_t device_write_command(link_s * link,command_u command)
 {
 	int rc;
 	modbus_t * ctx = (modbus_t*)link->connect;

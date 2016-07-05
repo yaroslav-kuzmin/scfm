@@ -51,13 +51,12 @@ flag_t controller_mode(state_controller_s * state);
 flag_t controller_state_fire_alarm(state_controller_s * state);
 flag_t controller_info(state_controller_s * state,flag_t * info);
 
-flag_t link_controller_command(link_s * link,command_u command);
-flag_t link_controller_state(link_s * link,state_controller_s * state);
-flag_t link_controller_config(link_s * link,config_controller_s * config);
-flag_t link_controller_connect(link_s * link);
-flag_t link_controller_disconnect(link_s * link);
-flag_t link_controller(link_s * link,config_controller_s * config,state_controller_s * state);
-flag_t link_check_connect(link_s * link);
+flag_t device_connect(link_s * link);
+flag_t device_disconnect(link_s * link);
+flag_t device_check_connect(link_s * link);
+flag_t device_write_command(link_s * link,command_u command);
+flag_t device_read_state(link_s * link,state_controller_s * state);
+flag_t device_read_config(link_s * link,config_controller_s * config);
 
 flag_t controller_check_config(config_controller_s * config_c,config_controller_s * config_d);
 flag_t controller_copy_state(state_controller_s * des,state_controller_s * src);

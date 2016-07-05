@@ -67,7 +67,7 @@ typedef unsigned int   flag_t;
 #define MILLISECOND_PER_SECOND       1000
 
 
-#define ERROR_PORGRAM        		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__)
+#define ERROR_PROGRAM        		g_critical("Ошибка программы %s:%d",__FILE__,__LINE__)
 /**************************************/
 
 extern char STR_NAME_PROGRAMM[];
@@ -120,6 +120,8 @@ enum
 {
 	STATUS_OFF = 0,
 	STATUS_ON_NORM,
+	STATUS_ON_LINK_ON,
+	STATUS_ON_LINK_OFF,
 	STATUS_ON_CRASH,
 	STATUS_ON_WARNING,
  	STATUS_ON_ERROR_LINK,
@@ -654,8 +656,8 @@ struct _control_controller_s
 {
 	command_u	command;
 	GMutex * mutex;
-	GThread * thread;
 	uint32_t timeout;
+	uint32_t counter;
 };
 
 enum
