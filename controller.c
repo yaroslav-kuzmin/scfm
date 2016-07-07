@@ -119,6 +119,7 @@ typedef struct _connect_s  connect_s;
 struct _connect_s
 {
 	char * name;
+	uint32_t timeout;
 	link_s * link;
 	GSList * list_controllers;
 
@@ -2558,35 +2559,6 @@ GtkWidget * create_block_controller(void)
 /* Функции взаимодействия с конторлером в отдельном потоке                   */
 /*                                                                           */
 /*****************************************************************************/
-static flag_t controller_link(controller_s * controller)
-{
-	int rc;
-	link_s * link = controller->link;
-	config_controller_s check_config;
-	config_controller_s * config = controller->config;
-	state_controller_s new_state;
-	state_controller_s * state = controller->state;
-	control_controller_s * control = controller->control;
-
-	rc = link_controller(link,&check_config,&new_state);
-	if(rc == FAILURE){
-		return rc;
-	}
-
-	rc = controller_check_config(&check_config,config);
-	if(rc == FAILURE){
-		/*TODO выставить статус не корректная база данных*/
-		link_controller_disconnect(link);
-		return rc;
-	}
-	g_mutex_lock(control->mutex);
-	controller_copy_state(state,&new_state);
-	controller->status = STATUS_ON_NORM;
-	g_mutex_unlock(control->mutex);
-
-	return SUCCESS;
-}
-
 static flag_t controller_write_read(link_s * link,state_controller_s * state,control_controller_s * control)
 {
 	flag_t rc;
@@ -2623,9 +2595,38 @@ static flag_t set_status_controllers(connect_s * connect,flag_t status)
 
 	return SUCCESS;
 }
+
 static flag_t connect_link(connect_s * connect)
 {
+	flag_t rc;
+	link_s * link = controller->link;
+	GSList * list = connect->list_controllers;
 
+	rc = device_connect(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+
+	for(;list;){
+		state_controller_s state;
+		config_controller_s config;
+		controller_s * controller = list->data;
+
+		link->id = controller->link->id;
+		rc = device_read_state(link,&state);
+		if(rc == FAILURE){
+			/*TODO значит чтение одно устройства не прошло
+			       стоит выключить все устройства или проверить другие*/
+			device_disconnect(link);
+			return FAILURE;
+		}
+		g_mutex_lock(&(connect->mutex));
+		controller_copy_state(controller->state,&state);
+		controller->status =
+		g_mutex_unlock(control->mutex);
+		list = g_slist_next(list);
+	}
+	return SUCCESS;
 }
 static gpointer connect_communication(gpointer ud)
 {
@@ -2640,18 +2641,24 @@ static gpointer connect_communication(gpointer ud)
 		if(timeout == 0){
 			break;
 		}
-		rc = link_check_connect(link);
+		rc = device_check_connect(link);
 		if(rc == STATUS_ON_LINK_OFF){
 			g_mutex_lock(&(connect->mutex));
 			set_status_controllers(connect,STATUS_ON_LINK_OFF);
 			g_mutex_unlock(&(connect->mutex));
-			connect_link(connect);
+			rc = connect_link(connect);
+			if(rc == SUCCESS){
+				g_mutex_lock(&(connect->mutex));
+				set_status_controllers(connect,STATUS_ON_LINK_ON);
+				g_mutex_unlock(&(connect->mutex));
+			}
+
 		}
 
 		g_usleep(timeout);
 	}
 
-	link_controller_disconnect(link);
+	device_disconnect(link);
 
 	g_mutex_lock(&(connect->mutex));
 	thread = connect->thread;
