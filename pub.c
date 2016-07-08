@@ -57,7 +57,9 @@ char MESSAGE_STATUS_OFF[]           = "Отключена";
 char MESSAGE_STATUS_ON_NORM[]       = "Норма";
 char MESSAGE_STATUS_ON_CRASH[]      = "Авария";
 char MESSAGE_STATUS_ON_WARNING[]    = "Предупреждение";
-char MESSAGE_STATUS_ON_ERROR_LINK[] = "Ошибка подключения";
+char MESSAGE_STATUS_ON_ERROR_LINK[] = "Ошибка чтения/записи";
+char MESSAGE_STATUS_ON_LINK_ON[]    = "Подключение";
+char MESSAGE_STATUS_ON_LINK_OFF[]   = "Отключение";
 
 GdkRGBA color_black =      {0    ,0    ,0    ,1};
 GdkRGBA color_green =      {0    ,1    ,0    ,1};

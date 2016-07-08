@@ -541,7 +541,7 @@ GtkWidget * builder_widget(flag_t module, char * name)
 			g_string_append_printf(pub,"/ui/%s.ui",STR_MODULE_MAIN_WINDOW);
 			break;
 		default:
-			ERROR_PORGRAM;
+			ERROR_PROGRAM;
 			return NULL;
 	}
 

@@ -133,6 +133,8 @@ extern char MESSAGE_STATUS_ON_NORM[];
 extern char MESSAGE_STATUS_ON_CRASH[];
 extern char MESSAGE_STATUS_ON_WARNING[];
 extern char MESSAGE_STATUS_ON_ERROR_LINK[];
+extern char MESSAGE_STATUS_ON_LINK_ON[];
+extern char MESSAGE_STATUS_ON_LINK_OFF[];
 
 /* расширеная информация о состоянии*/
 extern char STATUS_ERROR_NOT_CORRECT_CONFIG[];
@@ -650,11 +652,10 @@ union _command_u
 	uint64_t all;
 	command_part_s part;
 };
-
+/*TODO изменить название*/
 typedef struct _control_controller_s control_controller_s;
 struct _control_controller_s
 {
-	command_u	command;
 	GMutex * mutex;
 	uint32_t timeout;
 	uint32_t counter;
@@ -675,14 +676,16 @@ struct _controller_s
 	char * name;
 	flag_t type;
 
-	flag_t status;
+	flag_t status_link;
 	char * str_status;
 
 	link_s * link;
 	config_controller_s * config;
+	flag_t status_config;
 	state_controller_s * state;
 	state_controller_s * state_past;
 	control_controller_s * control;
+	command_u	command;
 };
 /**************************************/
 #endif

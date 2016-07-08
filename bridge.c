@@ -388,15 +388,15 @@ static int connect_bridge(block_bridge_s * bb)
 	uint16_t amount_registers = cell_server->amount_reg;
 
 	link = cell_server->link;
-	rc = link_controller_connect(link);
+	rc = device_connect(link);
 	if(rc != SUCCESS){
 		return FAILURE;
 	}
 	link = cell_client->link;
-	rc = link_controller_connect(link);
+	rc = device_connect(link);
 	if(rc != SUCCESS){
 		link = cell_server->link;
-		link_controller_disconnect(link);
+		device_disconnect(link);
 		return FAILURE;
 	}
 	cell_server->mapp_reg = modbus_mapping_new(0,0,begin_registers + amount_registers,0);
@@ -410,9 +410,9 @@ static int disconnect_bridge(block_bridge_s * bb)
 	cell_s * cell_client = bb->cell[CELL_CLIENT];
 	link_s * link;
 	link = cell_server->link;
-	link_controller_disconnect(link);
+	device_disconnect(link);
 	link = cell_client->link;
-	link_controller_disconnect(link);
+	device_disconnect(link);
 
 	modbus_mapping_free(cell_server->mapp_reg);
 	g_free(cell_server->query);

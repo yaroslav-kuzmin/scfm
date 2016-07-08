@@ -1177,6 +1177,23 @@ static link_s * check_option_uart(block_setting_controller_s * bsc)
 	return link;
 }
 
+static flag_t link_controller(link_s * link,config_controller_s * config,state_controller_s * state)
+{
+	flag_t rc = SUCCESS;
+	rc = device_connect(link);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = device_read_state(link,state);
+	if(rc == FAILURE){
+		return rc;
+	}
+	rc = device_read_config(link,config);
+	if(rc == FAILURE){
+		return rc;
+	}
+	return rc;
+}
 static void clicked_button_check(GtkButton * button,gpointer ud)
 {
 	int rc;
@@ -1216,7 +1233,7 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 	/*TODO сообщенийние что проверка корректна*/
 	fill_block_info(bsc);
 
-	link_controller_disconnect(link);
+	device_disconnect(link);
 }
 
 static void clicked_radio_button_tcp(GtkRadioButton * rb,gpointer ud)
@@ -1494,7 +1511,7 @@ void * new_property_controller(void)
 	controller->config = config;
 	controller->state = state;
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->control->command.all = COMMAND_EMPTY;
+	controller->command.all = COMMAND_EMPTY;
 
 	return controller;
 }

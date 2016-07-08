@@ -232,6 +232,12 @@ flag_t object_status(object_s * object)
 			case STATUS_ON_WARNING:
 				str = MESSAGE_STATUS_ON_WARNING;
 				break;
+			case STATUS_ON_LINK_ON:
+				str = MESSAGE_STATUS_ON_LINK_ON;
+				break;
+			case STATUS_ON_LINK_OFF:
+				str = MESSAGE_STATUS_ON_LINK_OFF;
+				break;
 			case STATUS_OFF:
 			default:
 				break;

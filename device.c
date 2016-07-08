@@ -264,6 +264,7 @@ static flag_t connect_uart(link_s * link)
 	rc = modbus_connect(ctx);
 	if(rc == -1){
 		modbus_free(ctx);
+		link->connect = NULL;
 		return FAILURE;
 	}
 	link->connect = ctx;
