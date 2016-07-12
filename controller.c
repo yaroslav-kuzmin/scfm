@@ -1345,7 +1345,7 @@ static flag_t push_command_queue(controller_s * controller,command_u command,fla
 
 	g_mutex_lock(control->mutex);
 
-	/*g_info("command : %d",control->command.part.value);*/
+	g_info("command : %d",control->command.part.value);
 	if(controller->command.part.value == COMMAND_EMPTY){
 		controller->command.all = command.all;
 		/*g_info("command write");*/
@@ -2818,11 +2818,13 @@ static flag_t connect_controllers(connect_s * connect)
 			controller_null_state(controller->state_past);
 			control->timeout = DEFAULT_TIMEOUT_ALL;
 			control->counter = DEFAULT_TIMEOUT_ALL;
+			controller->command.all = COMMAND_EMPTY;
 			g_info("Контроллер инициализирован : %s",controller->object->name);
 		}
 		else{
 			g_mutex_lock(control->mutex);
 			control->timeout = DEFAULT_TIMEOUT_ALL;
+			controller->command.all = COMMAND_EMPTY;
 			g_mutex_unlock(control->mutex);
 			g_info("Контроллер инициализирован повторно : %s",controller->object->name);
 		}
@@ -3177,7 +3179,7 @@ controller_s * init_controller(object_s * object)
 	controller->state = g_slice_alloc0(sizeof(state_controller_s));
 	controller->state_past = g_slice_alloc0(sizeof(state_controller_s));
 	controller->control = g_slice_alloc0(sizeof(control_controller_s));
-	controller->command.all =  COMMAND_EMPTY;
+	controller->command.all = COMMAND_EMPTY;
 	/*память для обектов выделяется при чтении из базыданых*/
 	rc = read_database_controller(number,controller);
 	if(rc != SUCCESS){
