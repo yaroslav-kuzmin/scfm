@@ -111,7 +111,6 @@ struct _show_control_s
 	GtkToggleButton * but_oscillation_horizontal;
 	GtkToggleButton * but_oscillation_saw;
 	GtkToggleButton * but_oscillation_step;
-	flag_t oscillation_flag;
 	command_u oscillation_command;
 };
 
@@ -2062,6 +2061,8 @@ static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 	push_command_queue(controller,command,OK);
 	g_info("Контроллер %s : команда \"Стоп Осциляции\"",controller->object->name);
 }
+
+static flag_t 
 static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -2289,6 +2290,9 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 /* Выбор контроллера                                                         */
 /*                                                                           */
 /*****************************************************************************/
+static set_oscillation(block_controller_s * bc,state_controller_s * state)
+{
+}
 
 static flag_t	changed_block_controller(block_controller_s * bc
                                       ,config_controller_s * controller_config
@@ -2297,6 +2301,8 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	show_control_s * control = bc->control;
 	show_state_s * state = bc->state;
 	uint64_t flag = controller_config->flag;
+
+	set_oscillation(bc,controller_state);
 
 	if(!ENGINE_VERTICAL(flag)){
 		set_button_not_active(control->but_up);
@@ -2387,38 +2393,6 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	if(CAM_DIGITAL_DC(flag)){
 	}
 	if(CAM_DIGITAL_POE(flag)){
-	}
-	if(FIRE_ALARM_01(flag)){
-	}
-	if(FIRE_ALARM_02(flag)){
-	}
-	if(FIRE_ALARM_03(flag)){
-	}
-	if(FIRE_ALARM_04(flag)){
-	}
-	if(FIRE_ALARM_05(flag)){
-	}
-	if(FIRE_ALARM_06(flag)){
-	}
-	if(FIRE_ALARM_07(flag)){
-	}
-	if(FIRE_ALARM_08(flag)){
-	}
-	if(FIRE_ALARM_09(flag)){
-	}
-	if(FIRE_ALARM_10(flag)){
-	}
-	if(FIRE_ALARM_11(flag)){
-	}
-	if(FIRE_ALARM_12(flag)){
-	}
-	if(FIRE_ALARM_13(flag)){
-	}
-	if(FIRE_ALARM_14(flag)){
-	}
-	if(FIRE_ALARM_15(flag)){
-	}
-	if(FIRE_ALARM_16(flag)){
 	}
 	if(DEVICE_01_STATE_0(flag)){
 	}

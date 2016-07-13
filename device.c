@@ -752,24 +752,24 @@ flag_t controller_state_valve(state_controller_s * state)
 #define BIT_MODE_MANUAL_0             0x0200
 #define BIT_MODE_MANUAL_1             0x0400
 #define BIT_MODE_TEST                 0x0800
-#define BIT_MODE_VERTICAL             0x1000
-#define BIT_MODE_HORIZONTAL           0x2000
-#define BIT_MODE_SAW                  0x4000
-#define BIT_MODE_STEP                 0x8000
+#define BIT_OSCILLATION_VERTICAL      0x1000
+#define BIT_OSCILLATION_HORIZONTAL    0x2000
+#define BIT_OSCILLATION_SAW           0x4000
+#define BIT_OSCILLATION_STEP          0x8000
 
-#define ERROR_VERTICAL(b)        (b & BIT_ERROR_VERTICAL)
-#define ERROR_HORIZONTAL(b)      (b & BIT_ERROR_HORIZONTAL)
-#define ERROR_ACTUATOR_SPRAY(b)  (b & BIT_ERROR_ACTUATOR_SPRAY)
-#define ERROR_ACTUATOR_RATE(b)   (b & BIT_ERROR_ACTUATOR_RATE)
-#define ERROR_VALVE(b)           (b & BIT_ERROR_VALVE)
-#define MODE_AUTO(b)             (b & BIT_MODE_AUTO)
-#define MODE_MANUAL_0(b)         (b & BIT_MODE_MANUAL_0)
-#define MODE_MANUAL_1(b)         (b & BIT_MODE_MANUAL_1)
-#define MODE_TEST(b)             (b & BIT_MODE_TEST)
-#define MODE_VERTICAL(b)         (b & BIT_MODE_VERTICAL)
-#define MODE_HORIZONTAL(b)       (b & BIT_MODE_VERTICAL)
-#define MODE_SAW(b)              (b & BIT_MODE_SAW)
-#define MODE_STEP(b)             (b & BIT_MODE_STEP)
+#define ERROR_VERTICAL(b)          (b & BIT_ERROR_VERTICAL)
+#define ERROR_HORIZONTAL(b)        (b & BIT_ERROR_HORIZONTAL)
+#define ERROR_ACTUATOR_SPRAY(b)    (b & BIT_ERROR_ACTUATOR_SPRAY)
+#define ERROR_ACTUATOR_RATE(b)     (b & BIT_ERROR_ACTUATOR_RATE)
+#define ERROR_VALVE(b)             (b & BIT_ERROR_VALVE)
+#define MODE_AUTO(b)               (b & BIT_MODE_AUTO)
+#define MODE_MANUAL_0(b)           (b & BIT_MODE_MANUAL_0)
+#define MODE_MANUAL_1(b)           (b & BIT_MODE_MANUAL_1)
+#define MODE_TEST(b)               (b & BIT_MODE_TEST)
+#define OSCILLATION_VERTICAL(b)    (b & BIT_OSCILLATION_VERTICAL)
+#define OSCILLATION_HORIZONTAL(b)  (b & BIT_OSCILLATION_VERTICAL)
+#define OSCILLATION_SAW(b)         (b & BIT_OSCILLATION_SAW)
+#define OSCILLATION_STEP(b)        (b & BIT_OSCILLATION_STEP)
 
 flag_t controller_mode(state_controller_s * state)
 {
@@ -855,5 +855,22 @@ flag_t controller_state_fire_alarm(state_controller_s * state)
 		return STATE_FIRE_ALARM_ON;
 	}
 	return STATE_FIRE_ALARM_OFF;
+}
+
+flag_t controller_state_oscillation(state_controller_s * state)
+{
+	if(OSCILLATION_VERTICAL(state->work)){
+		return STATE_OSCILLATION_VERTICAL;
+	}
+	if(OSCILLATION_HORIZONTAL(state->work)){
+		return STATE_OSCILLATION_HORIZONTAL;
+	}
+	if(OSCILLATION_SAW(state->work)){
+		return STATE_OSCILLATION_SAW;
+	}
+	if(OSCILLATION_STEP(state->work)){
+		return STATE_OSCILLATION_STEP;
+	}
+	return STATE_OSCILLATION_ERROR;
 }
 /*****************************************************************************/
