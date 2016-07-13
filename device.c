@@ -871,6 +871,6 @@ flag_t controller_state_oscillation(state_controller_s * state)
 	if(OSCILLATION_STEP(state->work)){
 		return STATE_OSCILLATION_STEP;
 	}
-	return STATE_OSCILLATION_ERROR;
+	return STATE_OSCILLATION_STOP;
 }
 /*****************************************************************************/

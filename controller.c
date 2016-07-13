@@ -1344,7 +1344,7 @@ static flag_t push_command_queue(controller_s * controller,command_u command,fla
 
 	g_mutex_lock(control->mutex);
 
-	g_info("command : %d",control->command.part.value);
+	/*g_info("command : %d",controller->command.part.value);*/
 	if(controller->command.part.value == COMMAND_EMPTY){
 		controller->command.all = command.all;
 		/*g_info("command write");*/
@@ -2036,52 +2036,104 @@ static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command ={0};
+	flag_t oscillation;
+
 	if( controller == NULL){
 		g_info("Не выбран контроллер");
 		return;
 	}
-	if(bc->control->oscillation_flag == COMMAND_OSCILLATION_STOP){
+
+	oscillation = controller_state_oscillation(controller->state);
+
+	if(oscillation == STATE_OSCILLATION_STOP){
 		command.part.value = bc->control->oscillation_command.part.value;
-		bc->control->oscillation_flag = COMMAND_OSCILLATION_RUN;
 		push_command_queue(controller,command,NOT_OK);
 		g_info("Контроллер %s : команда \"Запуск Осциляции\"",controller->object->name);
 	}
+
 }
 static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
 {
  	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	command_u command = {0};
+
 	if( controller == NULL){
 	 	g_info("Не выбран контроллер");
 		return;
 	}
-	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
+
 	command.part.value = COMMAND_OSCILLATION_STOP;
 	push_command_queue(controller,command,OK);
 	g_info("Контроллер %s : команда \"Стоп Осциляции\"",controller->object->name);
 }
 
-static flag_t 
+static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation)
+{
+	GtkToggleButton * set;
+
+	switch(oscillation){
+		case COMMAND_OSCILLATION_VERTICAL:
+			set = bc->control->but_oscillation_horizontal;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_saw;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_step;
+			gtk_toggle_button_set_active(set,FALSE);
+			break;
+		case COMMAND_OSCILLATION_HORIZONTAL:
+			set = bc->control->but_oscillation_vertical;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_saw;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_step;
+			gtk_toggle_button_set_active(set,FALSE);
+			break;
+		case COMMAND_OSCILLATION_SAW:
+			set = bc->control->but_oscillation_vertical;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_horizontal;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_step;
+			gtk_toggle_button_set_active(set,FALSE);
+			break;
+		case COMMAND_OSCILLATION_STEP:
+			set = bc->control->but_oscillation_vertical;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_horizontal;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_saw;
+			gtk_toggle_button_set_active(set,FALSE);
+			break;
+		default:
+			set = bc->control->but_oscillation_vertical;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_horizontal;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_saw;
+			gtk_toggle_button_set_active(set,FALSE);
+			set = bc->control->but_oscillation_step;
+			gtk_toggle_button_set_active(set,FALSE);
+			break;
+	}
+
+	bc->control->oscillation_command.part.value = oscillation;
+
+	return SUCCESS;
+}
+
 static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
-	GtkToggleButton * set;
 
 	if( controller == NULL){
 	 	g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
-		set = bc->control->but_oscillation_horizontal;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_saw;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_step;
-		gtk_toggle_button_set_active(set,FALSE);
-		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_VERTICAL;
+		set_button_oscillation(bc,COMMAND_OSCILLATION_VERTICAL);
 		g_info("Контроллер %s : Установить вертикальную осциляцию",controller->object->name);
 	}
 }
@@ -2090,20 +2142,13 @@ static void button_clicked_oscillation_horizontal(GtkToggleButton * b,gpointer u
  	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
-	GtkToggleButton * set;
 
 	if( controller == NULL){
 	 	g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
-		set = bc->control->but_oscillation_vertical;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_saw;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_step;
-		gtk_toggle_button_set_active(set,FALSE);
-		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_HORIZONTAL;
+		set_button_oscillation(bc,COMMAND_OSCILLATION_HORIZONTAL);
 		g_info("Контроллер %s : Установить горизонтальную осциляцию",controller->object->name);
 	}
 }
@@ -2113,20 +2158,13 @@ static void button_clicked_oscillation_saw(GtkToggleButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
-	GtkToggleButton * set;
 
 	if( controller == NULL){
 	 	g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
-		set = bc->control->but_oscillation_vertical;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_horizontal;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_step;
-		gtk_toggle_button_set_active(set,FALSE);
-		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_SAW;
+		set_button_oscillation(bc,COMMAND_OSCILLATION_SAW);
 		g_info("Контроллер %s : Установить осциляцию пилой",controller->object->name);
 	}
 }
@@ -2135,20 +2173,13 @@ static void button_clicked_oscillation_step(GtkToggleButton * b,gpointer ud)
 	block_controller_s * bc = (block_controller_s*)ud;
 	controller_s * controller = bc->current;
 	flag_t state = gtk_toggle_button_get_active(b);
-	GtkToggleButton * set;
 
 	if( controller == NULL){
 	 	g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
-		set = bc->control->but_oscillation_vertical;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_horizontal;
-		gtk_toggle_button_set_active(set,FALSE);
-		set = bc->control->but_oscillation_saw;
-		gtk_toggle_button_set_active(set,FALSE);
-		bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STEP;
+		set_button_oscillation(bc,COMMAND_OSCILLATION_STEP);
 		g_info("Контроллер %s : Установить ступенчатую осциляцию",controller->object->name);
 	}
 }
@@ -2173,7 +2204,6 @@ static GtkWidget * create_block_oscillation(block_controller_s * bc)
 	label = gtk_label_new("Осциляция");
 
 	bc->control->oscillation_command.part.value = COMMAND_OSCILLATION_STOP;
-	bc->control->oscillation_flag = COMMAND_OSCILLATION_STOP;
 
 	but_run = gtk_button_new_with_label("Запустить");
 	gtk_widget_set_size_request(but_run,BUTTON_WIDTH,BUTTON_HEIGHT);
@@ -2290,8 +2320,29 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 /* Выбор контроллера                                                         */
 /*                                                                           */
 /*****************************************************************************/
-static set_oscillation(block_controller_s * bc,state_controller_s * state)
+static flag_t changed_oscillation(block_controller_s * bc,state_controller_s * state)
 {
+	flag_t oscillation = controller_state_oscillation(state);
+
+	switch(oscillation){
+		case STATE_OSCILLATION_VERTICAL:
+			set_button_oscillation(bc,COMMAND_OSCILLATION_VERTICAL);
+			break;
+		case STATE_OSCILLATION_HORIZONTAL:
+			set_button_oscillation(bc,COMMAND_OSCILLATION_HORIZONTAL);
+			break;
+		case STATE_OSCILLATION_SAW:
+			set_button_oscillation(bc,COMMAND_OSCILLATION_SAW);
+			break;
+		case STATE_OSCILLATION_STEP:
+			set_button_oscillation(bc,COMMAND_OSCILLATION_STEP);
+			break;
+		default:
+			set_button_oscillation(bc,COMMAND_OSCILLATION_STOP);
+			break;
+	}
+
+	return SUCCESS;
 }
 
 static flag_t	changed_block_controller(block_controller_s * bc
@@ -2302,7 +2353,7 @@ static flag_t	changed_block_controller(block_controller_s * bc
 	show_state_s * state = bc->state;
 	uint64_t flag = controller_config->flag;
 
-	set_oscillation(bc,controller_state);
+	changed_oscillation(bc,controller_state);
 
 	if(!ENGINE_VERTICAL(flag)){
 		set_button_not_active(control->but_up);
