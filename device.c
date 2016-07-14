@@ -574,6 +574,7 @@ flag_t device_write_command(link_s * link,command_u command)
 	if(rc == -1){
 		return FAILURE;
 	}
+	g_debug("write : register %#x : value %#x",reg,value);
 	return SUCCESS;
 }
 

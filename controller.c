@@ -2608,6 +2608,7 @@ static flag_t read_state_controller(link_s * link,controller_s * controller)
 	if(rc == FAILURE){
 		return rc;
 	}
+	/*g_debug(" work :> %#x",state.work);*/
 	g_mutex_lock(control->mutex);
 	controller_copy_state(controller->state,&state);
 	g_mutex_unlock(control->mutex);
