@@ -2052,21 +2052,6 @@ static void button_clicked_oscillation_run(GtkButton * b,gpointer ud)
 	}
 
 }
-static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
-{
- 	block_controller_s * bc = (block_controller_s*)ud;
-	controller_s * controller = bc->current;
-	command_u command = {0};
-
-	if( controller == NULL){
-	 	g_info("Не выбран контроллер");
-		return;
-	}
-
-	command.part.value = COMMAND_OSCILLATION_STOP;
-	push_command_queue(controller,command,OK);
-	g_info("Контроллер %s : команда \"Стоп Осциляции\"",controller->object->name);
-}
 
 static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation)
 {
@@ -2134,6 +2119,22 @@ static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation
 	return SUCCESS;
 }
 
+static void button_clicked_oscillation_stop(GtkButton * b,gpointer ud)
+{
+ 	block_controller_s * bc = (block_controller_s*)ud;
+	controller_s * controller = bc->current;
+	command_u command = {0};
+
+	if( controller == NULL){
+	 	g_info("Не выбран контроллер");
+		return;
+	}
+	set_button_oscillation(bc,COMMAND_OSCILLATION_STOP);
+	command.part.value = COMMAND_OSCILLATION_STOP;
+	push_command_queue(controller,command,OK);
+	g_info("Контроллер %s : команда \"Стоп Осциляции\"",controller->object->name);
+}
+
 static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 {
 	block_controller_s * bc = (block_controller_s*)ud;
@@ -2141,7 +2142,8 @@ static void button_clicked_oscillation_vertical(GtkToggleButton * b,gpointer ud)
 	flag_t state = gtk_toggle_button_get_active(b);
 
 	if( controller == NULL){
-	 	g_info("Не выбран контроллер");
+		if(!state)
+		 	g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
@@ -2156,7 +2158,8 @@ static void button_clicked_oscillation_horizontal(GtkToggleButton * b,gpointer u
 	flag_t state = gtk_toggle_button_get_active(b);
 
 	if( controller == NULL){
-	 	g_info("Не выбран контроллер");
+		if(!state)
+	 		g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
@@ -2172,7 +2175,8 @@ static void button_clicked_oscillation_saw(GtkToggleButton * b,gpointer ud)
 	flag_t state = gtk_toggle_button_get_active(b);
 
 	if( controller == NULL){
-	 	g_info("Не выбран контроллер");
+		if(!state)
+	 		g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
@@ -2187,7 +2191,8 @@ static void button_clicked_oscillation_step(GtkToggleButton * b,gpointer ud)
 	flag_t state = gtk_toggle_button_get_active(b);
 
 	if( controller == NULL){
-	 	g_info("Не выбран контроллер");
+		if(!state)
+	 		g_info("Не выбран контроллер");
 		return;
 	}
 	if(state){
