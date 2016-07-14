@@ -2323,7 +2323,7 @@ static GtkWidget * create_block_control(block_controller_s * bc)
 static flag_t changed_oscillation(block_controller_s * bc,state_controller_s * state)
 {
 	flag_t oscillation = controller_state_oscillation(state);
-
+	g_info("осциляция :> %d",oscillation);
 	switch(oscillation){
 		case STATE_OSCILLATION_VERTICAL:
 			set_button_oscillation(bc,COMMAND_OSCILLATION_VERTICAL);
