@@ -2074,6 +2074,9 @@ static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation
 
 	switch(oscillation){
 		case COMMAND_OSCILLATION_VERTICAL:
+			set = bc->control->but_oscillation_vertical;
+			gtk_toggle_button_set_active(set,TRUE);
+
 			set = bc->control->but_oscillation_horizontal;
 			gtk_toggle_button_set_active(set,FALSE);
 			set = bc->control->but_oscillation_saw;
@@ -2082,6 +2085,9 @@ static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation
 			gtk_toggle_button_set_active(set,FALSE);
 			break;
 		case COMMAND_OSCILLATION_HORIZONTAL:
+			set = bc->control->but_oscillation_horizontal;
+			gtk_toggle_button_set_active(set,TRUE);
+
 			set = bc->control->but_oscillation_vertical;
 			gtk_toggle_button_set_active(set,FALSE);
 			set = bc->control->but_oscillation_saw;
@@ -2090,6 +2096,9 @@ static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation
 			gtk_toggle_button_set_active(set,FALSE);
 			break;
 		case COMMAND_OSCILLATION_SAW:
+			set = bc->control->but_oscillation_saw;
+			gtk_toggle_button_set_active(set,TRUE);
+
 			set = bc->control->but_oscillation_vertical;
 			gtk_toggle_button_set_active(set,FALSE);
 			set = bc->control->but_oscillation_horizontal;
@@ -2098,6 +2107,9 @@ static flag_t  set_button_oscillation(block_controller_s * bc,flag_t oscillation
 			gtk_toggle_button_set_active(set,FALSE);
 			break;
 		case COMMAND_OSCILLATION_STEP:
+			set = bc->control->but_oscillation_step;
+			gtk_toggle_button_set_active(set,TRUE);
+
 			set = bc->control->but_oscillation_vertical;
 			gtk_toggle_button_set_active(set,FALSE);
 			set = bc->control->but_oscillation_horizontal;
