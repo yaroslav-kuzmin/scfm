@@ -860,6 +860,7 @@ flag_t controller_state_fire_alarm(state_controller_s * state)
 
 flag_t controller_state_oscillation(state_controller_s * state)
 {
+	g_info("регистр D108 : %#x",state->work);
 	if(OSCILLATION_VERTICAL(state->work)){
 		return STATE_OSCILLATION_VERTICAL;
 	}
@@ -873,5 +874,6 @@ flag_t controller_state_oscillation(state_controller_s * state)
 		return STATE_OSCILLATION_STEP;
 	}
 	return STATE_OSCILLATION_STOP;
+
 }
 /*****************************************************************************/
