@@ -753,8 +753,8 @@ flag_t controller_state_valve(state_controller_s * state)
 #define BIT_MODE_MANUAL_0             0x0200
 #define BIT_MODE_MANUAL_1             0x0400
 #define BIT_MODE_TEST                 0x0800
-#define BIT_OSCILLATION_VERTICAL      0x1000
-#define BIT_OSCILLATION_HORIZONTAL    0x2000
+#define BIT_OSCILLATION_HORIZONTAL    0x1000
+#define BIT_OSCILLATION_VERTICAL      0x2000
 #define BIT_OSCILLATION_SAW           0x4000
 #define BIT_OSCILLATION_STEP          0x8000
 
@@ -767,8 +767,8 @@ flag_t controller_state_valve(state_controller_s * state)
 #define MODE_MANUAL_0(b)           (b & BIT_MODE_MANUAL_0)
 #define MODE_MANUAL_1(b)           (b & BIT_MODE_MANUAL_1)
 #define MODE_TEST(b)               (b & BIT_MODE_TEST)
+#define OSCILLATION_HORIZONTAL(b)  (b & BIT_OSCILLATION_HORIZONTAL)
 #define OSCILLATION_VERTICAL(b)    (b & BIT_OSCILLATION_VERTICAL)
-#define OSCILLATION_HORIZONTAL(b)  (b & BIT_OSCILLATION_VERTICAL)
 #define OSCILLATION_SAW(b)         (b & BIT_OSCILLATION_SAW)
 #define OSCILLATION_STEP(b)        (b & BIT_OSCILLATION_STEP)
 
