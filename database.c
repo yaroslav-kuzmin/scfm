@@ -274,7 +274,6 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 	check_dot(pub->str);
 	g_string_append_printf(query,"%s",pub->str);
 	g_string_append_printf(query,")");
-	g_debug("query : %s",query->str);
 	return query_simple(query);
 }
 
