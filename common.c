@@ -644,6 +644,7 @@ flag_t init_system(void)
 
 	init_config();
 	init_logging();
+	g_debug("work catalog : %s",work_catalog->str);
 	g_message("Запуск : %s",STR_NAME_PROGRAMM);
 	g_info("Запуск : %s",STR_NAME_PROGRAMM);
 	init_resource();

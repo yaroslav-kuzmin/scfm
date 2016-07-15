@@ -131,7 +131,6 @@ static int database_open(GString * name)
 	if(name == NULL){
 		return FAILURE;
 	}
-
 	rc = sqlite3_open(name->str,&database); // откравает базу данных
 	if(rc != SQLITE_OK){
 		g_string_printf(pub,"Несмог открыть базу данных %s : %s!",name->str,sqlite3_errmsg(database));
@@ -595,6 +594,7 @@ int check_database(GString * work_catalog)
 
 	database_name = g_string_new(work_catalog->str);
 
+	g_debug("name databese : %s",database_name->str);
 	str = g_key_file_get_string(system_config,STR_GROUP_GLOBAL,STR_KEY_DATABASE,&err);
 	if(str == NULL){
 		g_string_append(database_name,STR_DATABASE_FILE);
