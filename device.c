@@ -267,6 +267,7 @@ static flag_t connect_uart(link_s * link)
 		link->connect = NULL;
 		return FAILURE;
 	}
+
 	/*TODO */
 	modbus_set_debug(ctx,TRUE);
 
@@ -319,10 +320,10 @@ flag_t device_read_state(link_s * link,state_controller_s * state)
 	}
 
 	modbus_set_slave(ctx,link->id);
-	
+
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-		g_debug("read ID %d",link->id);
+		g_debug(" error read ID %d",link->id);
 		return FAILURE;
 	}
 	g_debug("read ID %d,",link->id);
