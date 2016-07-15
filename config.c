@@ -544,13 +544,11 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 		return ;
 	}
 	/*TODO корректные свойства*/
-	g_debug(" 0");
 	property = new_property(config->type);
 	if(property == NULL){
 		dialog_info("Неустановлены свойства объекта");
 		return;
 	}
-	g_debug(" 1");
 
 	object = g_slice_alloc0(sizeof(object_s));
 	object->name = g_strdup(name);
@@ -568,7 +566,6 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 	}
 	g_debug(" 3");
 	add_object_treeview(config,object);
-	g_debug(" 4");
 }
 
 static void clicked_button_del(GtkButton * b,gpointer ud)

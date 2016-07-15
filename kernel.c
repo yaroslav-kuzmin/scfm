@@ -136,11 +136,13 @@ int add_object(object_s * parent,object_s * child)
 	if(parent->type == TYPE_GROUP){
 		number = parent->number;
 	}
+	g_debug("  0");
 	rc = add_object_database(number,child->number,child->name,child->type,child->property);
 	if(rc != SUCCESS){
 		return FAILURE;
 	}
 	parent->list = g_slist_append(parent->list,child);
+	g_debug("  1");
 	return SUCCESS;
 }
 
