@@ -622,6 +622,7 @@ int init_database(GString * work_catalog)
 	if(database == NULL){
 		rc = database_open(database_name);
 		if(rc != SUCCESS){
+			g_debug("databese 0");
 			return rc;
 		}
 	}

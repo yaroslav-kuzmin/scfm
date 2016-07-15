@@ -605,6 +605,8 @@ static flag_t check_system(void)
  	int rc;
 	const char * str = g_get_home_dir();
 
+	g_debug("home dir : %s",str);
+
 	work_catalog = g_string_new(str);
 	g_string_append(work_catalog,STR_WORK_CATALOG);
 
