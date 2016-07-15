@@ -625,6 +625,7 @@ int init_database(GString * work_catalog)
 			return rc;
 		}
 	}
+	g_debug("databese");
 	return SUCCESS;
 }
 
