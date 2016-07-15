@@ -141,8 +141,9 @@ int add_object(object_s * parent,object_s * child)
 	if(rc != SUCCESS){
 		return FAILURE;
 	}
-	parent->list = g_slist_append(parent->list,child);
 	g_debug("  1");
+	parent->list = g_slist_append(parent->list,child);
+	g_debug("  2");
 	return SUCCESS;
 }
 

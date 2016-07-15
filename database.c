@@ -67,6 +67,7 @@ static int query_simple(GString * q)
 		sqlite3_free(error_message);
 		return FAILURE;
 	}
+	g_debug("data 3");
 	return SUCCESS;
 }
 
@@ -241,7 +242,6 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 {
 	link_s * link = controller->link;
 	config_controller_s * config = controller->config;
-	g_debug("data 0");
 	g_string_printf(query,"INSERT INTO ");
 	g_string_append(query,STR_NAME_TABLE_CONTROLLER);
 	g_string_append_printf(query," VALUES (%d,",number);
@@ -274,7 +274,7 @@ static int add_table_controller(uint32_t number,controller_s * controller)
 	check_dot(pub->str);
 	g_string_append_printf(query,"%s",pub->str);
 	g_string_append_printf(query,")");
-	g_debug("data 1");
+	g_debug("query : %s",query->str);
 	return query_simple(query);
 }
 
