@@ -67,7 +67,6 @@ static int query_simple(GString * q)
 		sqlite3_free(error_message);
 		return FAILURE;
 	}
-	g_debug("data 3");
 	return SUCCESS;
 }
 
@@ -594,7 +593,6 @@ int check_database(GString * work_catalog)
 
 	database_name = g_string_new(work_catalog->str);
 
-	g_debug("name databese : %s",database_name->str);
 	str = g_key_file_get_string(system_config,STR_GROUP_GLOBAL,STR_KEY_DATABASE,&err);
 	if(str == NULL){
 		g_string_append(database_name,STR_DATABASE_FILE);
@@ -621,11 +619,9 @@ int init_database(GString * work_catalog)
 	if(database == NULL){
 		rc = database_open(database_name);
 		if(rc != SUCCESS){
-			g_debug("databese 0");
 			return rc;
 		}
 	}
-	g_debug("databese");
 	return SUCCESS;
 }
 
