@@ -2516,7 +2516,6 @@ int select_block_controller(controller_s * controller)
 	flag_t status;
 
 	if(controller == NULL){
-		block_controller.stop_show = OK;
 		old_controller = block_controller.current;
 		block_controller.current = NULL;
 		if( old_controller ){
@@ -2552,12 +2551,6 @@ int select_block_controller(controller_s * controller)
 	control->timeout = DEFAULT_TIMEOUT_CURRENT;
 	g_mutex_unlock(control->mutex);
 
-	if(block_controller.run_show == NOT_OK){
-	 	block_controller.run_show = OK;
-		block_controller.stop_show = NOT_OK;
- 		block_controller.state->counter_fire_alarm = 0;
-		g_timeout_add(block_controller.timeout_show,show_block_controller,&block_controller);
-	}
 current_controller_true:
 	g_info("Контроллер %s : Наблюдение установлено",controller->object->name);
 
@@ -2900,6 +2893,13 @@ static flag_t control_controllers_on(block_controller_s * bc)
 		connect_controllers(connect);
 		list = g_slist_next(list);
 	}
+	
+	if(bc->run_show == NOT_OK){
+	 	bc->run_show = OK;
+		bc->stop_show = NOT_OK;
+ 		bc->state->counter_fire_alarm = 0;
+		g_timeout_add(bc->timeout_show,show_block_controller,bc);
+	}
 
 	return SUCCESS;
 }
@@ -2941,7 +2941,10 @@ static flag_t control_controllers_off(block_controller_s * bc)
 		disconnect_controllers(connect);
 		list = g_slist_next(list);
 	}
-
+  /*отключение функции отображения контроллеров*/
+	if(bc->run_show == OK){
+		bc->stop_show = OK;
+	}	
 	return FAILURE;
 }
 
