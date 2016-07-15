@@ -323,11 +323,16 @@ flag_t device_read_state(link_s * link,state_controller_s * state)
 
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-		g_debug(" error read ID %d",link->id);
+		g_debug("ID %d : error read state",link->id);
 		return FAILURE;
 	}
-	g_debug("read ID %d,",link->id);
+	g_debug("ID %d : read state",link->id);
 	/*TODO запись чтение в разных потоках */
+	if(dest == NULL){
+		g_debug("dest NULL state");
+		return FAILURE;
+	}
+
 	set_state_controller(dest,state);
 	return SUCCESS;
 }
@@ -357,9 +362,15 @@ flag_t device_read_config(link_s * link,config_controller_s * config)
 
 	rc = modbus_read_registers(ctx,reg_D300,AMOUNT_CONFIG_REGISTER,dest);
 	if(rc == -1){
+		g_debug("ID %d : error read config",link->id);
 		return FAILURE;
 	}
+	g_debug("ID %d : read config",link->id);
 	/*TODO запись чтение в разных потоках */
+	if(dest == NULL){
+		g_debug("dest NULL config");
+		return FAILURE;
+	}
 	set_config_controller(dest,config);
 
 	return SUCCESS;
