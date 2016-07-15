@@ -2893,7 +2893,7 @@ static flag_t control_controllers_on(block_controller_s * bc)
 		connect_controllers(connect);
 		list = g_slist_next(list);
 	}
-	
+
 	if(bc->run_show == NOT_OK){
 	 	bc->run_show = OK;
 		bc->stop_show = NOT_OK;
@@ -2944,7 +2944,7 @@ static flag_t control_controllers_off(block_controller_s * bc)
   /*отключение функции отображения контроллеров*/
 	if(bc->run_show == OK){
 		bc->stop_show = OK;
-	}	
+	}
 	return FAILURE;
 }
 
