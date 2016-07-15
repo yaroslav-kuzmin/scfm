@@ -1226,18 +1226,14 @@ static void clicked_button_check(GtkButton * button,gpointer ud)
 		return;
 	}
 
-	g_debug(" 0");
 	bsc->link = link;
 	bsc->config = config;
 	bsc->state = state;
 	bsc->name = controller_name(config);
 	/*TODO сообщенийние что проверка корректна*/
-	g_debug(" 1");
 	fill_block_info(bsc);
 
-	g_debug(" 2");
 	device_disconnect(link);
-	g_debug(" 3");
 }
 
 static void clicked_radio_button_tcp(GtkRadioButton * rb,gpointer ud)
