@@ -3044,7 +3044,6 @@ static flag_t input_info_state(state_controller_s * state,state_controller_s * s
 
 static flag_t input_controller_status(controller_s * controller,control_controller_s * control)
 {
-	char * str;
 	flag_t copy_fire;
 	flag_t copy_info;
 	state_controller_s state;
