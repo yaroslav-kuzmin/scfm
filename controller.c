@@ -729,9 +729,17 @@ static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uin
 	flag_t info;
 	flag_t i;
 
-	info = state->info[STATE_INFO_NORM];
-	/*TODO сделать проверку на изменения*/
+	/*TODO обединеть два локальных массива в один при отображении и проверки статуса*/
+	info = controller_state_info(state);
 
+	if(info == STATE_INFO_ERROR){
+		str = info_controller_string(STATE_INFO_ERROR);
+		gtk_label_set_text(label,str);
+		apply_style_message_alarm(GTK_WIDGET(label),NULL);
+		return SUCCESS;
+	}
+
+	info = state->info[STATE_INFO_NORM];
 	if(info == OK){
 		gtk_label_set_text(label,STR_INFO_STATE_NORM);
 		apply_style_message_norm(GTK_WIDGET(label),NULL);
@@ -2653,12 +2661,12 @@ static flag_t read_controller(link_s * link,controller_s * controller)
 	if(rc == FAILURE){
 		return rc;
 	}
-	/*
+
 	rc = read_config_controller(link,controller);
 	if(rc == FAILURE){
 		return rc;
 	}
-	*/
+
 	return rc;
 }
 static flag_t connect_link(connect_s * connect)
@@ -3034,9 +3042,10 @@ static flag_t input_info_state(state_controller_s * state,state_controller_s * s
 	}
 
 
-	for(counter = (STATE_INFO_NORM + 1);counter > STATE_INFO_ERROR;counter++){
+	for(counter = (STATE_INFO_NORM + 1);counter < STATE_INFO_ERROR;counter++){
 		info = state->info[counter];
 		info_past = state_past->info[counter];
+
 		if(info == OK){
 			if(info != info_past){
 				rc = OK;
@@ -3085,7 +3094,8 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 
 flag_t controller_status(controller_s * controller)
 {
-	flag_t flag = STATUS_OFF;
+	flag_t status = STATUS_OFF;
+	flag_t status_past = controller->object->status;
 	control_controller_s * control;
 
 	if(controller == NULL){
@@ -3095,17 +3105,39 @@ flag_t controller_status(controller_s * controller)
 	control = controller->control;
 
 	g_mutex_lock(control->mutex);
-	flag = controller->status_link;
+	status = controller->status_link;
 	g_mutex_unlock(control->mutex);
 
-	switch(flag){
+	switch(status){
 		case STATUS_OFF:
-		case STATUS_ON_LINK_OFF:
-			controller->object->status = flag;
+			controller->object->status = STATUS_OFF;
 			return SUCCESS;
-		default:
-			controller->object->status = flag;
-			break;
+		case STATUS_ON_LINK_OFF:
+			controller->object->status = STATUS_ON_LINK_OFF;
+			return SUCCESS;
+	}
+
+	if(status != status_past){
+		if(status_past == STATUS_OFF){
+			switch(status){
+				case STATUS_ON_LINK_OFF:
+					controller->object->status = STATUS_ON_LINK_OFF;
+					return SUCCESS;
+				case STATUS_ON_NORM:
+					controller->object->status = STATUS_ON_NORM;
+					break;
+			}
+		}
+		if(status_past == STATUS_ON_LINK_OFF){
+			switch(status){
+				case STATUS_OFF:
+					controller->object->status = STATUS_OFF;
+					return SUCCESS;
+				case STATUS_ON_NORM:
+					controller->object->status = STATUS_ON_NORM;
+					break;
+			}
+		}
 	}
 
 	input_controller_status(controller,control);

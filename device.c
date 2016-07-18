@@ -814,83 +814,85 @@ flag_t controller_state_info(state_controller_s * state)
 	uint16_t work = state->work;
 	uint16_t lafet = state->lafet;
 	flag_t mode = controller_mode(state);
-	flag_t * info = state->info;
 
 	if(mode == STATE_MODE_ERROR){
-		*(info + STATE_INFO_NORM) = NOT_OK;
-		*(info + STATE_INFO_ERROR) = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
+		state->info[STATE_INFO_ERROR] = OK;
 		return STATE_INFO_ERROR;
 	}
 
-	*(info + STATE_INFO_NORM) = OK;
-	*(info + STATE_INFO_ERROR) = NOT_OK;
+	state->info[STATE_INFO_NORM] = OK;
+	state->info[STATE_INFO_ERROR] = NOT_OK;
 
 	if(!LIMIT_UP(lafet)){
-		*(info + STATE_INFO_LIMIT_VERTICAL) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_LIMIT_VERTICAL] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
 		if(!LIMIT_BOTTOM(lafet)){
-			*(info + STATE_INFO_LIMIT_VERTICAL) = OK;
-			*(info + STATE_INFO_NORM) = NOT_OK;
+			state->info[STATE_INFO_LIMIT_VERTICAL] = OK;
+			state->info[STATE_INFO_NORM] = NOT_OK;
 		}
 		else{
-			*(info + STATE_INFO_LIMIT_VERTICAL) = NOT_OK;
+			state->info[STATE_INFO_LIMIT_VERTICAL] = NOT_OK;
 		}
 	}
 
 	if(!LIMIT_LEFT(lafet)){
-		*(info + STATE_INFO_LIMIT_HORIZONTAL) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_LIMIT_HORIZONTAL] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
 		if(!LIMIT_RIGHT(lafet)){
-			*(info + STATE_INFO_LIMIT_HORIZONTAL) = OK;
-			*(info + STATE_INFO_NORM) = NOT_OK;
+			state->info[STATE_INFO_LIMIT_HORIZONTAL] = OK;
+			state->info[STATE_INFO_NORM] = NOT_OK;
 		}
 		else{
-			*(info + STATE_INFO_LIMIT_HORIZONTAL) = NOT_OK;
+			state->info[STATE_INFO_LIMIT_HORIZONTAL] = NOT_OK;
 		}
 	}
 
+	/*g_info("D108 : %#x",work);*/
 	if(ERROR_VERTICAL(work)){
-		*(info + STATE_INFO_CRASH_VERTICAL) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_CRASH_VERTICAL] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
+		/*g_info("0 vertical %d",state->info[STATE_INFO_CRASH_VERTICAL]);*/
 	}
 	else{
-		*(info + STATE_INFO_CRASH_VERTICAL) = NOT_OK;
+		state->info[STATE_INFO_CRASH_VERTICAL] = NOT_OK;
+		/*g_info("1 vertical %d",state->info[STATE_INFO_CRASH_VERTICAL]);*/
 	}
 
 	if(ERROR_HORIZONTAL(work)){
-		*(info + STATE_INFO_CRASH_HORIZONTAL) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_CRASH_HORIZONTAL] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		*(info + STATE_INFO_CRASH_HORIZONTAL) = NOT_OK;
+		state->info[STATE_INFO_CRASH_HORIZONTAL] = NOT_OK;
 	}
 
 	if(ERROR_ACTUATOR_SPRAY(work)){
-		*(info + STATE_INFO_CRASH_SPARY) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_CRASH_SPARY] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		*(info + STATE_INFO_CRASH_SPARY) = NOT_OK;
+		state->info[STATE_INFO_CRASH_SPARY] = NOT_OK;
 	}
 
 	if(ERROR_ACTUATOR_RATE(work)){
-		*(info + STATE_INFO_CRASH_RATE) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_CRASH_RATE] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		*(info + STATE_INFO_CRASH_RATE) = NOT_OK;
+		state->info[STATE_INFO_CRASH_RATE] = NOT_OK;
 	}
 
 	if(ERROR_VALVE(work)){
-		*(info + STATE_INFO_CRASH_VALVE) = OK;
-		*(info + STATE_INFO_NORM) = NOT_OK;
+		state->info[STATE_INFO_CRASH_VALVE] = OK;
+		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		*(info + STATE_INFO_CRASH_VALVE) = NOT_OK;
+		state->info[STATE_INFO_CRASH_VALVE] = NOT_OK;
 	}
 
 	return STATE_INFO_NORM;
