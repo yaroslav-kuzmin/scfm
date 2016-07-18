@@ -2675,17 +2675,21 @@ static flag_t connect_link(connect_s * connect)
 
 	for(;list;){
 		controller_s * controller = list->data;
+		g_debug("controller id : %d",controller->link->id);
 		rc = read_controller(link,controller);
 		if(rc == FAILURE){
 			number ++;
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_LINK_OFF;
 			controller_null_state(controller->state);
+			controller->reconnect = NOT_OK;
 			g_mutex_unlock(&(connect->mutex));
 		}
 		else{
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_NORM;
+			controller->reconnect = NOT_OK;
+			controller_copy_state(controller->state_past,controller->state);
 			g_mutex_unlock(&(connect->mutex));
 		}
 		list = g_slist_next(list);
@@ -2749,12 +2753,22 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 					g_mutex_lock(&(connect->mutex));
 					controller->status_link = STATUS_ON_LINK_OFF;
 					controller_null_state(controller->state);
+					controller->reconnect = NOT_OK;
 					g_mutex_unlock(&(connect->mutex));
 				}
 			}
 		}
 		else{
-			/*TODO сделать проверку подсоединения*/
+			if(controller->reconnect == OK){
+				rc = read_state_controller(link,controller);
+				if(rc == SUCCESS){
+					g_mutex_lock(&(connect->mutex));
+					controller->status_link = STATUS_ON_NORM;
+					controller->reconnect = NOT_OK;
+					g_mutex_unlock(&(connect->mutex));
+				}
+				number ++;
+			}
 			number ++;
 		}
 		list = g_slist_next(list);

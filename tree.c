@@ -196,6 +196,11 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 	}
 #endif
 }
+static gboolean button_press_event_tree_view(GtkWidget *w,GdkEvent *event,gpointer ud)
+{
+	g_info("test button press");
+	return FALSE;
+}
 
 static flag_t init_image(block_tree_s * bt)
 {
@@ -357,6 +362,7 @@ GtkWidget * create_block_tree_object(void)
 	g_signal_connect(treeview,"realize",G_CALLBACK(tree_view_realize_main),&block_tree);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(row_activated_tree_view),NULL);
 	g_signal_connect(treeview,"cursor-changed",G_CALLBACK(cursor_changed_tree_view),NULL);
+	g_signal_connect(treeview,"button-press-event",G_CALLBACK(button_press_event_tree_view),NULL);
 	g_object_unref(model);
 
 	block_tree.view = GTK_TREE_VIEW(treeview);

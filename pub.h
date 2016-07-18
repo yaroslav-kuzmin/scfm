@@ -675,6 +675,7 @@ struct _controller_s
 	flag_t type;
 
 	flag_t status_link;
+	flag_t reconnect;
 	char * str_status;
 
 	link_s * link;
