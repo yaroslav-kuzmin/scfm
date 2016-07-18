@@ -198,7 +198,7 @@ static void cursor_changed_tree_view(GtkTreeView * tv,gpointer ud)
 }
 static gboolean button_press_event_tree_view(GtkWidget *w,GdkEvent *event,gpointer ud)
 {
-	g_info("test button press");
+	/*g_info("test button press");*/
 	return FALSE;
 }
 

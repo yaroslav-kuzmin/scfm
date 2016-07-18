@@ -321,11 +321,13 @@ flag_t device_read_state(link_s * link,state_controller_s * state)
 
 	modbus_set_slave(ctx,link->id);
 
+	/*g_debug("ID %d ",link->id);*/
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
+		/*g_debug("read state : failure");*/
 		return FAILURE;
 	}
-	g_debug("ID %d : read state",link->id);
+	/*g_debug("read state : success");*/
 	/*TODO запись чтение в разных потоках */
 	if(dest == NULL){
 		return FAILURE;
@@ -363,10 +365,8 @@ flag_t device_read_config(link_s * link,config_controller_s * config)
 		g_debug("ID %d : error read config",link->id);
 		return FAILURE;
 	}
-	g_debug("ID %d : read config",link->id);
 	/*TODO запись чтение в разных потоках */
 	if(dest == NULL){
-		g_debug("dest NULL config");
 		return FAILURE;
 	}
 	set_config_controller(dest,config);
@@ -589,7 +589,7 @@ flag_t device_write_command(link_s * link,command_u command)
 	if(rc == -1){
 		return FAILURE;
 	}
-	g_debug("write : register %#x : value %#x",reg,value);
+	/*g_debug("write : register %#x : value %#x",reg,value);*/
 	return SUCCESS;
 }
 
@@ -918,7 +918,6 @@ flag_t controller_state_oscillation(state_controller_s * state)
 		return STATE_OSCILLATION_ERROR;
 	}
 
-	g_info("регистр D108 : %#x",state->work);
 	if(OSCILLATION_VERTICAL(state->work)){
 		return STATE_OSCILLATION_VERTICAL;
 	}

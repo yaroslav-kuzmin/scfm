@@ -966,9 +966,7 @@ static int show_block_controller(gpointer data)
 		return FALSE; /*завершить работу*/
 	}
 	if(controller == NULL){
- 		/*контроллер не выбран*/
-		bc->run_show = NOT_OK;
-		return FALSE;
+		return TRUE;
 	}
 
 	g_mutex_lock(controller->control->mutex);
@@ -2595,7 +2593,7 @@ static flag_t read_state_controller(link_s * link,controller_s * controller)
 	if(rc == FAILURE){
 		return rc;
 	}
-	/*g_debug(" work :> %#x",state.work);*/
+	/*g_debug(" tic_vertical :> %#x",state.tic_vertical);*/
 	g_mutex_lock(control->mutex);
 	controller_copy_state(controller->state,&state);
 	g_mutex_unlock(control->mutex);
@@ -2655,10 +2653,12 @@ static flag_t read_controller(link_s * link,controller_s * controller)
 	if(rc == FAILURE){
 		return rc;
 	}
+	/*
 	rc = read_config_controller(link,controller);
 	if(rc == FAILURE){
 		return rc;
 	}
+	*/
 	return rc;
 }
 static flag_t connect_link(connect_s * connect)
@@ -2675,9 +2675,9 @@ static flag_t connect_link(connect_s * connect)
 
 	for(;list;){
 		controller_s * controller = list->data;
-		g_debug("controller id : %d",controller->link->id);
 		rc = read_controller(link,controller);
 		if(rc == FAILURE){
+			g_debug("controller id : %d error",controller->link->id);
 			number ++;
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_LINK_OFF;
@@ -2691,6 +2691,7 @@ static flag_t connect_link(connect_s * connect)
 			controller->reconnect = NOT_OK;
 			controller_copy_state(controller->state_past,controller->state);
 			g_mutex_unlock(&(connect->mutex));
+			g_debug("controller id : %d : success %d",controller->link->id,controller->status_link);
 		}
 		list = g_slist_next(list);
 	}
@@ -2749,6 +2750,7 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 			if(rc == SUCCESS){
 				rc = read_write_controller(link,controller);
 				if(rc == FAILURE){
+					g_debug(" read ID %d : failure",link->id);
 					number ++;
 					g_mutex_lock(&(connect->mutex));
 					controller->status_link = STATUS_ON_LINK_OFF;
@@ -2756,6 +2758,8 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 					controller->reconnect = NOT_OK;
 					g_mutex_unlock(&(connect->mutex));
 				}
+				g_debug(" read ID %d : success %d ",link->id,controller->status_link);
+
 			}
 		}
 		else{
@@ -2773,6 +2777,7 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 		}
 		list = g_slist_next(list);
 	}
+
 	list = connect->list_controllers;
 	if( number == g_slist_length(list)){
 		/*все контролеры не активны */
@@ -3098,6 +3103,9 @@ flag_t controller_status(controller_s * controller)
 		case STATUS_ON_LINK_OFF:
 			controller->object->status = flag;
 			return SUCCESS;
+		default:
+			controller->object->status = flag;
+			break;
 	}
 
 	input_controller_status(controller,control);
