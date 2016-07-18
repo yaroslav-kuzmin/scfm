@@ -202,7 +202,7 @@ flag_t object_status(object_s * object)
 {
 	flag_t status = object->status;
 	int type = object->type;
-
+	/*изменение статуса обекта , на совести конктерных обектов*/
 	switch (type){
 		case TYPE_CONTROLLER:
 			controller_status(object->property);
@@ -216,6 +216,7 @@ flag_t object_status(object_s * object)
 		default:
 			break;
 	}
+
 	if(status != object->status){
 		char * str = MESSAGE_STATUS_OFF;
 		status = object->status;
@@ -223,17 +224,11 @@ flag_t object_status(object_s * object)
 			case STATUS_ON_NORM:
 				str = MESSAGE_STATUS_ON_NORM;
 				break;
-			case STATUS_ON_ERROR_LINK:
-				str = MESSAGE_STATUS_ON_ERROR_LINK;
-				break;
 			case STATUS_ON_CRASH:
 				str = MESSAGE_STATUS_ON_CRASH;
 				break;
 			case STATUS_ON_WARNING:
 				str = MESSAGE_STATUS_ON_WARNING;
-				break;
-			case STATUS_ON_LINK_ON:
-				str = MESSAGE_STATUS_ON_LINK_ON;
 				break;
 			case STATUS_ON_LINK_OFF:
 				str = MESSAGE_STATUS_ON_LINK_OFF;

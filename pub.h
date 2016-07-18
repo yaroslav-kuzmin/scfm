@@ -120,11 +120,9 @@ enum
 {
 	STATUS_OFF = 0,
 	STATUS_ON_NORM,
-	STATUS_ON_LINK_ON,
 	STATUS_ON_LINK_OFF,
 	STATUS_ON_CRASH,
 	STATUS_ON_WARNING,
- 	STATUS_ON_ERROR_LINK,
 	AMOUNT_STATUS
 };
 
@@ -132,8 +130,6 @@ extern char MESSAGE_STATUS_OFF[];
 extern char MESSAGE_STATUS_ON_NORM[];
 extern char MESSAGE_STATUS_ON_CRASH[];
 extern char MESSAGE_STATUS_ON_WARNING[];
-extern char MESSAGE_STATUS_ON_ERROR_LINK[];
-extern char MESSAGE_STATUS_ON_LINK_ON[];
 extern char MESSAGE_STATUS_ON_LINK_OFF[];
 
 /* расширеная информация о состоянии*/
@@ -601,7 +597,7 @@ struct _state_controller_s
 	uint16_t fire_sensor;
 	uint16_t fire_alarm;
 	uint16_t device;
-
+	flag_t info[AMOUNT_STATE_CONTROLLER];
 };
 
 /*комманды контроллера*/

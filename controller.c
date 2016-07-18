@@ -640,15 +640,15 @@ static flag_t show_console(show_state_s * show_state,show_control_s * show_contr
 	return SUCCESS;
 }
 
-static char STR_INFO_MODE_ERROR_LINK[] = "Нет Соединения";
-static char STR_INFO_MODE_AUTO[]       = "Автоматически режим работы";
-static char STR_INFO_MODE_MANUAL[]     = "Ручной режим работы";
-static char STR_INFO_MODE_TEST[]       = "Режим тестирования";
+static char STR_INFO_MODE_LINK_OFF[] = "Нет Соединения";
+static char STR_INFO_MODE_AUTO[]     = "Автоматически режим работы";
+static char STR_INFO_MODE_MANUAL[]   = "Ручной режим работы";
+static char STR_INFO_MODE_TEST[]     = "Режим тестирования";
 
 static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 {
 	flag_t mode = controller_mode(state);
-	char * str = STR_INFO_MODE_ERROR_LINK;
+	char * str = STR_INFO_MODE_LINK_OFF;
 	switch(mode){
 		case STATE_MODE_AUTO:
 			str = STR_INFO_MODE_AUTO;
@@ -671,8 +671,8 @@ static flag_t show_message_mode(GtkLabel * label,state_controller_s * state)
 	return SUCCESS;
 }
 /*используется при выводе сообщений для каждого контроллера*/
-static char STR_INFO_STATE_ERROR_LINK[]       = "Нет подключения!";
 static char STR_INFO_STATE_NORM[]             = "Норма";
+static char STR_INFO_STATE_LINK_OFF[]         = "Нет подключения!";
 static char STR_INFO_STATE_LIMIT_VERTICAL[]   = "Предел по вертикале ";
 static char STR_INFO_STATE_LIMIT_HORIZONTAL[] = "Предел по горизонтали";
 static char STR_INFO_STATE_CRASH_VERTICAL[]   = "Авария вертикальной оси";
@@ -711,91 +711,66 @@ static char * info_controller_string(flag_t info)
 			str = STR_INFO_STATE_NORM;
 			break;
 		default:
-			str = STR_INFO_STATE_ERROR_LINK;
+			str = STR_INFO_STATE_LINK_OFF;
 			break;
 	}
 	return str;
 }
 
-static flag_t all_info_controller[AMOUNT_STATE_CONTROLLER];
-static flag_t info_controller_number(state_controller_s * state,flag_t number)
-{
-	flag_t i;
-	flag_t * info;
-
-	if(number > AMOUNT_STATE_CONTROLLER){
-		ERROR_PROGRAM;
-		return STATE_INFO_ERROR;;
-	}
-
-	info = all_info_controller;
-	for(i=0;i< AMOUNT_STATE_CONTROLLER;i++){
-		*info = STATE_INFO_ERROR;
-		info++;
-	}
-	info = all_info_controller;
-
-	controller_info(state,info);
-
-	i = *(info + number);
-
-	return i;
-}
-
-static flag_t current_info_message = 0;
-static flag_t info_controller_first(void)
-{
-	flag_t rc;
-	current_info_message = 0;
-	flag_t * info = all_info_controller;
-	rc = *info;
-	return rc;
-}
-static flag_t info_controller_next(void)
-{
-	flag_t rc;
-	flag_t * info = all_info_controller;
-	current_info_message ++;
-	if(current_info_message > AMOUNT_STATE_CONTROLLER){
-		current_info_message = 0;
-	}
-	rc = *(info + current_info_message);
-	return rc;
-}
 
 #define WAIT_MESSAGE_IN_SECOND      2
-static uint32_t show_count_message = 0;
-static uint32_t show_next_message = 0;
+static uint32_t info_show_count = 0;
+static flag_t info_show = STATE_INFO_NORM;
+
 
 static flag_t show_message_state(GtkLabel * label,state_controller_s * state,uint32_t timeout)
 {
 	char * str;
 	flag_t info;
+	flag_t i;
 
-	info = info_controller_number(state,show_next_message);
+	info = state->info[STATE_INFO_NORM];
+	/*TODO сделать проверку на изменения*/
 
-	if(info == STATE_INFO_NORM){
+	if(info == OK){
 		gtk_label_set_text(label,STR_INFO_STATE_NORM);
 		apply_style_message_norm(GTK_WIDGET(label),NULL);
-		show_next_message = 0;
+		info_show = STATE_INFO_NORM;
+		info_show_count = MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND;
 		return SUCCESS;
 	}
 
-	if((info == STATE_INFO_ERROR) || (info == STATE_ERROR)){
-		info = info_controller_first();
-		show_next_message = 0;
+	info_show_count += timeout;
+	if(info_show_count < (MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND)){
+		return SUCCESS;
 	}
 
-	str = info_controller_string(info);
+	info_show_count = 0;
+	/*проверяем массив справа от значения */
+	for( (i = info_show + 1);i < STATE_INFO_ERROR;i ++){
+		info = state->info[i];
+		if(info == OK){
+			info_show = i;
+			break;
+		}
+	}
+
+	if(info_show != i){
+		/* если справа нет , проверяем сначала и слева от значения */
+		for(i = (STATE_INFO_NORM + 1);i < STATE_INFO_ERROR;i++){
+			info = state->info[i];
+			if(info == OK){
+				info_show = i;
+				break;
+			}
+		}
+	}
+
+	str = info_controller_string(info_show);
 
 	gtk_label_set_text(label,str);
 	apply_style_message_alarm(GTK_WIDGET(label),NULL);
 
-	show_count_message += timeout;
-	if(show_count_message == (MILLISECOND_PER_SECOND * WAIT_MESSAGE_IN_SECOND)){
-		show_count_message = 0;
-		show_next_message ++;
-	}
 	return SUCCESS;
 }
 
@@ -1033,7 +1008,7 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 	gtk_frame_set_shadow_type(GTK_FRAME(frame_mode),GTK_SHADOW_NONE);
 	gtk_widget_set_size_request(frame_mode,-1,40);
 
-	lab_mode = gtk_label_new(STR_INFO_MODE_ERROR_LINK);
+	lab_mode = gtk_label_new(STR_INFO_MODE_LINK_OFF);
 	layout_widget(lab_mode,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_widget_set_size_request(lab_mode,300,-1);
 	bc->state->lab_mode = GTK_LABEL(lab_mode);
@@ -1046,7 +1021,7 @@ static GtkWidget * create_block_state_message(block_controller_s * bc)
 
 	lab_static = gtk_label_new("Cостояние установки :");
 
-	lab_state = gtk_label_new(STR_INFO_STATE_ERROR_LINK);
+	lab_state = gtk_label_new(STR_INFO_STATE_LINK_OFF);
 	layout_widget(lab_state,GTK_ALIGN_CENTER,GTK_ALIGN_CENTER,FALSE,FALSE);
 	gtk_widget_set_size_request(lab_state,300,-1);
 	bc->state->lab_state = GTK_LABEL(lab_state);
@@ -2704,13 +2679,13 @@ static flag_t connect_link(connect_s * connect)
 		if(rc == FAILURE){
 			number ++;
 			g_mutex_lock(&(connect->mutex));
-			controller->status_link = STATUS_ON_ERROR_LINK;
+			controller->status_link = STATUS_ON_LINK_OFF;
 			controller_null_state(controller->state);
 			g_mutex_unlock(&(connect->mutex));
 		}
 		else{
 			g_mutex_lock(&(connect->mutex));
-			controller->status_link = STATUS_ON_LINK_ON;
+			controller->status_link = STATUS_ON_NORM;
 			g_mutex_unlock(&(connect->mutex));
 		}
 		list = g_slist_next(list);
@@ -2765,16 +2740,22 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 
 	for(;list;){
 		controller_s * controller = list->data;
-		rc = check_timeout_controller(controller,timeout);
-		if(rc == SUCCESS){
-			rc = read_write_controller(link,controller);
-			if(rc == FAILURE){
-				number ++;
-				g_mutex_lock(&(connect->mutex));
-				controller->status_link = STATUS_ON_ERROR_LINK;
-				controller_null_state(controller->state);
-				g_mutex_unlock(&(connect->mutex));
+		if(controller->status_link == STATUS_ON_NORM){
+			rc = check_timeout_controller(controller,timeout);
+			if(rc == SUCCESS){
+				rc = read_write_controller(link,controller);
+				if(rc == FAILURE){
+					number ++;
+					g_mutex_lock(&(connect->mutex));
+					controller->status_link = STATUS_ON_LINK_OFF;
+					controller_null_state(controller->state);
+					g_mutex_unlock(&(connect->mutex));
+				}
 			}
+		}
+		else{
+			/*TODO сделать проверку подсоединения*/
+			number ++;
 		}
 		list = g_slist_next(list);
 	}
@@ -2804,7 +2785,7 @@ static gpointer connect_communication(gpointer ud)
 			break;
 		}
 		rc = device_check_connect(link);
-		if(rc == STATUS_ON_LINK_ON){
+		if(rc == STATUS_ON_NORM){
 			controllers_communication(connect,timeout);
 		}
 		else{
@@ -2815,7 +2796,7 @@ static gpointer connect_communication(gpointer ud)
 			rc = connect_link(connect);
 			if(rc == SUCCESS){
 				g_mutex_lock(&(connect->mutex));
-				connect->status = STATUS_ON_LINK_ON;
+				connect->status = STATUS_ON_NORM;
 				g_mutex_unlock(&(connect->mutex));
 			}
 		}
@@ -2965,14 +2946,107 @@ flag_t control_controllers(flag_t mode)
 /*****************************************************************************/
 /*  опрос состояние и отображения                                            */
 /*****************************************************************************/
+static flag_t input_fire_state(state_controller_s * state,state_controller_s * state_past
+                               ,object_s * object)
+{
+	flag_t rc = NOT_OK;
+	flag_t fire;
+	flag_t fire_past;
+
+	fire = controller_state_fire_alarm(state);
+	fire_past = controller_state_fire_alarm(state_past);
+
+	if(fire != fire_past){
+		rc = OK;
+		switch(fire){
+			case STATE_FIRE_ALARM_ON:
+				g_info("Контроллер %s : ПОЖАР",object->name);
+				object->status = STATUS_ON_CRASH;
+				break;
+			case STATE_FIRE_ALARM_OFF:
+				g_info("Контроллер %s : Отбой ПОЖАР",object->name);
+				object->status = STATUS_ON_NORM;
+				break;
+			case STATE_FIRE_ALARM_ERROR:
+			default:
+				g_info("Контроллер %s : Неизвестное состояние",object->name);
+				object->status = STATUS_ON_WARNING;
+				break;
+		}
+	}
+
+	return rc;
+}
+static flag_t input_info_state(state_controller_s * state,state_controller_s * state_past
+                               ,object_s * object)
+{
+	flag_t rc = NOT_OK;
+	flag_t counter = 0;
+	flag_t info;
+	flag_t info_past;
+
+	/*заполнили массив info*/
+	info = controller_state_info(state);
+	info_past = controller_state_info(state_past);
+
+	if(info == STATE_INFO_ERROR){
+		if(info != info_past){
+			g_info("Контроллер %s : Неизвестное состояние",object->name);
+			object->status = STATUS_ON_WARNING;
+			return OK;
+		}
+		else{
+			return NOT_OK;
+		}
+	}
+
+	info = state->info[STATE_INFO_NORM];
+	info_past = state_past->info[STATE_INFO_NORM];
+
+	if(info == OK){
+		if(info != info_past){
+			g_info("Контроллер %s : %s",object->name,info_controller_string(STATE_INFO_NORM));
+			object->status = STATUS_ON_NORM;
+			return OK;
+		}
+		else{
+			return NOT_OK;
+		}
+	}
+
+
+	for(counter = (STATE_INFO_NORM + 1);counter > STATE_INFO_ERROR;counter++){
+		info = state->info[counter];
+		info_past = state_past->info[counter];
+		if(info == OK){
+			if(info != info_past){
+				rc = OK;
+				g_info("Контроллер %s : %s",object->name,info_controller_string(counter));
+				switch(counter){
+					case STATE_INFO_LIMIT_VERTICAL:
+					case STATE_INFO_LIMIT_HORIZONTAL:
+						object->status = STATUS_ON_WARNING;
+						break;
+					case STATE_INFO_CRASH_VERTICAL:
+					case STATE_INFO_CRASH_HORIZONTAL:
+					case STATE_INFO_CRASH_SPARY:
+					case STATE_INFO_CRASH_RATE:
+					case STATE_INFO_CRASH_VALVE:
+					default:
+						object->status = STATUS_ON_CRASH;
+						break;
+				}
+			}
+		}
+	}
+	return rc;
+}
+
 static flag_t input_controller_status(controller_s * controller,control_controller_s * control)
 {
 	char * str;
-	flag_t info;
-	flag_t info_past;
-	flag_t fire;
-	flag_t fire_past;
-	flag_t copy = NOT_OK;
+	flag_t copy_fire;
+	flag_t copy_info;
 	state_controller_s state;
 	state_controller_s * state_past = controller->state_past;
 
@@ -2980,60 +3054,14 @@ static flag_t input_controller_status(controller_s * controller,control_controll
 	controller_copy_state(&state,controller->state);
 	g_mutex_unlock(control->mutex);
 
-	fire = controller_state_fire_alarm(&state);
-	fire_past = controller_state_fire_alarm(state_past);
+	copy_fire = input_fire_state(&state,state_past,controller->object);
 
-	if(fire != fire_past){
-		if(fire == STATE_FIRE_ALARM_ON){
-			g_info("Контроллер %s : ПОЖАР",controller->object->name);
-			controller->object->status = STATUS_ON_CRASH;
-		}
-		else{
-			g_info("Контроллер %s : Отбой ПОЖАР",controller->object->name);
-			controller->object->status = STATUS_ON_NORM;
-		}
-		copy = OK;
-	}
+	copy_info = input_info_state(&state,state_past,controller->object);
 
-	info = info_controller_number(&state,0);
-	info_past = info_controller_number(state_past,0);
-
-	if(info != info_past){
-		if(fire == STATE_FIRE_ALARM_OFF){
-			if(info == STATE_INFO_NORM){
-				controller->object->status = STATUS_ON_NORM;
-			}
-			else{
-				controller->object->status = STATUS_ON_WARNING;
-			}
-		}
-
-		for(;;){
-			str = info_controller_string(info);
-			switch(info){
-				case STATE_INFO_CRASH_VERTICAL:
-				case STATE_INFO_CRASH_HORIZONTAL:
-				case STATE_INFO_CRASH_SPARY:
-				case STATE_INFO_CRASH_RATE:
-				case STATE_INFO_CRASH_VALVE:
-					controller->object->status = STATUS_ON_CRASH;
-					break;
-				default:
-				  break;
-			}
-			g_info("Контроллер %s : %s",controller->object->name,str);
-			info = info_controller_next();
-			if((info == STATE_INFO_ERROR) || (info == STATE_ERROR)){
-				break;
-			}
-
-		}
-		copy = OK;
-	}
-
-	if(copy == OK){
+	if( (copy_fire == OK) || (copy_info == OK)){
 		controller_copy_state(state_past,&state);
 	}
+
 	return SUCCESS;
 }
 
@@ -3054,7 +3082,6 @@ flag_t controller_status(controller_s * controller)
 
 	switch(flag){
 		case STATUS_OFF:
-		case STATUS_ON_ERROR_LINK:
 		case STATUS_ON_LINK_OFF:
 			controller->object->status = flag;
 			return SUCCESS;

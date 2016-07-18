@@ -49,7 +49,7 @@ char * controller_name(config_controller_s * config);
 flag_t controller_state_valve(state_controller_s * state);
 flag_t controller_mode(state_controller_s * state);
 flag_t controller_state_fire_alarm(state_controller_s * state);
-flag_t controller_info(state_controller_s * state,flag_t * info);
+flag_t controller_state_info(state_controller_s * state);
 flag_t controller_state_oscillation(state_controller_s * state);
 
 flag_t device_connect(link_s * link);

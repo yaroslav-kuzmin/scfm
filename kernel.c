@@ -293,12 +293,12 @@ flag_t set_status_list(GSList * list)
 			case STATUS_OFF:
 				status = rc;
 				break;
-			case STATUS_ON_ERROR_LINK:
 			case STATUS_ON_WARNING:
 				if(status != STATUS_ON_CRASH){
 					status = STATUS_ON_WARNING;
 				}
 				break;
+			case STATUS_ON_LINK_OFF:
 			case STATUS_ON_NORM:
 			default:
 				break;

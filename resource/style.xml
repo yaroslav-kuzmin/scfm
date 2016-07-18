@@ -47,7 +47,7 @@
 	<gresource prefix="/style">
 		<file>assets/scfm.png</file>
 		<file>assets/tree-status-on-normal.png</file>
-		<file>assets/tree-status-on-error-link.png</file>
+		<file>assets/tree-status-on-link-off.png</file>
 		<file>assets/tree-status-on-crash.png</file>
 		<file>assets/tree-status-on-warning.png</file>
 		<file>assets/tree-status-off.png</file>

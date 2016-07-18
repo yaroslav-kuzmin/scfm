@@ -59,7 +59,7 @@ flag_t device_check_connect(link_s * link)
 	if(link->connect == NULL){
 		return STATUS_ON_LINK_OFF;
 	}
-	return STATUS_ON_LINK_ON;
+	return STATUS_ON_NORM;
 }
 
 /*****************************************************************************/
@@ -323,13 +323,11 @@ flag_t device_read_state(link_s * link,state_controller_s * state)
 
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-		g_debug("ID %d : error read state",link->id);
 		return FAILURE;
 	}
 	g_debug("ID %d : read state",link->id);
 	/*TODO запись чтение в разных потоках */
 	if(dest == NULL){
-		g_debug("dest NULL state");
 		return FAILURE;
 	}
 
@@ -811,64 +809,101 @@ flag_t controller_mode(state_controller_s * state)
 }
 
 
-flag_t controller_info(state_controller_s * state,flag_t * info)
+flag_t controller_state_info(state_controller_s * state)
 {
 	uint16_t work = state->work;
 	uint16_t lafet = state->lafet;
 	flag_t mode = controller_mode(state);
+	flag_t * info = state->info;
 
 	if(mode == STATE_MODE_ERROR){
+		*(info + STATE_INFO_NORM) = NOT_OK;
+		*(info + STATE_INFO_ERROR) = OK;
 		return STATE_INFO_ERROR;
 	}
 
-	*info = STATE_INFO_NORM;
+	*(info + STATE_INFO_NORM) = OK;
+	*(info + STATE_INFO_ERROR) = NOT_OK;
 
 	if(!LIMIT_UP(lafet)){
-		*info = STATE_INFO_LIMIT_VERTICAL;
-		info ++;
+		*(info + STATE_INFO_LIMIT_VERTICAL) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
 	else{
 		if(!LIMIT_BOTTOM(lafet)){
-			*info = STATE_INFO_LIMIT_VERTICAL;
-			info ++;
+			*(info + STATE_INFO_LIMIT_VERTICAL) = OK;
+			*(info + STATE_INFO_NORM) = NOT_OK;
+		}
+		else{
+			*(info + STATE_INFO_LIMIT_VERTICAL) = NOT_OK;
 		}
 	}
+
 	if(!LIMIT_LEFT(lafet)){
-		*info = STATE_INFO_LIMIT_HORIZONTAL;
-		info ++;
+		*(info + STATE_INFO_LIMIT_HORIZONTAL) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
 	else{
 		if(!LIMIT_RIGHT(lafet)){
-			*info = STATE_INFO_LIMIT_HORIZONTAL;
-			info ++;
+			*(info + STATE_INFO_LIMIT_HORIZONTAL) = OK;
+			*(info + STATE_INFO_NORM) = NOT_OK;
+		}
+		else{
+			*(info + STATE_INFO_LIMIT_HORIZONTAL) = NOT_OK;
 		}
 	}
 
 	if(ERROR_VERTICAL(work)){
-		*info = STATE_INFO_CRASH_VERTICAL;
-		info ++;
+		*(info + STATE_INFO_CRASH_VERTICAL) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
+	else{
+		*(info + STATE_INFO_CRASH_VERTICAL) = NOT_OK;
+	}
+
 	if(ERROR_HORIZONTAL(work)){
-		*info = STATE_INFO_CRASH_HORIZONTAL;
-		info ++;
+		*(info + STATE_INFO_CRASH_HORIZONTAL) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
+	else{
+		*(info + STATE_INFO_CRASH_HORIZONTAL) = NOT_OK;
+	}
+
 	if(ERROR_ACTUATOR_SPRAY(work)){
-		*info = STATE_INFO_CRASH_SPARY;
-		info ++;
+		*(info + STATE_INFO_CRASH_SPARY) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
+	else{
+		*(info + STATE_INFO_CRASH_SPARY) = NOT_OK;
+	}
+
 	if(ERROR_ACTUATOR_RATE(work)){
-		*info = STATE_INFO_CRASH_RATE;
-		info ++;
+		*(info + STATE_INFO_CRASH_RATE) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
+	else{
+		*(info + STATE_INFO_CRASH_RATE) = NOT_OK;
+	}
+
 	if(ERROR_VALVE(work)){
-		*info = STATE_INFO_CRASH_VALVE;
-		info++;
+		*(info + STATE_INFO_CRASH_VALVE) = OK;
+		*(info + STATE_INFO_NORM) = NOT_OK;
 	}
-	return SUCCESS;
+	else{
+		*(info + STATE_INFO_CRASH_VALVE) = NOT_OK;
+	}
+
+	return STATE_INFO_NORM;
 }
 
 flag_t controller_state_fire_alarm(state_controller_s * state)
 {
+	flag_t mode = controller_mode(state);
+
+	if(mode == STATE_MODE_ERROR){
+		return STATE_FIRE_ALARM_ERROR;
+	}
+
 	if(state->fire_alarm){
 		return STATE_FIRE_ALARM_ON;
 	}
@@ -877,6 +912,12 @@ flag_t controller_state_fire_alarm(state_controller_s * state)
 
 flag_t controller_state_oscillation(state_controller_s * state)
 {
+	flag_t mode = controller_mode(state);
+
+	if(mode == STATE_MODE_ERROR){
+		return STATE_OSCILLATION_ERROR;
+	}
+
 	g_info("регистр D108 : %#x",state->work);
 	if(OSCILLATION_VERTICAL(state->work)){
 		return STATE_OSCILLATION_VERTICAL;

@@ -204,8 +204,8 @@ static flag_t init_image(block_tree_s * bt)
 	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-normal");
 	bt->image[STATUS_ON_NORM] = buf;
 
-	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-error-link");
-	bt->image[STATUS_ON_ERROR_LINK] = buf;
+	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-link-off");
+	bt->image[STATUS_ON_LINK_OFF] = buf;
 
 	buf = get_resource_image(RESOURCE_STYLE,"tree-status-on-crash");
 	bt->image[STATUS_ON_CRASH] = buf;

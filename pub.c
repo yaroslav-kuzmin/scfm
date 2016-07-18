@@ -53,13 +53,11 @@ char STR_TYPE_GROUP[] = "группа";
 char STR_TYPE_VIDEOCAMERE[] = "видеокамера";
 char STR_TYPE_CONTROLLER[] = "контроллер";
 
-char MESSAGE_STATUS_OFF[]           = "Отключена";
+char MESSAGE_STATUS_OFF[]           = "Нет управления";
 char MESSAGE_STATUS_ON_NORM[]       = "Норма";
 char MESSAGE_STATUS_ON_CRASH[]      = "Авария";
 char MESSAGE_STATUS_ON_WARNING[]    = "Предупреждение";
-char MESSAGE_STATUS_ON_ERROR_LINK[] = "Ошибка чтения/записи";
-char MESSAGE_STATUS_ON_LINK_ON[]    = "Подключение";
-char MESSAGE_STATUS_ON_LINK_OFF[]   = "Отключение";
+char MESSAGE_STATUS_ON_LINK_OFF[]   = "Нет подключения";
 
 GdkRGBA color_black =      {0    ,0    ,0    ,1};
 GdkRGBA color_green =      {0    ,1    ,0    ,1};
