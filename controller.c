@@ -2690,6 +2690,7 @@ static flag_t connect_link(connect_s * connect)
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_LINK_OFF;
 			controller_null_state(controller->state);
+			controller_null_state(controller->state_past);
 			controller->reconnect = NOT_OK;
 			g_mutex_unlock(&(connect->mutex));
 		}
@@ -2697,7 +2698,7 @@ static flag_t connect_link(connect_s * connect)
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_NORM;
 			controller->reconnect = NOT_OK;
-			controller_copy_state(controller->state_past,controller->state);
+			controller_null_state(controller->state_past);
 			g_mutex_unlock(&(connect->mutex));
 			g_debug("controller id : %d : success %d",controller->link->id,controller->status_link);
 		}
