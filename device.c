@@ -324,7 +324,7 @@ flag_t device_read_state(link_s * link,state_controller_s * state)
 	/*g_debug("ID %d ",link->id);*/
 	rc = modbus_read_registers(ctx,reg_D100,AMOUNT_STATE_REGISTER,dest);
 	if(rc == -1){
-		/*g_debug("read state : failure");*/
+		g_debug("ID %d : error read state",link->id);
 		return FAILURE;
 	}
 	/*g_debug("read state : success");*/
