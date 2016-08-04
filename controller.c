@@ -2747,7 +2747,8 @@ static flag_t check_timeout_controller(controller_s * controller,uint32_t timeou
 	}
 	return rc;
 }
-
+/*таймаут между двумя пакетами на разные контроллеры 0,01 секкунду */
+#define TIMEOUT_RTU      10000 
 static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 {
 	flag_t rc;
@@ -2760,6 +2761,8 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 		if(controller->status_link == STATUS_ON_NORM){
 			rc = check_timeout_controller(controller,timeout);
 			if(rc == SUCCESS){
+				/*таймаут зависит от скорости передачи минимум 4 символа */
+				g_usleep(TIMEOUT_RTU);
 				rc = read_write_controller(link,controller);
 				if(rc == FAILURE){
 					g_debug(" read ID %d : failure",link->id);
@@ -2771,7 +2774,6 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 					g_mutex_unlock(&(connect->mutex));
 				}
 				g_debug(" read ID %d : success %d ",link->id,controller->status_link);
-
 			}
 		}
 		else{
