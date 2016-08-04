@@ -2669,7 +2669,7 @@ static flag_t read_controller(link_s * link,controller_s * controller)
 
 	return rc;
 }
-static flag_t connect_link(connect_s * connect)
+static flag_t connect_link(connect_s * connect,uint32_t timeout)
 {
 	flag_t rc;
 	guint number = 0;
@@ -2683,6 +2683,9 @@ static flag_t connect_link(connect_s * connect)
 
 	for(;list;){
 		controller_s * controller = list->data;
+		/*опрос по шине с задержкой */
+		g_usleep(timeout);
+
 		rc = read_controller(link,controller);
 		if(rc == FAILURE){
 			g_debug("controller id : %d error",controller->link->id);
@@ -2821,7 +2824,7 @@ static gpointer connect_communication(gpointer ud)
 			connect->status = STATUS_ON_LINK_OFF;
 			set_status_controllers(connect,STATUS_ON_LINK_OFF);
 			g_mutex_unlock(&(connect->mutex));
-			rc = connect_link(connect);
+			rc = connect_link(connect,timeout);
 			if(rc == SUCCESS){
 				g_mutex_lock(&(connect->mutex));
 				connect->status = STATUS_ON_NORM;
