@@ -2685,7 +2685,6 @@ static flag_t connect_link(connect_s * connect,uint32_t timeout)
 		controller_s * controller = list->data;
 		/*опрос по шине с задержкой */
 		g_usleep(timeout);
-
 		rc = read_controller(link,controller);
 		if(rc == FAILURE){
 			g_debug("controller id : %d error",controller->link->id);
@@ -2747,8 +2746,8 @@ static flag_t check_timeout_controller(controller_s * controller,uint32_t timeou
 	}
 	return rc;
 }
-/*таймаут между двумя пакетами на разные контроллеры 0,01 секкунду */
-#define TIMEOUT_RTU      10000 
+/*таймаут между двумя пакетами на разные контроллеры 0,01 секунды */
+#define TIMEOUT_RTU      10000
 static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 {
 	flag_t rc;

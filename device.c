@@ -236,6 +236,9 @@ static flag_t connect_tcp(link_s * link)
 		modbus_free(ctx);
 		return FAILURE;
 	}
+
+	modbus_set_debug(ctx,FALSE);
+
 	link->connect = ctx;
 	link->dest = g_slice_alloc0(MODBUS_TCP_MAX_ADU_LENGTH);
 	return SUCCESS;
@@ -268,8 +271,7 @@ static flag_t connect_uart(link_s * link)
 		return FAILURE;
 	}
 
-	/*TODO */
-	modbus_set_debug(ctx,TRUE);
+	modbus_set_debug(ctx,FALSE);
 
 	link->connect = ctx;
 	link->dest = g_slice_alloc0(MODBUS_RTU_MAX_ADU_LENGTH);
