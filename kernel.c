@@ -273,7 +273,8 @@ int deinit_kernel(void)
 }
 
 /*****************************************************************************/
-flag_t set_status_list(GSList * list)
+
+static flag_t read_status_list(GSList * list)
 {
 	int rc;
 	int status = STATUS_ON_NORM;
@@ -281,11 +282,11 @@ flag_t set_status_list(GSList * list)
 	for(;list;){
 		object_s * o = (object_s*)list->data;
 		if(o->type == TYPE_GROUP){
-			rc = set_status_list(o->list);
+			rc = read_status_list(o->list);
 	 		o->status = rc;
 		}
 		else{
-			rc = object_status(o);
+			rc = read_object_status(o);
 		}
 
 		switch(rc){
@@ -308,10 +309,32 @@ flag_t set_status_list(GSList * list)
 	return status;
 }
 
-flag_t kernel_status()
+flag_t read_kernel_status()
 {
 	GSList * list = kernel.list;
-	set_status_list(list);
+	read_status_list(list);
+	return SUCCESS;
+}
+
+static flag_t set_status_list(GSList * list,flag_t status)
+{
+
+	for(;list;){
+		object_s * o = (object_s*)list->data;
+		if(o->type == TYPE_GROUP){
+			set_status_list(o->list,status);
+		}
+ 		o->status = status;
+
+		list = g_slist_next(list);
+	}
+	return status;
+}
+
+flag_t set_kernel_status(flag_t status)
+{
+	GSList * list = kernel.list;
+	set_status_list(list,status);
 	return SUCCESS;
 }
 /*****************************************************************************/

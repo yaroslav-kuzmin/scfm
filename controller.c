@@ -2687,7 +2687,7 @@ static flag_t connect_link(connect_s * connect,uint32_t timeout)
 		g_usleep(timeout);
 		rc = read_controller(link,controller);
 		if(rc == FAILURE){
-			g_debug("controller id : %d error",controller->link->id);
+			/*g_debug("controller id : %d error",controller->link->id);*/
 			number ++;
 			g_mutex_lock(&(connect->mutex));
 			controller->status_link = STATUS_ON_LINK_OFF;
@@ -2702,7 +2702,8 @@ static flag_t connect_link(connect_s * connect,uint32_t timeout)
 			controller->reconnect = NOT_OK;
 			controller_null_state(controller->state_past);
 			g_mutex_unlock(&(connect->mutex));
-			g_debug("controller id : %d : success %d",controller->link->id,controller->status_link);
+			/*g_debug("controller id : %d : success %d",controller->link->id,controller->status_link);*/
+			/*g_debug("status D108 : %#x",controller->state->work);*/
 		}
 		list = g_slist_next(list);
 	}
@@ -2764,7 +2765,7 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 				g_usleep(TIMEOUT_RTU);
 				rc = read_write_controller(link,controller);
 				if(rc == FAILURE){
-					g_debug(" read ID %d : failure",link->id);
+					/*g_debug(" read ID %d : failure",link->id);*/
 					number ++;
 					g_mutex_lock(&(connect->mutex));
 					controller->status_link = STATUS_ON_LINK_OFF;
@@ -2772,7 +2773,7 @@ static flag_t controllers_communication(connect_s * connect,uint32_t timeout)
 					controller->reconnect = NOT_OK;
 					g_mutex_unlock(&(connect->mutex));
 				}
-				g_debug(" read ID %d : success %d ",link->id,controller->status_link);
+				/*g_debug(" read ID %d : success %d ",link->id,controller->status_link);*/
 			}
 		}
 		else{
@@ -2839,12 +2840,12 @@ static gpointer connect_communication(gpointer ud)
 
 	g_mutex_lock(&(connect->mutex));
 	thread = connect->thread;
-	connect->thread = NULL;
 	connect->status = STATUS_OFF;
 	set_status_controllers(connect,STATUS_OFF);
+	connect->thread = NULL;
 	g_mutex_unlock(&(connect->mutex));
-
 	g_thread_exit(thread);
+
 
 	return NULL;
 }
@@ -2856,31 +2857,24 @@ static flag_t connect_controllers(connect_s * connect)
 	GSList * list = connect->list_controllers;
 	GThread * thread;
 
-	g_mutex_lock(&(connect->mutex));
-	thread = connect->thread;
-	g_mutex_unlock(&(connect->mutex));
-
 	for(;list;){
 		controller_s * controller = (controller_s*)list->data;
 		control_controller_s * control = controller->control;
 
-		if(thread == NULL){
-			controller_null_state(controller->state);
-			controller_null_state(controller->state_past);
-			control->timeout = DEFAULT_TIMEOUT_ALL;
-			control->counter = DEFAULT_TIMEOUT_ALL;
-			controller->command.all = COMMAND_EMPTY;
-			g_info("Контроллер инициализирован : %s",controller->object->name);
-		}
-		else{
-			g_mutex_lock(control->mutex);
-			control->timeout = DEFAULT_TIMEOUT_ALL;
-			controller->command.all = COMMAND_EMPTY;
-			g_mutex_unlock(control->mutex);
-			g_info("Контроллер инициализирован повторно : %s",controller->object->name);
-		}
+		g_mutex_lock(control->mutex);
+		controller_null_state(controller->state);
+		controller_null_state(controller->state_past);
+		control->timeout = DEFAULT_TIMEOUT_ALL;
+		control->counter = DEFAULT_TIMEOUT_ALL;
+		controller->command.all = COMMAND_EMPTY;
+		g_mutex_unlock(control->mutex);
+		g_info("Контроллер инициализирован : %s",controller->object->name);
 		list = g_slist_next(list);
 	}
+
+	g_mutex_lock(&(connect->mutex));
+	thread = connect->thread;
+	g_mutex_unlock(&(connect->mutex));
 
 	if(thread == NULL){
 		connect->timeout = DEFAULT_TIMEOUT_CONNECT;
@@ -2929,6 +2923,7 @@ static flag_t disconnect_controllers(connect_s * connect)
 		g_mutex_lock(&(connect->mutex));
 		connect->timeout = 0; /*функция потока завершит свою работу и закроет соединение*/
 		g_mutex_unlock(&(connect->mutex));
+		/*TODO ожидание заверщения потока */
 		g_info("Отключение от интерфейса : <%s>",connect->name);
 	}
 
@@ -3018,6 +3013,8 @@ static flag_t input_info_state(state_controller_s * state,state_controller_s * s
 	flag_t info_past;
 
 	/*заполнили массив info*/
+	g_info(" state      : %#x",state->work);
+	g_info(" state past : %#x",state_past->work);
 	info = controller_state_info(state);
 	info_past = controller_state_info(state_past);
 

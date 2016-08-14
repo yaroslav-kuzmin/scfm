@@ -815,6 +815,7 @@ flag_t controller_state_info(state_controller_s * state)
 {
 	uint16_t work = state->work;
 	uint16_t lafet = state->lafet;
+/*
 	flag_t mode = controller_mode(state);
 
 	if(mode == STATE_MODE_ERROR){
@@ -822,7 +823,7 @@ flag_t controller_state_info(state_controller_s * state)
 		state->info[STATE_INFO_ERROR] = OK;
 		return STATE_INFO_ERROR;
 	}
-
+*/
 	state->info[STATE_INFO_NORM] = OK;
 	state->info[STATE_INFO_ERROR] = NOT_OK;
 
@@ -902,12 +903,13 @@ flag_t controller_state_info(state_controller_s * state)
 
 flag_t controller_state_fire_alarm(state_controller_s * state)
 {
+/*
 	flag_t mode = controller_mode(state);
 
 	if(mode == STATE_MODE_ERROR){
 		return STATE_FIRE_ALARM_ERROR;
 	}
-
+*/
 	if(state->fire_alarm){
 		return STATE_FIRE_ALARM_ON;
 	}

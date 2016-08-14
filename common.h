@@ -50,7 +50,7 @@ extern GKeyFile * system_config;
 extern char STR_GROUP_GLOBAL[];
 flag_t set_flag_save_config(void);
 
-flag_t set_mode_work(int mode,GtkWidget * w);
+flag_t set_mode_work(flag_t mode,GtkWidget * w);
 flag_t get_mode_work(void);
 
 flag_t init_system(void);

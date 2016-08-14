@@ -50,7 +50,8 @@ object_s * get_kernel(void);
 GSList * list_kernel(void);
 uint32_t next_number_kernel(void);
 
-flag_t kernel_status(void);
+flag_t read_kernel_status(void);
+flag_t set_kernel_status(flag_t status);
 int del_property(int type,void * property);
 int init_kernel(void);
 int deinit_kernel(void);

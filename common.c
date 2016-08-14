@@ -558,18 +558,74 @@ GtkWidget * builder_widget(flag_t module, char * name)
 /*****************************************************************************/
 /*  Система                                                                  */
 /*****************************************************************************/
+static gboolean destroy_dialog_wait(gpointer ud)
+{
+	GtkWidget * dialog = (GtkWidget *)ud;
+	gtk_widget_destroy(dialog);
+	return FALSE;
+}
 
-static int mode_work = MODE_NOT_WORK;
+static char STR_MODE_ON[]  = "Инициализация систем";
+static char STR_MODE_OFF[] = "Деинициализация системы";
 
-flag_t set_mode_work(int mode,GtkWidget * win_main)
+static flag_t create_window_wait(flag_t mode)
+{
+	GtkWidget * dialog;
+	GtkWidget * box;
+	char * str = STR_MODE_OFF;
+	GtkWidget * label;
+	GtkWidget * spiner;
+
+	return SUCCESS;
+
+	dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_container_set_border_width(GTK_CONTAINER(dialog),10);
+	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER_ALWAYS);
+	gtk_window_set_decorated(GTK_WINDOW(dialog),FALSE);
+	gtk_window_set_title(GTK_WINDOW(dialog),STR_NAME_PROGRAMM);
+	gtk_widget_set_size_request(dialog,400,100);
+
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+
+	if(mode == MODE_CONTROL_ON){
+		str = STR_MODE_ON;
+	}
+	label = gtk_label_new(str);
+
+	spiner = gtk_spinner_new();
+
+	gtk_container_add(GTK_CONTAINER(dialog),box);
+
+	gtk_box_pack_start(GTK_BOX(box),label,TRUE,TRUE,5);
+	gtk_box_pack_start(GTK_BOX(box),spiner,TRUE,TRUE,5);
+	gtk_spinner_start(GTK_SPINNER(spiner));
+
+	apply_style_main(dialog,NULL);
+
+	gtk_widget_show(dialog);
+	gtk_widget_show(box);
+	gtk_widget_show(label);
+	gtk_widget_show(spiner);
+
+	g_timeout_add((1000 * 3),destroy_dialog_wait,dialog);
+
+	return SUCCESS;
+}
+
+static flag_t mode_work = MODE_NOT_WORK;
+
+flag_t set_mode_work(flag_t mode,GtkWidget * win_main)
 {
 	mode_work = mode;
 	switch(mode_work){
 		case MODE_CONTROL_OFF:
-			select_object(NULL);
 		case MODE_CONTROL_ON:
-			control_controllers(mode_work);
+			select_object(NULL);
+			set_kernel_status(STATUS_OFF);
 			tree_check_status(mode_work);
+			control_controllers(mode_work);
+			/*искуственный таймаут*/
+			create_window_wait(mode_work);
 			break;
 		case MODE_CONFIGURATION:
 			create_window_config(win_main);
@@ -577,6 +633,7 @@ flag_t set_mode_work(int mode,GtkWidget * win_main)
 			break;
 		default:
 			mode_work = MODE_NOT_WORK;
+			control_controllers(MODE_CONTROL_OFF);
 			tree_check_status(MODE_CONTROL_OFF);
 			break;
 	}

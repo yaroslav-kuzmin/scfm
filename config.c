@@ -556,7 +556,6 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 	object->number = next_number_kernel();
 	object->property = property;
 
-	g_debug(" 2");
 	rc = add_object(config->group,object);
 	if(rc == FAILURE){
 		del_property(config->type,property);
@@ -564,7 +563,6 @@ static void clicked_button_add(GtkButton * b,gpointer ud)
 		dialog_error("Неудалось добавить в базу данных");
 		return;
 	}
-	g_debug(" 3");
 	add_object_treeview(config,object);
 }
 

@@ -198,7 +198,7 @@ GtkWidget * create_block_object(void)
 }
 
 /*****************************************************************************/
-flag_t object_status(object_s * object)
+flag_t read_object_status(object_s * object)
 {
 	flag_t status = object->status;
 	int type = object->type;

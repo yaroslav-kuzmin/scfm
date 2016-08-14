@@ -61,15 +61,14 @@ enum
 	AMOUNT_COLUMN_TREE
 };
 
+typedef struct _block_tree_s block_tree_s;
 struct _block_tree_s
 {
 	GtkTreeView * view;
 	GdkPixbuf * image[AMOUNT_STATUS];
 	uint32_t timeout_show;
-	flag_t show;
 	flag_t mode;
 };
-typedef struct _block_tree_s block_tree_s;
 /*****************************************************************************/
 /*    Локальные функции                                                      */
 /*****************************************************************************/
@@ -230,14 +229,7 @@ static flag_t init_image(block_tree_s * bt)
 static flag_t set_status_object(block_tree_s * bt,GtkTreeModel * tree_model,GtkTreeIter * iter,int status)
 {
 	GdkPixbuf * image;
-
-	if(bt->mode == MODE_CONTROL_ON){
-		image = bt->image[status];
-	}
-	else{
-		image = bt->image[STATUS_OFF];
-	}
-
+	image = bt->image[status];
 	gtk_tree_store_set(GTK_TREE_STORE(tree_model),iter,COLUMN_IMAGE_TREE,image,-1);
 	return SUCCESS;
 }
@@ -282,11 +274,11 @@ static int show_block_tree(gpointer ud)
 {
 	block_tree_s * bt = (block_tree_s*)ud;
 
-	if(bt->show == NOT_OK){
+	if(bt->mode == MODE_CONTROL_OFF){
 		return FALSE;
 	}
 
-	kernel_status();
+	read_kernel_status();
 	tree_view_status(bt);
 
 	return TRUE;
@@ -299,18 +291,16 @@ static void tree_view_realize_main(GtkWidget * w,gpointer ud)
 
 /*****************************************************************************/
 
-block_tree_s block_tree;
+static block_tree_s block_tree;
 
 flag_t tree_check_status(flag_t mode)
 {
 	if(mode == MODE_CONTROL_ON){
 		block_tree.mode = MODE_CONTROL_ON;
-		block_tree.show = OK;
 		g_timeout_add(block_tree.timeout_show,show_block_tree,&block_tree);
 	}
 	else{
 		block_tree.mode = MODE_CONTROL_OFF;
-		block_tree.show = NOT_OK;
 		tree_view_status(&block_tree);
 	}
 
@@ -341,7 +331,7 @@ GtkWidget * create_block_tree_object(void)
 	GtkTreeStore * model;
 
 	block_tree.timeout_show = DEFAULT_TIMEOUT_SHOW;
-	block_tree.show = NOT_OK;
+	block_tree.mode = MODE_CONTROL_OFF;
 
 	init_image(&block_tree);
 
