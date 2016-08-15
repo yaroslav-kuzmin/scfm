@@ -566,7 +566,7 @@ static gboolean destroy_dialog_wait(gpointer ud)
 }
 
 static char STR_MODE_ON[]  = "Инициализация систем";
-static char STR_MODE_OFF[] = "Деинициализация системы";
+static char STR_MODE_OFF[] = "Деинициализация систем";
 
 static flag_t create_window_wait(flag_t mode)
 {
@@ -575,8 +575,6 @@ static flag_t create_window_wait(flag_t mode)
 	char * str = STR_MODE_OFF;
 	GtkWidget * label;
 	GtkWidget * spiner;
-
-	return SUCCESS;
 
 	dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_container_set_border_width(GTK_CONTAINER(dialog),10);
