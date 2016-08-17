@@ -3013,8 +3013,8 @@ static flag_t input_info_state(state_controller_s * state,state_controller_s * s
 	flag_t info_past;
 
 	/*заполнили массив info*/
-	g_info(" state      : %#x",state->work);
-	g_info(" state past : %#x",state_past->work);
+	/*g_info(" state      : %#x",state->work);*/
+	/*g_info(" state past : %#x",state_past->work);*/
 	info = controller_state_info(state);
 	info_past = controller_state_info(state_past);
 

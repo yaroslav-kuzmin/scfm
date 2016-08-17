@@ -827,12 +827,13 @@ flag_t controller_state_info(state_controller_s * state)
 	state->info[STATE_INFO_NORM] = OK;
 	state->info[STATE_INFO_ERROR] = NOT_OK;
 
-	if(!LIMIT_UP(lafet)){
+	/*g_info("lafet : %#x",lafet);*/
+	if(LIMIT_UP(lafet)){
 		state->info[STATE_INFO_LIMIT_VERTICAL] = OK;
 		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		if(!LIMIT_BOTTOM(lafet)){
+		if(LIMIT_BOTTOM(lafet)){
 			state->info[STATE_INFO_LIMIT_VERTICAL] = OK;
 			state->info[STATE_INFO_NORM] = NOT_OK;
 		}
@@ -841,12 +842,12 @@ flag_t controller_state_info(state_controller_s * state)
 		}
 	}
 
-	if(!LIMIT_LEFT(lafet)){
+	if(LIMIT_LEFT(lafet)){
 		state->info[STATE_INFO_LIMIT_HORIZONTAL] = OK;
 		state->info[STATE_INFO_NORM] = NOT_OK;
 	}
 	else{
-		if(!LIMIT_RIGHT(lafet)){
+		if(LIMIT_RIGHT(lafet)){
 			state->info[STATE_INFO_LIMIT_HORIZONTAL] = OK;
 			state->info[STATE_INFO_NORM] = NOT_OK;
 		}
