@@ -1,2 +1,3 @@
 *.png diff=exif
+*.tar binary
 
