@@ -43,7 +43,7 @@
 
 OS_LINUX=Linux
 OS_WINDOWS=Windows
-OS=$(shell uname)
+OS:=$(shell uname)
 ifneq '$(OS)' '$(OS_LINUX)'
 OS=$(OS_WINDOWS)
 endif
